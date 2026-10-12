@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useProjects } from "../hooks/use-projects";
 
@@ -35,8 +36,10 @@ export function EditProject({
       websiteUrl: project.websiteUrl || "",
       isPublic: project.isPublic,
     },
-    mode: "onBlur",
+    mode: "onChange",
   });
+
+  const descriptionLength = form.watch("description")?.length ?? 0;
 
   const onSubmit = async (data: z.infer<typeof updateProjectInput>) => {
     try {
@@ -106,7 +109,8 @@ export function EditProject({
                   id={field.name}
                   placeholder="Provide a brief description of your project to help team members understand its purpose..."
                   rows={4}
-                  className={`resize-none ${
+                  maxLength={500}
+                  className={`resize-none break-all ${
                     fieldState.invalid
                       ? "border-red-500 focus:ring-red-500"
                       : ""
@@ -119,9 +123,36 @@ export function EditProject({
                     {fieldState.error?.message}
                   </p>
                 )}
-                <p className="mt-1 text-gray-500 text-xs">
-                  {field.value?.length || 0}/500 characters
+                <p
+                  className={`mt-1 text-xs ${
+                    descriptionLength > 500 ? "text-red-500" : "text-gray-500"
+                  }`}
+                >
+                  {descriptionLength}/500 characters
                 </p>
+              </div>
+            )}
+          />
+
+          <Controller
+            name="isPublic"
+            control={form.control}
+            render={({ field }) => (
+              <div className="flex items-center justify-between rounded-lg border bg-background p-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="edit-project-visibility" className="text-sm">
+                    Public project
+                  </Label>
+                  <p className="text-muted-foreground text-xs">
+                    When enabled, project metadata may be visible to others.
+                  </p>
+                </div>
+                <Switch
+                  id="edit-project-visibility"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  disabled={isUpdating}
+                />
               </div>
             )}
           />

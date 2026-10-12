@@ -134,26 +134,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </SidebarMenuItem>
               )}
               {status === "success" &&
-                projects.map((project) => (
-                  <SidebarMenuItem key={project.slug}>
-                    <SidebarMenuButton
-                      variant={
-                        isActive(`/dashboard/projects/${project.slug}`)
-                          ? "active"
-                          : "inActive"
-                      }
-                      isActive={isActive(`/dashboard/projects/${project.slug}`)}
-                      asChild
-                    >
-                      <Link
-                        href={`/dashboard/projects/${project.slug}` as Route}
+                projects
+                  .filter((project) => project.slug?.trim())
+                  .map((project) => (
+                    <SidebarMenuItem key={project.id}>
+                      <SidebarMenuButton
+                        variant={
+                          isActive(`/dashboard/projects/${project.slug}`)
+                            ? "active"
+                            : "inActive"
+                        }
+                        isActive={isActive(
+                          `/dashboard/projects/${project.slug}`,
+                        )}
+                        asChild
                       >
-                        <FolderIcon />
-                        <span>{project.name}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                        <Link
+                          href={`/dashboard/projects/${project.slug}` as Route}
+                        >
+                          <FolderIcon />
+                          <span>{project.name}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

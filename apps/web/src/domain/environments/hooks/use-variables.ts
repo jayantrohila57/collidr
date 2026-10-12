@@ -246,16 +246,35 @@ export function useVariables(environmentId: string) {
         next.delete(varId);
         return next;
       });
-    } else {
-      const result = await queryClient.fetchQuery(
-        trpc.environmentVariables.get.queryOptions({ id: varId }),
+      queryClient.removeQueries({ queryKey: ["revealedValue", varId] });
+      return;
+    }
+
+    const result = await queryClient.fetchQuery(
+      trpc.environmentVariables.get.queryOptions({ id: varId }),
+    );
+    if (result?.data) {
+      setRevealedIds((prev) => new Set(prev).add(varId));
+      queryClient.setQueryData(["revealedValue", varId], result.data.value);
+      queryClient.setQueryData(
+        trpc.environmentVariables.list.queryKey({ environmentId }),
+        (old: VariablesQueryResponse | undefined) => {
+          if (!old?.data) return old;
+          return {
+            ...old,
+            data: old.data.map((variable) =>
+              variable.id === varId
+                ? { ...variable, value: result.data?.value }
+                : variable,
+            ),
+          };
+        },
       );
-      if (result?.data) {
-        setRevealedIds((prev) => new Set(prev).add(varId));
-        queryClient.setQueryData(["revealedValue", varId], result.data.value);
-      }
     }
   };
+
+  const getRevealedValue = (varId: string) =>
+    queryClient.getQueryData<string>(["revealedValue", varId]);
 
   const status: "loading" | "error" | "empty" | "success" =
     variablesQuery.isLoading
@@ -279,5 +298,6 @@ export function useVariables(environmentId: string) {
     isDeleting: deleteMutation.isPending,
     bulkImport: bulkImportMutation.mutateAsync,
     isImporting: bulkImportMutation.isPending,
+    getRevealedValue,
   };
 }

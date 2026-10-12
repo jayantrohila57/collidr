@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+const KEY_PATTERN = /^[A-Za-z0-9_]+$/;
+
 interface AddVariableDialogProps {
   onConfirm: (data: { key: string; value: string }) => Promise<void>;
   isPending: boolean;
@@ -28,10 +30,26 @@ export function AddVariableDialog({
   const [open, setOpen] = useState(false);
   const [key, setKey] = useState("");
   const [value, setValue] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const validateKey = (rawKey: string) => {
+    const trimmed = rawKey.trim();
+    if (!trimmed) return "Key is required";
+    if (/\s/.test(trimmed)) return "Keys cannot contain spaces";
+    if (!KEY_PATTERN.test(trimmed)) {
+      return "Keys may only contain letters, numbers, and underscores";
+    }
+    return null;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!key.trim()) return;
+    const keyError = validateKey(key);
+    if (keyError) {
+      setError(keyError);
+      return;
+    }
+    setError(null);
     await onConfirm({ key: key.trim().toUpperCase(), value });
     setOpen(false);
     setKey("");
@@ -39,7 +57,17 @@ export function AddVariableDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) {
+          setError(null);
+          setKey("");
+          setValue("");
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus className="mr-2 h-4 w-4" />
@@ -58,10 +86,15 @@ export function AddVariableDialog({
               <Input
                 id="var-key"
                 value={key}
-                onChange={(e) => setKey(e.target.value)}
+                onChange={(e) => {
+                  setKey(e.target.value);
+                  if (error) setError(validateKey(e.target.value));
+                }}
                 placeholder="DATABASE_URL"
                 className="font-mono"
+                aria-invalid={Boolean(error)}
               />
+              {error && <p className="text-red-500 text-sm">{error}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="var-value">Value</Label>
@@ -70,8 +103,8 @@ export function AddVariableDialog({
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 placeholder="your-value-here"
-                rows={3}
-                className="font-mono"
+                rows={4}
+                className="break-all font-mono"
               />
             </div>
           </div>

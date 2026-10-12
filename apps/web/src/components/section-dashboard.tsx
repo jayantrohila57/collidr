@@ -2,13 +2,11 @@ import type { Route } from "next";
 import Link from "next/link";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { slugToTitle } from "@/lib/utils";
 import GoBackButton from "./go-back";
 import { Button } from "./ui/button";
 
@@ -28,32 +26,26 @@ export default function DashboardSection({
   children,
 }: SectionProps) {
   return (
-    <Card className="relative z-10 h-full w-full gap-2 rounded-none border-none bg-transparent p-2 group-has-data-[collapsible=icon]/sidebar-wrapper:gap-2 group-has-data-[collapsible=icon]/sidebar-wrapper:px-0">
+    <Card className="relative z-10 flex h-full min-h-0 w-full flex-col gap-2 rounded-none border-none bg-transparent p-2 group-has-data-[collapsible=icon]/sidebar-wrapper:gap-2 group-has-data-[collapsible=icon]/sidebar-wrapper:px-0">
       {title && description && (
-        <CardHeader className="p-0">
-          <div className="flex flex-row items-center">
+        <CardHeader className="shrink-0 p-0">
+          <div className="flex flex-row items-center gap-2">
             <GoBackButton />
-            <div className="ml-4 h-full w-full">
-              {title && (
-                <CardTitle className="text-xl">{slugToTitle(title)}</CardTitle>
-              )}
-              {description && (
-                <CardDescription className="line-clamp-1 text-xs">
-                  {description}
-                </CardDescription>
-              )}
+            <div className="min-w-0 flex-1">
+              <CardTitle className="truncate text-xl">{title}</CardTitle>
+              <CardDescription className="line-clamp-2 break-words text-xs">
+                {description}
+              </CardDescription>
             </div>
-          </div>
-          <CardAction>
-            {action && (
-              <Button variant={"default"}>
-                {actionUrl && <Link href={actionUrl as Route}>{action}</Link>}
+            {action && actionUrl && (
+              <Button variant="default" asChild className="shrink-0">
+                <Link href={actionUrl as Route}>{action}</Link>
               </Button>
             )}
-          </CardAction>
+          </div>
         </CardHeader>
       )}
-      <div className="h-[calc(100dvh-10rem)] overflow-auto rounded-md border bg-background">
+      <div className="min-h-0 flex-1 overflow-y-auto rounded-md border bg-background">
         <CardContent className="p-2">{children}</CardContent>
       </div>
     </Card>

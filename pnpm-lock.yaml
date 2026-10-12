@@ -78,6 +78,9 @@ importers:
       '@env-manager/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@env-manager/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@env-manager/env':
         specifier: workspace:*
         version: link:../../packages/env

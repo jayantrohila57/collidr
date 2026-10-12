@@ -10,6 +10,7 @@
   "dependencies": {
     "@env-manager/api": "workspace:*",
     "@env-manager/auth": "workspace:*",
+    "@env-manager/db": "workspace:*",
     "@env-manager/env": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",

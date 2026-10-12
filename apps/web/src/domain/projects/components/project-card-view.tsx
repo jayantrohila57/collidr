@@ -14,9 +14,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ProjectActions } from "./project-actions";
 
 interface ProjectCardViewProps {
   project: ProjectOutput;
+}
+
+function hasNavigableSlug(slug: string | null | undefined) {
+  return Boolean(slug && slug.trim().length > 0);
 }
 
 export function ProjectCardView({ project }: ProjectCardViewProps) {
@@ -26,24 +31,38 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
     year: "numeric",
   }).format(new Date(project.updatedAt));
 
+  const projectHref = hasNavigableSlug(project.slug)
+    ? (`/dashboard/projects/${project.slug}` as Route)
+    : null;
+
   return (
     <Card className="min-h-80 border bg-input/30">
       <CardHeader>
         <CardTitle className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <Folder className="h-5 w-5" />
         </CardTitle>
-        <CardAction>
+        <CardAction className="flex items-center gap-1">
           {project.isPublic && <Badge variant="outline">Public</Badge>}
+          <ProjectActions project={project} />
         </CardAction>
       </CardHeader>
       <CardHeader>
-        <Link
-          href={`/dashboard/projects/${project.slug}` as Route}
-          className="group block h-full"
-        >
+        {projectHref ? (
+          <Link href={projectHref} className="group block h-full">
+            <CardTitle>{project.name}</CardTitle>
+          </Link>
+        ) : (
           <CardTitle>{project.name}</CardTitle>
-        </Link>
-        <CardDescription>{project.description}</CardDescription>
+        )}
+        <CardDescription className="break-words">
+          {project.description}
+        </CardDescription>
+        {!projectHref && (
+          <p className="text-amber-600 text-xs dark:text-amber-400">
+            This project has an invalid URL slug. You can still delete it from
+            the actions menu.
+          </p>
+        )}
       </CardHeader>
       <CardFooter className="mt-auto flex flex-row items-center justify-between">
         <div className="flex items-center gap-2">
@@ -62,10 +81,10 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              title="View Repository"
+              aria-label={`Open ${project.name} repository`}
             >
               <Button variant={"ghost"} size="icon">
-                <Github className="h-4 w-4" />
+                <Github className="h-4 w-4" aria-hidden />
               </Button>
             </Link>
           )}
@@ -75,10 +94,10 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              title="View Website"
+              aria-label={`Open ${project.name} website`}
             >
               <Button variant={"ghost"} size="icon">
-                <Globe className="h-4 w-4" />
+                <Globe className="h-4 w-4" aria-hidden />
               </Button>
             </Link>
           )}

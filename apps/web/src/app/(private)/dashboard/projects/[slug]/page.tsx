@@ -1,13 +1,12 @@
 import { auth } from "@env-manager/auth";
+import { getOwnedProjectBySlug } from "@env-manager/db";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-
+import { notFound, redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
 import Shell from "@/components/shell";
 import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
-import { deSlug } from "@/lib/utils";
 
 const ProjectDetail = dynamic(
   () => import("@/domain/projects/components/project-detail"),
@@ -26,17 +25,35 @@ export async function generateMetadata({
   params,
 }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const projectTitle = deSlug(slug);
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    return {
+      title: "Project",
+      description: "Manage project environments and variables.",
+    };
+  }
+
+  const projectRecord = await getOwnedProjectBySlug(session.user.id, slug);
+
+  if (!projectRecord) {
+    return {
+      title: "Project not found",
+    };
+  }
 
   return {
-    title: projectTitle,
-    description: `Manage project environments and variables for project ${projectTitle}.`,
+    title: projectRecord.name,
+    description:
+      projectRecord.description ??
+      `Manage environments and variables for ${projectRecord.name}.`,
   };
 }
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
-  const projectTitle = deSlug(slug);
 
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -46,12 +63,21 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     redirect("/");
   }
 
+  const projectRecord = await getOwnedProjectBySlug(session.user.id, slug);
+
+  if (!projectRecord) {
+    notFound();
+  }
+
   return (
     <Shell>
       <Shell.Section variant="dashboard" padding="dashboard" scale="full">
         <DashboardSection
-          title="Project Details"
-          description={`Manage project environments and variables for project ${projectTitle}.`}
+          title={projectRecord.name}
+          description={
+            projectRecord.description ??
+            `Manage environments and variables for ${projectRecord.name}.`
+          }
         >
           <ProjectDetail projectSlug={slug} />
         </DashboardSection>

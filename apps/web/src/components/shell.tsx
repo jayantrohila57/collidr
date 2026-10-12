@@ -119,7 +119,7 @@ const MainVariants = cva("relative", {
     scale: {
       full: "h-full w-full",
       default: "h-full min-h-screen w-full",
-      dashboard: "h-[calc(100dvh-18rem)] w-full overflow-hidden",
+      dashboard: "min-h-0 w-full flex-1",
     },
     padding: {
       default: "",

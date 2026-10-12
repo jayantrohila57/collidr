@@ -64,7 +64,7 @@ const _chartConfig = {
 
 interface StatCardProps {
   title: string;
-  value: number;
+  value: React.ReactNode;
   icon: React.ReactNode;
   description?: string;
   variant?: "default" | "secondary";
@@ -73,13 +73,19 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon, description, href }: StatCardProps) {
   const cardContent = (
-    <Card className="cursor-pointer border bg-input/30 transition-colors hover:bg-accent/50">
+    <Card
+      className={`border bg-input/30 ${
+        href ? "cursor-pointer transition-colors hover:bg-accent/50" : ""
+      }`}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="font-medium text-sm">{title}</CardTitle>
         <CardAction>{icon}</CardAction>
       </CardHeader>
       <CardContent>
-        <div className="font-bold text-2xl">{value.toLocaleString()}</div>
+        <div className="font-bold text-2xl">
+          {typeof value === "number" ? value.toLocaleString() : value}
+        </div>
         {description && (
           <p className="text-muted-foreground text-xs">{description}</p>
         )}
@@ -258,11 +264,13 @@ export default function DashboardStats() {
           title="Active Rate"
           value={
             stats.totalProjects > 0
-              ? Math.round((stats.activeProjects / stats.totalProjects) * 100)
-              : 0
+              ? `${Math.round(
+                  (stats.activeProjects / stats.totalProjects) * 100,
+                )}%`
+              : "0%"
           }
           icon={<Activity className="h-6 w-6 text-muted-foreground" />}
-          description="% of active projects"
+          description="Share of projects marked active"
           variant="secondary"
         />
       </div>
@@ -302,7 +310,11 @@ export default function DashboardStats() {
                           {project.status}
                         </Badge>
                         <p className="mt-1 text-muted-foreground text-xs">
-                          {new Date(project.createdAt).toLocaleDateString()}
+                          {new Intl.DateTimeFormat("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          }).format(new Date(project.createdAt))}
                         </p>
                       </div>
                     </div>

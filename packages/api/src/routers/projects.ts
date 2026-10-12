@@ -3,7 +3,13 @@ import { environment, project } from "@env-manager/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod/v3";
+import { createAuditLog } from "../audit";
+import { throwFriendlyError } from "../errors";
 import { protectedProcedure, router } from "../index";
+import {
+  buildProjectSlugFromName,
+  ensureUniqueProjectSlug,
+} from "../project-slug";
 import {
   changeProjectStatusInput,
   createProjectInput,
@@ -174,31 +180,53 @@ export const projectsRouter = router({
     .input(createProjectInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
-      const newProject = await db
-        .insert(project)
-        .values({
-          id: crypto.randomUUID(),
-          name: input.name,
-          description: input.description,
-          repositoryUrl: input.repositoryUrl || null,
-          websiteUrl: input.websiteUrl || null,
-          isPublic: input.isPublic,
-          slug: input.name
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-+|-+$/g, ""),
-          userId: ctx.session.user.id,
-        })
-        .returning();
+      try {
+        const baseSlug = buildProjectSlugFromName(input.name);
+        const slug = await ensureUniqueProjectSlug(baseSlug);
 
-      if (!newProject[0]) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create project",
+        const newProject = await db
+          .insert(project)
+          .values({
+            id: crypto.randomUUID(),
+            name: input.name.trim(),
+            description: input.description?.trim() || null,
+            repositoryUrl: input.repositoryUrl || null,
+            websiteUrl: input.websiteUrl || null,
+            isPublic: input.isPublic ?? false,
+            slug,
+            userId: ctx.session.user.id,
+          })
+          .returning();
+
+        if (!newProject[0]) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create project",
+          });
+        }
+
+        await createAuditLog({
+          userId: ctx.session.user.id,
+          projectId: newProject[0].id,
+          action: "CREATE",
+          entityType: "PROJECT",
+          entitySlug: newProject[0].slug,
+          newValue: JSON.stringify({
+            name: newProject[0].name,
+            slug: newProject[0].slug,
+          }),
+        });
+
+        return respond({ message: "Project created", data: newProject[0] });
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        throwFriendlyError(error, {
+          fallback: "Unable to create project. Please try again.",
+          code: "BAD_REQUEST",
         });
       }
-
-      return respond({ message: "Project created", data: newProject[0] });
     }),
 
   // Update a project
@@ -223,11 +251,9 @@ export const projectsRouter = router({
 
       const updateData: Record<string, unknown> = {};
       if (input.name !== undefined) {
-        updateData.name = input.name;
-        updateData.slug = input.name
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-+|-+$/g, "");
+        updateData.name = input.name.trim();
+        const baseSlug = buildProjectSlugFromName(input.name);
+        updateData.slug = await ensureUniqueProjectSlug(baseSlug, input.id);
       }
       if (input.description !== undefined)
         updateData.description = input.description;
@@ -237,20 +263,42 @@ export const projectsRouter = router({
         updateData.websiteUrl = input.websiteUrl || null;
       if (input.isPublic !== undefined) updateData.isPublic = input.isPublic;
 
-      const updatedProject = await db
-        .update(project)
-        .set(updateData)
-        .where(eq(project.id, input.id))
-        .returning();
+      try {
+        const updatedProject = await db
+          .update(project)
+          .set(updateData)
+          .where(eq(project.id, input.id))
+          .returning();
 
-      if (!updatedProject[0]) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update project",
+        if (!updatedProject[0]) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to update project",
+          });
+        }
+
+        await createAuditLog({
+          userId: ctx.session.user.id,
+          projectId: updatedProject[0].id,
+          action: "UPDATE",
+          entityType: "PROJECT",
+          entitySlug: updatedProject[0].slug,
+          newValue: JSON.stringify({
+            name: updatedProject[0].name,
+            slug: updatedProject[0].slug,
+          }),
+        });
+
+        return respond({ message: "Project updated", data: updatedProject[0] });
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        throwFriendlyError(error, {
+          fallback: "Unable to update project. Please try again.",
+          code: "BAD_REQUEST",
         });
       }
-
-      return respond({ message: "Project updated", data: updatedProject[0] });
     }),
 
   // Delete a project (and all its environments and variables)
@@ -273,7 +321,18 @@ export const projectsRouter = router({
         throw new Error("Project not found");
       }
 
+      const slug = existingProject[0]?.slug;
+
       await db.delete(project).where(eq(project.id, input.id));
+
+      await createAuditLog({
+        userId: ctx.session.user.id,
+        projectId: input.id,
+        action: "DELETE",
+        entityType: "PROJECT",
+        entitySlug: slug ?? null,
+        oldValue: JSON.stringify({ name: existingProject[0]?.name }),
+      });
 
       return respond({ message: "Project deleted", data: { success: true } });
     }),

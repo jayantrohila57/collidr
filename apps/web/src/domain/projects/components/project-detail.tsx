@@ -19,7 +19,6 @@ import { EnvironmentPanel } from "../../environments/components/environment-pane
 import { EnvironmentsTabsView } from "../../environments/components/environments-tabs-view";
 import { ProjectDetailSkeleton } from "../../environments/components/skeletons";
 import { useEnvironments } from "../../environments/hooks/use-environments";
-import { EditProjectDialog } from "../components/project-edit-dialog";
 import { ProjectActions } from "./project-actions";
 
 export default function ProjectDetail({
@@ -68,16 +67,7 @@ export default function ProjectDetail({
             Project Information
           </CardTitle>
           <CardAction>
-            <div className="flex items-center gap-3">
-              <EditProjectDialog
-                project={project}
-                onUpdate={handleProjectUpdate}
-              />
-              <ProjectActions
-                project={project}
-                onUpdate={handleProjectUpdate}
-              />
-            </div>
+            <ProjectActions project={project} onUpdate={handleProjectUpdate} />
           </CardAction>
         </CardHeader>
         <CardHeader>
@@ -86,7 +76,7 @@ export default function ProjectDetail({
             {project.isPublic && <Badge variant="outline">Public</Badge>}
             {project.isArchived && <Badge variant="secondary">Archived</Badge>}
           </CardTitle>
-          <CardDescription className="max-w-xl text-muted-foreground">
+          <CardDescription className="max-w-xl break-words text-muted-foreground">
             {project.description}
           </CardDescription>
           <CardAction>
@@ -111,10 +101,10 @@ export default function ProjectDetail({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              title="View Repository"
+              aria-label="View repository on GitHub"
             >
               <Button variant={"link"} size="default">
-                <Github className="h-4 w-4" />
+                <Github className="h-4 w-4" aria-hidden />
                 <span className="ml-2 line-clamp-1">Github</span>
               </Button>
             </Link>
@@ -125,10 +115,10 @@ export default function ProjectDetail({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              title="View Website"
+              aria-label="View project website"
             >
               <Button variant={"link"} size="default">
-                <Globe className="h-4 w-4" />
+                <Globe className="h-4 w-4" aria-hidden />
                 <span className="ml-2 line-clamp-1">Website</span>
               </Button>
             </Link>

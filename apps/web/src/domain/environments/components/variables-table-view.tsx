@@ -67,6 +67,7 @@ interface VariablesTableViewProps {
   onDelete: (id: string) => void;
   onAddVariable: (data: { key: string; value: string }) => Promise<void>;
   isAddingVariable: boolean;
+  isUpdating?: boolean;
 }
 
 export function VariablesTableView({
@@ -78,6 +79,7 @@ export function VariablesTableView({
   onDelete,
   onAddVariable,
   isAddingVariable,
+  isUpdating = false,
 }: VariablesTableViewProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState<Variable | null>(null);
@@ -227,10 +229,10 @@ export function VariablesTableView({
               key: data.key,
               value: data.value,
             };
-            onEdit(updatedVariable);
+            await onEdit(updatedVariable);
             setEditDialogOpen(null);
           }}
-          isPending={false}
+          isPending={isUpdating}
         />
       )}
 

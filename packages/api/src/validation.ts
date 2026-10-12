@@ -22,10 +22,19 @@ export const respond = <T>({
   error: null,
 });
 
+const projectDescriptionSchema = z
+  .string()
+  .max(500, "Description must be 500 characters or fewer")
+  .optional();
+
 // Project schemas
 export const createProjectInput = z.object({
-  name: z.string().min(1).max(100),
-  description: z.string().optional(),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Project name is required")
+    .max(100, "Project name must be 100 characters or fewer"),
+  description: projectDescriptionSchema,
   repositoryUrl: z.string().url().optional().or(z.literal("")),
   websiteUrl: z.string().url().optional().or(z.literal("")),
   isPublic: z.boolean().default(false),
@@ -33,8 +42,13 @@ export const createProjectInput = z.object({
 
 export const updateProjectInput = z.object({
   id: z.string().uuid(),
-  name: z.string().min(1).max(100).optional(),
-  description: z.string().optional(),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Project name is required")
+    .max(100, "Project name must be 100 characters or fewer")
+    .optional(),
+  description: projectDescriptionSchema,
   repositoryUrl: z.string().url().optional().or(z.literal("")),
   websiteUrl: z.string().url().optional().or(z.literal("")),
   isPublic: z.boolean().optional(),
@@ -120,16 +134,26 @@ export const environmentOutput = z.object({
 });
 
 // Variable schemas
+const variableKeySchema = z
+  .string()
+  .trim()
+  .min(1, "Key is required")
+  .max(256, "Key must be 256 characters or fewer")
+  .regex(
+    /^[A-Za-z0-9_]+$/,
+    "Keys may only contain letters, numbers, and underscores",
+  );
+
 export const createVariableInput = z.object({
   environmentId: z.string().uuid(),
-  key: z.string().min(1).max(256),
-  value: z.string(),
+  key: variableKeySchema,
+  value: z.string().max(100_000, "Value is too long"),
 });
 
 export const updateVariableInput = z.object({
   id: z.string().uuid(),
-  key: z.string().min(1).max(256).optional(),
-  value: z.string().optional(),
+  key: variableKeySchema.optional(),
+  value: z.string().max(100_000, "Value is too long").optional(),
 });
 
 export const getVariableInput = z.object({

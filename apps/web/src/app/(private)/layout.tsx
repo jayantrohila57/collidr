@@ -25,10 +25,10 @@ export default function OrganizationLayout({
     <Shell>
       <SidebarProvider>
         <AppSidebar />
-        <SidebarInset>
-          <div className="flex h-14 shrink-0 items-center gap-2 px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 group-has-data-[collapsible=icon]/sidebar-wrapper:px-2">
-            <div className="flex w-full items-center justify-between gap-2">
-              <div className="flex w-full flex-row items-center justify-start">
+        <SidebarInset className="flex min-h-svh flex-col">
+          <div className="flex h-14 shrink-0 items-center gap-2 px-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 sm:px-4">
+            <div className="flex w-full min-w-0 items-center justify-between gap-2">
+              <div className="flex min-w-0 flex-1 flex-row items-center justify-start">
                 <SidebarTrigger className="-ml-0.5" />
                 <Separator
                   orientation="vertical"

@@ -5,6 +5,7 @@ import {
   environmentVariable,
   project,
 } from "@env-manager/db/schema/projects";
+import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod/v3";
 import { createAuditLog, getProjectEnvironmentIds } from "../audit";
@@ -125,11 +126,31 @@ export const environmentVariablesRouter = router({
         return respond({ message: "Environment not found", data: null });
       }
 
+      const normalizedKey = input.key.trim().toUpperCase();
+
+      const duplicate = await db
+        .select({ id: environmentVariable.id })
+        .from(environmentVariable)
+        .where(
+          and(
+            eq(environmentVariable.environmentId, input.environmentId),
+            eq(environmentVariable.key, normalizedKey),
+          ),
+        )
+        .limit(1);
+
+      if (duplicate.length > 0) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: `Variable "${normalizedKey}" already exists in this environment.`,
+        });
+      }
+
       const [newVariable] = await db
         .insert(environmentVariable)
         .values({
           id: crypto.randomUUID(),
-          key: input.key,
+          key: normalizedKey,
           value: input.value,
           encryptedValue: encrypt(input.value),
           environmentId: input.environmentId,
@@ -201,9 +222,38 @@ export const environmentVariablesRouter = router({
         value: decrypt(existingVar.encryptedValue),
       };
 
-      const updateData: { key?: string; encryptedValue?: string } = {};
-      if (input.key) updateData.key = input.key;
-      if (input.value) updateData.encryptedValue = encrypt(input.value);
+      const normalizedKey = input.key?.trim().toUpperCase();
+
+      if (normalizedKey && normalizedKey !== existingVar.key) {
+        const duplicate = await db
+          .select({ id: environmentVariable.id })
+          .from(environmentVariable)
+          .where(
+            and(
+              eq(environmentVariable.environmentId, existingVar.environmentId),
+              eq(environmentVariable.key, normalizedKey),
+            ),
+          )
+          .limit(1);
+
+        if (duplicate.length > 0) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Variable "${normalizedKey}" already exists in this environment.`,
+          });
+        }
+      }
+
+      const updateData: {
+        key?: string;
+        encryptedValue?: string;
+        value?: string;
+      } = {};
+      if (normalizedKey) updateData.key = normalizedKey;
+      if (input.value !== undefined) {
+        updateData.encryptedValue = encrypt(input.value);
+        updateData.value = input.value;
+      }
 
       const [updated] = await db
         .update(environmentVariable)

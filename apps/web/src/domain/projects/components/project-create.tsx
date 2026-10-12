@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useProjects } from "../hooks/use-projects";
 
@@ -23,10 +24,12 @@ export function CreateProject() {
       description: "",
       repositoryUrl: "",
       websiteUrl: "",
-      isPublic: true,
+      isPublic: false,
     },
-    mode: "onBlur",
+    mode: "onChange",
   });
+
+  const descriptionLength = form.watch("description")?.length ?? 0;
 
   const onSubmit = async (data: z.infer<typeof createProjectInput>) => {
     try {
@@ -38,12 +41,11 @@ export function CreateProject() {
         isPublic: data.isPublic,
       });
 
-      // Reset form and redirect to the newly created project
       form.reset();
-      if (result?.data?.slug) {
-        router.push(`/dashboard/projects/${result.data?.slug}`);
+      const slug = result?.data?.slug;
+      if (slug) {
+        router.push(`/dashboard/projects/${slug}`);
       } else {
-        // Fallback to projects list if slug is not available
         router.push("/dashboard/projects");
       }
     } catch (error) {
@@ -54,8 +56,10 @@ export function CreateProject() {
   return (
     <Card className="border-none bg-input/10 shadow-none">
       <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Project Name Field */}
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6 overflow-x-hidden"
+        >
           <Controller
             name="name"
             control={form.control}
@@ -85,7 +89,6 @@ export function CreateProject() {
             )}
           />
 
-          {/* Description Field */}
           <Controller
             name="description"
             control={form.control}
@@ -99,7 +102,8 @@ export function CreateProject() {
                   id={field.name}
                   placeholder="Provide a brief description of your project to help team members understand its purpose..."
                   rows={4}
-                  className={`resize-none ${
+                  maxLength={500}
+                  className={`resize-none break-all ${
                     fieldState.invalid
                       ? "border-red-500 focus:ring-red-500"
                       : ""
@@ -112,14 +116,17 @@ export function CreateProject() {
                     {fieldState.error?.message}
                   </p>
                 )}
-                <p className="mt-1 text-gray-500 text-xs">
-                  {field.value?.length || 0}/500 characters
+                <p
+                  className={`mt-1 text-xs ${
+                    descriptionLength > 500 ? "text-red-500" : "text-gray-500"
+                  }`}
+                >
+                  {descriptionLength}/500 characters
                 </p>
               </div>
             )}
           />
 
-          {/* Repository URL Field */}
           <Controller
             name="repositoryUrl"
             control={form.control}
@@ -151,7 +158,6 @@ export function CreateProject() {
             )}
           />
 
-          {/* Website URL Field */}
           <Controller
             name="websiteUrl"
             control={form.control}
@@ -182,8 +188,31 @@ export function CreateProject() {
             )}
           />
 
-          {/* Form Actions */}
-          <div className="flex items-center justify-between pt-4">
+          <Controller
+            name="isPublic"
+            control={form.control}
+            render={({ field }) => (
+              <div className="flex items-center justify-between rounded-lg border bg-background p-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="project-visibility" className="text-sm">
+                    Public project
+                  </Label>
+                  <p className="text-muted-foreground text-xs">
+                    Private by default. Public projects may expose metadata to
+                    others.
+                  </p>
+                </div>
+                <Switch
+                  id="project-visibility"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  disabled={isCreating}
+                />
+              </div>
+            )}
+          />
+
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-4">
             <div className="text-gray-500 text-sm">
               <span className="text-red-500">*</span> Required fields
             </div>
