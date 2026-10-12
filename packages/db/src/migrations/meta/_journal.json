@@ -22,6 +22,13 @@
       "when": 1770196372619,
       "tag": "0002_neat_ender_wiggin",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1770816000000,
+      "tag": "0003_drop_environment_variable_plaintext_value",
+      "breakpoints": true
     }
   ]
 }

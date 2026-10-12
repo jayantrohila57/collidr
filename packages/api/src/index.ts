@@ -5,12 +5,15 @@ import { getFriendlyErrorMessage } from "./errors";
 
 export const t = initTRPC.context<Context>().create({
   errorFormatter({ shape, error }) {
+    const fallback = shape.message || "Something went wrong. Please try again.";
+    const fromCause = getFriendlyErrorMessage(error.cause ?? error, fallback);
+    const fromShape = getFriendlyErrorMessage(
+      shape.message ? new Error(shape.message) : null,
+      fromCause,
+    );
     return {
       ...shape,
-      message: getFriendlyErrorMessage(
-        error.cause ?? error,
-        shape.message || "Something went wrong. Please try again.",
-      ),
+      message: fromShape,
     };
   },
 });

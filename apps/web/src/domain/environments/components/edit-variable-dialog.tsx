@@ -84,7 +84,7 @@ export function EditVariableDialog({
                 onChange={(e) => setValue(e.target.value)}
                 placeholder="your-value-here"
                 rows={3}
-                className="font-mono"
+                className="max-h-[300px] min-h-[6rem] overflow-y-auto break-all font-mono"
               />
             </div>
           </div>

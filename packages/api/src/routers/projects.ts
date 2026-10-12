@@ -6,6 +6,7 @@ import { z } from "zod/v3";
 import { createAuditLog } from "../audit";
 import { throwFriendlyError } from "../errors";
 import { protectedProcedure, router } from "../index";
+import { assertUniqueProjectName } from "../project-name";
 import {
   buildProjectSlugFromName,
   ensureUniqueProjectSlug,
@@ -181,6 +182,7 @@ export const projectsRouter = router({
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
       try {
+        await assertUniqueProjectName(ctx.session.user.id, input.name);
         const baseSlug = buildProjectSlugFromName(input.name);
         const slug = await ensureUniqueProjectSlug(baseSlug);
 
@@ -251,9 +253,13 @@ export const projectsRouter = router({
 
       const updateData: Record<string, unknown> = {};
       if (input.name !== undefined) {
-        updateData.name = input.name.trim();
-        const baseSlug = buildProjectSlugFromName(input.name);
-        updateData.slug = await ensureUniqueProjectSlug(baseSlug, input.id);
+        const trimmedName = input.name.trim();
+        await assertUniqueProjectName(
+          ctx.session.user.id,
+          trimmedName,
+          input.id,
+        );
+        updateData.name = trimmedName;
       }
       if (input.description !== undefined)
         updateData.description = input.description;

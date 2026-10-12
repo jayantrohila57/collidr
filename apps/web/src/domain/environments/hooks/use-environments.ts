@@ -38,13 +38,16 @@ export function useEnvironments(projectSlug: string) {
           trpc.projects.getBySlug.queryKey({ slug: projectSlug }),
         ) as ProjectQueryResponse | undefined;
 
+        const optimisticId = crypto.randomUUID();
+
         if (previousProjectData?.data) {
           const newEnvironment: EnvironmentOutput = {
-            id: `temp-${Date.now()}`,
+            id: optimisticId,
             name: variables.name,
-            slug:
-              variables.slug ||
-              variables.name.toLowerCase().replace(/\s+/g, "-"),
+            slug: variables.name
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-+|-+$/g, ""),
             projectId: previousProjectData.data.project?.id || "",
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
@@ -70,10 +73,9 @@ export function useEnvironments(projectSlug: string) {
           );
         }
 
-        return { previousProjectData };
+        return { previousProjectData, optimisticId };
       },
       onError: () => {
-        // Rollback to the previous value
         if (createEnvMutation.context?.previousProjectData) {
           queryClient.setQueryData(
             trpc.projects.getBySlug.queryKey({ slug: projectSlug }),
@@ -82,16 +84,21 @@ export function useEnvironments(projectSlug: string) {
         }
       },
       onSettled: () => {
-        // Always refetch after error or success to ensure consistency
         queryClient.invalidateQueries({
           queryKey: trpc.projects.getBySlug.queryKey({ slug: projectSlug }),
         });
-        // Also invalidate projects list to reflect any changes
         queryClient.invalidateQueries({
           queryKey: trpc.projects.list.queryKey(),
         });
+        queryClient.invalidateQueries({
+          queryKey: trpc.dashboard.getStats.queryKey(),
+        });
       },
-      onSuccess: () => {
+      onSuccess: (response) => {
+        const newId = response.data?.id;
+        if (newId) {
+          setActiveTab(newId);
+        }
         toast.success("Environment created successfully");
       },
     }),
@@ -133,7 +140,6 @@ export function useEnvironments(projectSlug: string) {
         return { previousProjectData };
       },
       onError: () => {
-        // Rollback to previous value
         if (updateEnvMutation.context?.previousProjectData) {
           queryClient.setQueryData(
             trpc.projects.getBySlug.queryKey({ slug: projectSlug }),
@@ -142,17 +148,32 @@ export function useEnvironments(projectSlug: string) {
         }
       },
       onSettled: () => {
-        // Always refetch after error or success to ensure consistency
         queryClient.invalidateQueries({
           queryKey: trpc.projects.getBySlug.queryKey({ slug: projectSlug }),
         });
-        // Also invalidate projects list to reflect any changes
         queryClient.invalidateQueries({
           queryKey: trpc.projects.list.queryKey(),
         });
       },
       onSuccess: () => {
         toast.success("Environment updated successfully");
+      },
+    }),
+  );
+
+  const deleteEnvMutation = useMutation(
+    trpc.environments.delete.mutationOptions({
+      onSuccess: (_data, variables) => {
+        queryClient.invalidateQueries({
+          queryKey: trpc.projects.getBySlug.queryKey({ slug: projectSlug }),
+        });
+        queryClient.invalidateQueries({
+          queryKey: trpc.dashboard.getStats.queryKey(),
+        });
+        setActiveTab((current) =>
+          current === variables.id ? undefined : current,
+        );
+        toast.success("Environment deleted");
       },
     }),
   );
@@ -179,6 +200,8 @@ export function useEnvironments(projectSlug: string) {
     isCreating: createEnvMutation.isPending,
     updateEnvironment: updateEnvMutation.mutateAsync,
     isUpdating: updateEnvMutation.isPending,
+    deleteEnvironment: deleteEnvMutation.mutateAsync,
+    isDeleting: deleteEnvMutation.isPending,
     projectId: projectData.project?.id,
   };
 }

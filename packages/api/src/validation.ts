@@ -86,14 +86,28 @@ export const projectOutput = z.object({
   updatedAt: z.date(),
 });
 
+const environmentDisplayNameSchema = z
+  .string()
+  .trim()
+  .min(1, "Environment name is required")
+  .max(64, "Environment name must be 64 characters or fewer")
+  .regex(
+    /^[a-zA-Z0-9][a-zA-Z0-9 _-]*$/,
+    "Use letters, numbers, spaces, hyphens, and underscores only. Name must start with a letter or number.",
+  );
+
+const entityIdSchema = z
+  .string()
+  .uuid("Invalid identifier. Refresh and try again.");
+
 // Environment schemas
 export const listEnvironmentsInput = z.object({
-  projectId: z.string().uuid(),
+  projectId: entityIdSchema,
 });
 
 export const createEnvironmentInput = z.object({
-  projectId: z.string().uuid(),
-  name: z.string().min(1).max(64),
+  projectId: entityIdSchema,
+  name: environmentDisplayNameSchema,
   slug: z.string().min(1).max(255).optional(),
   branch: z.string().optional(),
   deployedUrl: z.string().url().optional().or(z.literal("")),
@@ -105,8 +119,8 @@ export const createEnvironmentInput = z.object({
 });
 
 export const updateEnvironmentInput = z.object({
-  id: z.string().uuid(),
-  name: z.string().min(1).max(64).optional(),
+  id: entityIdSchema,
+  name: environmentDisplayNameSchema.optional(),
   slug: z.string().min(1).max(255).optional(),
   branch: z.string().optional(),
   deployedUrl: z.string().url().optional().or(z.literal("")),
@@ -116,7 +130,7 @@ export const updateEnvironmentInput = z.object({
 });
 
 export const getEnvironmentInput = z.object({
-  id: z.string().uuid(),
+  id: entityIdSchema,
 });
 
 export const environmentOutput = z.object({
@@ -145,19 +159,19 @@ const variableKeySchema = z
   );
 
 export const createVariableInput = z.object({
-  environmentId: z.string().uuid(),
+  environmentId: entityIdSchema,
   key: variableKeySchema,
   value: z.string().max(100_000, "Value is too long"),
 });
 
 export const updateVariableInput = z.object({
-  id: z.string().uuid(),
+  id: entityIdSchema,
   key: variableKeySchema.optional(),
   value: z.string().max(100_000, "Value is too long").optional(),
 });
 
 export const getVariableInput = z.object({
-  id: z.string().uuid(),
+  id: entityIdSchema,
 });
 
 export const variableOutput = z.object({
@@ -179,7 +193,7 @@ export const environmentWithVariablesOutput = z.object({
 
 // Bulk import schemas
 export const bulkImportVariablesInput = z.object({
-  environmentId: z.string().uuid(),
+  environmentId: entityIdSchema,
   variables: z.array(
     z.object({
       key: z.string().min(1).max(256),
@@ -197,7 +211,7 @@ export const bulkImportResultOutput = z.object({
 
 // Export schemas
 export const exportVariablesInput = z.object({
-  environmentId: z.string().uuid(),
+  environmentId: entityIdSchema,
 });
 
 export const exportVariablesOutput = z.string();

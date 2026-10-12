@@ -21,12 +21,21 @@ interface VariablesQueryResponse {
   error: string | null;
 }
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isPersistedEnvironmentId(environmentId: string) {
+  return UUID_RE.test(environmentId);
+}
+
 export function useVariables(environmentId: string) {
   const queryClient = useQueryClient();
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
+  const canQuery = isPersistedEnvironmentId(environmentId);
 
   const variablesQuery = useQuery({
     ...trpc.environmentVariables.list.queryOptions({ environmentId }),
+    enabled: canQuery,
     meta: { toastOnError: false },
   });
 

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 interface PageHeaderProps {
   title: string;
   description?: string;
+  titleAccessory?: ReactNode;
   action?: ReactNode;
   actionLabel?: string;
   actionHref?: string;
@@ -16,6 +17,7 @@ interface PageHeaderProps {
 export function PageHeader({
   title,
   description,
+  titleAccessory,
   action,
   actionLabel,
   actionHref,
@@ -25,11 +27,14 @@ export function PageHeader({
     <header className="flex shrink-0 flex-row items-start gap-2">
       {showBack && <GoBackButton />}
       <div className="min-h-[3.25rem] min-w-0 flex-1">
-        <h1 className="truncate font-semibold text-xl tracking-tight">
-          {title}
-        </h1>
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <h1 className="truncate font-semibold text-xl tracking-tight">
+            {title}
+          </h1>
+          {titleAccessory}
+        </div>
         {description && (
-          <p className="line-clamp-2 break-words text-muted-foreground text-xs">
+          <p className="line-clamp-2 break-all text-muted-foreground text-xs">
             {description}
           </p>
         )}

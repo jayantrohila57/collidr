@@ -97,11 +97,7 @@ export function CreateEnvironmentDialog({
             >
               Cancel
             </Button>
-            <SubmitButton
-              isLoading={isPending}
-              loadingLabel="Creating…"
-              disabled={!form.formState.isValid}
-            >
+            <SubmitButton isLoading={isPending} loadingLabel="Creating…">
               Create
             </SubmitButton>
           </DialogFooter>

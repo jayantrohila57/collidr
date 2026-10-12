@@ -1,7 +1,6 @@
 "use client";
 
-import { Edit, FileKey, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { FileKey, Plus } from "lucide-react";
 import {
   Card,
   CardAction,
@@ -19,6 +18,7 @@ import {
 } from "@/components/ui/empty";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreateEnvironmentDialog } from "./create-environment-dialog";
+import { DeleteEnvironmentDialog } from "./delete-environment-dialog";
 import { EditEnvironmentDialog } from "./edit-environment-dialog";
 
 interface Environment {
@@ -32,8 +32,10 @@ interface EnvironmentsTabsViewProps {
   onTabChange: (id: string) => void;
   onCreate: (name: string) => Promise<void>;
   onUpdate: (id: string, name: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
   isCreating: boolean;
   isUpdating: boolean;
+  isDeleting: boolean;
   children: (env: Environment) => React.ReactNode;
 }
 
@@ -43,8 +45,10 @@ export function EnvironmentsTabsView({
   onTabChange,
   onCreate,
   onUpdate,
+  onDelete,
   isCreating,
   isUpdating,
+  isDeleting,
   children,
 }: EnvironmentsTabsViewProps) {
   if (environments.length === 0) {
@@ -89,34 +93,30 @@ export function EnvironmentsTabsView({
           <div className="flex items-center justify-between">
             <TabsList variant={"line"}>
               {environments.map((env) => (
-                <TabsTrigger
-                  className={
-                    activeTab === env.id
-                      ? "group relative rounded-none border-b-2 border-b-primary text-lg text-primary"
-                      : "group relative rounded-none border-b-2 border-b-border text-lg"
-                  }
-                  key={env.id}
-                  value={env.id}
-                >
-                  <span className="pr-6">{env.name}</span>
-                  <EditEnvironmentDialog
-                    environment={env}
-                    onConfirm={onUpdate}
-                    isPending={isUpdating}
-                    trigger={
-                      <div className="absolute top-1/2 right-1 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-4 w-4"
-                          onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                      </div>
+                <div key={env.id} className="inline-flex items-center gap-0.5">
+                  <TabsTrigger
+                    className={
+                      activeTab === env.id
+                        ? "rounded-none border-b-2 border-b-primary text-lg text-primary"
+                        : "rounded-none border-b-2 border-b-border text-lg"
                     }
-                  />
-                </TabsTrigger>
+                    value={env.id}
+                  >
+                    {env.name}
+                  </TabsTrigger>
+                  <span className="flex items-center gap-0.5 pr-2">
+                    <EditEnvironmentDialog
+                      environment={env}
+                      onConfirm={onUpdate}
+                      isPending={isUpdating}
+                    />
+                    <DeleteEnvironmentDialog
+                      environmentName={env.name}
+                      onConfirm={() => onDelete(env.id)}
+                      isPending={isDeleting}
+                    />
+                  </span>
+                </div>
               ))}
             </TabsList>
           </div>

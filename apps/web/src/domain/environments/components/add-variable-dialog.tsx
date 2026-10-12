@@ -35,6 +35,7 @@ export function AddVariableDialog({
   const validateKey = (rawKey: string) => {
     const trimmed = rawKey.trim();
     if (!trimmed) return "Key is required";
+    if (trimmed.length > 256) return "Key must be 256 characters or fewer";
     if (/\s/.test(trimmed)) return "Keys cannot contain spaces";
     if (!KEY_PATTERN.test(trimmed)) {
       return "Keys may only contain letters, numbers, and underscores";
@@ -104,7 +105,7 @@ export function AddVariableDialog({
                 onChange={(e) => setValue(e.target.value)}
                 placeholder="your-value-here"
                 rows={4}
-                className="break-all font-mono"
+                className="max-h-[300px] min-h-[6rem] overflow-y-auto break-all font-mono"
               />
             </div>
           </div>

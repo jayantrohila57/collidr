@@ -9,6 +9,7 @@ import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod/v3";
 import { createAuditLog, getProjectEnvironmentIds } from "../audit";
+import { throwFriendlyError } from "../errors";
 import { protectedProcedure, router } from "../index";
 import {
   bulkImportResultOutput,
@@ -146,16 +147,23 @@ export const environmentVariablesRouter = router({
         });
       }
 
-      const [newVariable] = await db
-        .insert(environmentVariable)
-        .values({
-          id: crypto.randomUUID(),
-          key: normalizedKey,
-          value: input.value,
-          encryptedValue: encrypt(input.value),
-          environmentId: input.environmentId,
-        })
-        .returning();
+      let newVariable: typeof environmentVariable.$inferSelect | undefined;
+      try {
+        [newVariable] = await db
+          .insert(environmentVariable)
+          .values({
+            id: crypto.randomUUID(),
+            key: normalizedKey,
+            encryptedValue: encrypt(input.value),
+            environmentId: input.environmentId,
+          })
+          .returning();
+      } catch (error) {
+        throwFriendlyError(error, {
+          fallback: "Unable to save this variable. Please try again.",
+          code: "INTERNAL_SERVER_ERROR",
+        });
+      }
 
       if (!newVariable) {
         return respond({ message: "Failed to create variable", data: null });
@@ -172,8 +180,7 @@ export const environmentVariablesRouter = router({
           action: "CREATE",
           entityType: "VARIABLE",
           newValue: JSON.stringify({
-            key: input.key,
-            value: input.value,
+            key: normalizedKey,
           }),
         });
       }
@@ -247,12 +254,10 @@ export const environmentVariablesRouter = router({
       const updateData: {
         key?: string;
         encryptedValue?: string;
-        value?: string;
       } = {};
       if (normalizedKey) updateData.key = normalizedKey;
       if (input.value !== undefined) {
         updateData.encryptedValue = encrypt(input.value);
-        updateData.value = input.value;
       }
 
       const [updated] = await db
@@ -279,8 +284,7 @@ export const environmentVariablesRouter = router({
           entityType: "VARIABLE",
           oldValue: JSON.stringify(oldValue),
           newValue: JSON.stringify({
-            key: input.key || existingVar.key,
-            value: input.value || decrypt(existingVar.encryptedValue),
+            key: normalizedKey || existingVar.key,
           }),
         });
       }
@@ -407,7 +411,6 @@ export const environmentVariablesRouter = router({
           await db.insert(environmentVariable).values({
             id: crypto.randomUUID(),
             key: variable.key,
-            value: variable.value,
             encryptedValue: encrypt(variable.value),
             environmentId: input.environmentId,
           });

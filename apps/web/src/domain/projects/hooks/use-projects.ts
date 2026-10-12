@@ -120,9 +120,20 @@ export function useProjects() {
         }
       },
       onSettled: () => {
-        // Always refetch after error or success
         queryClient.invalidateQueries({
           queryKey: trpc.projects.list.queryKey(),
+        });
+        queryClient.invalidateQueries({
+          predicate: (query) =>
+            query.queryKey[0] === "projects" &&
+            Array.isArray(query.queryKey[1]) &&
+            query.queryKey[1][0] === "getBySlug",
+        });
+        queryClient.invalidateQueries({
+          queryKey: trpc.dashboard.getStats.queryKey(),
+        });
+        queryClient.invalidateQueries({
+          queryKey: trpc.dashboard.getRecentActivity.queryKey(),
         });
       },
       onSuccess: () => {

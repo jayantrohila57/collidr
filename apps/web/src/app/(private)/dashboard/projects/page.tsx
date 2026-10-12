@@ -23,8 +23,8 @@ export const metadata: Metadata = {
 const header = {
   title: "Projects",
   description: "Manage your projects and environment variables",
-  action: "New Project",
-  actionUrl: "/dashboard/projects/new",
+  actionLabel: "New Project",
+  actionHref: "/dashboard/projects/new",
 };
 
 export default async function ProjectsPage() {

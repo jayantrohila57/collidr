@@ -4,8 +4,15 @@ import {
   environmentVariable,
   project,
 } from "@env-manager/db/schema/projects";
-import { and, eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { z } from "zod/v3";
+import { createAuditLog } from "../audit";
+import {
+  assertValidEnvironmentName,
+  normalizeEnvironmentName,
+  slugifyEnvironmentName,
+} from "../environment-name";
 import { protectedProcedure, router } from "../index";
 import {
   createEnvironmentInput,
@@ -142,17 +149,33 @@ export const environmentsRouter = router({
         return respond({ message: "Project not found", data: null });
       }
 
+      const name = normalizeEnvironmentName(input.name);
+      const slug = input.slug || slugifyEnvironmentName(name);
+
+      const duplicateName = await db
+        .select({ id: environment.id })
+        .from(environment)
+        .where(
+          and(
+            eq(environment.projectId, input.projectId),
+            sql`lower(trim(${environment.name})) = lower(${name})`,
+          ),
+        )
+        .limit(1);
+
+      if (duplicateName.length > 0) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: `An environment named "${name}" already exists in this project.`,
+        });
+      }
+
       const newEnvironment = await db
         .insert(environment)
         .values({
           id: crypto.randomUUID(),
-          name: input.name,
-          slug:
-            input.slug ||
-            input.name
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, "-")
-              .replace(/^-+|-+$/g, ""),
+          name,
+          slug,
           branch: input.branch || null,
           deployedUrl: input.deployedUrl || null,
           status: input.status,
@@ -168,6 +191,16 @@ export const environmentsRouter = router({
           data: null,
         });
       }
+
+      await createAuditLog({
+        userId: ctx.session.user.id,
+        projectId: input.projectId,
+        environmentId: newEnvironment[0].id,
+        action: "CREATE",
+        entityType: "ENVIRONMENT",
+        entitySlug: newEnvironment[0].slug,
+        newValue: JSON.stringify({ name: newEnvironment[0].name }),
+      });
 
       return respond({
         message: "Environment created",
@@ -197,8 +230,38 @@ export const environmentsRouter = router({
         return respond({ message: "Environment not found", data: null });
       }
 
+      const existing = existingEnvironment[0]?.environment;
+      if (!existing) {
+        return respond({ message: "Environment not found", data: null });
+      }
+
       const updateData: Record<string, unknown> = {};
-      if (input.name !== undefined) updateData.name = input.name;
+      if (input.name !== undefined) {
+        const name = assertValidEnvironmentName(input.name);
+        const duplicateName = await db
+          .select({ id: environment.id })
+          .from(environment)
+          .where(
+            and(
+              eq(environment.projectId, existing.projectId),
+              sql`lower(trim(${environment.name})) = lower(${name})`,
+              ne(environment.id, input.id),
+            ),
+          )
+          .limit(1);
+
+        if (duplicateName.length > 0) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `An environment named "${name}" already exists in this project.`,
+          });
+        }
+
+        updateData.name = name;
+        if (input.slug === undefined) {
+          updateData.slug = slugifyEnvironmentName(name);
+        }
+      }
       if (input.slug !== undefined) updateData.slug = input.slug;
       if (input.branch !== undefined) updateData.branch = input.branch || null;
       if (input.deployedUrl !== undefined)
@@ -218,6 +281,16 @@ export const environmentsRouter = router({
       if (!updatedEnvironment[0]) {
         return respond({ message: "Failed to update environment", data: null });
       }
+
+      await createAuditLog({
+        userId: ctx.session.user.id,
+        projectId: existing.projectId,
+        environmentId: updatedEnvironment[0].id,
+        action: "UPDATE",
+        entityType: "ENVIRONMENT",
+        entitySlug: updatedEnvironment[0].slug,
+        newValue: JSON.stringify({ name: updatedEnvironment[0].name }),
+      });
 
       return respond({
         message: "Environment updated",
@@ -247,8 +320,23 @@ export const environmentsRouter = router({
         return { success: false };
       }
 
+      const envRecord = existingEnvironment[0]?.environment;
+      const projectRecord = existingEnvironment[0]?.project;
+
       // Delete environment (cascade will handle variables)
       await db.delete(environment).where(eq(environment.id, input.id));
+
+      if (envRecord && projectRecord) {
+        await createAuditLog({
+          userId: ctx.session.user.id,
+          projectId: projectRecord.id,
+          environmentId: envRecord.id,
+          action: "DELETE",
+          entityType: "ENVIRONMENT",
+          entitySlug: envRecord.slug,
+          oldValue: JSON.stringify({ name: envRecord.name }),
+        });
+      }
 
       return { success: true };
     }),

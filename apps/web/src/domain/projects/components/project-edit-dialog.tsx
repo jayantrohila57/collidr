@@ -19,12 +19,14 @@ interface EditProjectDialogProps {
   project: ProjectOutput;
   onUpdate?: () => void;
   triggerVariant?: "menu" | "button";
+  onMenuClose?: () => void;
 }
 
 export function EditProjectDialog({
   project,
   onUpdate,
   triggerVariant = "menu",
+  onMenuClose,
 }: EditProjectDialogProps) {
   const [open, setOpen] = useState(false);
 
@@ -37,11 +39,24 @@ export function EditProjectDialog({
     setOpen(false);
   };
 
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (next) {
+      onMenuClose?.();
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {triggerVariant === "menu" ? (
-          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              onMenuClose?.();
+              setOpen(true);
+            }}
+          >
             <Edit className="mr-2 h-4 w-4" />
             Edit Project
           </DropdownMenuItem>
@@ -62,6 +77,7 @@ export function EditProjectDialog({
         </DialogHeader>
         <EditProject
           project={project}
+          embedded
           onSuccess={handleSuccess}
           onCancel={handleCancel}
         />

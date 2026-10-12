@@ -158,7 +158,7 @@ export default function DashboardStats() {
           <div className="flex items-center justify-start space-x-4">
             <Avatar className="h-24 w-24 border-2">
               <AvatarImage
-                src={String(user?.image)}
+                src={user?.image || undefined}
                 alt={user?.name || "User"}
               />
               <AvatarFallback className="bg-primary text-primary-foreground">

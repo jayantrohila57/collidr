@@ -17,12 +17,14 @@ interface EditProjectProps {
   project: ProjectOutput;
   onSuccess?: () => void;
   onCancel?: () => void;
+  embedded?: boolean;
 }
 
 export function EditProject({
   project,
   onSuccess,
   onCancel,
+  embedded = false,
 }: EditProjectProps) {
   const { updateProject, isUpdating } = useProjects();
 
@@ -60,10 +62,12 @@ export function EditProject({
 
   return (
     <Card className="border-none bg-input/10 shadow-none">
-      <CardHeader>
-        <CardTitle className="text-xl">Edit Project</CardTitle>
-      </CardHeader>
-      <CardContent>
+      {!embedded && (
+        <CardHeader>
+          <CardTitle className="text-xl">Edit Project</CardTitle>
+        </CardHeader>
+      )}
+      <CardContent className={embedded ? "px-0 pt-0" : undefined}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Project Name Field */}
           <Controller

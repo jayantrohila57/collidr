@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { ZodError } from "zod/v3";
 
 const RAW_DB_PATTERNS = [
   /failed query/i,
@@ -7,6 +8,8 @@ const RAW_DB_PATTERNS = [
   /delete from/i,
   /violates unique constraint/i,
   /duplicate key/i,
+  /encrypted_value/i,
+  /params:/i,
 ];
 
 function isPostgresUniqueViolation(error: unknown): boolean {
@@ -15,12 +18,69 @@ function isPostgresUniqueViolation(error: unknown): boolean {
   return code === "23505";
 }
 
+function formatZodIssue(error: ZodError): string {
+  const issue = error.issues[0];
+  if (!issue) {
+    return "Please check your input and try again.";
+  }
+
+  const field = issue.path[0];
+  if (issue.code === "invalid_string" && issue.validation === "uuid") {
+    if (field === "environmentId") {
+      return "This environment is not ready yet. Wait a moment and try again.";
+    }
+    if (field === "projectId") {
+      return "Project not found. Refresh the page and try again.";
+    }
+    return "Invalid identifier. Refresh the page and try again.";
+  }
+
+  return issue.message;
+}
+
+function tryParseSerializedZodIssues(message: string): string | null {
+  const trimmed = message.trim();
+  if (!trimmed.startsWith("[") && !trimmed.startsWith("{")) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(trimmed) as unknown;
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      const first = parsed[0] as {
+        message?: string;
+        path?: (string | number)[];
+      };
+      if (first?.message) {
+        if (
+          first.message === "Invalid uuid" &&
+          first.path?.includes("environmentId")
+        ) {
+          return "This environment is not ready yet. Wait a moment and try again.";
+        }
+        return first.message;
+      }
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 export function getFriendlyErrorMessage(
   error: unknown,
   fallback: string,
 ): string {
   if (error instanceof TRPCError) {
+    const fromMessage = tryParseSerializedZodIssues(error.message);
+    if (fromMessage) return fromMessage;
+    if (RAW_DB_PATTERNS.some((pattern) => pattern.test(error.message))) {
+      return fallback;
+    }
     return error.message;
+  }
+
+  if (error instanceof ZodError) {
+    return formatZodIssue(error);
   }
 
   if (isPostgresUniqueViolation(error)) {
@@ -33,6 +93,11 @@ export function getFriendlyErrorMessage(
       : typeof error === "string"
         ? error
         : "";
+
+  const fromSerialized = message ? tryParseSerializedZodIssues(message) : null;
+  if (fromSerialized) {
+    return fromSerialized;
+  }
 
   if (!message || RAW_DB_PATTERNS.some((pattern) => pattern.test(message))) {
     return fallback;

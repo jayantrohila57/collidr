@@ -31,6 +31,7 @@ interface ProjectActionsProps {
 }
 
 export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [unarchiveDialogOpen, setUnarchiveDialogOpen] = useState(false);
@@ -50,7 +51,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon">
             <MoreHorizontal className="h-4 w-4" />
@@ -62,7 +63,11 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
           <DropdownMenuSeparator />
 
           {/* Edit Action */}
-          <EditProjectDialog project={project} onUpdate={onUpdate} />
+          <EditProjectDialog
+            project={project}
+            onUpdate={onUpdate}
+            onMenuClose={() => setMenuOpen(false)}
+          />
 
           <DropdownMenuSeparator />
 

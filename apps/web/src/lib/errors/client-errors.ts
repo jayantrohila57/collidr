@@ -5,7 +5,37 @@ const RAW_DB_PATTERNS = [
   /insert into/i,
   /update "/i,
   /delete from/i,
+  /encrypted_value/i,
+  /params:/i,
 ];
+
+function tryParseSerializedZodIssues(message: string): string | null {
+  const trimmed = message.trim();
+  if (!trimmed.startsWith("[") && !trimmed.startsWith("{")) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(trimmed) as unknown;
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      const first = parsed[0] as {
+        message?: string;
+        path?: (string | number)[];
+      };
+      if (first?.message) {
+        if (
+          first.message === "Invalid uuid" &&
+          first.path?.includes("environmentId")
+        ) {
+          return "This environment is not ready yet. Wait a moment and try again.";
+        }
+        return first.message;
+      }
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
 
 export function isNetworkError(error: unknown): boolean {
   if (!error) return false;
@@ -31,6 +61,8 @@ export function getClientErrorMessage(
 
   if (error instanceof TRPCClientError) {
     const message = error.message?.trim();
+    const fromZod = message ? tryParseSerializedZodIssues(message) : null;
+    if (fromZod) return fromZod;
     if (message && !RAW_DB_PATTERNS.some((p) => p.test(message))) {
       return message;
     }
@@ -39,6 +71,8 @@ export function getClientErrorMessage(
 
   if (error instanceof Error) {
     const message = error.message.trim();
+    const fromZod = tryParseSerializedZodIssues(message);
+    if (fromZod) return fromZod;
     if (message && !RAW_DB_PATTERNS.some((p) => p.test(message))) {
       return message;
     }

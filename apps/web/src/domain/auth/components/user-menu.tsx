@@ -57,7 +57,7 @@ export function UserMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/30">
-          <AvatarImage src={String(user?.image)} alt={user?.name} />
+          <AvatarImage src={user?.image || undefined} alt={user?.name} />
           <AvatarFallback>
             {user?.name?.charAt(0) || user?.email?.charAt(0)}
           </AvatarFallback>

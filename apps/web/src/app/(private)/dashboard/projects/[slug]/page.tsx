@@ -4,14 +4,17 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import DashboardSection from "@/components/section-dashboard";
 import Shell from "@/components/shell";
 import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
 
-const ProjectDetail = dynamic(
-  () => import("@/domain/projects/components/project-detail"),
+const ProjectDetailPage = dynamic(
+  () => import("@/domain/projects/components/project-detail-page"),
   {
-    loading: () => <ProjectDetailSkeleton />,
+    loading: () => (
+      <div className="p-2">
+        <ProjectDetailSkeleton />
+      </div>
+    ),
   },
 );
 
@@ -72,15 +75,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   return (
     <Shell>
       <Shell.Section variant="dashboard" padding="dashboard" scale="full">
-        <DashboardSection
-          title={projectRecord.name}
-          description={
-            projectRecord.description ??
-            `Manage environments and variables for ${projectRecord.name}.`
-          }
-        >
-          <ProjectDetail projectSlug={slug} />
-        </DashboardSection>
+        <ProjectDetailPage slug={slug} initialName={projectRecord.name} />
       </Shell.Section>
     </Shell>
   );

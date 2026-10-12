@@ -5,7 +5,7 @@ import {
   environmentVariable,
   project,
 } from "@env-manager/db/schema/projects";
-import { and, count, eq, sql } from "drizzle-orm";
+import { and, count, eq, gte, sql } from "drizzle-orm";
 import { protectedProcedure, router } from "../index";
 
 export const dashboardRouter = router({
@@ -78,10 +78,7 @@ export const dashboardRouter = router({
       .select({ count: count() })
       .from(auditLog)
       .where(
-        and(
-          eq(auditLog.userId, userId),
-          sql`${auditLog.createdAt} >= ${sevenDaysAgo}`,
-        ),
+        and(eq(auditLog.userId, userId), gte(auditLog.createdAt, sevenDaysAgo)),
       );
 
     // Get production environments count
