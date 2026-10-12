@@ -27,7 +27,8 @@
     "release:minor": "./scripts/release.sh minor",
     "release:major": "./scripts/release.sh major",
     "version-check": "node -p \"require('./package.json').version\"",
-    "changelog-check": "type CHANGELOG.md | more"
+    "changelog-check": "type CHANGELOG.md | more",
+    "a11y": "turbo -F web a11y"
   },
   "dependencies": {
     "@env-manager/env": "workspace:*",

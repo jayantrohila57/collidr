@@ -5,7 +5,8 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod/v3";
 import { createAuditLog } from "../audit";
 import { throwFriendlyError } from "../errors";
-import { protectedProcedure, router } from "../index";
+import { orgProcedure, router } from "../index";
+import { attachProjectToOrganization, projectListFilter } from "../org-access";
 import { assertUniqueProjectName } from "../project-name";
 import {
   buildProjectSlugFromName,
@@ -26,20 +27,20 @@ import {
 
 export const projectsRouter = router({
   // List all projects for the authenticated user
-  list: protectedProcedure
+  list: orgProcedure
     .output(makeResponseSchema(z.array(projectOutput)))
     .query(async ({ ctx }) => {
       const projectsList = await db
         .select()
         .from(project)
-        .where(eq(project.userId, ctx.session.user.id))
+        .where(projectListFilter(ctx.session.user.id, ctx.activeOrganizationId))
         .orderBy(project.updatedAt);
 
       return respond({ message: "Projects fetched", data: projectsList });
     }),
 
   // Get a single project with its environments by ID
-  get: protectedProcedure
+  get: orgProcedure
     .input(getProjectInput)
     .output(
       makeResponseSchema(
@@ -69,7 +70,7 @@ export const projectsRouter = router({
         .where(
           and(
             eq(project.id, input.id),
-            eq(project.userId, ctx.session.user.id),
+            projectListFilter(ctx.session.user.id, ctx.activeOrganizationId),
           ),
         )
         .limit(1);
@@ -104,7 +105,7 @@ export const projectsRouter = router({
     }),
 
   // Get a single project with its environments by slug
-  getBySlug: protectedProcedure
+  getBySlug: orgProcedure
     .input(getProjectBySlugInput)
     .output(
       makeResponseSchema(
@@ -134,7 +135,7 @@ export const projectsRouter = router({
         .where(
           and(
             eq(project.slug, input.slug),
-            eq(project.userId, ctx.session.user.id),
+            projectListFilter(ctx.session.user.id, ctx.activeOrganizationId),
           ),
         )
         .limit(1);
@@ -177,7 +178,7 @@ export const projectsRouter = router({
     }),
 
   // Create a new project
-  create: protectedProcedure
+  create: orgProcedure
     .input(createProjectInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
@@ -207,6 +208,13 @@ export const projectsRouter = router({
           });
         }
 
+        if (ctx.activeOrganizationId) {
+          await attachProjectToOrganization(
+            newProject[0].id,
+            ctx.activeOrganizationId,
+          );
+        }
+
         await createAuditLog({
           userId: ctx.session.user.id,
           projectId: newProject[0].id,
@@ -232,7 +240,7 @@ export const projectsRouter = router({
     }),
 
   // Update a project
-  update: protectedProcedure
+  update: orgProcedure
     .input(updateProjectInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
@@ -242,7 +250,7 @@ export const projectsRouter = router({
         .where(
           and(
             eq(project.id, input.id),
-            eq(project.userId, ctx.session.user.id),
+            projectListFilter(ctx.session.user.id, ctx.activeOrganizationId),
           ),
         )
         .limit(1);
@@ -308,7 +316,7 @@ export const projectsRouter = router({
     }),
 
   // Delete a project (and all its environments and variables)
-  delete: protectedProcedure
+  delete: orgProcedure
     .input(getProjectInput)
     .output(makeResponseSchema(z.object({ success: z.boolean() })))
     .mutation(async ({ ctx, input }) => {
@@ -318,7 +326,7 @@ export const projectsRouter = router({
         .where(
           and(
             eq(project.id, input.id),
-            eq(project.userId, ctx.session.user.id),
+            projectListFilter(ctx.session.user.id, ctx.activeOrganizationId),
           ),
         )
         .limit(1);
@@ -344,7 +352,7 @@ export const projectsRouter = router({
     }),
 
   // Archive a project
-  archive: protectedProcedure
+  archive: orgProcedure
     .input(getProjectInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
@@ -354,7 +362,7 @@ export const projectsRouter = router({
         .where(
           and(
             eq(project.id, input.id),
-            eq(project.userId, ctx.session.user.id),
+            projectListFilter(ctx.session.user.id, ctx.activeOrganizationId),
           ),
         )
         .limit(1);
@@ -380,7 +388,7 @@ export const projectsRouter = router({
     }),
 
   // Unarchive a project
-  unarchive: protectedProcedure
+  unarchive: orgProcedure
     .input(getProjectInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
@@ -390,7 +398,7 @@ export const projectsRouter = router({
         .where(
           and(
             eq(project.id, input.id),
-            eq(project.userId, ctx.session.user.id),
+            projectListFilter(ctx.session.user.id, ctx.activeOrganizationId),
           ),
         )
         .limit(1);
@@ -419,7 +427,7 @@ export const projectsRouter = router({
     }),
 
   // Change project status
-  changeStatus: protectedProcedure
+  changeStatus: orgProcedure
     .input(changeProjectStatusInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
@@ -429,7 +437,7 @@ export const projectsRouter = router({
         .where(
           and(
             eq(project.id, input.id),
-            eq(project.userId, ctx.session.user.id),
+            projectListFilter(ctx.session.user.id, ctx.activeOrganizationId),
           ),
         )
         .limit(1);
@@ -458,7 +466,7 @@ export const projectsRouter = router({
     }),
 
   // Toggle project public/private visibility
-  togglePublic: protectedProcedure
+  togglePublic: orgProcedure
     .input(toggleProjectPublicInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
@@ -468,7 +476,7 @@ export const projectsRouter = router({
         .where(
           and(
             eq(project.id, input.id),
-            eq(project.userId, ctx.session.user.id),
+            projectListFilter(ctx.session.user.id, ctx.activeOrganizationId),
           ),
         )
         .limit(1);

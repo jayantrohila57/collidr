@@ -2,6 +2,7 @@
 
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
+import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -73,14 +74,15 @@ export function DeleteEnvironmentDialog({
             >
               Cancel
             </Button>
-            <Button
+            <SubmitButton
               type="button"
               variant="destructive"
               onClick={handleConfirm}
-              disabled={isPending}
+              isLoading={isPending}
+              loadingLabel="Deleting…"
             >
-              {isPending ? "Deleting…" : "Delete"}
-            </Button>
+              Delete
+            </SubmitButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

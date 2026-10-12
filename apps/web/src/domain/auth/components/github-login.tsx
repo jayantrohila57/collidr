@@ -1,11 +1,10 @@
 "use client";
 
-import { Github, Loader } from "lucide-react";
-
+import { Github } from "lucide-react";
 import { useTransition } from "react";
-
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { signInWithGithub } from "../lib/auth-actions";
 
 export function GitHubLoginButton() {
@@ -36,11 +35,7 @@ export function GitHubLoginButton() {
       size="lg"
       className="w-80 gap-2 bg-primary hover:bg-primary/90"
     >
-      {isLoading ? (
-        <Loader className="h-4 w-4 animate-spin" />
-      ) : (
-        <Github className="h-4 w-4" />
-      )}
+      {isLoading ? <Spinner /> : <Github className="h-4 w-4" />}
       Sign in with GitHub
     </Button>
   );

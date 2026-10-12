@@ -4,6 +4,7 @@ import type { ProjectOutput } from "@env-manager/api/types";
 import { Calendar, Folder, Github, Globe } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import { TruncatedText } from "@/components/patterns/truncated-text";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,8 +52,12 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
         ) : (
           <CardTitle>{project.name}</CardTitle>
         )}
-        <CardDescription className="break-words">
-          {project.description}
+        <CardDescription>
+          <TruncatedText
+            text={project.description ?? ""}
+            lines={2}
+            emptyFallback="No description yet."
+          />
         </CardDescription>
         {!projectHref && (
           <p className="text-amber-600 text-xs dark:text-amber-400">

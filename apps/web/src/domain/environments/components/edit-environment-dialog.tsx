@@ -2,6 +2,8 @@
 
 import { Edit } from "lucide-react";
 import { useState } from "react";
+import { FormField } from "@/components/patterns/form-field";
+import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,7 +14,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Tooltip,
   TooltipContent,
@@ -94,8 +95,12 @@ export function EditEnvironmentDialog({
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor={`env-name-${environment.id}`}>Name</Label>
+              <FormField
+                id={`env-name-${environment.id}`}
+                label="Name"
+                error={error ?? undefined}
+                required
+              >
                 <Input
                   id={`env-name-${environment.id}`}
                   value={name}
@@ -106,8 +111,7 @@ export function EditEnvironmentDialog({
                   placeholder="development"
                   aria-invalid={Boolean(error)}
                 />
-                {error && <p className="text-destructive text-sm">{error}</p>}
-              </div>
+              </FormField>
             </div>
             <DialogFooter>
               <Button
@@ -117,9 +121,9 @@ export function EditEnvironmentDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Updating..." : "Update"}
-              </Button>
+              <SubmitButton isLoading={isPending} loadingLabel="Updating…">
+                Update
+              </SubmitButton>
             </DialogFooter>
           </form>
         </DialogContent>

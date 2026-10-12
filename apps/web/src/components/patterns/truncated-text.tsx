@@ -3,10 +3,10 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { cn } from "@/lib/utils";
 
 interface TruncatedTextProps {
@@ -44,7 +44,7 @@ export function TruncatedText({
     const observer = new ResizeObserver(measure);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [expanded]);
+  }, [expanded, content]);
 
   if (expanded) {
     return (
@@ -64,30 +64,43 @@ export function TruncatedText({
     );
   }
 
+  const clamped = (
+    <p
+      ref={ref}
+      className={cn(
+        "wrap-anywhere text-muted-foreground text-sm leading-relaxed",
+        lines === 2 && "line-clamp-2",
+        lines === 3 && "line-clamp-3",
+      )}
+    >
+      {content}
+    </p>
+  );
+
   return (
     <div className={cn("space-y-1", className)}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <p
-            ref={ref}
-            className={cn(
-              "wrap-anywhere text-muted-foreground text-sm leading-relaxed",
-              lines === 2 && "line-clamp-2",
-              lines === 3 && "line-clamp-3",
-            )}
-          >
-            {content}
-          </p>
-        </TooltipTrigger>
-        {isTruncated && (
-          <TooltipContent
+      {isTruncated ? (
+        <HoverCard openDelay={200}>
+          <HoverCardTrigger asChild>
+            <button
+              type="button"
+              className="w-full cursor-default text-left"
+              aria-label="Show full description"
+            >
+              {clamped}
+            </button>
+          </HoverCardTrigger>
+          <HoverCardContent
             side="bottom"
+            align="start"
             className="wrap-anywhere max-w-md text-left"
           >
             {content}
-          </TooltipContent>
-        )}
-      </Tooltip>
+          </HoverCardContent>
+        </HoverCard>
+      ) : (
+        clamped
+      )}
       {isTruncated && (
         <Button
           type="button"

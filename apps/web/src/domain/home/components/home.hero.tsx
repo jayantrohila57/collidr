@@ -12,7 +12,10 @@ export default function Hero() {
   const { data: session, isPending } = useSession();
 
   return (
-    <div className="flex flex-col items-start justify-start space-y-4 py-16 md:items-start md:text-left">
+    <div
+      data-testid="marketing-hero"
+      className="flex flex-col items-start justify-start space-y-4 py-16 md:items-start md:text-left"
+    >
       <div className="space-y-8">
         <Badge variant="secondary" className="mb-4">
           <Zap className="mr-2 h-3 w-3" />

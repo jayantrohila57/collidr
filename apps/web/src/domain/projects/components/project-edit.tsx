@@ -5,6 +5,7 @@ import { updateProjectInput } from "@env-manager/api/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
+import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -238,20 +239,14 @@ export function EditProject({
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={isUpdating || !form.formState.isValid}
+              <SubmitButton
+                isLoading={isUpdating}
+                loadingLabel="Updating…"
+                disabled={!form.formState.isValid}
                 className="min-w-[120px]"
               >
-                {isUpdating ? (
-                  <>
-                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-white border-b-2" />
-                    Updating...
-                  </>
-                ) : (
-                  "Update Project"
-                )}
-              </Button>
+                Update Project
+              </SubmitButton>
             </div>
           </div>
         </form>

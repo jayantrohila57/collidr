@@ -5,6 +5,7 @@ import { LogOut } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,12 +14,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Spinner } from "@/components/ui/spinner";
 import { signOut, useSession } from "../lib/auth-actions";
 
 export function UserMenu() {
   const [isLoading, startTransition] = useTransition();
-  const { data: session } = useSession();
-  const user = session?.user as User;
+  const { data: session, isPending } = useSession();
+  const user = session?.user as User | undefined;
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -43,33 +45,46 @@ export function UserMenu() {
     });
   };
 
-  if (!mounted) {
+  if (!mounted || isPending) {
     return (
-      <Avatar className="border bg-background shadow-xs">
-        <AvatarFallback>
-          {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
-        </AvatarFallback>
-      </Avatar>
+      <div
+        className="flex size-9 items-center justify-center rounded-full border bg-muted"
+        aria-hidden
+      >
+        <Spinner className="size-4" />
+      </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/30">
-          <AvatarImage src={user?.image || undefined} alt={user?.name} />
-          <AvatarFallback>
-            {user?.name?.charAt(0) || user?.email?.charAt(0)}
-          </AvatarFallback>
-        </Avatar>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-9 rounded-full p-0"
+          aria-label="Open account menu"
+        >
+          <Avatar className="size-9 border bg-background shadow-xs">
+            <AvatarImage src={user.image || undefined} alt={user.name} />
+            <AvatarFallback>
+              {user.name?.charAt(0) || user.email?.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="font-medium text-sm leading-none">{user?.name}</p>
-            {user?.email && (
+            <p className="font-medium text-sm leading-none">{user.name}</p>
+            {user.email && (
               <p className="text-muted-foreground text-xs leading-none">
-                {user?.email}
+                {user.email}
               </p>
             )}
           </div>

@@ -3,6 +3,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ModeToggle } from "@/components/mode-toggle";
+import { OrgOnboardingGate } from "@/components/org/org-onboarding-gate";
 import Shell from "@/components/shell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -73,7 +74,7 @@ export default function OrganizationLayout({
             <Separator />
           </div>
           <Shell.Main variant="dashboard" padding="none" scale={"dashboard"}>
-            {children}
+            <OrgOnboardingGate>{children}</OrgOnboardingGate>
           </Shell.Main>
         </SidebarInset>
       </SidebarProvider>

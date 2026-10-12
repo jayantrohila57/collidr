@@ -1,9 +1,10 @@
 "use client";
 
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import { Loader, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { signOut } from "../lib/auth-actions";
 
@@ -41,11 +42,7 @@ export const SignOutDropdownMenuItem = React.forwardRef<
         className,
       )}
     >
-      {isLoading ? (
-        <Loader className="h-4 w-4 animate-spin" />
-      ) : (
-        <LogOut className="h-4 w-4" />
-      )}
+      {isLoading ? <Spinner /> : <LogOut className="h-4 w-4" />}
       {isLoading ? "Signing out..." : "Sign out"}
     </DropdownMenuPrimitive.Item>
   );

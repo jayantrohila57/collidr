@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev --port 3000",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "a11y": "playwright test e2e/a11y.spec.ts"
   },
   "dependencies": {
     "@env-manager/api": "workspace:*",
@@ -73,7 +74,9 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@env-manager/config": "workspace:*",
+    "@playwright/test": "^1.51.1",
     "@tailwindcss/postcss": "^4.1.10",
     "@tanstack/react-query-devtools": "^5.91.1",
     "@types/node": "^20",

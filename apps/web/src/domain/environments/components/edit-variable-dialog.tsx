@@ -2,6 +2,8 @@
 
 import { variableKeySchema } from "@env-manager/api/validation";
 import { useEffect, useState } from "react";
+import { FormField } from "@/components/patterns/form-field";
+import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 
 interface EditVariableDialogProps {
@@ -88,8 +90,12 @@ export function EditVariableDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-key">Key</Label>
+            <FormField
+              id="edit-key"
+              label="Key"
+              error={error ?? undefined}
+              required
+            >
               <Input
                 id="edit-key"
                 value={key}
@@ -101,14 +107,13 @@ export function EditVariableDialog({
                 className="font-mono"
                 aria-invalid={Boolean(error)}
               />
-              {error && <p className="text-destructive text-sm">{error}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-value">Value</Label>
+            </FormField>
+            <FormField id="edit-value" label="Value" required>
               {isLoadingValue ? (
-                <p className="text-muted-foreground text-sm">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                  <Spinner />
                   Loading current value…
-                </p>
+                </div>
               ) : (
                 <Textarea
                   id="edit-value"
@@ -119,7 +124,7 @@ export function EditVariableDialog({
                   className="wrap-anywhere max-h-[300px] min-h-[6rem] overflow-y-auto font-mono"
                 />
               )}
-            </div>
+            </FormField>
           </div>
           <DialogFooter>
             <Button
@@ -129,9 +134,13 @@ export function EditVariableDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending || isLoadingValue}>
-              {isPending ? "Updating..." : "Update"}
-            </Button>
+            <SubmitButton
+              isLoading={isPending}
+              loadingLabel="Updating…"
+              disabled={isLoadingValue}
+            >
+              Update
+            </SubmitButton>
           </DialogFooter>
         </form>
       </DialogContent>

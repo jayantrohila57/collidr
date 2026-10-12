@@ -3,6 +3,8 @@
 import { variableKeySchema } from "@env-manager/api/validation";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { FormField } from "@/components/patterns/form-field";
+import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,7 +16,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 interface AddVariableDialogProps {
@@ -78,8 +79,12 @@ export function AddVariableDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="var-key">Key</Label>
+            <FormField
+              id="var-key"
+              label="Key"
+              error={error ?? undefined}
+              required
+            >
               <Input
                 id="var-key"
                 value={key}
@@ -90,11 +95,10 @@ export function AddVariableDialog({
                 placeholder="DATABASE_URL"
                 className="font-mono"
                 aria-invalid={Boolean(error)}
+                aria-describedby={error ? "var-key-error" : undefined}
               />
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="var-value">Value</Label>
+            </FormField>
+            <FormField id="var-value" label="Value" required>
               <Textarea
                 id="var-value"
                 value={value}
@@ -103,7 +107,7 @@ export function AddVariableDialog({
                 rows={4}
                 className="max-h-[300px] min-h-[6rem] overflow-y-auto break-all font-mono"
               />
-            </div>
+            </FormField>
           </div>
           <DialogFooter>
             <Button
@@ -113,9 +117,9 @@ export function AddVariableDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Adding..." : "Add"}
-            </Button>
+            <SubmitButton isLoading={isPending} loadingLabel="Adding…">
+              Add
+            </SubmitButton>
           </DialogFooter>
         </form>
       </DialogContent>
