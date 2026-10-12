@@ -115,7 +115,7 @@ export function EditProject({
                   placeholder="Provide a brief description of your project to help team members understand its purpose..."
                   rows={4}
                   maxLength={500}
-                  className={`resize-none break-all ${
+                  className={`wrap-anywhere resize-none ${
                     fieldState.invalid
                       ? "border-red-500 focus:ring-red-500"
                       : ""
@@ -143,12 +143,12 @@ export function EditProject({
             name="isPublic"
             control={form.control}
             render={({ field }) => (
-              <div className="flex items-center justify-between rounded-lg border bg-background p-4">
-                <div className="space-y-0.5">
+              <div className="flex items-center justify-between gap-4 rounded-lg border bg-muted/30 p-4">
+                <div className="min-w-0 flex-1 space-y-0.5">
                   <Label htmlFor="edit-project-visibility" className="text-sm">
                     Public project
                   </Label>
-                  <p className="text-muted-foreground text-xs">
+                  <p className="wrap-anywhere text-muted-foreground text-xs">
                     When enabled, project metadata may be visible to others.
                   </p>
                 </div>
@@ -157,6 +157,7 @@ export function EditProject({
                   checked={field.value}
                   onCheckedChange={field.onChange}
                   disabled={isUpdating}
+                  className="shrink-0"
                 />
               </div>
             )}
@@ -176,7 +177,7 @@ export function EditProject({
                   {...field}
                   id={field.name}
                   type="url"
-                  placeholder="https://github.com/username/repo"
+                  placeholder="https://github.com/org/repo"
                   className={
                     fieldState.invalid
                       ? "border-red-500 focus:ring-red-500"

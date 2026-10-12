@@ -23,28 +23,35 @@ export function PageHeader({
   actionHref,
   showBack = true,
 }: PageHeaderProps) {
+  const trailingAction =
+    action ??
+    (actionLabel && actionHref ? (
+      <Button variant="default" asChild className="shrink-0">
+        <Link href={actionHref as Route}>{actionLabel}</Link>
+      </Button>
+    ) : null);
+
   return (
-    <header className="flex shrink-0 flex-row items-start gap-2">
-      {showBack && <GoBackButton />}
-      <div className="min-h-[3.25rem] min-w-0 flex-1">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <h1 className="truncate font-semibold text-xl tracking-tight">
-            {title}
-          </h1>
-          {titleAccessory}
+    <header className="flex min-w-0 shrink-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex min-w-0 flex-1 items-start gap-2">
+        {showBack && <GoBackButton />}
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h1 className="min-w-0 truncate font-semibold text-xl tracking-tight">
+              {title}
+            </h1>
+            {titleAccessory}
+          </div>
+          {description && (
+            <p className="wrap-anywhere line-clamp-2 text-muted-foreground text-xs">
+              {description}
+            </p>
+          )}
         </div>
-        {description && (
-          <p className="line-clamp-2 break-all text-muted-foreground text-xs">
-            {description}
-          </p>
-        )}
       </div>
-      {action ??
-        (actionLabel && actionHref ? (
-          <Button variant="default" asChild className="shrink-0">
-            <Link href={actionHref as Route}>{actionLabel}</Link>
-          </Button>
-        ) : null)}
+      {trailingAction && (
+        <div className="flex shrink-0 self-start sm:ml-2">{trailingAction}</div>
+      )}
     </header>
   );
 }

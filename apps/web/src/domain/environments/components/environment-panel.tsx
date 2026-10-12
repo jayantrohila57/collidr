@@ -65,9 +65,11 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="font-semibold text-lg">Variables</h3>
-        <AddVariableDialog onConfirm={handleCreate} isPending={isCreating} />
+        <div className="shrink-0 self-start sm:self-auto">
+          <AddVariableDialog onConfirm={handleCreate} isPending={isCreating} />
+        </div>
       </div>
 
       <VariablesTableView

@@ -72,7 +72,7 @@ export function EditEnvironmentDialog({
             type="button"
             variant="ghost"
             size="icon"
-            className="h-6 w-6"
+            className="size-11 shrink-0"
             aria-label={`Edit ${environment.name} environment`}
             onClick={(e) => {
               e.stopPropagation();

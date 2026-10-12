@@ -7,6 +7,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/utils/trpc";
 
@@ -83,12 +84,31 @@ function transformProject(project: ApiProject): ProjectOutput {
   };
 }
 
+const PROJECTS_LOAD_TIMEOUT_MS = 20_000;
+
 export function useProjects() {
   const queryClient = useQueryClient();
+  const [loadTimedOut, setLoadTimedOut] = useState(false);
+
   const projectsQuery = useQuery({
     ...trpc.projects.list.queryOptions(),
     meta: { toastOnError: false },
+    retry: 2,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
+    refetchOnWindowFocus: true,
   });
+
+  useEffect(() => {
+    if (!projectsQuery.isLoading) {
+      setLoadTimedOut(false);
+      return;
+    }
+    const timer = window.setTimeout(
+      () => setLoadTimedOut(true),
+      PROJECTS_LOAD_TIMEOUT_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [projectsQuery.isLoading]);
 
   const createMutation = useMutation(
     trpc.projects.create.mutationOptions({
@@ -444,8 +464,9 @@ export function useProjects() {
     }),
   );
 
-  const status: "loading" | "error" | "empty" | "success" =
-    projectsQuery.isLoading
+  const status: "loading" | "error" | "empty" | "success" = loadTimedOut
+    ? "error"
+    : projectsQuery.isLoading
       ? "loading"
       : projectsQuery.isError
         ? "error"
@@ -456,7 +477,10 @@ export function useProjects() {
   return {
     projects: (projectsQuery.data?.data ?? []).map(transformProject),
     status,
-    error: projectsQuery.error,
+    error: loadTimedOut
+      ? new Error("Projects took too long to load. Please try again.")
+      : projectsQuery.error,
+    refetch: projectsQuery.refetch,
     createProject: createMutation.mutateAsync,
     isCreating: createMutation.isPending,
     updateProject: updateMutation.mutateAsync,

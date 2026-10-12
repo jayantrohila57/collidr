@@ -26,12 +26,15 @@ interface CreateEnvironmentDialogProps {
   onConfirm: (name: string) => Promise<void>;
   isPending: boolean;
   triggerText?: string;
+  /** Icon-only trigger on small screens when paired with compactOnMobile */
+  compactOnMobile?: boolean;
 }
 
 export function CreateEnvironmentDialog({
   onConfirm,
   isPending,
   triggerText = "Create Environment",
+  compactOnMobile = false,
 }: CreateEnvironmentDialogProps) {
   const [open, setOpen] = useState(false);
 
@@ -53,9 +56,20 @@ export function CreateEnvironmentDialog({
         <Button
           variant={triggerText === "Add Environment" ? "outline" : "default"}
           size={triggerText === "Add Environment" ? "sm" : "default"}
+          className={
+            compactOnMobile
+              ? "max-sm:size-11 max-sm:shrink-0 max-sm:px-0"
+              : undefined
+          }
+          aria-label={compactOnMobile ? "Add environment" : undefined}
         >
-          <Plus className="mr-2 h-4 w-4" aria-hidden />
-          {triggerText}
+          <Plus
+            className={compactOnMobile ? "size-4 sm:mr-2" : "mr-2 h-4 w-4"}
+            aria-hidden
+          />
+          <span className={compactOnMobile ? "hidden sm:inline" : undefined}>
+            {triggerText}
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent>

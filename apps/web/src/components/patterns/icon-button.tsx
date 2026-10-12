@@ -32,7 +32,7 @@ export function IconButton({
             type="button"
             variant="ghost"
             size="icon"
-            className={cn("size-8 shrink-0", className)}
+            className={cn("size-11 shrink-0", className)}
             aria-label={label}
             {...props}
           >

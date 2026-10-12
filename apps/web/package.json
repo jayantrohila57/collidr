@@ -6,7 +6,7 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start",
-    "a11y": "playwright test e2e/a11y.spec.ts"
+    "a11y": "playwright test e2e/"
   },
   "dependencies": {
     "@env-manager/api": "workspace:*",

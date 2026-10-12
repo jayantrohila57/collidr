@@ -22,7 +22,7 @@ export default async function DashboardPage() {
   return (
     <Shell>
       <Shell.Section variant="dashboard" padding="dashboard" scale="full">
-        <DashboardSection {...header}>
+        <DashboardSection {...header} showBack={false}>
           <DashboardStats />
         </DashboardSection>
       </Shell.Section>

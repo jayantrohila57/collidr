@@ -41,7 +41,7 @@ export default function ProjectDetail({
   const hasLinks = Boolean(project.repositoryUrl || project.websiteUrl);
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 max-w-full space-y-4">
       <Card className="bg-background">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 font-medium text-base">

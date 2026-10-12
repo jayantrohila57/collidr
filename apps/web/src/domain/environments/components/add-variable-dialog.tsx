@@ -105,7 +105,7 @@ export function AddVariableDialog({
                 onChange={(e) => setValue(e.target.value)}
                 placeholder="your-value-here"
                 rows={4}
-                className="max-h-[300px] min-h-[6rem] overflow-y-auto break-all font-mono"
+                className="wrap-anywhere max-h-[300px] min-h-[6rem] overflow-y-auto font-mono"
               />
             </FormField>
           </div>

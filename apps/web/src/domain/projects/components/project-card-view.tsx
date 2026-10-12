@@ -34,7 +34,7 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
     : null;
 
   return (
-    <Card className="min-h-80 border bg-input/30">
+    <Card className="min-h-0 border bg-input/30 sm:min-h-64">
       <CardHeader>
         <CardTitle className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <Folder className="h-5 w-5" />

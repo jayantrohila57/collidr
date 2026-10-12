@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -22,58 +23,76 @@ interface OrganizationLayoutProps {
 export default function OrganizationLayout({
   children,
 }: OrganizationLayoutProps) {
+  const pathname = usePathname();
+  const showCompactMobileNav =
+    pathname === "/dashboard" ||
+    pathname === "/dashboard/settings" ||
+    pathname.startsWith("/dashboard/settings/");
+
   return (
     <Shell>
       <SidebarProvider>
         <AppSidebar />
-        <SidebarInset className="flex min-h-svh flex-col">
-          <header className="flex h-14 shrink-0 items-center gap-2 px-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 sm:px-4">
+        <SidebarInset className="flex min-h-svh min-w-0 flex-col overflow-x-hidden">
+          <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-2 backdrop-blur-md supports-backdrop-filter:bg-background/80 sm:px-4">
             <div className="flex w-full min-w-0 items-center justify-between gap-2">
-              <div className="flex min-w-0 flex-1 flex-row items-center justify-start">
-                <SidebarTrigger className="-ml-0.5" />
+              <div className="flex min-w-0 flex-1 flex-row items-center justify-start gap-1">
+                <SidebarTrigger className="-ml-0.5 size-11 shrink-0" />
                 <Separator
                   orientation="vertical"
-                  className="my-auto mr-2 ml-1 data-[orientation=vertical]:h-6"
+                  className="my-auto mr-1 ml-0.5 hidden data-[orientation=vertical]:h-6 sm:block"
                 />
-                <div className="hidden md:block">
+                <div className="hidden min-w-0 flex-1 md:block">
                   <Breadcrumbs />
                 </div>
-                <div className="flex w-full flex-row items-center gap-2 md:hidden">
-                  <Avatar>
-                    <AvatarImage
-                      src="/favicon/favicon.ico"
-                      alt={siteConfig.name}
-                    />
-                    <AvatarFallback>
-                      {siteConfig.name
-                        ? siteConfig.name.slice(0, 2).toUpperCase()
-                        : "NA"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">
-                      {siteConfig.name}
-                    </span>
-                    <span className="truncate text-xs">
-                      {siteConfig.description}
-                    </span>
-                  </div>
+                <div
+                  className={
+                    showCompactMobileNav
+                      ? "flex min-w-0 flex-1 flex-row items-center gap-2 md:hidden"
+                      : "hidden min-w-0 flex-1 md:hidden"
+                  }
+                >
+                  {showCompactMobileNav ? (
+                    <>
+                      <Avatar className="size-9 shrink-0">
+                        <AvatarImage
+                          src="/favicon/favicon.ico"
+                          alt={siteConfig.name}
+                        />
+                        <AvatarFallback>
+                          {siteConfig.name
+                            ? siteConfig.name.slice(0, 2).toUpperCase()
+                            : "NA"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-medium">
+                          {siteConfig.name}
+                        </span>
+                        <span className="truncate text-xs">
+                          {siteConfig.description}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="min-w-0 flex-1 overflow-hidden">
+                      <Breadcrumbs className="flex-nowrap" />
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="flex w-auto flex-row items-center justify-end gap-4">
+              <div className="flex shrink-0 flex-row items-center justify-end gap-2 sm:gap-4">
                 <ModeToggle />
                 <UserMenu />
               </div>
             </div>
           </header>
-          <Separator />
-          <div className="block p-5 md:hidden">
-            <Breadcrumbs />
-          </div>
-          <div className="block md:hidden">
-            <Separator />
-          </div>
-          <Shell.Main variant="dashboard" padding="none" scale={"dashboard"}>
+          <Shell.Main
+            variant="dashboard"
+            padding="none"
+            scale={"dashboard"}
+            className="min-w-0 max-w-full overflow-x-hidden"
+          >
             <OrgOnboardingGate>{children}</OrgOnboardingGate>
           </Shell.Main>
         </SidebarInset>

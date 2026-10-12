@@ -24,7 +24,7 @@ interface ProjectCategory {
 }
 
 export default function ProjectList() {
-  const { projects, status, error } = useProjects();
+  const { projects, status, error, refetch } = useProjects();
 
   const categorizedProjects = useMemo(() => {
     if (status !== "success" || !projects.length)
@@ -86,7 +86,7 @@ export default function ProjectList() {
             error?.message ??
             "We could not load your projects. Please try again."
           }
-          onRetry={() => window.location.reload()}
+          onRetry={() => void refetch()}
         />
       );
     case "empty":

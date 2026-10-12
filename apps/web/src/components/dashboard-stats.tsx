@@ -153,10 +153,10 @@ export default function DashboardStats() {
   return (
     <div className="space-y-2">
       {/* Welcome Section */}
-      <div className="rounded-lg border bg-card p-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center justify-start space-x-4">
-            <Avatar className="h-24 w-24 border-2">
+      <div className="min-w-0 rounded-lg border bg-card p-4">
+        <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+            <Avatar className="size-14 shrink-0 border-2 sm:size-20">
               <AvatarImage
                 src={user?.image || undefined}
                 alt={user?.name || "User"}
@@ -165,23 +165,29 @@ export default function DashboardStats() {
                 {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <h1 className="font-bold text-2xl">
+            <div className="min-w-0">
+              <h1 className="font-bold text-lg leading-tight sm:text-2xl">
                 Welcome back, {user?.name || user?.email || "User"}!
               </h1>
-              <p className="text-muted-foreground">
+              <p className="wrap-anywhere text-muted-foreground text-sm">
                 Here's what's happening with your projects today
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Badge variant="secondary" className="flex items-center gap-1">
-              <Sparkles className="h-3 w-3" />
-              {stats.totalProjects} Projects
+          <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
+            <Badge
+              variant="secondary"
+              className="flex max-w-full items-center gap-1"
+            >
+              <Sparkles className="h-3 w-3 shrink-0" />
+              <span className="truncate">{stats.totalProjects} Projects</span>
             </Badge>
-            <Badge variant="outline" className="flex items-center gap-1">
-              <TrendingUp className="h-3 w-3" />
-              {stats.activeProjects} Active
+            <Badge
+              variant="outline"
+              className="flex max-w-full items-center gap-1"
+            >
+              <TrendingUp className="h-3 w-3 shrink-0" />
+              <span className="truncate">{stats.activeProjects} Active</span>
             </Badge>
           </div>
         </div>
@@ -245,7 +251,7 @@ export default function DashboardStats() {
       </div>
 
       {activity && (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
           <Card className="border bg-input/30">
             <CardHeader>
               <CardTitle>Recent Projects</CardTitle>

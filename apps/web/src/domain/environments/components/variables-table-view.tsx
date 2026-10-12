@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import { AddVariableDialog } from "./add-variable-dialog";
 import { EditVariableDialog } from "./edit-variable-dialog";
+import { VariablesMobileList } from "./variables-mobile-list";
 
 interface Variable {
   id: string;
@@ -138,7 +139,14 @@ export function VariablesTableView({
 
   return (
     <>
-      <div className="overflow-x-auto">
+      <VariablesMobileList
+        variables={variables}
+        revealedIds={revealedIds}
+        onReveal={onReveal}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+      <div className="hidden min-w-0 overflow-x-auto md:block">
         <Table className="w-full table-fixed">
           <TableHeader>
             <TableRow>
@@ -201,7 +209,7 @@ export function VariablesTableView({
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="size-8"
+                            className="size-11"
                             aria-label="Variable actions"
                           >
                             <MoreVertical className="size-4" aria-hidden />

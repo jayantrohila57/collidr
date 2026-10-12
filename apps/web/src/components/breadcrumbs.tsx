@@ -54,15 +54,46 @@ export function Breadcrumbs({ className }: { className?: string }) {
     router.push(href as Route);
   };
 
+  const collapseMiddle = breadcrumbs.length > 4;
+  const visibleIndices = collapseMiddle
+    ? [0, breadcrumbs.length - 2, breadcrumbs.length - 1]
+    : breadcrumbs.map((_, i) => i);
+
   return (
-    <Breadcrumb>
-      <BreadcrumbList className={cn("min-w-0", className)}>
-        <BreadcrumbItem>
-          <BreadcrumbLink href={"/"} aria-label="Home">
+    <Breadcrumb className="min-w-0">
+      <BreadcrumbList
+        className={cn("min-w-0 flex-nowrap overflow-hidden", className)}
+      >
+        <BreadcrumbItem className="shrink-0">
+          <BreadcrumbLink
+            href={"/"}
+            aria-label="Home"
+            className="inline-flex size-11 items-center justify-center"
+          >
             <Home className="size-4" aria-hidden />
           </BreadcrumbLink>
         </BreadcrumbItem>
         {breadcrumbs?.map((breadcrumb, index) => {
+          if (collapseMiddle && index > 0 && index < breadcrumbs.length - 2) {
+            if (index === 1) {
+              return (
+                <React.Fragment key="ellipsis">
+                  <BreadcrumbSeparator className="shrink-0">
+                    {"/"}
+                  </BreadcrumbSeparator>
+                  <BreadcrumbItem className="shrink-0 text-muted-foreground">
+                    …
+                  </BreadcrumbItem>
+                </React.Fragment>
+              );
+            }
+            return null;
+          }
+
+          if (!visibleIndices.includes(index) && !collapseMiddle) {
+            return null;
+          }
+
           const isProjectSlug =
             index === 2 &&
             breadcrumbs[1]?.segment === "projects" &&
@@ -75,10 +106,10 @@ export function Breadcrumbs({ className }: { className?: string }) {
 
           return (
             <React.Fragment key={breadcrumb.href}>
-              <BreadcrumbSeparator className="first:hidden">
+              <BreadcrumbSeparator className="shrink-0 first:hidden">
                 {"/"}
               </BreadcrumbSeparator>
-              <BreadcrumbItem className="max-w-[10rem] truncate sm:max-w-xs">
+              <BreadcrumbItem className="max-w-[5.5rem] shrink truncate sm:max-w-[8rem] md:max-w-xs">
                 {index === breadcrumbs.length - 1 ? (
                   <BreadcrumbPage className="truncate">{label}</BreadcrumbPage>
                 ) : (

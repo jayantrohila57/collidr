@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { trpc } from "@/utils/trpc";
 
 // Interface for dashboard stats response
@@ -34,19 +35,37 @@ interface RecentActivity {
   }>;
 }
 
+const DASHBOARD_LOAD_TIMEOUT_MS = 20_000;
+
 export function useDashboardStats() {
+  const [loadTimedOut, setLoadTimedOut] = useState(false);
   const statsQuery = useQuery({
     ...trpc.dashboard.getStats.queryOptions(),
     meta: { toastOnError: false },
+    retry: 2,
   });
 
-  const status: "loading" | "error" | "empty" | "success" = statsQuery.isLoading
-    ? "loading"
-    : statsQuery.isError
-      ? "error"
-      : statsQuery.data
-        ? "success"
-        : "empty";
+  useEffect(() => {
+    if (!statsQuery.isLoading) {
+      setLoadTimedOut(false);
+      return;
+    }
+    const timer = window.setTimeout(
+      () => setLoadTimedOut(true),
+      DASHBOARD_LOAD_TIMEOUT_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [statsQuery.isLoading]);
+
+  const status: "loading" | "error" | "empty" | "success" = loadTimedOut
+    ? "error"
+    : statsQuery.isLoading
+      ? "loading"
+      : statsQuery.isError
+        ? "error"
+        : statsQuery.data
+          ? "success"
+          : "empty";
 
   return {
     stats: statsQuery.data as DashboardStats | undefined,

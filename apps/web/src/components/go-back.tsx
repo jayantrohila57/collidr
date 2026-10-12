@@ -21,9 +21,10 @@ const GoBackButton = memo(() => {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            size={"icon"}
+            size="icon"
+            className="size-11 shrink-0"
             onClick={handleGoBack}
-            variant={"outline"}
+            variant="outline"
             aria-label="Back"
             role="button"
             tabIndex={0}
