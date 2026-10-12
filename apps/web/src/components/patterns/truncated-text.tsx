@@ -16,6 +16,21 @@ interface TruncatedTextProps {
   emptyFallback?: string;
 }
 
+function measureIsTruncated(el: HTMLParagraphElement, lines: number) {
+  const style = getComputedStyle(el);
+  const lineHeight = Number.parseFloat(style.lineHeight);
+  if (Number.isFinite(lineHeight) && lineHeight > 0 && lines > 0) {
+    const clampedMax = lineHeight * lines + 2;
+    if (el.scrollHeight > clampedMax) {
+      return true;
+    }
+  }
+  return (
+    el.scrollHeight > el.clientHeight + 1 ||
+    el.scrollHeight > el.offsetHeight + 1
+  );
+}
+
 export function TruncatedText({
   text,
   className,
@@ -36,15 +51,26 @@ export function TruncatedText({
     }
 
     const measure = () => {
-      setIsTruncated(el.scrollHeight > el.clientHeight + 1);
+      setIsTruncated(measureIsTruncated(el, lines));
     };
 
     measure();
+    const raf = requestAnimationFrame(() => {
+      measure();
+      requestAnimationFrame(measure);
+    });
 
     const observer = new ResizeObserver(measure);
     observer.observe(el);
-    return () => observer.disconnect();
-  }, [expanded, content]);
+    if (el.parentElement) {
+      observer.observe(el.parentElement);
+    }
+
+    return () => {
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+    };
+  }, [expanded, content, lines]);
 
   if (expanded) {
     return (
