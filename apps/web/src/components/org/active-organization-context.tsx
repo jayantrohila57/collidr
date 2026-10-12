@@ -28,6 +28,7 @@ type ActiveOrganizationContextValue = {
   orgs: OrgListItem[];
   activeOrganizationId: string | null;
   loading: boolean;
+  isSwitching: boolean;
   initialLoadDone: boolean;
   refreshOrganizations: () => Promise<void>;
   setActiveOrganization: (organizationId: string) => Promise<void>;
@@ -58,6 +59,7 @@ export function ActiveOrganizationProvider({
     string | null
   >(null);
   const [loading, setLoading] = useState(enabled);
+  const [isSwitching, setIsSwitching] = useState(false);
   const [initialLoadDone, setInitialLoadDone] = useState(!enabled);
   const initialLoadStarted = useRef(false);
 
@@ -99,31 +101,40 @@ export function ActiveOrganizationProvider({
   }, [enabled, refreshOrganizations]);
 
   const applyActiveOrganization = useCallback(
-    async (organizationId: string) => {
-      await authClient.organization.setActive({ organizationId });
+    async (organizationId: string, options?: { awaitRefresh?: boolean }) => {
       setActiveOrganizationId(organizationId);
-      await invalidateAfterOrganizationChange(queryClient);
-      router.refresh();
+      setIsSwitching(true);
+      try {
+        await authClient.organization.setActive({ organizationId });
+        await invalidateAfterOrganizationChange(queryClient);
+        router.refresh();
+        const refresh = refreshOrganizations();
+        if (options?.awaitRefresh) {
+          await refresh;
+        } else {
+          void refresh;
+        }
+      } finally {
+        setIsSwitching(false);
+      }
     },
-    [queryClient, router],
+    [queryClient, refreshOrganizations, router],
   );
 
   const setActiveOrganization = useCallback(
     async (organizationId: string) => {
       if (!enabled) return;
       await applyActiveOrganization(organizationId);
-      await refreshOrganizations();
     },
-    [applyActiveOrganization, enabled, refreshOrganizations],
+    [applyActiveOrganization, enabled],
   );
 
   const afterOrganizationCreated = useCallback(
     async (organizationId: string) => {
       if (!enabled) return;
-      await applyActiveOrganization(organizationId);
-      await refreshOrganizations();
+      await applyActiveOrganization(organizationId, { awaitRefresh: true });
     },
-    [applyActiveOrganization, enabled, refreshOrganizations],
+    [applyActiveOrganization, enabled],
   );
 
   const value = useMemo<ActiveOrganizationContextValue>(
@@ -132,6 +143,7 @@ export function ActiveOrganizationProvider({
       orgs,
       activeOrganizationId,
       loading,
+      isSwitching,
       initialLoadDone,
       refreshOrganizations,
       setActiveOrganization,
@@ -142,6 +154,7 @@ export function ActiveOrganizationProvider({
       orgs,
       activeOrganizationId,
       loading,
+      isSwitching,
       initialLoadDone,
       refreshOrganizations,
       setActiveOrganization,

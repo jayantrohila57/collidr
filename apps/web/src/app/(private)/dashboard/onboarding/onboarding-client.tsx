@@ -53,13 +53,18 @@ export default function OnboardingClient() {
   }, [nameValue, slugTouched, form]);
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
+    form.clearErrors("slug");
     const created = await authClient.organization.create({
       name: data.name,
       slug: data.slug,
     });
 
     if (created.error) {
-      toast.error(formatOrganizationCreateError(created.error.message));
+      const message = formatOrganizationCreateError(created.error.message);
+      if (message.toLowerCase().includes("slug")) {
+        form.setError("slug", { message });
+      }
+      toast.error(message);
       return;
     }
 

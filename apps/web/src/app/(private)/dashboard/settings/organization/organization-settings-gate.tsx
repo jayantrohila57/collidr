@@ -6,11 +6,11 @@ import { useEffect } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
-import OrganizationSettingsClient from "./organization-settings-client";
+import { OrganizationSettingsForm } from "./organization-settings-client";
 
 export default function OrganizationSettingsGate() {
   const router = useRouter();
-  const { loading, initialLoadDone, activeOrganizationId } =
+  const { loading, initialLoadDone, activeOrganizationId, isSwitching } =
     useActiveOrganization();
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export default function OrganizationSettingsGate() {
     return null;
   }
 
-  if (!initialLoadDone || loading) {
+  if (!initialLoadDone || loading || isSwitching || !activeOrganizationId) {
     return (
       <div className="space-y-4 p-4" aria-busy="true">
         <Skeleton className="h-8 w-64" />
@@ -32,13 +32,10 @@ export default function OrganizationSettingsGate() {
     );
   }
 
-  if (!activeOrganizationId) {
-    return (
-      <div className="p-4 text-muted-foreground text-sm">
-        Select an organization from the sidebar switcher to manage settings.
-      </div>
-    );
-  }
-
-  return <OrganizationSettingsClient />;
+  return (
+    <OrganizationSettingsForm
+      key={activeOrganizationId}
+      organizationId={activeOrganizationId}
+    />
+  );
 }

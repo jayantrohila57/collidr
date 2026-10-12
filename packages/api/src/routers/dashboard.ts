@@ -75,8 +75,13 @@ export const dashboardRouter = router({
     const recentAuditLogsResult = await db
       .select({ count: count() })
       .from(auditLog)
+      .innerJoin(project, eq(auditLog.projectId, project.id))
       .where(
-        and(eq(auditLog.userId, userId), gte(auditLog.createdAt, sevenDaysAgo)),
+        and(
+          eq(auditLog.userId, userId),
+          gte(auditLog.createdAt, sevenDaysAgo),
+          scope,
+        ),
       );
 
     const productionEnvironmentsResult = await db
@@ -136,7 +141,8 @@ export const dashboardRouter = router({
         createdAt: auditLog.createdAt,
       })
       .from(auditLog)
-      .where(eq(auditLog.userId, userId))
+      .innerJoin(project, eq(auditLog.projectId, project.id))
+      .where(and(eq(auditLog.userId, userId), scope))
       .orderBy(sql`${auditLog.createdAt} DESC`)
       .limit(10);
 

@@ -47,26 +47,26 @@ type MemberRow = {
 
 const ROLES = ["member", "admin", "owner"] as const;
 
-export default function OrganizationSettingsClient() {
+export function OrganizationSettingsForm({
+  organizationId,
+}: {
+  organizationId: string;
+}) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: session } = useSession();
-  const {
-    refreshOrganizations,
-    activeOrganizationId,
-    orgs,
-    setActiveOrganization,
-  } = useActiveOrganization();
+  const { refreshOrganizations, orgs, setActiveOrganization } =
+    useActiveOrganization();
 
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [orgName, setOrgName] = useState("");
   const [orgSlug, setOrgSlug] = useState("");
-  const [orgId, setOrgId] = useState("");
   const [orgMetadata, setOrgMetadata] = useState<
     string | Record<string, unknown> | null
   >(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [slugError, setSlugError] = useState<string | undefined>();
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<string>("member");
   const [invitePending, setInvitePending] = useState(false);
@@ -87,44 +87,59 @@ export default function OrganizationSettingsClient() {
     metadata: orgMetadata,
   });
 
-  const loadMembers = useCallback(async () => {
-    const org = await authClient.organization.getFullOrganization();
-    if (org.data) {
-      setOrgName(org.data.name);
-      setOrgSlug(org.data.slug);
-      setOrgId(org.data.id);
-      setOrgMetadata(org.data.metadata ?? null);
-      const list = await authClient.organization.listMembers({});
-      setMembers((list.data?.members ?? []) as MemberRow[]);
+  const loadOrganization = useCallback(async (targetOrgId: string) => {
+    const org = await authClient.organization.getFullOrganization({
+      query: { organizationId: targetOrgId },
+    });
+    if (!org.data || org.data.id !== targetOrgId) {
+      throw new Error("Organization not found");
     }
+    setOrgName(org.data.name);
+    setOrgSlug(org.data.slug);
+    setOrgMetadata(org.data.metadata ?? null);
+    const list = await authClient.organization.listMembers({
+      query: { organizationId: targetOrgId },
+    });
+    setMembers((list.data?.members ?? []) as MemberRow[]);
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
+    setSlugError(undefined);
+    setDeleteOpen(false);
+    setDeleteConfirmName("");
+
     void (async () => {
       try {
-        await loadMembers();
+        await loadOrganization(organizationId);
       } catch {
-        setError(true);
+        if (!cancelled) setError(true);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
-  }, [loadMembers]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [organizationId, loadOrganization]);
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     const email = inviteEmail.trim();
-    if (!email || !orgId) return;
+    if (!email) return;
     setInvitePending(true);
     try {
       await authClient.organization.inviteMember({
         email,
         role: inviteRole as "member" | "admin" | "owner",
-        organizationId: orgId,
+        organizationId,
       });
       toast.success("Invitation sent");
       setInviteEmail("");
-      await loadMembers();
+      await loadOrganization(organizationId);
     } catch {
       toast.error("Could not send invitation");
     } finally {
@@ -138,10 +153,10 @@ export default function OrganizationSettingsClient() {
       await authClient.organization.updateMemberRole({
         memberId,
         role: role as "member" | "admin" | "owner",
-        organizationId: orgId,
+        organizationId,
       });
       toast.success("Role updated");
-      await loadMembers();
+      await loadOrganization(organizationId);
     } catch {
       toast.error("Could not update role");
     } finally {
@@ -151,22 +166,26 @@ export default function OrganizationSettingsClient() {
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!orgId) return;
+    setSlugError(undefined);
     setSavePending(true);
     try {
       const result = await authClient.organization.update({
-        organizationId: orgId,
+        organizationId,
         data: {
           name: orgName.trim(),
           slug: orgSlug.trim(),
         },
       });
       if (result.error) {
-        toast.error(formatOrganizationCreateError(result.error.message));
+        const message = formatOrganizationCreateError(result.error.message);
+        if (message.toLowerCase().includes("slug")) {
+          setSlugError(message);
+        }
+        toast.error(message);
         return;
       }
       toast.success("Organization updated");
-      await loadMembers();
+      await loadOrganization(organizationId);
       await refreshOrganizations();
     } catch {
       toast.error("Could not update organization");
@@ -175,31 +194,32 @@ export default function OrganizationSettingsClient() {
     }
   };
 
-  const afterMembershipChange = async () => {
-    await invalidateAfterOrganizationChange(queryClient);
-    await refreshOrganizations();
-    router.replace("/dashboard" as Route);
-    router.refresh();
-  };
-
   const handleDelete = async () => {
-    if (!orgId || deleteConfirmName !== orgName) return;
+    if (deleteConfirmName !== orgName) return;
+    const deletedId = organizationId;
+    const deletedName = orgName;
+    const fallback = orgs.find((o) => o.id !== deletedId);
+
+    setDeleteOpen(false);
     setDeletePending(true);
+    router.replace("/dashboard" as Route);
+    void invalidateAfterOrganizationChange(queryClient);
+
     try {
       const result = await authClient.organization.delete({
-        organizationId: orgId,
+        organizationId: deletedId,
       });
       if (result.error) {
         toast.error(result.error.message ?? "Could not delete organization");
         return;
       }
-      toast.success("Organization deleted");
-      setDeleteOpen(false);
-      const fallback = orgs.find((o) => o.id !== orgId);
+      toast.success(`Deleted ${deletedName}`);
       if (fallback) {
         await setActiveOrganization(fallback.id);
+      } else {
+        await refreshOrganizations();
       }
-      await afterMembershipChange();
+      router.refresh();
     } catch {
       toast.error("Could not delete organization");
     } finally {
@@ -208,22 +228,27 @@ export default function OrganizationSettingsClient() {
   };
 
   const handleLeave = async () => {
-    if (!orgId) return;
     setLeavePending(true);
+    const leftId = organizationId;
+    const fallback = orgs.find((o) => o.id !== leftId);
+    router.replace("/dashboard" as Route);
+    void invalidateAfterOrganizationChange(queryClient);
+
     try {
       const result = await authClient.organization.leave({
-        organizationId: orgId,
+        organizationId: leftId,
       });
       if (result.error) {
         toast.error(result.error.message ?? "Could not leave organization");
         return;
       }
       toast.success("You left the organization");
-      const fallback = orgs.find((o) => o.id !== orgId);
       if (fallback) {
         await setActiveOrganization(fallback.id);
+      } else {
+        await refreshOrganizations();
       }
-      await afterMembershipChange();
+      router.refresh();
     } catch {
       toast.error("Could not leave organization");
     } finally {
@@ -233,7 +258,7 @@ export default function OrganizationSettingsClient() {
 
   if (loading) {
     return (
-      <div className="space-y-4 p-4">
+      <div className="space-y-4 p-4" aria-busy="true">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-24 w-full" />
       </div>
@@ -245,7 +270,7 @@ export default function OrganizationSettingsClient() {
       <ErrorState
         title="Organization settings unavailable"
         description="Select an organization or complete onboarding first."
-        onRetry={() => void loadMembers()}
+        onRetry={() => void loadOrganization(organizationId)}
       />
     );
   }
@@ -271,13 +296,15 @@ export default function OrganizationSettingsClient() {
           label="Slug"
           required
           hint="Lowercase identifier; must be unique across Env Manager."
+          error={slugError}
         >
           <Input
             id="org-slug-edit"
             value={orgSlug}
-            onChange={(e) =>
-              setOrgSlug(slugifyOrganizationName(e.target.value))
-            }
+            onChange={(e) => {
+              setSlugError(undefined);
+              setOrgSlug(slugifyOrganizationName(e.target.value));
+            }}
           />
         </FormField>
         <SubmitButton isLoading={savePending} loadingLabel="Saving…">
@@ -372,7 +399,7 @@ export default function OrganizationSettingsClient() {
             <Button
               type="button"
               variant="destructive"
-              disabled={isPersonal || orgs.length <= 1}
+              disabled={isPersonal || orgs.length <= 1 || deletePending}
               onClick={() => {
                 setDeleteConfirmName("");
                 setDeleteOpen(true);
@@ -415,7 +442,8 @@ export default function OrganizationSettingsClient() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete organization</AlertDialogTitle>
             <AlertDialogDescription>
-              Type <strong>{orgName}</strong> to confirm. This cannot be undone.
+              Type <strong>{orgName}</strong> to confirm deleting organization{" "}
+              <strong>{orgSlug}</strong>. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <Input
@@ -449,5 +477,16 @@ export default function OrganizationSettingsClient() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  );
+}
+
+export default function OrganizationSettingsClient() {
+  const { activeOrganizationId } = useActiveOrganization();
+  if (!activeOrganizationId) return null;
+  return (
+    <OrganizationSettingsForm
+      key={activeOrganizationId}
+      organizationId={activeOrganizationId}
+    />
   );
 }

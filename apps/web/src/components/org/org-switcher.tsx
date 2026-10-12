@@ -4,7 +4,6 @@ import { Building2, ChevronsUpDown, Plus, Settings } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { toast } from "sonner";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -37,32 +36,26 @@ export function OrgSwitcher() {
     initialLoadDone,
     setActiveOrganization,
   } = useActiveOrganization();
-  const [switching, setSwitching] = useState(false);
 
   if (!isOrganizationsEnabledOnClient()) {
     return null;
   }
 
-  const showLoading = !initialLoadDone && loading;
+  const showInitialLoading = !initialLoadDone && loading;
   const active = orgs.find((o) => o.id === activeOrganizationId) ?? orgs[0];
 
   const onSelectOrg = async (organizationId: string) => {
     if (organizationId === activeOrganizationId) return;
-    setSwitching(true);
     try {
       await setActiveOrganization(organizationId);
     } catch {
       toast.error("Could not switch organization");
-    } finally {
-      setSwitching(false);
     }
   };
 
-  const triggerLabel = showLoading
+  const triggerLabel = showInitialLoading
     ? "Loading organization"
-    : switching
-      ? "Switching organization"
-      : (active?.name ?? "Select organization");
+    : (active?.name ?? "Select organization");
 
   const triggerButton = (
     <Button
@@ -72,7 +65,7 @@ export function OrgSwitcher() {
           ? "mb-0 size-8 justify-center p-0"
           : "mb-2 w-full justify-between gap-2"
       }
-      disabled={showLoading || switching}
+      disabled={showInitialLoading}
       aria-label="Switch organization"
     >
       <span
@@ -82,7 +75,7 @@ export function OrgSwitcher() {
             : "flex min-w-0 items-center gap-2"
         }
       >
-        {showLoading ? (
+        {showInitialLoading ? (
           <Skeleton className="h-6 w-6 shrink-0 rounded-full" />
         ) : (
           <Avatar className="h-6 w-6 shrink-0">
@@ -93,7 +86,7 @@ export function OrgSwitcher() {
         )}
         {!collapsed && (
           <span className="truncate text-sm">
-            {showLoading || switching
+            {showInitialLoading
               ? "Loading…"
               : (active?.name ?? "Select organization")}
           </span>

@@ -110,7 +110,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
-          <Separator className="my-2" />
+          <Separator className="my-2 group-data-[collapsible=icon]:hidden" />
           <SidebarGroupContent>
             <SidebarMenu className="flex flex-col gap-1">
               {menuItems.map((item) => {
@@ -137,7 +137,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         <SidebarGroup>
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
-          <Separator className="my-2" />
+          <Separator className="my-2 group-data-[collapsible=icon]:hidden" />
           <SidebarGroupContent>
             <SidebarMenu className="flex flex-col gap-1">
               {status === "loading" && (
