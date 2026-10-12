@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import { ErrorState } from "@/components/patterns/error-state";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -40,7 +41,9 @@ import type {
 } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "@/domain/auth/lib/auth-actions";
+import { DashboardPageSkeleton } from "@/domain/dashboard/components/skeletons";
 import { useDashboard } from "@/domain/dashboard/hooks/use-dashboard";
+import { formatDate } from "@/lib/format";
 import { Separator } from "./ui/separator";
 
 const _chartConfig = {
@@ -100,7 +103,7 @@ function StatCard({ title, value, icon, description, href }: StatCardProps) {
   return cardContent;
 }
 
-function ChartSkeleton() {
+function _ChartSkeleton() {
   return (
     <div className="flex h-[300px] items-center justify-center">
       <Skeleton className="h-full w-full" />
@@ -109,65 +112,31 @@ function ChartSkeleton() {
 }
 
 export default function DashboardStats() {
-  const { stats, activity, isLoading } = useDashboard();
+  const { stats, activity, isLoading, status, refetch } = useDashboard();
   const { data: session } = useSession();
   const user = session?.user;
 
   if (isLoading) {
+    return <DashboardPageSkeleton />;
+  }
+
+  if (status === "error") {
     return (
-      <div className="space-y-6">
-        {/* Welcome Skeleton */}
-        <div className="rounded-lg border bg-card p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Skeleton className="h-12 w-12 rounded-full" />
-              <div>
-                <Skeleton className="mb-2 h-6 w-48" />
-                <Skeleton className="h-4 w-64" />
-              </div>
-            </div>
-            <Skeleton className="h-8 w-8" />
-          </div>
-        </div>
-
-        {/* Separator */}
-        <div className="border-t" />
-
-        {/* Stats Skeleton */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[
-            "total-projects",
-            "total-environments",
-            "environment-variables",
-            "production-environments",
-            "recent-activity",
-            "active-rate",
-          ].map((id) => (
-            <Card key={id}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-6 w-6" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-8 w-16" />
-                <Skeleton className="mt-2 h-3 w-24" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <ChartSkeleton />
-          <ChartSkeleton />
-        </div>
-      </div>
+      <ErrorState
+        title="Failed to load dashboard"
+        description="We could not load your statistics."
+        onRetry={() => refetch()}
+      />
     );
   }
 
   if (!stats) {
     return (
-      <div className="flex h-96 items-center justify-center">
-        <p className="text-muted-foreground">No data available</p>
-      </div>
+      <ErrorState
+        title="No dashboard data"
+        description="Try refreshing the page."
+        onRetry={() => refetch()}
+      />
     );
   }
 
@@ -310,11 +279,7 @@ export default function DashboardStats() {
                           {project.status}
                         </Badge>
                         <p className="mt-1 text-muted-foreground text-xs">
-                          {new Intl.DateTimeFormat("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          }).format(new Date(project.createdAt))}
+                          {formatDate(project.createdAt)}
                         </p>
                       </div>
                     </div>

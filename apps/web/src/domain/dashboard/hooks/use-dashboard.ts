@@ -35,7 +35,10 @@ interface RecentActivity {
 }
 
 export function useDashboardStats() {
-  const statsQuery = useQuery(trpc.dashboard.getStats.queryOptions());
+  const statsQuery = useQuery({
+    ...trpc.dashboard.getStats.queryOptions(),
+    meta: { toastOnError: false },
+  });
 
   const status: "loading" | "error" | "empty" | "success" = statsQuery.isLoading
     ? "loading"
@@ -55,9 +58,10 @@ export function useDashboardStats() {
 }
 
 export function useDashboardActivity() {
-  const activityQuery = useQuery(
-    trpc.dashboard.getRecentActivity.queryOptions(),
-  );
+  const activityQuery = useQuery({
+    ...trpc.dashboard.getRecentActivity.queryOptions(),
+    meta: { toastOnError: false },
+  });
 
   const status: "loading" | "error" | "empty" | "success" =
     activityQuery.isLoading

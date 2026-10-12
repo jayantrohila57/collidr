@@ -25,9 +25,10 @@ export function useVariables(environmentId: string) {
   const queryClient = useQueryClient();
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
 
-  const variablesQuery = useQuery(
-    trpc.environmentVariables.list.queryOptions({ environmentId }),
-  );
+  const variablesQuery = useQuery({
+    ...trpc.environmentVariables.list.queryOptions({ environmentId }),
+    meta: { toastOnError: false },
+  });
 
   const createMutation = useMutation(
     trpc.environmentVariables.create.mutationOptions({
@@ -64,8 +65,7 @@ export function useVariables(environmentId: string) {
 
         return { previousVariables };
       },
-      onError: (error) => {
-        toast.error(error.message);
+      onError: () => {
         // Rollback to the previous value
         if (createMutation.context?.previousVariables) {
           queryClient.setQueryData(
@@ -118,8 +118,7 @@ export function useVariables(environmentId: string) {
 
         return { previousVariables };
       },
-      onError: (error) => {
-        toast.error(error.message);
+      onError: () => {
         if (updateMutation.context?.previousVariables) {
           queryClient.setQueryData(
             trpc.environmentVariables.list.queryKey({ environmentId }),
@@ -164,8 +163,7 @@ export function useVariables(environmentId: string) {
 
         return { previousVariables };
       },
-      onError: (error) => {
-        toast.error(error.message);
+      onError: () => {
         if (deleteMutation.context?.previousVariables) {
           queryClient.setQueryData(
             trpc.environmentVariables.list.queryKey({ environmentId }),
@@ -219,8 +217,7 @@ export function useVariables(environmentId: string) {
 
         return { previousVariables };
       },
-      onError: (error) => {
-        toast.error(error.message);
+      onError: () => {
         if (bulkImportMutation.context?.previousVariables) {
           queryClient.setQueryData(
             trpc.environmentVariables.list.queryKey({ environmentId }),

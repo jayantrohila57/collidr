@@ -26,7 +26,7 @@ export default function OrganizationLayout({
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset className="flex min-h-svh flex-col">
-          <div className="flex h-14 shrink-0 items-center gap-2 px-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 sm:px-4">
+          <header className="flex h-14 shrink-0 items-center gap-2 px-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 sm:px-4">
             <div className="flex w-full min-w-0 items-center justify-between gap-2">
               <div className="flex min-w-0 flex-1 flex-row items-center justify-start">
                 <SidebarTrigger className="-ml-0.5" />
@@ -64,7 +64,7 @@ export default function OrganizationLayout({
                 <UserMenu />
               </div>
             </div>
-          </div>
+          </header>
           <Separator />
           <div className="block p-5 md:hidden">
             <Breadcrumbs />

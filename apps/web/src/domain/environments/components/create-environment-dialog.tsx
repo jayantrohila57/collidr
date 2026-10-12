@@ -1,7 +1,13 @@
 "use client";
 
+import { createEnvironmentInput } from "@env-manager/api/validation";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import type { z } from "zod/v3";
+import { FormField } from "@/components/patterns/form-field";
+import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,7 +19,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
+const environmentNameSchema = createEnvironmentInput.pick({ name: true });
 
 interface CreateEnvironmentDialogProps {
   onConfirm: (name: string) => Promise<void>;
@@ -27,14 +34,17 @@ export function CreateEnvironmentDialog({
   triggerText = "Create Environment",
 }: CreateEnvironmentDialogProps) {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    await onConfirm(name.trim());
+  const form = useForm({
+    resolver: zodResolver(environmentNameSchema),
+    defaultValues: { name: "" },
+    mode: "onChange",
+  });
+
+  const onSubmit = async (data: z.infer<typeof environmentNameSchema>) => {
+    await onConfirm(data.name.trim());
+    form.reset();
     setOpen(false);
-    setName("");
   };
 
   return (
@@ -44,7 +54,7 @@ export function CreateEnvironmentDialog({
           variant={triggerText === "Add Environment" ? "outline" : "default"}
           size={triggerText === "Add Environment" ? "sm" : "default"}
         >
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus className="mr-2 h-4 w-4" aria-hidden />
           {triggerText}
         </Button>
       </DialogTrigger>
@@ -55,30 +65,45 @@ export function CreateEnvironmentDialog({
             Add a new environment (e.g., development, staging, production).
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="env-name">Name</Label>
-              <Input
-                id="env-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="development"
-                required
-              />
-            </div>
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <FormField
+                  id="env-name"
+                  label="Name"
+                  required
+                  error={fieldState.error?.message}
+                >
+                  <Input
+                    {...field}
+                    id="env-name"
+                    placeholder="development"
+                    aria-invalid={fieldState.invalid}
+                    disabled={isPending}
+                  />
+                </FormField>
+              )}
+            />
           </div>
           <DialogFooter>
             <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
+              disabled={isPending}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Creating..." : "Create"}
-            </Button>
+            <SubmitButton
+              isLoading={isPending}
+              loadingLabel="Creating…"
+              disabled={!form.formState.isValid}
+            >
+              Create
+            </SubmitButton>
           </DialogFooter>
         </form>
       </DialogContent>

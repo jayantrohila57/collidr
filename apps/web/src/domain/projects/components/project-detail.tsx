@@ -4,6 +4,8 @@ import { Folder, Github, Globe } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useState } from "react";
+import { ErrorState } from "@/components/patterns/error-state";
+import { StatusBadge } from "@/components/patterns/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,12 +51,11 @@ export default function ProjectDetail({
   if (status === "loading") return <ProjectDetailSkeleton />;
   if (status === "error" || !project) {
     return (
-      <div className="py-12 text-center">
-        <h2 className="font-semibold text-xl">Project not found</h2>
-        <Link href="/dashboard">
-          <Button variant="link">Go back to dashboard</Button>
-        </Link>
-      </div>
+      <ErrorState
+        title="Project unavailable"
+        description="This project could not be loaded. It may have been deleted."
+        onRetry={() => window.location.reload()}
+      />
     );
   }
 
@@ -80,18 +81,7 @@ export default function ProjectDetail({
             {project.description}
           </CardDescription>
           <CardAction>
-            <Badge
-              className="capitalize"
-              variant={
-                project.status === "active"
-                  ? "default"
-                  : project.status === "maintenance"
-                    ? "secondary"
-                    : "outline"
-              }
-            >
-              {project.status}
-            </Badge>
+            <StatusBadge status={project.status} />
           </CardAction>
         </CardHeader>
         <CardFooter>

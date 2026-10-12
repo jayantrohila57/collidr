@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { formatDate } from "@/lib/format";
 import { ProjectActions } from "./project-actions";
 
 interface ProjectCardViewProps {
@@ -25,11 +26,7 @@ function hasNavigableSlug(slug: string | null | undefined) {
 }
 
 export function ProjectCardView({ project }: ProjectCardViewProps) {
-  const formattedDate = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(project.updatedAt));
+  const formattedDate = formatDate(project.updatedAt);
 
   const projectHref = hasNavigableSlug(project.slug)
     ? (`/dashboard/projects/${project.slug}` as Route)

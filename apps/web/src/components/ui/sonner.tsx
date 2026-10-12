@@ -36,7 +36,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
         classNames: {
           toast: "cn-toast",
         },
+        unstyled: false,
       }}
+      aria-live="polite"
       {...props}
     />
   );

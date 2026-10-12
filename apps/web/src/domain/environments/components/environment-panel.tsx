@@ -1,6 +1,6 @@
 "use client";
 
-import { toast } from "sonner";
+import { ErrorState } from "@/components/patterns/error-state";
 import { useVariables } from "../hooks/use-variables";
 import { AddVariableDialog } from "./add-variable-dialog";
 import { VariablesSkeleton } from "./skeletons";
@@ -38,27 +38,6 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
     await createVariable({ environmentId, ...data });
   };
 
-  const handleCopy = async (id: string) => {
-    try {
-      let value = getRevealedValue(id);
-      if (!value) {
-        await toggleReveal(id);
-        value = getRevealedValue(id);
-      }
-      const variable = variablesWithValues.find((v) => v.id === id);
-      const text = value ?? variable?.value;
-      if (!text) {
-        toast.error("Reveal the value before copying.");
-        return;
-      }
-      await navigator.clipboard.writeText(text);
-      toast.success("Copied to clipboard");
-    } catch (err) {
-      console.error("Failed to copy:", err);
-      toast.error("Failed to copy value");
-    }
-  };
-
   const handleEdit = async (variable: Variable) => {
     await updateVariable({
       id: variable.id,
@@ -73,6 +52,16 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
 
   if (status === "loading") return <VariablesSkeleton />;
 
+  if (status === "error") {
+    return (
+      <ErrorState
+        title="Failed to load variables"
+        description="We could not load environment variables."
+        onRetry={() => window.location.reload()}
+      />
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -84,7 +73,6 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
         variables={variablesWithValues}
         revealedIds={revealedIds}
         onReveal={toggleReveal}
-        onCopy={handleCopy}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onAddVariable={handleCreate}

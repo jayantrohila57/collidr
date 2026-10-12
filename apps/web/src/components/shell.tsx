@@ -144,6 +144,7 @@ const Main = React.forwardRef<
 >(({ className, variant, scale, padding, ...props }, ref) => {
   return (
     <main
+      id="main-content"
       ref={ref}
       className={cn(
         MainVariants({ className, variant, scale, padding }),

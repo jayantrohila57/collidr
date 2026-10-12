@@ -22,9 +22,10 @@ export function useEnvironments(projectSlug: string) {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<string | undefined>();
 
-  const projectQuery = useQuery(
-    trpc.projects.getBySlug.queryOptions({ slug: projectSlug }),
-  );
+  const projectQuery = useQuery({
+    ...trpc.projects.getBySlug.queryOptions({ slug: projectSlug }),
+    meta: { toastOnError: false },
+  });
 
   const createEnvMutation = useMutation(
     trpc.environments.create.mutationOptions({
@@ -71,8 +72,7 @@ export function useEnvironments(projectSlug: string) {
 
         return { previousProjectData };
       },
-      onError: (error) => {
-        toast.error(error.message);
+      onError: () => {
         // Rollback to the previous value
         if (createEnvMutation.context?.previousProjectData) {
           queryClient.setQueryData(
@@ -132,8 +132,7 @@ export function useEnvironments(projectSlug: string) {
 
         return { previousProjectData };
       },
-      onError: (error) => {
-        toast.error(error.message);
+      onError: () => {
         // Rollback to previous value
         if (updateEnvMutation.context?.previousProjectData) {
           queryClient.setQueryData(

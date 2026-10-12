@@ -4,6 +4,7 @@ import {
   FolderClosedIcon,
   FolderIcon,
   LayoutDashboardIcon,
+  SettingsIcon,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -38,6 +39,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const menuItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboardIcon },
     { href: "/dashboard/projects", label: "Projects", icon: FolderClosedIcon },
+    { href: "/dashboard/settings", label: "Settings", icon: SettingsIcon },
   ];
 
   const isActive = (href: string) => {

@@ -2,23 +2,15 @@
 
 import type { ProjectOutput } from "@env-manager/api/types";
 import { Folder, Plus } from "lucide-react";
-import Link from "next/link";
 import { useMemo } from "react";
+import { EmptyState } from "@/components/patterns/empty-state";
+import { ErrorState } from "@/components/patterns/error-state";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
 import { useProjects } from "../hooks/use-projects";
 import { ProjectCardView } from "./project-card-view";
 import { ProjectsSkeleton } from "./skeletons";
@@ -32,9 +24,8 @@ interface ProjectCategory {
 }
 
 export default function ProjectList() {
-  const { projects, status } = useProjects();
+  const { projects, status, error } = useProjects();
 
-  // Categorize projects on the frontend
   const categorizedProjects = useMemo(() => {
     if (status !== "success" || !projects.length)
       return {
@@ -44,7 +35,7 @@ export default function ProjectList() {
         archived: [],
       };
 
-    const categories = {
+    return {
       active: projects.filter((p) => p.status === "active" && !p.isArchived),
       inactive: projects.filter(
         (p) => p.status === "inactive" && !p.isArchived,
@@ -54,8 +45,6 @@ export default function ProjectList() {
       ),
       archived: projects.filter((p) => p.isArchived),
     };
-
-    return categories;
   }, [projects, status]);
 
   const projectCategories: ProjectCategory[] = [
@@ -63,26 +52,26 @@ export default function ProjectList() {
       title: "Active Projects",
       count: categorizedProjects.active?.length || 0,
       projects: categorizedProjects.active || [],
-      icon: <div className="h-2 w-2 rounded-full bg-green-500" />,
+      icon: <div className="h-2 w-2 rounded-full bg-green-500" aria-hidden />,
       defaultOpen: true,
     },
     {
       title: "Maintenance Projects",
       count: categorizedProjects.maintenance?.length || 0,
       projects: categorizedProjects.maintenance || [],
-      icon: <div className="h-2 w-2 rounded-full bg-yellow-500" />,
+      icon: <div className="h-2 w-2 rounded-full bg-yellow-500" aria-hidden />,
     },
     {
       title: "Inactive Projects",
       count: categorizedProjects.inactive?.length || 0,
       projects: categorizedProjects.inactive || [],
-      icon: <div className="h-2 w-2 rounded-full bg-gray-500" />,
+      icon: <div className="h-2 w-2 rounded-full bg-gray-500" aria-hidden />,
     },
     {
       title: "Archived Projects",
       count: categorizedProjects.archived?.length || 0,
       projects: categorizedProjects.archived || [],
-      icon: <div className="h-2 w-2 rounded-full bg-orange-500" />,
+      icon: <div className="h-2 w-2 rounded-full bg-orange-500" aria-hidden />,
     },
   ];
 
@@ -91,38 +80,24 @@ export default function ProjectList() {
       return <ProjectsSkeleton />;
     case "error":
       return (
-        <div className="rounded-lg border border-destructive/50 p-8 text-center text-destructive">
-          <p className="mb-4">Failed to load projects. Please try again.</p>
-          <Button
-            variant="outline"
-            onClick={() => window.location.reload()}
-            className="border-destructive/50 text-destructive hover:bg-destructive/10"
-          >
-            Retry
-          </Button>
-        </div>
+        <ErrorState
+          title="Failed to load projects"
+          description={
+            error?.message ??
+            "We could not load your projects. Please try again."
+          }
+          onRetry={() => window.location.reload()}
+        />
       );
     case "empty":
       return (
-        <Empty className="h-full w-full border-2 border-muted-foreground/20 border-dashed bg-muted/30">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <Plus className="h-6 w-6" />
-            </EmptyMedia>
-            <EmptyTitle>No projects yet</EmptyTitle>
-            <EmptyDescription>
-              Create your first project to start managing environment variables.
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <Link href="/dashboard/projects/new">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Project
-              </Button>
-            </Link>
-          </EmptyContent>
-        </Empty>
+        <EmptyState
+          icon={Plus}
+          title="No projects yet"
+          description="Create your first project to start managing environment variables."
+          actionLabel="Create Project"
+          actionHref="/dashboard/projects/new"
+        />
       );
     case "success":
       return (
@@ -154,25 +129,13 @@ export default function ProjectList() {
                     ))}
                   </div>
                 ) : (
-                  <Empty className="h-full w-full border-2 border-muted-foreground/20 border-dashed bg-muted/30">
-                    <EmptyHeader>
-                      <EmptyMedia variant="icon">
-                        <Folder className="h-6 w-6" />
-                      </EmptyMedia>
-                      <EmptyTitle>No {category.title.toLowerCase()}</EmptyTitle>
-                      <EmptyDescription>
-                        There are no projects in this category.
-                      </EmptyDescription>
-                    </EmptyHeader>
-                    <EmptyContent>
-                      <Link href="/dashboard/projects/new">
-                        <Button variant="outline" size="sm">
-                          <Plus className="mr-2 h-4 w-4" />
-                          Create Project
-                        </Button>
-                      </Link>
-                    </EmptyContent>
-                  </Empty>
+                  <EmptyState
+                    icon={Folder}
+                    title={`No ${category.title.toLowerCase()}`}
+                    description="There are no projects in this category."
+                    actionLabel="Create Project"
+                    actionHref="/dashboard/projects/new"
+                  />
                 )}
               </AccordionContent>
             </AccordionItem>

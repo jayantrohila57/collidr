@@ -1,25 +1,57 @@
 import type { AppRouter } from "@env-manager/api/routers/index";
 
-import { QueryCache, QueryClient } from "@tanstack/react-query";
+import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import {
   createTRPCContext,
   createTRPCOptionsProxy,
 } from "@trpc/tanstack-react-query";
 import { toast } from "sonner";
+import {
+  getClientErrorMessage,
+  isNetworkError,
+} from "@/lib/errors/client-errors";
 
 const makeQueryClient = () =>
   new QueryClient({
     queryCache: new QueryCache({
       onError: (error, query) => {
-        toast.error(error.message, {
+        if (query.meta?.toastOnError === false) return;
+        const message = getClientErrorMessage(
+          error,
+          "Failed to load data. Please try again.",
+        );
+        toast.error(message, {
+          id: `query-error-${query.queryHash}`,
           action: {
-            label: "retry",
-            onClick: query.invalidate,
+            label: "Retry",
+            onClick: () => {
+              void query.fetch();
+            },
           },
         });
       },
     }),
+    mutationCache: new MutationCache({
+      onError: (error, _variables, _context, mutation) => {
+        if (mutation.meta?.skipGlobalErrorToast) return;
+        toast.error(
+          getClientErrorMessage(error, "Action failed. Please try again."),
+        );
+      },
+    }),
+    defaultOptions: {
+      queries: {
+        retry: (failureCount, error) => {
+          if (isNetworkError(error)) return failureCount < 2;
+          return failureCount < 1;
+        },
+        refetchOnWindowFocus: false,
+      },
+      mutations: {
+        retry: false,
+      },
+    },
   });
 
 let browserQueryClient: QueryClient | undefined;
@@ -46,13 +78,17 @@ export const createTrpcClient = () =>
           return fetch(url, {
             ...options,
             credentials: "include",
+          }).catch((error) => {
+            if (isNetworkError(error)) {
+              throw new TypeError("Failed to fetch");
+            }
+            throw error;
           });
         },
       }),
     ],
   });
 
-// Singletons for backward compatibility (used by standalone `trpc` proxy)
 export const queryClient = getQueryClient();
 export const trpcClient = createTrpcClient();
 

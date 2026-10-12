@@ -38,7 +38,10 @@ function transformProject(project: ApiProject): ProjectOutput {
 
 export function useProjects() {
   const queryClient = useQueryClient();
-  const projectsQuery = useQuery(trpc.projects.list.queryOptions());
+  const projectsQuery = useQuery({
+    ...trpc.projects.list.queryOptions(),
+    meta: { toastOnError: false },
+  });
 
   const createMutation = useMutation(
     trpc.projects.create.mutationOptions({
@@ -68,9 +71,7 @@ export function useProjects() {
 
         toast.success("Project created successfully");
       },
-      onError: (error) => {
-        toast.error(error.message);
-        // Refetch to ensure cache consistency after error
+      onError: () => {
         queryClient.invalidateQueries({
           queryKey: trpc.projects.list.queryKey(),
         });
@@ -109,8 +110,7 @@ export function useProjects() {
 
         return { previousProjects };
       },
-      onError: (error) => {
-        toast.error(error.message);
+      onError: () => {
         // Rollback to the previous value
         if (updateMutation.context?.previousProjects) {
           queryClient.setQueryData(
@@ -158,8 +158,7 @@ export function useProjects() {
 
         return { previousProjects };
       },
-      onError: (error) => {
-        toast.error(error.message);
+      onError: () => {
         // Rollback to the previous value
         if (deleteMutation.context?.previousProjects) {
           queryClient.setQueryData(
@@ -213,8 +212,7 @@ export function useProjects() {
 
         return { previousProjects };
       },
-      onError: (error) => {
-        toast.error(error.message);
+      onError: () => {
         if (archiveMutation.context?.previousProjects) {
           queryClient.setQueryData(
             trpc.projects.list.queryKey(),
@@ -261,8 +259,7 @@ export function useProjects() {
 
         return { previousProjects };
       },
-      onError: (error) => {
-        toast.error(error.message);
+      onError: () => {
         if (unarchiveMutation.context?.previousProjects) {
           queryClient.setQueryData(
             trpc.projects.list.queryKey(),
@@ -309,8 +306,7 @@ export function useProjects() {
 
         return { previousProjects };
       },
-      onError: (error) => {
-        toast.error(error.message);
+      onError: () => {
         if (changeStatusMutation.context?.previousProjects) {
           queryClient.setQueryData(
             trpc.projects.list.queryKey(),
@@ -358,8 +354,7 @@ export function useProjects() {
 
         return { previousProjects };
       },
-      onError: (error) => {
-        toast.error(error.message);
+      onError: () => {
         if (togglePublicMutation.context?.previousProjects) {
           queryClient.setQueryData(
             trpc.projects.list.queryKey(),

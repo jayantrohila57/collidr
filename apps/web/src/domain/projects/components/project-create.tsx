@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
+import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -225,20 +226,13 @@ export function CreateProject() {
               >
                 Clear
               </Button>
-              <Button
-                type="submit"
-                disabled={isCreating || !form.formState.isValid}
-                className="min-w-[120px]"
+              <SubmitButton
+                isLoading={isCreating}
+                loadingLabel="Creating…"
+                disabled={!form.formState.isValid}
               >
-                {isCreating ? (
-                  <>
-                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-white border-b-2" />
-                    Creating...
-                  </>
-                ) : (
-                  "Create Project"
-                )}
-              </Button>
+                Create Project
+              </SubmitButton>
             </div>
           </div>
         </form>
