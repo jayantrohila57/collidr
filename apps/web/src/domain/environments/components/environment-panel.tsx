@@ -20,6 +20,7 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
     variables,
     status,
     revealedIds,
+    revealingIds,
     toggleReveal,
     createVariable,
     isCreating,
@@ -75,6 +76,7 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
       <VariablesTableView
         variables={variablesWithValues}
         revealedIds={revealedIds}
+        revealingIds={revealingIds}
         onReveal={toggleReveal}
         onEdit={handleEdit}
         onDelete={handleDelete}

@@ -6,39 +6,40 @@ import {
   project,
 } from "@env-manager/db/schema/projects";
 import { and, count, eq, gte, sql } from "drizzle-orm";
-import { protectedProcedure, router } from "../index";
+import { orgProcedure, router } from "../index";
+import { projectListFilter } from "../org-access";
+
+function projectScope(userId: string, organizationId: string | null) {
+  return projectListFilter(userId, organizationId);
+}
 
 export const dashboardRouter = router({
-  getStats: protectedProcedure.query(async ({ ctx }) => {
+  getStats: orgProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
+    const scope = projectScope(userId, ctx.activeOrganizationId);
 
-    // Get total projects count
     const totalProjectsResult = await db
       .select({ count: count() })
       .from(project)
-      .where(eq(project.userId, userId));
+      .where(scope);
 
-    // Get active projects count
     const activeProjectsResult = await db
       .select({ count: count() })
       .from(project)
-      .where(and(eq(project.userId, userId), eq(project.status, "active")));
+      .where(and(scope, eq(project.status, "active")));
 
-    // Get total environments count
     const totalEnvironmentsResult = await db
       .select({ count: count() })
       .from(environment)
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(eq(project.userId, userId));
+      .where(scope);
 
-    // Get active environments count
     const activeEnvironmentsResult = await db
       .select({ count: count() })
       .from(environment)
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(and(eq(project.userId, userId), eq(environment.status, "active")));
+      .where(and(scope, eq(environment.status, "active")));
 
-    // Get total environment variables count
     const totalVariablesResult = await db
       .select({ count: count() })
       .from(environmentVariable)
@@ -47,19 +48,17 @@ export const dashboardRouter = router({
         eq(environmentVariable.environmentId, environment.id),
       )
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(eq(project.userId, userId));
+      .where(scope);
 
-    // Get projects by status
     const projectsByStatusResult = await db
       .select({
         status: project.status,
         count: count(),
       })
       .from(project)
-      .where(eq(project.userId, userId))
+      .where(scope)
       .groupBy(project.status);
 
-    // Get environments by status
     const environmentsByStatusResult = await db
       .select({
         status: environment.status,
@@ -67,10 +66,9 @@ export const dashboardRouter = router({
       })
       .from(environment)
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(eq(project.userId, userId))
+      .where(scope)
       .groupBy(environment.status);
 
-    // Get recent audit logs count (last 7 days)
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -81,14 +79,11 @@ export const dashboardRouter = router({
         and(eq(auditLog.userId, userId), gte(auditLog.createdAt, sevenDaysAgo)),
       );
 
-    // Get production environments count
     const productionEnvironmentsResult = await db
       .select({ count: count() })
       .from(environment)
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(
-        and(eq(project.userId, userId), eq(environment.isProduction, true)),
-      );
+      .where(and(scope, eq(environment.isProduction, true)));
 
     return {
       totalProjects: totalProjectsResult[0]?.count || 0,
@@ -115,10 +110,10 @@ export const dashboardRouter = router({
     };
   }),
 
-  getRecentActivity: protectedProcedure.query(async ({ ctx }) => {
+  getRecentActivity: orgProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
+    const scope = projectScope(userId, ctx.activeOrganizationId);
 
-    // Get recent projects
     const recentProjects = await db
       .select({
         id: project.id,
@@ -128,11 +123,10 @@ export const dashboardRouter = router({
         createdAt: project.createdAt,
       })
       .from(project)
-      .where(eq(project.userId, userId))
+      .where(scope)
       .orderBy(sql`${project.createdAt} DESC`)
       .limit(5);
 
-    // Get recent audit logs
     const recentAuditLogs = await db
       .select({
         id: auditLog.id,

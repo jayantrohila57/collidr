@@ -1,4 +1,5 @@
 import { db } from "@env-manager/db";
+import { assertOrganizationCanBeDeleted } from "@env-manager/db/org-delete-policy";
 import * as authSchema from "@env-manager/db/schema/auth";
 import * as organizationSchema from "@env-manager/db/schema/organization";
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
@@ -29,6 +30,11 @@ export const auth = betterAuth({
       ? [
           organization({
             allowUserToCreateOrganization: true,
+            organizationHooks: {
+              beforeDeleteOrganization: async ({ organization: org, user }) => {
+                await assertOrganizationCanBeDeleted(org, user.id);
+              },
+            },
           }),
         ]
       : []),

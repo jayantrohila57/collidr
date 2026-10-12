@@ -31,6 +31,7 @@ function isPersistedEnvironmentId(environmentId: string) {
 export function useVariables(environmentId: string) {
   const queryClient = useQueryClient();
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
+  const [revealingIds, setRevealingIds] = useState<Set<string>>(new Set());
   const canQuery = isPersistedEnvironmentId(environmentId);
 
   const variablesQuery = useQuery({
@@ -271,26 +272,35 @@ export function useVariables(environmentId: string) {
       return;
     }
 
-    const result = await queryClient.fetchQuery(
-      trpc.environmentVariables.get.queryOptions({ id: varId }),
-    );
-    if (result?.data) {
-      setRevealedIds((prev) => new Set(prev).add(varId));
-      queryClient.setQueryData(["revealedValue", varId], result.data.value);
-      queryClient.setQueryData(
-        trpc.environmentVariables.list.queryKey({ environmentId }),
-        (old: VariablesQueryResponse | undefined) => {
-          if (!old?.data) return old;
-          return {
-            ...old,
-            data: old.data.map((variable) =>
-              variable.id === varId
-                ? { ...variable, value: result.data?.value }
-                : variable,
-            ),
-          };
-        },
+    setRevealingIds((prev) => new Set(prev).add(varId));
+    try {
+      const result = await queryClient.fetchQuery(
+        trpc.environmentVariables.get.queryOptions({ id: varId }),
       );
+      if (result?.data) {
+        setRevealedIds((prev) => new Set(prev).add(varId));
+        queryClient.setQueryData(["revealedValue", varId], result.data.value);
+        queryClient.setQueryData(
+          trpc.environmentVariables.list.queryKey({ environmentId }),
+          (old: VariablesQueryResponse | undefined) => {
+            if (!old?.data) return old;
+            return {
+              ...old,
+              data: old.data.map((variable) =>
+                variable.id === varId
+                  ? { ...variable, value: result.data?.value }
+                  : variable,
+              ),
+            };
+          },
+        );
+      }
+    } finally {
+      setRevealingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(varId);
+        return next;
+      });
     }
   };
 
@@ -333,6 +343,7 @@ export function useVariables(environmentId: string) {
     variables: variablesQuery.data?.data ?? [],
     status,
     revealedIds,
+    revealingIds,
     toggleReveal,
     createVariable: createMutation.mutateAsync,
     isCreating: createMutation.isPending,

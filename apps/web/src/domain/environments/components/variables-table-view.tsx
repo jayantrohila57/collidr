@@ -39,6 +39,7 @@ interface Variable {
 interface VariablesTableViewProps {
   variables: Variable[];
   revealedIds: Set<string>;
+  revealingIds?: Set<string>;
   onReveal: (id: string) => void;
   onCopy?: (id: string) => void;
   onEdit: (variable: Variable) => void;
@@ -52,6 +53,7 @@ interface VariablesTableViewProps {
 export function VariablesTableView({
   variables,
   revealedIds,
+  revealingIds,
   onReveal,
   onEdit,
   onDelete,
@@ -142,6 +144,7 @@ export function VariablesTableView({
       <VariablesMobileList
         variables={variables}
         revealedIds={revealedIds}
+        revealingIds={revealingIds}
         onReveal={onReveal}
         onEdit={handleEdit}
         onDelete={handleDelete}
@@ -190,6 +193,7 @@ export function VariablesTableView({
                       <IconButton
                         icon={isRevealed ? EyeOff : Eye}
                         label={isRevealed ? "Hide value" : "Reveal value"}
+                        isLoading={revealingIds?.has(variable.id)}
                         onClick={() => onReveal(variable.id)}
                       />
                       <CopyButton

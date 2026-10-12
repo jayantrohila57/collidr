@@ -120,6 +120,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuButton
                       variant={isActive(item.href) ? "active" : "inActive"}
                       isActive={isActive(item.href)}
+                      tooltip={item.label}
                       asChild
                     >
                       <Link href={item.href as Route}>

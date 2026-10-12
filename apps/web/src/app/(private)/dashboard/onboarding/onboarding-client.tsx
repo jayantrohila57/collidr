@@ -2,14 +2,20 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { useEffect } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v3";
+import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { FormField } from "@/components/patterns/form-field";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import {
+  formatOrganizationCreateError,
+  slugifyOrganizationName,
+} from "@/lib/org-slug";
 
 const schema = z.object({
   name: z
@@ -17,39 +23,53 @@ const schema = z.object({
     .trim()
     .min(2, "Organization name is required")
     .max(100, "Name is too long"),
+  slug: z
+    .string()
+    .trim()
+    .min(2, "Slug is required")
+    .max(200, "Slug is too long")
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Use lowercase letters, numbers, and hyphens only",
+    ),
 });
 
 export default function OnboardingClient() {
   const router = useRouter();
+  const { afterOrganizationCreated } = useActiveOrganization();
   const form = useForm({
     resolver: zodResolver(schema),
-    defaultValues: { name: "" },
+    defaultValues: { name: "", slug: "" },
     mode: "onChange",
   });
 
-  const onSubmit = async (data: z.infer<typeof schema>) => {
-    const slug = data.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
+  const nameValue = useWatch({ control: form.control, name: "name" });
+  const slugTouched = form.formState.touchedFields.slug;
 
+  useEffect(() => {
+    if (slugTouched) return;
+    const next = slugifyOrganizationName(nameValue);
+    if (next) form.setValue("slug", next, { shouldValidate: true });
+  }, [nameValue, slugTouched, form]);
+
+  const onSubmit = async (data: z.infer<typeof schema>) => {
     const created = await authClient.organization.create({
       name: data.name,
-      slug: slug || `org-${Date.now()}`,
+      slug: data.slug,
     });
 
     if (created.error) {
-      toast.error(created.error.message ?? "Could not create organization");
+      toast.error(formatOrganizationCreateError(created.error.message));
       return;
     }
 
     const orgId = created.data?.id;
     if (orgId) {
-      await authClient.organization.setActive({ organizationId: orgId });
+      await afterOrganizationCreated(orgId);
     }
 
     toast.success("Organization created");
-    router.replace("/dashboard/projects/new");
+    router.replace("/dashboard");
   };
 
   return (
@@ -71,6 +91,33 @@ export default function OnboardingClient() {
                   error={fieldState.error?.message}
                 >
                   <Input {...field} id="org-name" placeholder="Acme Inc." />
+                </FormField>
+              )}
+            />
+            <Controller
+              name="slug"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <FormField
+                  id="org-slug"
+                  label="URL slug"
+                  required
+                  hint="Used in URLs and must be unique."
+                  error={fieldState.error?.message}
+                >
+                  <Input
+                    {...field}
+                    id="org-slug"
+                    placeholder="acme-inc"
+                    autoComplete="off"
+                    onChange={(e) => {
+                      field.onChange(e);
+                      form.setValue("slug", e.target.value, {
+                        shouldTouch: true,
+                        shouldValidate: true,
+                      });
+                    }}
+                  />
                 </FormField>
               )}
             />

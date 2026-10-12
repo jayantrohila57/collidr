@@ -1,9 +1,12 @@
 "use client";
 
-import { Building2, ChevronsUpDown, Plus } from "lucide-react";
+import { Building2, ChevronsUpDown, Plus, Settings } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,96 +17,128 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { authClient } from "@/lib/auth-client";
+import { useSidebar } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
-
-type OrgListItem = {
-  id: string;
-  name: string;
-  slug: string;
-};
 
 export function OrgSwitcher() {
   const router = useRouter();
-  const [orgs, setOrgs] = useState<OrgListItem[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!isOrganizationsEnabledOnClient()) {
-      setLoading(false);
-      return;
-    }
-
-    void (async () => {
-      try {
-        const list = await authClient.organization.list();
-        const data = (list.data ?? []) as OrgListItem[];
-        setOrgs(data);
-        const session = await authClient.getSession();
-        const active =
-          (session.data?.session as { activeOrganizationId?: string })
-            ?.activeOrganizationId ??
-          data[0]?.id ??
-          null;
-        setActiveId(active);
-      } catch {
-        toast.error("Could not load organizations");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+  const { state: sidebarState } = useSidebar();
+  const collapsed = sidebarState === "collapsed";
+  const {
+    orgs,
+    activeOrganizationId,
+    loading,
+    initialLoadDone,
+    setActiveOrganization,
+  } = useActiveOrganization();
+  const [switching, setSwitching] = useState(false);
 
   if (!isOrganizationsEnabledOnClient()) {
     return null;
   }
 
-  const active = orgs.find((o) => o.id === activeId) ?? orgs[0];
+  const showLoading = !initialLoadDone && loading;
+  const active = orgs.find((o) => o.id === activeOrganizationId) ?? orgs[0];
 
-  const setActive = async (organizationId: string) => {
-    await authClient.organization.setActive({ organizationId });
-    setActiveId(organizationId);
-    router.refresh();
+  const onSelectOrg = async (organizationId: string) => {
+    if (organizationId === activeOrganizationId) return;
+    setSwitching(true);
+    try {
+      await setActiveOrganization(organizationId);
+    } catch {
+      toast.error("Could not switch organization");
+    } finally {
+      setSwitching(false);
+    }
   };
+
+  const triggerLabel = showLoading
+    ? "Loading organization"
+    : switching
+      ? "Switching organization"
+      : (active?.name ?? "Select organization");
+
+  const triggerButton = (
+    <Button
+      variant="outline"
+      className={
+        collapsed
+          ? "mb-0 size-8 justify-center p-0"
+          : "mb-2 w-full justify-between gap-2"
+      }
+      disabled={showLoading || switching}
+      aria-label="Switch organization"
+    >
+      <span
+        className={
+          collapsed
+            ? "flex items-center justify-center"
+            : "flex min-w-0 items-center gap-2"
+        }
+      >
+        {showLoading ? (
+          <Skeleton className="h-6 w-6 shrink-0 rounded-full" />
+        ) : (
+          <Avatar className="h-6 w-6 shrink-0">
+            <AvatarFallback className="text-xs">
+              {active?.name?.slice(0, 2).toUpperCase() ?? ""}
+            </AvatarFallback>
+          </Avatar>
+        )}
+        {!collapsed && (
+          <span className="truncate text-sm">
+            {showLoading || switching
+              ? "Loading…"
+              : (active?.name ?? "Select organization")}
+          </span>
+        )}
+      </span>
+      {!collapsed && <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />}
+    </Button>
+  );
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          className="mb-2 w-full justify-between gap-2"
-          disabled={loading}
-          aria-label="Switch organization"
-        >
-          <span className="flex min-w-0 items-center gap-2">
-            <Avatar className="h-6 w-6">
-              <AvatarFallback className="text-xs">
-                {active?.name?.slice(0, 2).toUpperCase() ?? "OR"}
-              </AvatarFallback>
-            </Avatar>
-            <span className="truncate text-sm">
-              {loading ? "Loading…" : (active?.name ?? "Select organization")}
-            </span>
-          </span>
-          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+        {collapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>{triggerButton}</TooltipTrigger>
+            <TooltipContent side="right">{triggerLabel}</TooltipContent>
+          </Tooltip>
+        ) : (
+          triggerButton
+        )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-56">
+      <DropdownMenuContent
+        align="start"
+        className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[var(--radix-dropdown-menu-trigger-width)]"
+      >
         <DropdownMenuLabel>Organizations</DropdownMenuLabel>
         {orgs.map((org) => (
           <DropdownMenuItem
             key={org.id}
-            onSelect={() => void setActive(org.id)}
+            onSelect={() => void onSelectOrg(org.id)}
           >
             <Building2 className="mr-2 h-4 w-4" />
             <span className="truncate">{org.name}</span>
-            {org.id === activeId && (
+            {org.id === activeOrganizationId && (
               <span className="ml-auto text-muted-foreground text-xs">✓</span>
             )}
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href={"/dashboard/settings/organization" as Route}>
+            <Settings className="mr-2 h-4 w-4" />
+            Organization settings
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => router.push("/dashboard/onboarding")}>
           <Plus className="mr-2 h-4 w-4" />
           Create organization

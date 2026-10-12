@@ -1,15 +1,21 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 
-const EXEMPT_PREFIXES = ["/dashboard/onboarding"];
+const EXEMPT_PREFIXES = [
+  "/dashboard/onboarding",
+  "/dashboard/settings/organization",
+];
 
 export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
   const [ready, setReady] = useState(!isOrganizationsEnabledOnClient());
 
   useEffect(() => {
@@ -49,6 +55,7 @@ export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
           await authClient.organization.setActive({
             organizationId: firstOrg.id,
           });
+          await invalidateAfterOrganizationChange(queryClient);
           router.refresh();
         }
         if (!cancelled) setReady(true);
@@ -60,7 +67,7 @@ export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [pathname, router]);
+  }, [pathname, queryClient, router]);
 
   if (!ready) {
     return null;

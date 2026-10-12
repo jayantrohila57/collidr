@@ -26,6 +26,7 @@ interface Variable {
 interface VariablesMobileListProps {
   variables: Variable[];
   revealedIds: Set<string>;
+  revealingIds?: Set<string>;
   onReveal: (id: string) => void;
   onEdit: (variable: Variable) => void;
   onDelete: (variable: Variable) => void;
@@ -34,6 +35,7 @@ interface VariablesMobileListProps {
 export function VariablesMobileList({
   variables,
   revealedIds,
+  revealingIds,
   onReveal,
   onEdit,
   onDelete,
@@ -87,6 +89,7 @@ export function VariablesMobileList({
                 icon={isRevealed ? EyeOff : Eye}
                 label={isRevealed ? "Hide value" : "Reveal value"}
                 className="size-11"
+                isLoading={revealingIds?.has(variable.id)}
                 onClick={() => onReveal(variable.id)}
               />
               <CopyButton

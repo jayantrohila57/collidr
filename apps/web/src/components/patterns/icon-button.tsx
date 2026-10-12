@@ -2,6 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Tooltip,
   TooltipContent,
@@ -15,6 +16,7 @@ interface IconButtonProps
   icon: LucideIcon;
   label: string;
   iconClassName?: string;
+  isLoading?: boolean;
 }
 
 export function IconButton({
@@ -22,6 +24,8 @@ export function IconButton({
   label,
   className,
   iconClassName,
+  isLoading = false,
+  disabled,
   ...props
 }: IconButtonProps) {
   return (
@@ -34,9 +38,14 @@ export function IconButton({
             size="icon"
             className={cn("size-11 shrink-0", className)}
             aria-label={label}
+            disabled={disabled || isLoading}
             {...props}
           >
-            <Icon className={cn("size-4", iconClassName)} aria-hidden />
+            {isLoading ? (
+              <Spinner className="size-4" aria-hidden />
+            ) : (
+              <Icon className={cn("size-4", iconClassName)} aria-hidden />
+            )}
           </Button>
         </TooltipTrigger>
         <TooltipContent>{label}</TooltipContent>

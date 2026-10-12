@@ -1,7 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useOrgQueryScopeKey } from "@/components/org/active-organization-context";
 import { trpc } from "@/utils/trpc";
 
 // Interface for dashboard stats response
@@ -38,7 +39,16 @@ interface RecentActivity {
 const DASHBOARD_LOAD_TIMEOUT_MS = 20_000;
 
 export function useDashboardStats() {
+  const orgScope = useOrgQueryScopeKey();
+  const queryClient = useQueryClient();
   const [loadTimedOut, setLoadTimedOut] = useState(false);
+
+  useEffect(() => {
+    void queryClient.invalidateQueries({
+      queryKey: trpc.dashboard.getStats.queryKey(),
+    });
+  }, [orgScope, queryClient]);
+
   const statsQuery = useQuery({
     ...trpc.dashboard.getStats.queryOptions(),
     meta: { toastOnError: false },
@@ -77,6 +87,15 @@ export function useDashboardStats() {
 }
 
 export function useDashboardActivity() {
+  const orgScope = useOrgQueryScopeKey();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    void queryClient.invalidateQueries({
+      queryKey: trpc.dashboard.getRecentActivity.queryKey(),
+    });
+  }, [orgScope, queryClient]);
+
   const activityQuery = useQuery({
     ...trpc.dashboard.getRecentActivity.queryOptions(),
     meta: { toastOnError: false },
