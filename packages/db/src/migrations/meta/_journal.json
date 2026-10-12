@@ -29,6 +29,13 @@
       "when": 1770816000000,
       "tag": "0003_drop_environment_variable_plaintext_value",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1770820000000,
+      "tag": "0004_organizations",
+      "breakpoints": true
     }
   ]
 }

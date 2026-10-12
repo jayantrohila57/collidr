@@ -1,5 +1,6 @@
 "use client";
 
+import { variableKeySchema } from "@env-manager/api/validation";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -16,8 +17,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-const KEY_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
-
 interface AddVariableDialogProps {
   onConfirm: (data: { key: string; value: string }) => Promise<void>;
   isPending: boolean;
@@ -33,12 +32,9 @@ export function AddVariableDialog({
   const [error, setError] = useState<string | null>(null);
 
   const validateKey = (rawKey: string) => {
-    const trimmed = rawKey.trim();
-    if (!trimmed) return "Key is required";
-    if (trimmed.length > 256) return "Key must be 256 characters or fewer";
-    if (/\s/.test(trimmed)) return "Keys cannot contain spaces";
-    if (!KEY_PATTERN.test(trimmed)) {
-      return "Keys must start with a letter or underscore and contain only letters, numbers, and underscores";
+    const result = variableKeySchema.safeParse(rawKey);
+    if (!result.success) {
+      return result.error.issues[0]?.message ?? "Invalid key";
     }
     return null;
   };

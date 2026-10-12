@@ -10,6 +10,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { OrgSwitcher } from "@/components/org/org-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -80,6 +81,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
+        <div className="px-2">
+          <OrgSwitcher />
+        </div>
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <Separator className="my-2" />

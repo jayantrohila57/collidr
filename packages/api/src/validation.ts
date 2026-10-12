@@ -148,7 +148,7 @@ export const environmentOutput = z.object({
 });
 
 // Variable schemas
-const variableKeySchema = z
+export const variableKeySchema = z
   .string()
   .trim()
   .min(1, "Key is required")

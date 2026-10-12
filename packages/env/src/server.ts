@@ -12,6 +12,11 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "production", "test"])
       .default("development"),
+    /** Set to "true" only after DB migration 0004 + schema patch (see docs/ORGANIZATION_MIGRATION.md) */
+    ORGANIZATIONS_ENABLED: z
+      .enum(["true", "false"])
+      .default("false")
+      .optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
