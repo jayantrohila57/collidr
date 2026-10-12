@@ -1,6 +1,8 @@
 "use client";
 
 import { Github, Shield } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
 import { ErrorState } from "@/components/patterns/error-state";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { formatDateTime } from "@/lib/format";
+import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 
 export function SettingsPage() {
   const { data: session, isPending, error, refetch } = useSession();
@@ -78,6 +81,22 @@ export function SettingsPage() {
           ) : null}
         </CardContent>
       </Card>
+
+      {isOrganizationsEnabledOnClient() && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Organization</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Link
+              href={"/dashboard/settings/organization" as Route}
+              className="text-primary text-sm underline-offset-4 hover:underline"
+            >
+              Manage organization and members
+            </Link>
+          </CardContent>
+        </Card>
+      )}
 
       <p className="text-muted-foreground text-xs">
         Project visibility and secrets are managed per project. Use the project
