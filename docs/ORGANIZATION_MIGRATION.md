@@ -1,88 +1,60 @@
 # Organization migration (Better Auth)
 
-**Status:** Migration `0004_organizations.sql` is in the repo but **not applied to production** by the agent.  
-**Prod today:** 15 projects with env vars — all remain on `project.user_id` until you run the steps below.
+**Production status (Jayant):** Migration `0004`, personal-org backfill, and Drizzle schema patch are **applied**. All projects have `organization_id`; enable orgs on Vercel when ready.
 
-`ORGANIZATIONS_ENABLED` defaults to **false**. The live app behaves exactly as before until you finish this runbook and flip env vars.
+`ORGANIZATIONS_ENABLED` defaults to **false**. With flags off, the app scopes projects by `user_id` only (same as before).
 
 ---
 
-## Phase 1 — Apply database migration (you approve & run)
+## Database changes (already on prod)
 
-From the repo root, against **production** `DATABASE_URL`:
-
-```bash
-cd packages/db
-pnpm drizzle-kit migrate
-# or apply SQL directly:
-# psql "$DATABASE_URL" -f src/migrations/0004_organizations.sql
-```
-
-This creates:
+`0004_organizations.sql` added:
 
 - `organization`, `member`, `invitation`
 - `session.active_organization_id` (nullable)
-- `project.organization_id` (nullable FK)
+- `project.organization_id` (nullable FK, index `project_organization_id_idx`)
 
-Existing rows are untouched. Projects still work via `user_id`.
+Backfill: `packages/db/scripts/backfill-personal-orgs.ts` (already run).
 
----
-
-## Phase 2 — Backfill personal organizations (no data loss)
-
-Dry-run is not built in; review the script first, then run:
-
-```bash
-cd packages/db
-DATABASE_URL="your-prod-url" pnpm exec tsx scripts/backfill-personal-orgs.ts
-```
-
-The script, for **each user** who owns projects:
-
-1. Creates a personal org (`"{name}'s Workspace"` / slug `personal-{userId-prefix}`)
-2. Adds the user as `owner` in `member`
-3. Sets `project.organization_id` for all projects where `user_id` matches
-
-It does **not** delete projects or env vars.
+**Schema sync:** Production uses **`drizzle-kit push`**, not migrate. See `packages/db/DATABASE.md`. Do not wire `db:migrate` into deploy.
 
 ---
 
-## Phase 3 — Apply Drizzle schema patch (required before enabling orgs)
+## Application enablement
 
-After migration + backfill, merge the post-migration fields (see `packages/db/src/schema/patches/after-0004-README.md`):
-
-- `session.activeOrganizationId` in `auth.ts`
-- `project.organizationId` in `projects.ts`
-- Export `organization` tables from `schema/index.ts` (already exported when you pull latest)
-
-Redeploy the app **before** enabling the feature flag.
-
----
-
-## Phase 4 — Enable organizations
-
-On Vercel (production):
+1. Deploy code that includes the Drizzle patch (`session.activeOrganizationId`, `project.organizationId`).
+2. Set on Vercel (production):
 
 ```env
 ORGANIZATIONS_ENABLED=true
 NEXT_PUBLIC_ORGANIZATIONS_ENABLED=true
 ```
 
-Redeploy. Users without an active org are sent to `/dashboard/onboarding` to create one.
+3. Redeploy.
+
+Users with **no** organization membership are sent to `/dashboard/onboarding`. Users with orgs but no active session org get the first org set automatically; they can switch in the sidebar.
+
+---
+
+## Behavior when enabled
+
+- **List/create projects:** Scoped to `user_id` + active `organization_id`.
+- **New projects:** `organization_id` set from the active org on create.
+- **Org switcher / settings:** Better Auth organization client (`/dashboard/settings/organization`).
 
 ---
 
 ## Rollback
 
-1. Set both org env vars to `false` and redeploy (instant fallback to `user_id` scoping).
-2. DB rollback is optional; nullable columns can remain unused.
+1. Set both org env vars to `false` and redeploy (API falls back to `user_id` only).
+2. DB columns can remain; they are ignored while flags are off.
 
 ---
 
 ## Verification checklist
 
-- [ ] All 15 projects visible after backfill
+- [ ] All projects visible in active org after enabling flags
 - [ ] Env vars still decrypt/create
-- [ ] Org switcher lists personal org
+- [ ] Org switcher lists workspace(s)
 - [ ] New project attaches to active org
-- [ ] Invites/members settings load (owner/admin)
+- [ ] Members/invites on organization settings load

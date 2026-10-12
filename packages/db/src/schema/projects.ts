@@ -8,6 +8,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
+import { organization } from "./organization";
 
 export const project = pgTable(
   "project",
@@ -29,6 +30,9 @@ export const project = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    organizationId: text("organization_id").references(() => organization.id, {
+      onDelete: "set null",
+    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -40,6 +44,7 @@ export const project = pgTable(
     index("project_slug_idx").on(table.slug),
     index("project_status_idx").on(table.status),
     index("project_isArchived_idx").on(table.isArchived),
+    index("project_organization_id_idx").on(table.organizationId),
   ],
 );
 
@@ -102,6 +107,10 @@ export const projectRelations = relations(project, ({ one, many }) => ({
   user: one(user, {
     fields: [project.userId],
     references: [user.id],
+  }),
+  organization: one(organization, {
+    fields: [project.organizationId],
+    references: [organization.id],
   }),
   environments: many(environment),
   variables: many(environmentVariable),

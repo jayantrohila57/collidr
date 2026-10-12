@@ -198,6 +198,7 @@ export const projectsRouter = router({
             isPublic: input.isPublic ?? false,
             slug,
             userId: ctx.session.user.id,
+            organizationId: ctx.activeOrganizationId ?? null,
           })
           .returning();
 
@@ -208,7 +209,7 @@ export const projectsRouter = router({
           });
         }
 
-        if (ctx.activeOrganizationId) {
+        if (ctx.activeOrganizationId && !newProject[0].organizationId) {
           await attachProjectToOrganization(
             newProject[0].id,
             ctx.activeOrganizationId,

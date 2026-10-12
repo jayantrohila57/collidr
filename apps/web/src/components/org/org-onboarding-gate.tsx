@@ -39,17 +39,19 @@ export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
         const list = await authClient.organization.list();
         const orgs = list.data ?? [];
 
+        if (orgs.length === 0) {
+          router.replace("/dashboard/onboarding");
+          return;
+        }
+
         const firstOrg = orgs[0];
         if (firstOrg?.id) {
           await authClient.organization.setActive({
             organizationId: firstOrg.id,
           });
           router.refresh();
-          if (!cancelled) setReady(true);
-          return;
         }
-
-        router.replace("/dashboard/onboarding");
+        if (!cancelled) setReady(true);
       } catch {
         if (!cancelled) setReady(true);
       }

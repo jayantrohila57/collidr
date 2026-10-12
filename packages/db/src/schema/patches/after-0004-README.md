@@ -1,31 +1,11 @@
 # Drizzle schema patch after migration 0004
 
-Apply **after** running `0004_organizations.sql` and the backfill script.
+**Status:** Applied in `auth.ts` and `projects.ts` (session `activeOrganizationId`, project `organizationId` + `project_organization_id_idx`).
 
-## 1. `packages/db/src/schema/auth.ts` — session
+Historical reference for what was added:
 
-Add to `session` table columns:
+- `session.activeOrganizationId` → column `active_organization_id`
+- `project.organizationId` → FK to `organization` with `onDelete: "set null"`
+- Index name **`project_organization_id_idx`** (matches `0004_organizations.sql`)
 
-```ts
-activeOrganizationId: text("active_organization_id"),
-```
-
-## 2. `packages/db/src/schema/projects.ts` — project
-
-Add to `project` table columns:
-
-```ts
-organizationId: text("organization_id").references(() => organization.id, {
-  onDelete: "set null",
-}),
-```
-
-Import `organization` from `./organization` and add index:
-
-```ts
-index("project_organizationId_idx").on(table.organizationId),
-```
-
-## 3. Redeploy, then set `ORGANIZATIONS_ENABLED=true`
-
-See `docs/ORGANIZATION_MIGRATION.md`.
+Production schema is kept in sync via **`drizzle-kit push`** — see `packages/db/DATABASE.md`.

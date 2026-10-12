@@ -3,7 +3,7 @@ import { member } from "@env-manager/db/schema/organization";
 import { project } from "@env-manager/db/schema/projects";
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import { TRPCError } from "@trpc/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 type SessionLike = {
   user: { id: string };
@@ -60,7 +60,7 @@ export function projectListFilter(
   if (isOrganizationsEnabled() && organizationId) {
     return and(
       eq(project.userId, userId),
-      sql`organization_id = ${organizationId}`,
+      eq(project.organizationId, organizationId),
     );
   }
   return eq(project.userId, userId);
@@ -80,10 +80,10 @@ export async function attachProjectToOrganization(
   organizationId: string,
 ) {
   if (!isOrganizationsEnabled()) return;
-  await db.execute(sql`
-    UPDATE project SET organization_id = ${organizationId}
-    WHERE id = ${projectId} AND organization_id IS NULL
-  `);
+  await db
+    .update(project)
+    .set({ organizationId })
+    .where(and(eq(project.id, projectId), isNull(project.organizationId)));
 }
 
 export async function assertProjectAccess(
@@ -99,7 +99,7 @@ export async function assertProjectAccess(
         ? and(
             eq(project.id, projectId),
             eq(project.userId, userId),
-            sql`organization_id = ${organizationId}`,
+            eq(project.organizationId, organizationId),
           )
         : and(eq(project.id, projectId), eq(project.userId, userId)),
     )
