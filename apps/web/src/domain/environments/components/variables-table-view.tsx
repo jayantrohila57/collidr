@@ -43,6 +43,7 @@ interface VariablesTableViewProps {
   onEdit: (variable: Variable) => void;
   onDelete: (id: string) => void;
   onAddVariable: (data: { key: string; value: string }) => Promise<void>;
+  onFetchValue: (id: string) => Promise<string>;
   isAddingVariable: boolean;
   isUpdating?: boolean;
 }
@@ -54,11 +55,17 @@ export function VariablesTableView({
   onEdit,
   onDelete,
   onAddVariable,
+  onFetchValue,
   isAddingVariable,
   isUpdating = false,
 }: VariablesTableViewProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<string | null>(null);
-  const [editDialogOpen, setEditDialogOpen] = useState<Variable | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editVariable, setEditVariable] = useState<Variable | null>(null);
+  const [editLoadingValue, setEditLoadingValue] = useState(false);
+  const [expandedValueIds, setExpandedValueIds] = useState<Set<string>>(
+    () => new Set(),
+  );
 
   const handleDelete = (variable: Variable) => {
     setDeleteDialogOpen(variable.id);
@@ -66,13 +73,40 @@ export function VariablesTableView({
 
   const confirmDelete = async () => {
     if (deleteDialogOpen) {
-      onDelete(deleteDialogOpen);
+      await onDelete(deleteDialogOpen);
       setDeleteDialogOpen(null);
     }
   };
 
-  const handleEdit = (variable: Variable) => {
-    setEditDialogOpen(variable);
+  const handleEdit = async (variable: Variable) => {
+    setEditVariable(variable);
+    setEditDialogOpen(true);
+
+    if (variable.value) {
+      return;
+    }
+
+    setEditLoadingValue(true);
+    try {
+      const value = await onFetchValue(variable.id);
+      setEditVariable((current) =>
+        current?.id === variable.id ? { ...current, value } : current,
+      );
+    } finally {
+      setEditLoadingValue(false);
+    }
+  };
+
+  const toggleValueExpanded = (id: string) => {
+    setExpandedValueIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   };
 
   if (variables.length === 0) {
@@ -95,98 +129,125 @@ export function VariablesTableView({
 
   return (
     <>
-      <Table className="rounded-lg border">
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-1/3">Key</TableHead>
-            <TableHead>Value</TableHead>
-            <TableHead className="w-24 text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {variables.map((variable) => (
-            <TableRow key={variable.id}>
-              <TableCell className="font-medium font-mono">
-                {variable.key}
-              </TableCell>
-              <TableCell>
-                <SecretValue
-                  revealed={revealedIds.has(variable.id)}
-                  value={variable.value}
-                />
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex items-center justify-end gap-1">
-                  <IconButton
-                    icon={revealedIds.has(variable.id) ? EyeOff : Eye}
-                    label={
-                      revealedIds.has(variable.id)
-                        ? "Hide value"
-                        : "Reveal value"
-                    }
-                    onClick={() => onReveal(variable.id)}
-                  />
-                  <CopyButton
-                    value={variable.value ?? ""}
-                    label="Copy value"
-                    disabled={!revealedIds.has(variable.id) || !variable.value}
-                  />
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+      <div className="overflow-x-auto">
+        <Table className="w-full table-fixed">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[32%]">Key</TableHead>
+              <TableHead className="w-[48%]">Value</TableHead>
+              <TableHead className="w-[20%] text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {variables.map((variable) => {
+              const isRevealed = revealedIds.has(variable.id);
+              const isValueExpanded = expandedValueIds.has(variable.id);
+              const showExpand =
+                isRevealed &&
+                Boolean(variable.value && variable.value.length > 80);
+
+              return (
+                <TableRow key={variable.id}>
+                  <TableCell className="wrap-anywhere align-top font-medium font-mono">
+                    {variable.key}
+                  </TableCell>
+                  <TableCell className="max-w-0 align-top">
+                    <SecretValue
+                      revealed={isRevealed}
+                      value={variable.value}
+                      expanded={isValueExpanded}
+                    />
+                    {showExpand && (
                       <Button
                         type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="size-8"
-                        aria-label="Variable actions"
+                        variant="link"
+                        className="mt-1 h-auto p-0 text-xs"
+                        onClick={() => toggleValueExpanded(variable.id)}
                       >
-                        <MoreVertical className="size-4" aria-hidden />
+                        {isValueExpanded ? "Collapse" : "Expand"}
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEdit(variable)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleDelete(variable)}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right align-top">
+                    <div className="flex items-center justify-end gap-1">
+                      <IconButton
+                        icon={isRevealed ? EyeOff : Eye}
+                        label={isRevealed ? "Hide value" : "Reveal value"}
+                        onClick={() => onReveal(variable.id)}
+                      />
+                      <CopyButton
+                        value={variable.value ?? ""}
+                        label="Copy value"
+                        disabled={!isRevealed || !variable.value}
+                      />
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                            aria-label="Variable actions"
+                          >
+                            <MoreVertical className="size-4" aria-hidden />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              void handleEdit(variable);
+                            }}
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              handleDelete(variable);
+                            }}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
 
-      {/* Edit Dialog */}
-      {editDialogOpen && (
+      {editVariable && (
         <EditVariableDialog
-          variable={{
-            id: editDialogOpen.id,
-            key: editDialogOpen.key,
-            value: editDialogOpen.value || "",
+          open={editDialogOpen}
+          onOpenChange={(open) => {
+            setEditDialogOpen(open);
+            if (!open) {
+              setEditVariable(null);
+              setEditLoadingValue(false);
+            }
           }}
+          variable={editVariable}
+          isLoadingValue={editLoadingValue}
           onConfirm={async (data) => {
             const updatedVariable: Variable = {
-              ...editDialogOpen,
+              ...editVariable,
               key: data.key,
               value: data.value,
             };
             await onEdit(updatedVariable);
-            setEditDialogOpen(null);
           }}
           isPending={isUpdating}
         />
       )}
 
-      {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         open={Boolean(deleteDialogOpen)}
         onOpenChange={(open) => !open && setDeleteDialogOpen(null)}

@@ -1,7 +1,6 @@
 "use client";
 
-import { Pencil } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,18 +9,22 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+const KEY_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
 interface EditVariableDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   variable: {
     id: string;
     key: string;
     value?: string;
   };
+  isLoadingValue?: boolean;
   onConfirm: (data: {
     id: string;
     key: string;
@@ -31,37 +34,60 @@ interface EditVariableDialogProps {
 }
 
 export function EditVariableDialog({
+  open,
+  onOpenChange,
   variable,
+  isLoadingValue = false,
   onConfirm,
   isPending,
 }: EditVariableDialogProps) {
-  const [open, setOpen] = useState(false);
   const [key, setKey] = useState(variable.key);
   const [value, setValue] = useState(variable.value || "");
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setKey(variable.key);
+      setValue(variable.value ?? "");
+      setError(null);
+    }
+  }, [open, variable.key, variable.value]);
+
+  const validateKey = (rawKey: string) => {
+    const trimmed = rawKey.trim();
+    if (!trimmed) return "Key is required";
+    if (trimmed.length > 256) return "Key must be 256 characters or fewer";
+    if (/\s/.test(trimmed)) return "Keys cannot contain spaces";
+    if (!KEY_PATTERN.test(trimmed)) {
+      return "Keys must start with a letter or underscore and contain only letters, numbers, and underscores";
+    }
+    return null;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!key.trim()) return;
+    const keyError = validateKey(key);
+    if (keyError) {
+      setError(keyError);
+      return;
+    }
+    setError(null);
     await onConfirm({
       id: variable.id,
       key: key.trim().toUpperCase(),
-      value: value.trim(),
+      value,
     });
-    setOpen(false);
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Pencil className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Variable</DialogTitle>
           <DialogDescription>
-            Modify the environment variable settings.
+            Update the key and value. The current value is loaded when you open
+            this dialog.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -71,32 +97,43 @@ export function EditVariableDialog({
               <Input
                 id="edit-key"
                 value={key}
-                onChange={(e) => setKey(e.target.value)}
+                onChange={(e) => {
+                  setKey(e.target.value);
+                  if (error) setError(validateKey(e.target.value));
+                }}
                 placeholder="DATABASE_URL"
                 className="font-mono"
+                aria-invalid={Boolean(error)}
               />
+              {error && <p className="text-destructive text-sm">{error}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-value">Value</Label>
-              <Textarea
-                id="edit-value"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                placeholder="your-value-here"
-                rows={3}
-                className="max-h-[300px] min-h-[6rem] overflow-y-auto break-all font-mono"
-              />
+              {isLoadingValue ? (
+                <p className="text-muted-foreground text-sm">
+                  Loading current value…
+                </p>
+              ) : (
+                <Textarea
+                  id="edit-value"
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  placeholder="your-value-here"
+                  rows={3}
+                  className="wrap-anywhere max-h-[300px] min-h-[6rem] overflow-y-auto font-mono"
+                />
+              )}
             </div>
           </div>
           <DialogFooter>
             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={() => onOpenChange(false)}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending || isLoadingValue}>
               {isPending ? "Updating..." : "Update"}
             </Button>
           </DialogFooter>

@@ -30,14 +30,26 @@ export function TruncatedText({
 
   useLayoutEffect(() => {
     const el = ref.current;
-    if (!el || expanded) return;
-    setIsTruncated(el.scrollHeight > el.clientHeight + 1);
+    if (!el || expanded) {
+      setIsTruncated(false);
+      return;
+    }
+
+    const measure = () => {
+      setIsTruncated(el.scrollHeight > el.clientHeight + 1);
+    };
+
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
   }, [expanded]);
 
   if (expanded) {
     return (
       <div className={cn("space-y-2", className)}>
-        <p className="break-all text-muted-foreground text-sm leading-relaxed">
+        <p className="wrap-anywhere text-muted-foreground text-sm leading-relaxed">
           {content}
         </p>
         <Button
@@ -59,7 +71,7 @@ export function TruncatedText({
           <p
             ref={ref}
             className={cn(
-              "break-all text-muted-foreground text-sm leading-relaxed",
+              "wrap-anywhere text-muted-foreground text-sm leading-relaxed",
               lines === 2 && "line-clamp-2",
               lines === 3 && "line-clamp-3",
             )}
@@ -70,7 +82,7 @@ export function TruncatedText({
         {isTruncated && (
           <TooltipContent
             side="bottom"
-            className="max-w-md break-all text-left"
+            className="wrap-anywhere max-w-md text-left"
           >
             {content}
           </TooltipContent>

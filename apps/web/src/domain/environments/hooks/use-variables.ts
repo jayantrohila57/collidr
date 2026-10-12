@@ -90,7 +90,9 @@ export function useVariables(environmentId: string) {
         });
       },
       onSuccess: () => {
-        toast.success("Variable created successfully");
+        toast.success("Variable added", {
+          id: `variable-create-${environmentId}`,
+        });
       },
     }),
   );
@@ -186,7 +188,9 @@ export function useVariables(environmentId: string) {
         });
       },
       onSuccess: () => {
-        toast.success("Variable deleted successfully");
+        toast.success("Variable deleted", {
+          id: `variable-delete-${environmentId}`,
+        });
       },
     }),
   );
@@ -282,6 +286,20 @@ export function useVariables(environmentId: string) {
   const getRevealedValue = (varId: string) =>
     queryClient.getQueryData<string>(["revealedValue", varId]);
 
+  const fetchVariableValue = async (varId: string) => {
+    const cached = queryClient.getQueryData<string>(["revealedValue", varId]);
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    const result = await queryClient.fetchQuery(
+      trpc.environmentVariables.get.queryOptions({ id: varId }),
+    );
+    const value = result.data?.value ?? "";
+    queryClient.setQueryData(["revealedValue", varId], value);
+    return value;
+  };
+
   const status: "loading" | "error" | "empty" | "success" =
     variablesQuery.isLoading
       ? "loading"
@@ -305,5 +323,6 @@ export function useVariables(environmentId: string) {
     bulkImport: bulkImportMutation.mutateAsync,
     isImporting: bulkImportMutation.isPending,
     getRevealedValue,
+    fetchVariableValue,
   };
 }

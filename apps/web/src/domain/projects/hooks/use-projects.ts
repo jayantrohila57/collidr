@@ -1,7 +1,12 @@
 "use client";
 
 import type { ProjectOutput } from "@env-manager/api/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  type QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { toast } from "sonner";
 import { trpc } from "@/utils/trpc";
 
@@ -26,6 +31,48 @@ interface ProjectsQueryResponse {
   message: string;
   data: ApiProject[];
   error: string | null;
+}
+
+interface ProjectBySlugResponse {
+  status: "success";
+  message: string;
+  data: {
+    project: ApiProject | null;
+    environments: unknown[];
+  };
+  error: string | null;
+}
+
+function patchProjectInGetBySlugCaches(
+  queryClient: QueryClient,
+  projectId: string,
+  patch: Partial<ApiProject>,
+) {
+  const queries = queryClient.getQueryCache().findAll({
+    predicate: (query) => JSON.stringify(query.queryKey).includes("getBySlug"),
+  });
+
+  for (const query of queries) {
+    queryClient.setQueryData(query.queryKey, (old: unknown) => {
+      const typed = old as ProjectBySlugResponse | undefined;
+      if (!typed?.data?.project || typed.data.project.id !== projectId) {
+        return old;
+      }
+      return {
+        ...typed,
+        data: {
+          ...typed.data,
+          project: { ...typed.data.project, ...patch },
+        },
+      };
+    });
+  }
+}
+
+function invalidateGetBySlugQueries(queryClient: QueryClient) {
+  queryClient.invalidateQueries({
+    predicate: (query) => JSON.stringify(query.queryKey).includes("getBySlug"),
+  });
 }
 
 // Helper function to transform API response to proper ProjectOutput type
@@ -315,6 +362,10 @@ export function useProjects() {
           },
         );
 
+        patchProjectInGetBySlugCaches(queryClient, variables.id, {
+          status: variables.status,
+        });
+
         return { previousProjects };
       },
       onError: () => {
@@ -329,6 +380,7 @@ export function useProjects() {
         queryClient.invalidateQueries({
           queryKey: trpc.projects.list.queryKey(),
         });
+        invalidateGetBySlugQueries(queryClient);
       },
       onSuccess: () => {
         toast.success("Project status updated successfully");
@@ -348,6 +400,10 @@ export function useProjects() {
         ) as ProjectsQueryResponse | undefined;
 
         // Optimistically update the public status
+        const nextIsPublic = previousProjects?.data?.find(
+          (p) => p.id === variables.id,
+        )?.isPublic;
+
         queryClient.setQueryData(
           trpc.projects.list.queryKey(),
           (old: ProjectsQueryResponse | undefined) => {
@@ -363,6 +419,12 @@ export function useProjects() {
           },
         );
 
+        if (nextIsPublic !== undefined) {
+          patchProjectInGetBySlugCaches(queryClient, variables.id, {
+            isPublic: !nextIsPublic,
+          });
+        }
+
         return { previousProjects };
       },
       onError: () => {
@@ -377,6 +439,7 @@ export function useProjects() {
         queryClient.invalidateQueries({
           queryKey: trpc.projects.list.queryKey(),
         });
+        invalidateGetBySlugQueries(queryClient);
       },
       onSuccess: (data) => {
         toast.success(data.message);

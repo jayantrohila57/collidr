@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
 import Shell from "@/components/shell";
 import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
-import { useProjectActions } from "@/domain/projects/hooks/use-project-actions";
 import { trpc } from "@/utils/trpc";
 
 const EditProject = dynamic(
@@ -24,24 +23,18 @@ interface EditProjectClientProps {
 }
 
 export default function EditProjectClient({ slug }: EditProjectClientProps) {
-  // Get the project by slug
-  const { data: projectBySlug, isLoading: isLoadingSlug } = useQuery(
-    trpc.projects.getBySlug.queryOptions({ slug }),
-  );
-
-  // Get project ID safely
-  const projectId = projectBySlug?.data?.project?.id;
-
-  // Always call the hook, but it will handle the case when projectId is undefined
-  const { project, isLoading } = useProjectActions({
-    projectId: projectId || "",
+  const { data: projectBySlug, isLoading } = useQuery({
+    ...trpc.projects.getBySlug.queryOptions({ slug }),
+    meta: { toastOnError: false },
   });
 
-  if (isLoadingSlug || isLoading) {
+  const project = projectBySlug?.data?.project;
+
+  if (isLoading) {
     return <ProjectDetailSkeleton />;
   }
 
-  if (!projectBySlug?.data?.project || !project) {
+  if (!project) {
     redirect("/dashboard/projects");
   }
 
@@ -49,7 +42,7 @@ export default function EditProjectClient({ slug }: EditProjectClientProps) {
     <Shell>
       <Shell.Section variant="dashboard" padding="dashboard" scale="full">
         <DashboardSection
-          title="Edit Project"
+          title={`Edit ${project.name}`}
           description="Update project information and settings."
         >
           <EditProject project={project} />

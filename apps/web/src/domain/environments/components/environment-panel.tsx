@@ -27,6 +27,7 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
     isUpdating,
     deleteVariable,
     getRevealedValue,
+    fetchVariableValue,
   } = useVariables(environmentId);
 
   const variablesWithValues = variables.map((variable) => ({
@@ -76,6 +77,7 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onAddVariable={handleCreate}
+        onFetchValue={fetchVariableValue}
         isAddingVariable={isCreating}
         isUpdating={isUpdating}
       />

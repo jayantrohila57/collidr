@@ -154,8 +154,8 @@ const variableKeySchema = z
   .min(1, "Key is required")
   .max(256, "Key must be 256 characters or fewer")
   .regex(
-    /^[A-Za-z0-9_]+$/,
-    "Keys may only contain letters, numbers, and underscores",
+    /^[A-Za-z_][A-Za-z0-9_]*$/,
+    "Keys must start with a letter or underscore and contain only letters, numbers, and underscores",
   );
 
 export const createVariableInput = z.object({

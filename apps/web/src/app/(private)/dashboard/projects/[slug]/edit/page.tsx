@@ -1,8 +1,8 @@
 import { auth } from "@env-manager/auth";
+import { getOwnedProjectBySlug } from "@env-manager/db";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { deSlug } from "@/lib/utils";
 import EditProjectClient from "./edit-project-client";
 
 interface EditProjectPageProps {
@@ -15,11 +15,29 @@ export async function generateMetadata({
   params,
 }: EditProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const projectTitle = deSlug(slug);
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    return {
+      title: "Edit project",
+      description: "Edit project details.",
+    };
+  }
+
+  const projectRecord = await getOwnedProjectBySlug(session.user.id, slug);
+
+  if (!projectRecord) {
+    return {
+      title: "Edit project",
+      description: "Edit project details.",
+    };
+  }
 
   return {
-    title: `Edit ${projectTitle}`,
-    description: `Edit project details for ${projectTitle}.`,
+    title: `Edit ${projectRecord.name}`,
+    description: `Edit project details for ${projectRecord.name}.`,
   };
 }
 

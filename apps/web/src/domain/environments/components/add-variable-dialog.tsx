@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-const KEY_PATTERN = /^[A-Za-z0-9_]+$/;
+const KEY_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 interface AddVariableDialogProps {
   onConfirm: (data: { key: string; value: string }) => Promise<void>;
@@ -38,7 +38,7 @@ export function AddVariableDialog({
     if (trimmed.length > 256) return "Key must be 256 characters or fewer";
     if (/\s/.test(trimmed)) return "Keys cannot contain spaces";
     if (!KEY_PATTERN.test(trimmed)) {
-      return "Keys may only contain letters, numbers, and underscores";
+      return "Keys must start with a letter or underscore and contain only letters, numbers, and underscores";
     }
     return null;
   };

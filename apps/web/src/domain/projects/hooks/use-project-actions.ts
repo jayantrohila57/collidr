@@ -8,11 +8,13 @@ import { useProjects } from "./use-projects";
 interface UseProjectActionsProps {
   projectId: string;
   onUpdate?: () => void;
+  enabled?: boolean;
 }
 
 export function useProjectActions({
   projectId,
   onUpdate,
+  enabled = true,
 }: UseProjectActionsProps) {
   const router = useRouter();
 
@@ -30,9 +32,11 @@ export function useProjectActions({
   } = useProjects();
 
   // Get project details to check current state
-  const projectQuery = useQuery(
-    trpc.projects.get.queryOptions({ id: projectId }),
-  );
+  const projectQuery = useQuery({
+    ...trpc.projects.get.queryOptions({ id: projectId }),
+    enabled: enabled && Boolean(projectId),
+    meta: { toastOnError: false },
+  });
 
   const handleArchive = async () => {
     try {

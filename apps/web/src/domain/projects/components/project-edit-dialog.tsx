@@ -10,7 +10,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { EditProject } from "./project-edit";
@@ -46,42 +45,46 @@ export function EditProjectDialog({
     }
   };
 
+  const openDialog = () => {
+    onMenuClose?.();
+    setOpen(true);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        {triggerVariant === "menu" ? (
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              onMenuClose?.();
-              setOpen(true);
-            }}
-          >
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Project
-          </DropdownMenuItem>
-        ) : (
-          <Button variant="outline" size="sm">
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Project
-          </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Project</DialogTitle>
-          <DialogDescription>
-            Update details for "{project.name}". Changes will be saved
-            immediately.
-          </DialogDescription>
-        </DialogHeader>
-        <EditProject
-          project={project}
-          embedded
-          onSuccess={handleSuccess}
-          onCancel={handleCancel}
-        />
-      </DialogContent>
-    </Dialog>
+    <>
+      {triggerVariant === "menu" ? (
+        <DropdownMenuItem
+          onSelect={(e) => {
+            e.preventDefault();
+            openDialog();
+          }}
+        >
+          <Edit className="mr-2 h-4 w-4" />
+          Edit Project
+        </DropdownMenuItem>
+      ) : (
+        <Button variant="outline" size="sm" onClick={openDialog}>
+          <Edit className="mr-2 h-4 w-4" />
+          Edit Project
+        </Button>
+      )}
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Project</DialogTitle>
+            <DialogDescription>
+              Update details for "{project.name}". Changes will be saved
+              immediately.
+            </DialogDescription>
+          </DialogHeader>
+          <EditProject
+            project={project}
+            embedded
+            onSuccess={handleSuccess}
+            onCancel={handleCancel}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
