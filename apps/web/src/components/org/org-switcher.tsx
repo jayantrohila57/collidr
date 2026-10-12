@@ -96,20 +96,24 @@ export function OrgSwitcher() {
     </Button>
   );
 
+  const dropdownTrigger = (
+    <DropdownMenuTrigger asChild>{triggerButton}</DropdownMenuTrigger>
+  );
+
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        {collapsed ? (
-          <Tooltip>
-            <TooltipTrigger asChild>{triggerButton}</TooltipTrigger>
-            <TooltipContent side="right">{triggerLabel}</TooltipContent>
-          </Tooltip>
-        ) : (
-          triggerButton
-        )}
-      </DropdownMenuTrigger>
+      {collapsed ? (
+        <Tooltip>
+          <TooltipTrigger asChild>{dropdownTrigger}</TooltipTrigger>
+          <TooltipContent side="right">{triggerLabel}</TooltipContent>
+        </Tooltip>
+      ) : (
+        dropdownTrigger
+      )}
       <DropdownMenuContent
+        side={collapsed ? "right" : "bottom"}
         align="start"
+        sideOffset={collapsed ? 8 : 4}
         className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[var(--radix-dropdown-menu-trigger-width)]"
       >
         <DropdownMenuLabel>Organizations</DropdownMenuLabel>
