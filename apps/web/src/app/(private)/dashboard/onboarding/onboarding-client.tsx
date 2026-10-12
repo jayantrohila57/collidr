@@ -26,11 +26,16 @@ const schema = z.object({
   slug: z
     .string()
     .trim()
-    .min(2, "Slug is required")
-    .max(200, "Slug is too long")
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Use lowercase letters, numbers, and hyphens only",
+    .transform((value) => slugifyOrganizationName(value))
+    .pipe(
+      z
+        .string()
+        .min(2, "Slug is required")
+        .max(200, "Slug is too long")
+        .regex(
+          /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+          "Use lowercase letters, numbers, and hyphens only",
+        ),
     ),
 });
 

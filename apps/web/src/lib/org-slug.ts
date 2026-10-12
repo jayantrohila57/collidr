@@ -33,11 +33,20 @@ export function parseOrgMetadata(
   }
 }
 
-export function isPersonalOrganization(org: {
-  slug: string;
-  metadata?: string | Record<string, unknown> | null;
-}): boolean {
-  const meta = parseOrgMetadata(org.metadata ?? null);
-  if (meta.type === "personal") return true;
-  return org.slug.includes("-personal-");
+export function normalizeOrgSlugForCompare(slug: string): string {
+  return slugifyOrganizationName(slug);
+}
+
+export function resolveOrgSlugForSave(
+  currentInput: string,
+  initialSlug: string,
+): string {
+  const trimmed = currentInput.trim();
+  if (
+    normalizeOrgSlugForCompare(trimmed) ===
+    normalizeOrgSlugForCompare(initialSlug)
+  ) {
+    return initialSlug;
+  }
+  return slugifyOrganizationName(trimmed);
 }

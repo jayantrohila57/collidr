@@ -114,7 +114,11 @@ export function OrgSwitcher() {
         side={collapsed ? "right" : "bottom"}
         align="start"
         sideOffset={collapsed ? 8 : 4}
-        className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[var(--radix-dropdown-menu-trigger-width)]"
+        className={
+          collapsed
+            ? "w-60 min-w-60"
+            : "w-[var(--radix-dropdown-menu-trigger-width)] min-w-[var(--radix-dropdown-menu-trigger-width)]"
+        }
       >
         <DropdownMenuLabel>Organizations</DropdownMenuLabel>
         {orgs.map((org) => (

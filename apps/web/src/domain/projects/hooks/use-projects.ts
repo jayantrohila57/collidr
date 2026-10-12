@@ -93,7 +93,7 @@ export function useProjects() {
   const [loadTimedOut, setLoadTimedOut] = useState(false);
 
   useEffect(() => {
-    void queryClient.invalidateQueries({
+    queryClient.removeQueries({
       queryKey: trpc.projects.list.queryKey(),
     });
   }, [orgScope, queryClient]);

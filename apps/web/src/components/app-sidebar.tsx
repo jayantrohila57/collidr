@@ -178,6 +178,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         isActive={isActive(
                           `/dashboard/projects/${project.slug}`,
                         )}
+                        tooltip={project.name}
                         asChild
                       >
                         <Link

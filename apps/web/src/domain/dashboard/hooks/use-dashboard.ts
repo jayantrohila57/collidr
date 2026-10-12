@@ -2,7 +2,10 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useOrgQueryScopeKey } from "@/components/org/active-organization-context";
+import {
+  useActiveOrganization,
+  useOrgQueryScopeKey,
+} from "@/components/org/active-organization-context";
 import { trpc } from "@/utils/trpc";
 
 // Interface for dashboard stats response
@@ -40,11 +43,12 @@ const DASHBOARD_LOAD_TIMEOUT_MS = 20_000;
 
 export function useDashboardStats() {
   const orgScope = useOrgQueryScopeKey();
+  const { isSwitching } = useActiveOrganization();
   const queryClient = useQueryClient();
   const [loadTimedOut, setLoadTimedOut] = useState(false);
 
   useEffect(() => {
-    void queryClient.invalidateQueries({
+    queryClient.removeQueries({
       queryKey: trpc.dashboard.getStats.queryKey(),
     });
   }, [orgScope, queryClient]);
@@ -55,8 +59,13 @@ export function useDashboardStats() {
     retry: 2,
   });
 
+  const pending = isSwitching || statsQuery.isLoading || statsQuery.isFetching;
+  const stats = pending
+    ? undefined
+    : (statsQuery.data as DashboardStats | undefined);
+
   useEffect(() => {
-    if (!statsQuery.isLoading) {
+    if (!pending) {
       setLoadTimedOut(false);
       return;
     }
@@ -65,33 +74,34 @@ export function useDashboardStats() {
       DASHBOARD_LOAD_TIMEOUT_MS,
     );
     return () => window.clearTimeout(timer);
-  }, [statsQuery.isLoading]);
+  }, [pending]);
 
   const status: "loading" | "error" | "empty" | "success" = loadTimedOut
     ? "error"
-    : statsQuery.isLoading
+    : pending
       ? "loading"
       : statsQuery.isError
         ? "error"
-        : statsQuery.data
+        : stats
           ? "success"
           : "empty";
 
   return {
-    stats: statsQuery.data as DashboardStats | undefined,
+    stats,
     status,
     error: statsQuery.error,
-    isLoading: statsQuery.isLoading,
+    isLoading: pending,
     refetch: statsQuery.refetch,
   };
 }
 
 export function useDashboardActivity() {
   const orgScope = useOrgQueryScopeKey();
+  const { isSwitching } = useActiveOrganization();
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    void queryClient.invalidateQueries({
+    queryClient.removeQueries({
       queryKey: trpc.dashboard.getRecentActivity.queryKey(),
     });
   }, [orgScope, queryClient]);
@@ -101,20 +111,25 @@ export function useDashboardActivity() {
     meta: { toastOnError: false },
   });
 
-  const status: "loading" | "error" | "empty" | "success" =
-    activityQuery.isLoading
-      ? "loading"
-      : activityQuery.isError
-        ? "error"
-        : activityQuery.data
-          ? "success"
-          : "empty";
+  const pending =
+    isSwitching || activityQuery.isLoading || activityQuery.isFetching;
+  const activity = pending
+    ? undefined
+    : (activityQuery.data as RecentActivity | undefined);
+
+  const status: "loading" | "error" | "empty" | "success" = pending
+    ? "loading"
+    : activityQuery.isError
+      ? "error"
+      : activity
+        ? "success"
+        : "empty";
 
   return {
-    activity: activityQuery.data as RecentActivity | undefined,
+    activity,
     status,
     error: activityQuery.error,
-    isLoading: activityQuery.isLoading,
+    isLoading: pending,
     refetch: activityQuery.refetch,
   };
 }
@@ -124,13 +139,9 @@ export function useDashboard() {
   const stats = useDashboardStats();
   const activity = useDashboardActivity();
 
-  // Overall loading state
   const isLoading = stats.isLoading || activity.isLoading;
-
-  // Overall error state
   const hasError = stats.error || activity.error;
 
-  // Overall status
   const status: "loading" | "error" | "empty" | "success" = isLoading
     ? "loading"
     : hasError
@@ -139,7 +150,6 @@ export function useDashboard() {
         ? "empty"
         : "success";
 
-  // Refetch both queries
   const refetchAll = async () => {
     await Promise.all([stats.refetch(), activity.refetch()]);
   };

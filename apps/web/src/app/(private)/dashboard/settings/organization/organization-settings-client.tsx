@@ -33,9 +33,10 @@ import { Spinner } from "@/components/ui/spinner";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { authClient } from "@/lib/auth-client";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
+import { isPersonalOrganization } from "@/lib/org-personal";
 import {
   formatOrganizationCreateError,
-  isPersonalOrganization,
+  resolveOrgSlugForSave,
   slugifyOrganizationName,
 } from "@/lib/org-slug";
 
@@ -64,6 +65,7 @@ export function OrganizationSettingsForm({
   const [orgMetadata, setOrgMetadata] = useState<
     string | Record<string, unknown> | null
   >(null);
+  const [initialSlug, setInitialSlug] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [slugError, setSlugError] = useState<string | undefined>();
@@ -82,10 +84,7 @@ export function OrganizationSettingsForm({
     (m) => m.user.id === currentUserId || m.user.email === session?.user?.email,
   );
   const isOwner = myMembership?.role === "owner";
-  const isPersonal = isPersonalOrganization({
-    slug: orgSlug,
-    metadata: orgMetadata,
-  });
+  const isPersonal = isPersonalOrganization({ metadata: orgMetadata });
 
   const loadOrganization = useCallback(async (targetOrgId: string) => {
     const org = await authClient.organization.getFullOrganization({
@@ -96,6 +95,7 @@ export function OrganizationSettingsForm({
     }
     setOrgName(org.data.name);
     setOrgSlug(org.data.slug);
+    setInitialSlug(org.data.slug);
     setOrgMetadata(org.data.metadata ?? null);
     const list = await authClient.organization.listMembers({
       query: { organizationId: targetOrgId },
@@ -169,11 +169,12 @@ export function OrganizationSettingsForm({
     setSlugError(undefined);
     setSavePending(true);
     try {
+      const slugToSave = resolveOrgSlugForSave(orgSlug, initialSlug);
       const result = await authClient.organization.update({
         organizationId,
         data: {
           name: orgName.trim(),
-          slug: orgSlug.trim(),
+          slug: slugToSave,
         },
       });
       if (result.error) {
@@ -303,6 +304,9 @@ export function OrganizationSettingsForm({
             value={orgSlug}
             onChange={(e) => {
               setSlugError(undefined);
+              setOrgSlug(e.target.value);
+            }}
+            onBlur={(e) => {
               setOrgSlug(slugifyOrganizationName(e.target.value));
             }}
           />
