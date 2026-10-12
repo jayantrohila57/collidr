@@ -142,7 +142,18 @@ export function useVariables(environmentId: string) {
           queryKey: trpc.environmentVariables.list.queryKey({ environmentId }),
         });
       },
-      onSuccess: () => {
+      onSuccess: (_result, variables) => {
+        if (variables.value !== undefined) {
+          queryClient.setQueryData(
+            ["revealedValue", variables.id],
+            variables.value,
+          );
+        }
+        queryClient.removeQueries({
+          queryKey: trpc.environmentVariables.get.queryKey({
+            id: variables.id,
+          }),
+        });
         toast.success("Variable updated successfully");
       },
     }),
@@ -286,10 +297,19 @@ export function useVariables(environmentId: string) {
   const getRevealedValue = (varId: string) =>
     queryClient.getQueryData<string>(["revealedValue", varId]);
 
-  const fetchVariableValue = async (varId: string) => {
-    const cached = queryClient.getQueryData<string>(["revealedValue", varId]);
-    if (cached !== undefined) {
-      return cached;
+  const fetchVariableValue = async (
+    varId: string,
+    options?: { force?: boolean },
+  ) => {
+    if (!options?.force) {
+      const cached = queryClient.getQueryData<string>(["revealedValue", varId]);
+      if (cached !== undefined) {
+        return cached;
+      }
+    } else {
+      queryClient.removeQueries({
+        queryKey: trpc.environmentVariables.get.queryKey({ id: varId }),
+      });
     }
 
     const result = await queryClient.fetchQuery(

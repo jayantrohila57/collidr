@@ -382,9 +382,6 @@ export function useProjects() {
         });
         invalidateGetBySlugQueries(queryClient);
       },
-      onSuccess: () => {
-        toast.success("Project status updated successfully");
-      },
     }),
   );
 

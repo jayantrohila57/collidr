@@ -43,7 +43,7 @@ interface VariablesTableViewProps {
   onEdit: (variable: Variable) => void;
   onDelete: (id: string) => void;
   onAddVariable: (data: { key: string; value: string }) => Promise<void>;
-  onFetchValue: (id: string) => Promise<string>;
+  onFetchValue: (id: string, options?: { force?: boolean }) => Promise<string>;
   isAddingVariable: boolean;
   isUpdating?: boolean;
 }
@@ -66,8 +66,17 @@ export function VariablesTableView({
   const [expandedValueIds, setExpandedValueIds] = useState<Set<string>>(
     () => new Set(),
   );
+  const [openActionsMenuId, setOpenActionsMenuId] = useState<string | null>(
+    null,
+  );
+
+  const releaseOverlayPointerLock = () => {
+    document.body.style.pointerEvents = "";
+    document.documentElement.style.pointerEvents = "";
+  };
 
   const handleDelete = (variable: Variable) => {
+    setOpenActionsMenuId(null);
     setDeleteDialogOpen(variable.id);
   };
 
@@ -78,23 +87,23 @@ export function VariablesTableView({
     }
   };
 
-  const handleEdit = async (variable: Variable) => {
-    setEditVariable(variable);
-    setEditDialogOpen(true);
-
-    if (variable.value) {
-      return;
-    }
-
-    setEditLoadingValue(true);
-    try {
-      const value = await onFetchValue(variable.id);
-      setEditVariable((current) =>
-        current?.id === variable.id ? { ...current, value } : current,
-      );
-    } finally {
-      setEditLoadingValue(false);
-    }
+  const handleEdit = (variable: Variable) => {
+    setOpenActionsMenuId(null);
+    window.setTimeout(() => {
+      void (async () => {
+        setEditVariable(variable);
+        setEditDialogOpen(true);
+        setEditLoadingValue(true);
+        try {
+          const value = await onFetchValue(variable.id, { force: true });
+          setEditVariable((current) =>
+            current?.id === variable.id ? { ...current, value } : current,
+          );
+        } finally {
+          setEditLoadingValue(false);
+        }
+      })();
+    }, 0);
   };
 
   const toggleValueExpanded = (id: string) => {
@@ -180,7 +189,13 @@ export function VariablesTableView({
                         label="Copy value"
                         disabled={!isRevealed || !variable.value}
                       />
-                      <DropdownMenu>
+                      <DropdownMenu
+                        modal={false}
+                        open={openActionsMenuId === variable.id}
+                        onOpenChange={(open) =>
+                          setOpenActionsMenuId(open ? variable.id : null)
+                        }
+                      >
                         <DropdownMenuTrigger asChild>
                           <Button
                             type="button"
@@ -232,6 +247,8 @@ export function VariablesTableView({
             if (!open) {
               setEditVariable(null);
               setEditLoadingValue(false);
+              setOpenActionsMenuId(null);
+              releaseOverlayPointerLock();
             }
           }}
           variable={editVariable}

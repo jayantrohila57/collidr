@@ -5,13 +5,17 @@ import {
   Archive,
   ArchiveRestore,
   Delete,
+  Edit,
   Eye,
   EyeOff,
   MoreHorizontal,
   Power,
   RefreshCw,
 } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,11 +27,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { ProjectActionDialog } from "./project-action-dialog";
-import { EditProjectDialog } from "./project-edit-dialog";
 
 interface ProjectActionsProps {
   project: ProjectOutput;
   onUpdate?: () => void;
+}
+
+function projectEditHref(slug: string | null | undefined): Route | null {
+  const trimmed = slug?.trim();
+  if (!trimmed) return null;
+  return `/dashboard/projects/${trimmed}/edit` as Route;
 }
 
 export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
@@ -35,6 +44,8 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [unarchiveDialogOpen, setUnarchiveDialogOpen] = useState(false);
+
+  const editHref = projectEditHref(project.slug);
 
   const {
     archiveProject,
@@ -49,6 +60,24 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
     isDeleting,
   } = useProjectActions({ projectId: project.id, onUpdate });
 
+  const handleStatusChange = async (
+    status: "active" | "inactive" | "maintenance",
+  ) => {
+    setMenuOpen(false);
+    try {
+      await changeProjectStatus(status);
+      const label =
+        status === "active"
+          ? "active"
+          : status === "inactive"
+            ? "inactive"
+            : "maintenance";
+      toast.success(`Project marked as ${label}`);
+    } catch {
+      // Error toast handled globally
+    }
+  };
+
   return (
     <>
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
@@ -62,32 +91,47 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
           <DropdownMenuLabel>Project Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
 
-          {/* Edit Action */}
-          <EditProjectDialog
-            project={project}
-            onUpdate={onUpdate}
-            onMenuClose={() => setMenuOpen(false)}
-          />
+          {editHref ? (
+            <DropdownMenuItem asChild>
+              <Link href={editHref} onClick={() => setMenuOpen(false)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Project
+              </Link>
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem disabled>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Project (unavailable)
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuSeparator />
 
-          {/* Status Actions */}
           <DropdownMenuItem
-            onClick={() => changeProjectStatus("active")}
+            onSelect={(e) => {
+              e.preventDefault();
+              void handleStatusChange("active");
+            }}
             disabled={isChangingStatus || project.status === "active"}
           >
             <Power className="mr-2 h-4 w-4" />
             Set Active
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => changeProjectStatus("inactive")}
+            onSelect={(e) => {
+              e.preventDefault();
+              void handleStatusChange("inactive");
+            }}
             disabled={isChangingStatus || project.status === "inactive"}
           >
             <RefreshCw className="mr-2 h-4 w-4" />
             Set Inactive
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => changeProjectStatus("maintenance")}
+            onSelect={(e) => {
+              e.preventDefault();
+              void handleStatusChange("maintenance");
+            }}
             disabled={isChangingStatus || project.status === "maintenance"}
           >
             <RefreshCw className="mr-2 h-4 w-4" />
@@ -96,9 +140,12 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
 
           <DropdownMenuSeparator />
 
-          {/* Visibility Actions */}
           <DropdownMenuItem
-            onClick={() => toggleProjectPublic()}
+            onSelect={(e) => {
+              e.preventDefault();
+              setMenuOpen(false);
+              void toggleProjectPublic();
+            }}
             disabled={isTogglingPublic}
           >
             {project.isPublic ? (
@@ -116,10 +163,13 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
 
           <DropdownMenuSeparator />
 
-          {/* Archive Actions */}
           {project.isArchived ? (
             <DropdownMenuItem
-              onClick={() => setUnarchiveDialogOpen(true)}
+              onSelect={(e) => {
+                e.preventDefault();
+                setMenuOpen(false);
+                setUnarchiveDialogOpen(true);
+              }}
               disabled={isUnarchiving}
             >
               <ArchiveRestore className="mr-2 h-4 w-4" />
@@ -127,7 +177,11 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem
-              onClick={() => setArchiveDialogOpen(true)}
+              onSelect={(e) => {
+                e.preventDefault();
+                setMenuOpen(false);
+                setArchiveDialogOpen(true);
+              }}
               disabled={isArchiving}
             >
               <Archive className="mr-2 h-4 w-4" />
@@ -137,9 +191,12 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
 
           <DropdownMenuSeparator />
 
-          {/* Delete Action */}
           <DropdownMenuItem
-            onClick={() => setDeleteDialogOpen(true)}
+            onSelect={(e) => {
+              e.preventDefault();
+              setMenuOpen(false);
+              setDeleteDialogOpen(true);
+            }}
             className="text-destructive focus:text-destructive"
             disabled={isDeleting}
           >
@@ -149,7 +206,6 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Delete Confirmation Dialog */}
       <ProjectActionDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
@@ -161,7 +217,6 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
         isPending={isDeleting}
       />
 
-      {/* Archive Confirmation Dialog */}
       <ProjectActionDialog
         open={archiveDialogOpen}
         onOpenChange={setArchiveDialogOpen}
@@ -172,7 +227,6 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
         isPending={isArchiving}
       />
 
-      {/* Unarchive Confirmation Dialog */}
       <ProjectActionDialog
         open={unarchiveDialogOpen}
         onOpenChange={setUnarchiveDialogOpen}
