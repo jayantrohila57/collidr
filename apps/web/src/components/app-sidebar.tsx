@@ -5,12 +5,14 @@ import {
   FolderIcon,
   LayoutDashboardIcon,
   SettingsIcon,
+  X,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { OrgSwitcher } from "@/components/org/org-switcher";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -22,11 +24,30 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
 import { siteConfig } from "@/lib/siteConfig";
+import { touchTarget } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Separator } from "./ui/separator";
+
+function MobileSidebarClose() {
+  const { isMobile, setOpenMobile } = useSidebar();
+  if (!isMobile) return null;
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
+      className={`size-11 shrink-0 ${touchTarget}`}
+      aria-label="Close sidebar"
+      onClick={() => setOpenMobile(false)}
+    >
+      <X className="size-5" aria-hidden />
+    </Button>
+  );
+}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
@@ -62,10 +83,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="pr-2">
         <SidebarMenu>
-          <SidebarMenuItem className="flex flex-row gap-1">
-            <Avatar>
+          <SidebarMenuItem className="flex flex-row items-start gap-2">
+            <Avatar className="size-9 shrink-0">
               <AvatarImage src="/favicon/favicon.ico" alt={siteConfig.name} />
               <AvatarFallback>
                 {siteConfig.name
@@ -73,10 +94,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   : "NA"}
               </AvatarFallback>
             </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
+            <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{siteConfig.name}</span>
-              <span className="truncate text-xs">{siteConfig.description}</span>
+              <span className="line-clamp-2 text-xs">
+                {siteConfig.description}
+              </span>
             </div>
+            <MobileSidebarClose />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

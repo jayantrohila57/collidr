@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { touchTarget } from "@/lib/utils";
 
 interface Variable {
   id: string;
@@ -56,7 +57,7 @@ export function VariablesMobileList({
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="size-11 shrink-0"
+                    className={`size-11 shrink-0 ${touchTarget}`}
                     aria-label="Variable actions"
                   >
                     <MoreVertical className="size-4" aria-hidden />

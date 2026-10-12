@@ -1,7 +1,7 @@
 "use client";
 
 import { Edit } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormField } from "@/components/patterns/form-field";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn, touchTarget } from "@/lib/utils";
 
 interface Environment {
   id: string;
@@ -40,6 +41,17 @@ export function EditEnvironmentDialog({
   const [name, setName] = useState(environment.name);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    setName(environment.name);
+  }, [environment.id, environment.name]);
+
+  useEffect(() => {
+    if (open) {
+      setName(environment.name);
+      setError(null);
+    }
+  }, [open, environment.id, environment.name]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = name.trim();
@@ -57,7 +69,7 @@ export function EditEnvironmentDialog({
   };
 
   const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen) {
+    if (newOpen) {
       setName(environment.name);
       setError(null);
     }
@@ -72,10 +84,12 @@ export function EditEnvironmentDialog({
             type="button"
             variant="ghost"
             size="icon"
-            className="size-11 shrink-0"
+            className={cn("size-11 shrink-0", touchTarget)}
             aria-label={`Edit ${environment.name} environment`}
             onClick={(e) => {
               e.stopPropagation();
+              setName(environment.name);
+              setError(null);
               setOpen(true);
             }}
           >
@@ -93,7 +107,7 @@ export function EditEnvironmentDialog({
               the tabs.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit}>
+          <form key={environment.id} onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
               <FormField
                 id={`env-name-${environment.id}`}

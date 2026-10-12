@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { touchTarget } from "@/lib/utils";
 
 interface AddVariableDialogProps {
   onConfirm: (data: { key: string; value: string }) => Promise<void>;
@@ -67,7 +68,7 @@ export function AddVariableDialog({
       }}
     >
       <DialogTrigger asChild>
-        <Button size="sm">
+        <Button size="sm" className={`max-sm:min-h-11 ${touchTarget}`}>
           <Plus className="mr-2 h-4 w-4" />
           Add Variable
         </Button>

@@ -42,7 +42,7 @@ export default function ProjectDetail({
 
   return (
     <div className="min-w-0 max-w-full space-y-4">
-      <Card className="bg-background">
+      <Card className="border-0 bg-muted/20 shadow-none ring-0">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 font-medium text-base">
             <Info className="h-4 w-4 text-muted-foreground" aria-hidden />

@@ -17,6 +17,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { touchTarget } from "@/lib/utils";
 
 interface DeleteEnvironmentDialogProps {
   environmentName: string;
@@ -44,7 +45,7 @@ export function DeleteEnvironmentDialog({
             type="button"
             variant="ghost"
             size="icon"
-            className="size-11 shrink-0 text-destructive hover:text-destructive"
+            className={`size-11 shrink-0 text-destructive hover:text-destructive ${touchTarget}`}
             aria-label={`Delete ${environmentName} environment`}
             onClick={(e) => {
               e.stopPropagation();

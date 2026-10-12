@@ -5,6 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Minimum 44px hit area on phones and coarse pointers (WCAG touch target). */
+export const touchTarget =
+  "max-sm:min-h-11 max-sm:min-w-11 [@media(pointer:coarse)]:min-h-11 [@media(pointer:coarse)]:min-w-11";
+
 export function slugToTitle(slug: string | null | undefined): string {
   if (!slug) return "";
 

@@ -2,6 +2,7 @@
 
 import { FileKey, Plus } from "lucide-react";
 import { useMemo } from "react";
+import { HorizontalScrollRail } from "@/components/patterns/horizontal-scroll-rail";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
@@ -19,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { touchTarget } from "@/lib/utils";
 import { CreateEnvironmentDialog } from "./create-environment-dialog";
 import { DeleteEnvironmentDialog } from "./delete-environment-dialog";
 import { EditEnvironmentDialog } from "./edit-environment-dialog";
@@ -109,7 +111,10 @@ export function EnvironmentsTabsView({
         >
           <div className="min-w-0 space-y-2 md:hidden">
             <Select value={resolvedActive} onValueChange={onTabChange}>
-              <SelectTrigger className="w-full" aria-label="Select environment">
+              <SelectTrigger
+                className={`w-full ${touchTarget}`}
+                aria-label="Select environment"
+              >
                 <SelectValue placeholder="Select environment" />
               </SelectTrigger>
               <SelectContent>
@@ -137,10 +142,10 @@ export function EnvironmentsTabsView({
           </div>
 
           <div className="hidden min-w-0 md:block">
-            <div className="min-w-0 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:thin]">
+            <HorizontalScrollRail>
               <TabsList
                 variant="line"
-                className="inline-flex h-auto w-max min-w-full flex-nowrap justify-start gap-0"
+                className="inline-flex h-auto w-max flex-nowrap justify-start gap-0"
               >
                 {environments.map((env) => (
                   <div
@@ -172,7 +177,7 @@ export function EnvironmentsTabsView({
                   </div>
                 ))}
               </TabsList>
-            </div>
+            </HorizontalScrollRail>
           </div>
 
           {environments.map((env) => (

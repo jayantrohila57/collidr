@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Spinner } from "@/components/ui/spinner";
+import { touchTarget } from "@/lib/utils";
 import { signOut, useSession } from "../lib/auth-actions";
 
 export function UserMenu() {
@@ -67,7 +68,7 @@ export function UserMenu() {
           type="button"
           variant="ghost"
           size="icon"
-          className="size-9 rounded-full p-0"
+          className={`size-11 rounded-full p-0 ${touchTarget}`}
           aria-label="Open account menu"
         >
           <Avatar className="size-9 border bg-background shadow-xs">
