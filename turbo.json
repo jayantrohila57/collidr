@@ -1,6 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalEnv": ["ORGANIZATIONS_ENABLED", "NEXT_PUBLIC_ORGANIZATIONS_ENABLED"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -12,7 +13,9 @@
         "BETTER_AUTH_URL",
         "CORS_ORIGIN",
         "SKIP_ENV_VALIDATION",
-        "ENCRYPTION_KEY"
+        "ENCRYPTION_KEY",
+        "ORGANIZATIONS_ENABLED",
+        "NEXT_PUBLIC_ORGANIZATIONS_ENABLED"
       ]
     },
     "lint": {

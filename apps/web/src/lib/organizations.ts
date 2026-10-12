@@ -1,3 +1,5 @@
+import { env } from "@env-manager/env/web";
+
 export function isOrganizationsEnabledOnClient(): boolean {
-  return process.env.NEXT_PUBLIC_ORGANIZATIONS_ENABLED === "true";
+  return env.NEXT_PUBLIC_ORGANIZATIONS_ENABLED === "true";
 }
