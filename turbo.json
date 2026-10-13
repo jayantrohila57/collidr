@@ -21,6 +21,8 @@
         "DATABASE_URL_POOLED",
         "BETTER_AUTH_SECRET",
         "BETTER_AUTH_URL",
+        "GITHUB_CLIENT_ID",
+        "GITHUB_CLIENT_SECRET",
         "CORS_ORIGIN",
         "SKIP_ENV_VALIDATION",
         "ENCRYPTION_KEY",

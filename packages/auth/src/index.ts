@@ -105,8 +105,8 @@ export const auth = betterAuth({
   trustedOrigins: [env.CORS_ORIGIN],
   socialProviders: {
     github: {
-      clientId: process.env.GITHUB_CLIENT_ID as string,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+      clientId: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
     },
   },
   plugins: [

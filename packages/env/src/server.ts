@@ -11,6 +11,8 @@ export const env = createEnv({
     DATABASE_URL_POOLED: z.string().min(1).optional(),
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.string().url(),
+    GITHUB_CLIENT_ID: z.string().min(1),
+    GITHUB_CLIENT_SECRET: z.string().min(1),
     CORS_ORIGIN: z.string().url(),
     ENCRYPTION_KEY: encryptionKeySchema,
     NODE_ENV: z
