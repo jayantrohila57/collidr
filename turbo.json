@@ -1,7 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
-  "globalEnv": ["ORGANIZATIONS_ENABLED", "NEXT_PUBLIC_ORGANIZATIONS_ENABLED"],
+  "globalEnv": [
+    "ORGANIZATIONS_ENABLED",
+    "NEXT_PUBLIC_ORGANIZATIONS_ENABLED",
+    "NOTIFICATIONS_ENABLED",
+    "NEXT_PUBLIC_NOTIFICATIONS_ENABLED",
+    "VARIABLES_V2_ENABLED",
+    "NEXT_PUBLIC_VARIABLES_V2_ENABLED"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -16,7 +23,11 @@
         "SKIP_ENV_VALIDATION",
         "ENCRYPTION_KEY",
         "ORGANIZATIONS_ENABLED",
-        "NEXT_PUBLIC_ORGANIZATIONS_ENABLED"
+        "NEXT_PUBLIC_ORGANIZATIONS_ENABLED",
+        "NOTIFICATIONS_ENABLED",
+        "NEXT_PUBLIC_NOTIFICATIONS_ENABLED",
+        "VARIABLES_V2_ENABLED",
+        "NEXT_PUBLIC_VARIABLES_V2_ENABLED"
       ]
     },
     "lint": {

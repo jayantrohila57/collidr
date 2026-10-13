@@ -41,6 +41,12 @@ export default defineConfig({
           SKIP_ENV_VALIDATION: "1",
           E2E_TEST_MODE: process.env.E2E_TEST_MODE ?? "1",
           E2E_TEST_SECRET: process.env.E2E_TEST_SECRET ?? "local-e2e-secret",
+          ORGANIZATIONS_ENABLED: process.env.ORGANIZATIONS_ENABLED ?? "true",
+          NEXT_PUBLIC_ORGANIZATIONS_ENABLED:
+            process.env.NEXT_PUBLIC_ORGANIZATIONS_ENABLED ?? "true",
+          NOTIFICATIONS_ENABLED: process.env.NOTIFICATIONS_ENABLED ?? "true",
+          NEXT_PUBLIC_NOTIFICATIONS_ENABLED:
+            process.env.NEXT_PUBLIC_NOTIFICATIONS_ENABLED ?? "true",
           BETTER_AUTH_SECRET:
             process.env.BETTER_AUTH_SECRET ??
             "playwright-local-auth-secret-32chars",

@@ -246,6 +246,24 @@ export const listAuditLogsInput = z.object({
   offset: z.number().min(0).default(0),
 });
 
+export const notificationActorOutput = z.object({
+  id: z.string(),
+  name: z.string(),
+  image: z.string().nullable().optional(),
+});
+
+export const notificationListItemOutput = z.object({
+  id: z.string(),
+  type: z.string(),
+  title: z.string(),
+  body: z.string(),
+  readAt: z.date().nullable(),
+  createdAt: z.date(),
+  href: z.string(),
+  icon: z.string(),
+  actorUser: notificationActorOutput.nullable(),
+});
+
 // Template schemas
 export const createTemplateInput = z.object({
   name: z.string().min(1).max(100),

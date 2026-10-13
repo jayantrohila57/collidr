@@ -25,6 +25,10 @@ export function getPageBackHref(pathname: string): PageBackHref | null {
     return "/dashboard";
   }
 
+  if (pathname === "/dashboard/notifications") {
+    return "/dashboard";
+  }
+
   if (pathname === "/dashboard/settings") {
     return "/dashboard";
   }
