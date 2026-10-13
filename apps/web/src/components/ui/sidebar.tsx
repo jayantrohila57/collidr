@@ -23,6 +23,29 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 
 const SIDEBAR_COOKIE_NAME: string = "sidebar_state";
+
+/** Steals initial focus so Escape closes the sheet instead of focusing the org switcher. */
+function MobileSidebarFocusSink({ active }: { active: boolean }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!active) return;
+    const node = ref.current;
+    if (!node) return;
+    requestAnimationFrame(() => {
+      node.focus({ preventScroll: true });
+    });
+  }, [active]);
+
+  return (
+    <div
+      ref={ref}
+      tabIndex={-1}
+      aria-hidden
+      className="pointer-events-none absolute h-px w-px overflow-hidden opacity-0"
+    />
+  );
+}
 const SIDEBAR_COOKIE_MAX_AGE: number = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH: string = "16rem";
 const SIDEBAR_WIDTH_MOBILE: string = "18rem";
@@ -226,7 +249,8 @@ export function Sidebar({
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <MobileSidebarFocusSink active={openMobile} />
+          <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
             {children}
           </div>
         </SheetPopup>

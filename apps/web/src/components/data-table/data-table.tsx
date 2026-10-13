@@ -13,7 +13,8 @@ import {
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
-  dataTableActionsColumnClassName,
+  dataTableActionsCellClassName,
+  dataTableActionsHeaderClassName,
   isDataTableActionsColumn,
 } from "@/components/data-table/data-table-actions-column";
 import { Frame } from "@/components/ui/frame";
@@ -73,11 +74,17 @@ export type DataTableProps<TData extends RowData> = {
 function columnClassName<TData extends RowData>(
   columnDef: DataTableColumnDef<TData>,
   pinActions: boolean,
+  placement: "header" | "cell",
 ) {
   const meta = columnDef.meta as { className?: string } | undefined;
   const base = meta?.className;
   if (isDataTableActionsColumn(columnDef)) {
-    return cn(base, dataTableActionsColumnClassName(pinActions));
+    return cn(
+      base,
+      placement === "header"
+        ? dataTableActionsHeaderClassName()
+        : dataTableActionsCellClassName(pinActions),
+    );
   }
   return base;
 }
@@ -222,7 +229,11 @@ export function DataTable<TData extends RowData>({
             {headerGroup.headers.map((header) => (
               <TableHead
                 key={header.id}
-                className={columnClassName(header.column.columnDef, pinActions)}
+                className={columnClassName(
+                  header.column.columnDef,
+                  pinActions,
+                  "header",
+                )}
               >
                 {header.isPlaceholder
                   ? null
@@ -250,7 +261,11 @@ export function DataTable<TData extends RowData>({
               {row.getVisibleCells().map((cell) => (
                 <TableCell
                   key={cell.id}
-                  className={columnClassName(cell.column.columnDef, pinActions)}
+                  className={columnClassName(
+                    cell.column.columnDef,
+                    pinActions,
+                    "cell",
+                  )}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
@@ -284,7 +299,7 @@ export function DataTable<TData extends RowData>({
         />
       ) : null}
       {framed ? (
-        <Frame className="w-full min-w-0 max-w-full overflow-x-auto">
+        <Frame className="w-full min-w-0 max-w-full overflow-hidden rounded-xl">
           {tableMarkup}
         </Frame>
       ) : (

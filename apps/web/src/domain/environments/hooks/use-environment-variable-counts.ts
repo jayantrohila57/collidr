@@ -1,6 +1,6 @@
 "use client";
 
-import { useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { trpc } from "@/utils/trpc";
 
@@ -10,21 +10,21 @@ const UUID_RE =
 export function useEnvironmentVariableCounts(environmentIds: string[]) {
   const persistedIds = environmentIds.filter((id) => UUID_RE.test(id));
 
-  const queries = useQueries({
-    queries: persistedIds.map((environmentId) => ({
-      ...trpc.environmentVariables.list.queryOptions({ environmentId }),
-      staleTime: 60_000,
-      meta: { toastOnError: false },
-      select: (response: { data?: unknown[] }) => response.data?.length ?? 0,
-    })),
+  const { data, isSuccess } = useQuery({
+    ...trpc.environmentVariables.countsByEnvironment.queryOptions({
+      environmentIds: persistedIds,
+    }),
+    enabled: persistedIds.length > 0,
+    staleTime: 60_000,
+    meta: { toastOnError: false },
   });
 
   return useMemo(() => {
     const counts: Record<string, number | undefined> = {};
-    persistedIds.forEach((id, index) => {
-      const query = queries[index];
-      counts[id] = query.isSuccess ? query.data : undefined;
-    });
+    const map = isSuccess ? data?.data : undefined;
+    for (const id of persistedIds) {
+      counts[id] = map?.[id];
+    }
     return counts;
-  }, [persistedIds, queries]);
+  }, [persistedIds, data?.data, isSuccess]);
 }

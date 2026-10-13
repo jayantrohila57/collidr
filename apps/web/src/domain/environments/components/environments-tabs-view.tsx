@@ -1,6 +1,5 @@
 "use client";
 
-import { useQueries } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { HorizontalScrollRail } from "@/components/patterns/horizontal-scroll-rail";
@@ -23,7 +22,6 @@ import {
 } from "@/components/ui/tooltip";
 import { layoutGapClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
-import { trpc } from "@/utils/trpc";
 import { useEnvironmentVariableCounts } from "../hooks/use-environment-variable-counts";
 import { CreateEnvironmentSheet } from "./create-environment-sheet";
 import { DeleteEnvironmentDialog } from "./delete-environment-dialog";
@@ -46,9 +44,6 @@ interface EnvironmentsTabsViewProps {
   isDeleting: boolean;
   children: (env: Environment) => React.ReactNode;
 }
-
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function EnvironmentsTabsView({
   environments,
@@ -78,17 +73,6 @@ export function EnvironmentsTabsView({
   const variableCounts = useEnvironmentVariableCounts(
     environments.map((env) => env.id),
   );
-
-  useQueries({
-    queries: environments
-      .filter((env) => UUID_RE.test(env.id))
-      .map((env) => ({
-        ...trpc.environmentVariables.list.queryOptions({
-          environmentId: env.id,
-        }),
-        staleTime: 5 * 60 * 1000,
-      })),
-  });
 
   if (environments.length === 0) {
     return (

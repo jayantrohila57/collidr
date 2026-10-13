@@ -12,11 +12,11 @@ export default function SiteLayout({ children }: SiteLayoutProps) {
   return (
     <Shell>
       <Shell.Header variant="sticky" className="border-b bg-background">
-        <div className={cn(marketingContainerClass, "py-2")}>
+        <div className={cn(marketingContainerClass, "py-1.5 md:py-2")}>
           <Header />
         </div>
       </Shell.Header>
-      <Shell.Main className="flex flex-col gap-12 py-8 md:gap-16 md:py-12">
+      <Shell.Main className="flex flex-col gap-0 py-6 md:py-10">
         <div className={marketingContainerClass}>{children}</div>
       </Shell.Main>
       <Shell.Footer

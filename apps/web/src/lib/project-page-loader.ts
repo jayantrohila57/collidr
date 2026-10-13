@@ -27,9 +27,7 @@ export const loadProjectPageData = cache(
 
     const queryClient = new QueryClient();
 
-    await timing.measure("data", () =>
-      hydrateProjectDetailQueries(queryClient, slug, session),
-    );
+    await hydrateProjectDetailQueries(queryClient, slug, session, timing);
 
     const projectPayload = queryClient.getQueryData(
       projectBySlugQueryKey(slug),

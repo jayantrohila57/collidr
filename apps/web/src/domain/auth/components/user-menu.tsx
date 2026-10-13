@@ -49,7 +49,7 @@ export function UserMenu() {
   if (!mounted || isPending) {
     return (
       <div
-        className="flex size-9 items-center justify-center rounded-full border bg-muted"
+        className="flex size-8 items-center justify-center rounded-full border bg-muted"
         aria-hidden
       >
         <Spinner className="size-4" />
@@ -69,12 +69,12 @@ export function UserMenu() {
             type="button"
             variant="ghost"
             size="icon"
-            className="size-11 rounded-full p-0"
+            className="size-8 shrink-0 rounded-full p-0"
             aria-label="Open account menu"
           />
         }
       >
-        <Avatar className="size-9 border bg-background shadow-xs">
+        <Avatar className="size-7 border bg-background shadow-xs">
           <AvatarImage src={user.image || undefined} alt={user.name} />
           <AvatarFallback>
             {user.name?.charAt(0) || user.email?.charAt(0)}

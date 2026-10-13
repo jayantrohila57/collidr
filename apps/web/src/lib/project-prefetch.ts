@@ -4,21 +4,33 @@ import { appRouter } from "@env-manager/api/routers/index";
 import type { auth } from "@env-manager/auth";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { getServerSession } from "@/lib/server-auth";
+import type { ServerTiming } from "@/lib/server-timing";
 import {
   projectBySlugQueryKey,
   projectDetailStatsQueryKey,
 } from "@/lib/trpc-query-keys";
 
+function environmentVariablesListQueryKey(environmentId: string) {
+  return [
+    ["environmentVariables", "list"],
+    { input: { environmentId }, type: "query" as const },
+  ] as const;
+}
+
 export async function hydrateProjectDetailQueries(
   queryClient: QueryClient,
   slug: string,
   session: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>,
+  timing?: ServerTiming,
 ) {
   const caller = appRouter.createCaller({ session });
 
+  const measure = async <T>(name: string, fn: () => Promise<T>) =>
+    timing ? timing.measure(name, fn) : fn();
+
   const [projectRes, statsRes] = await Promise.all([
-    caller.projects.getBySlug({ slug }),
-    caller.dashboard.getProjectDetailStats({ slug }),
+    measure("project", () => caller.projects.getBySlug({ slug })),
+    measure("stats", () => caller.dashboard.getProjectDetailStats({ slug })),
   ]);
 
   const serializedProject = {
@@ -42,6 +54,17 @@ export async function hydrateProjectDetailQueries(
 
   queryClient.setQueryData(projectBySlugQueryKey(slug), serializedProject);
   queryClient.setQueryData(projectDetailStatsQueryKey(slug), statsRes);
+
+  const firstEnvironmentId = serializedProject.data.environments[0]?.id;
+  if (firstEnvironmentId) {
+    const variablesRes = await measure("variables", () =>
+      caller.environmentVariables.list({ environmentId: firstEnvironmentId }),
+    );
+    queryClient.setQueryData(
+      environmentVariablesListQueryKey(firstEnvironmentId),
+      variablesRes,
+    );
+  }
 }
 
 export async function dehydrateProjectDetail(slug: string) {

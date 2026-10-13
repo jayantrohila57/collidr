@@ -15,7 +15,7 @@ export default function Hero() {
   return (
     <section
       data-testid="marketing-hero"
-      className="flex flex-col gap-4 pt-4 md:pt-8"
+      className="flex flex-col gap-4 pt-2 pb-12 md:pt-6 md:pb-16"
     >
       <Badge variant="outline" className="w-fit">
         Environment variables

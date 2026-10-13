@@ -18,8 +18,15 @@ export function isDataTableActionsColumn(columnDef: {
   return meta?.role === "actions";
 }
 
-/** Shared actions column cell/header classes (sticky only when table overflows). */
-export function dataTableActionsColumnClassName(pinSticky: boolean): string {
+export function dataTableActionsHeaderClassName(): string {
+  return cn(
+    "w-12 text-end",
+    "in-data-[variant=card]:rounded-se-xl in-data-[variant=card]:border-border in-data-[variant=card]:border-e in-data-[variant=card]:border-t in-data-[variant=card]:bg-card",
+  );
+}
+
+/** Body cell — sticky only when the table scrolls horizontally. */
+export function dataTableActionsCellClassName(pinSticky: boolean): string {
   return cn(
     "w-12 text-end",
     pinSticky &&

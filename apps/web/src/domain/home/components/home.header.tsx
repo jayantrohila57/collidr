@@ -5,7 +5,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { GitHubLoginButton } from "@/domain/auth/components/github-login";
 import { useSession } from "@/domain/auth/lib/auth-actions";
-import { layoutChromeRowClass, layoutRowLgClass } from "@/lib/layout-spacing";
+import { layoutChromeRowClass } from "@/lib/layout-spacing";
 import { siteConfig } from "@/lib/siteConfig";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +13,7 @@ export default function Header() {
   const { data: session, isPending } = useSession();
 
   return (
-    <div className={cn(layoutChromeRowClass, layoutRowLgClass)}>
+    <div className={cn(layoutChromeRowClass, "h-10 md:h-12")}>
       <Link
         href="/"
         className="flex min-w-0 items-center gap-2 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"

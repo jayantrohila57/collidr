@@ -6,7 +6,7 @@ import {
   project,
 } from "@env-manager/db/schema/projects";
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq, inArray } from "drizzle-orm";
 import { z } from "zod/v3";
 import { createAuditLog, getProjectEnvironmentIds } from "../audit";
 import { throwFriendlyError } from "../errors";
@@ -61,6 +61,54 @@ export const environmentVariablesRouter = router({
         .orderBy(environmentVariable.key);
 
       return respond({ message: "Variables fetched", data: variables });
+    }),
+
+  countsByEnvironment: protectedProcedure
+    .input(
+      z.object({
+        environmentIds: z.array(z.string().uuid()).max(64),
+      }),
+    )
+    .output(makeResponseSchema(z.record(z.string(), z.number())))
+    .query(async ({ ctx, input }) => {
+      if (input.environmentIds.length === 0) {
+        return respond({ message: "Counts fetched", data: {} });
+      }
+
+      const allowed = await db
+        .select({ id: environment.id })
+        .from(environment)
+        .innerJoin(project, eq(environment.projectId, project.id))
+        .where(
+          and(
+            inArray(environment.id, input.environmentIds),
+            eq(project.userId, ctx.session.user.id),
+          ),
+        );
+
+      const allowedIds = allowed.map((row) => row.id);
+      if (allowedIds.length === 0) {
+        return respond({ message: "Counts fetched", data: {} });
+      }
+
+      const rows = await db
+        .select({
+          environmentId: environmentVariable.environmentId,
+          total: count(),
+        })
+        .from(environmentVariable)
+        .where(inArray(environmentVariable.environmentId, allowedIds))
+        .groupBy(environmentVariable.environmentId);
+
+      const data: Record<string, number> = {};
+      for (const id of allowedIds) {
+        data[id] = 0;
+      }
+      for (const row of rows) {
+        data[row.environmentId] = row.total;
+      }
+
+      return respond({ message: "Counts fetched", data });
     }),
 
   // Get a single variable with decrypted value

@@ -152,13 +152,7 @@ export function RoleBadge({
           : formatLabel(role);
 
   return (
-    <Badge
-      variant="secondary"
-      size="sm"
-      className={cn(badgeClassName, className)}
-    >
-      {label}
-    </Badge>
+    <OutlineStatusBadge label={label} tone="muted" className={className} />
   );
 }
 
