@@ -2,7 +2,6 @@
 
 import { ErrorState } from "@/components/patterns/error-state";
 import { useVariables } from "../hooks/use-variables";
-import { AddVariableSheet } from "./add-variable-sheet";
 import { VariablesTableView } from "./variables-table-view";
 
 interface Variable {

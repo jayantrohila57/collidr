@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod/v3";
+import { PageStack, PageTitleRow } from "@/components/layout/app-layout";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { FormField } from "@/components/patterns/form-field";
 import { SubmitButton } from "@/components/patterns/submit-button";
+import { Frame } from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -98,66 +100,74 @@ export default function OnboardingClient() {
   };
 
   return (
-    <Sheet open onOpenChange={() => {}}>
-      <SheetPopup variant="inset" showCloseButton={false}>
-        <SheetHeader>
-          <SheetTitle>Create your organization</SheetTitle>
-          <SheetDescription>
-            Set up a workspace to manage projects and environment variables.
-          </SheetDescription>
-        </SheetHeader>
-        <form className="contents" onSubmit={form.handleSubmit(onSubmit)}>
-          <SheetPanel className={layoutSheetPanelClass}>
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <FormField
-                  id="org-name"
-                  label="Organization name"
-                  required
-                  error={fieldState.error?.message}
-                >
-                  <Input {...field} id="org-name" placeholder="Acme Inc." />
-                </FormField>
-              )}
-            />
-            <Controller
-              name="slug"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <FormField
-                  id="org-slug"
-                  label="URL slug"
-                  required
-                  hint="Slugs use lowercase letters, numbers, and hyphens."
-                  error={fieldState.error?.message}
-                >
-                  <OrgSlugInput
+    <PageStack className="min-h-svh flex-1">
+      <Frame className="w-full flex-1">
+        <PageTitleRow
+          title="Welcome"
+          description="Create a workspace to manage projects and environment variables."
+        />
+      </Frame>
+      <Sheet open onOpenChange={() => {}}>
+        <SheetPopup variant="inset" showCloseButton={false}>
+          <SheetHeader>
+            <SheetTitle>Create your organization</SheetTitle>
+            <SheetDescription>
+              This name appears in the sidebar team switcher.
+            </SheetDescription>
+          </SheetHeader>
+          <form className="contents" onSubmit={form.handleSubmit(onSubmit)}>
+            <SheetPanel className={layoutSheetPanelClass}>
+              <Controller
+                name="name"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <FormField
+                    id="org-name"
+                    label="Organization name"
+                    required
+                    error={fieldState.error?.message}
+                  >
+                    <Input {...field} id="org-name" placeholder="Acme Inc." />
+                  </FormField>
+                )}
+              />
+              <Controller
+                name="slug"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <FormField
                     id="org-slug"
-                    placeholder="acme-inc"
-                    autoComplete="off"
-                    value={field.value}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                    ref={field.ref}
-                  />
-                </FormField>
-              )}
-            />
-          </SheetPanel>
-          <SheetFooter>
-            <SubmitButton
-              isLoading={isBusy}
-              loadingLabel="Creating…"
-              disabled={!form.formState.isValid || isBusy}
-            >
-              Continue
-            </SubmitButton>
-          </SheetFooter>
-        </form>
-      </SheetPopup>
-    </Sheet>
+                    label="URL slug"
+                    required
+                    hint="Slugs use lowercase letters, numbers, and hyphens."
+                    error={fieldState.error?.message}
+                  >
+                    <OrgSlugInput
+                      id="org-slug"
+                      placeholder="acme-inc"
+                      autoComplete="off"
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      ref={field.ref}
+                    />
+                  </FormField>
+                )}
+              />
+            </SheetPanel>
+            <SheetFooter>
+              <SubmitButton
+                isLoading={isBusy}
+                loadingLabel="Creating…"
+                disabled={!form.formState.isValid || isBusy}
+              >
+                Continue
+              </SubmitButton>
+            </SheetFooter>
+          </form>
+        </SheetPopup>
+      </Sheet>
+    </PageStack>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import type { Route } from "next";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
@@ -27,6 +27,7 @@ import {
   CardPanel,
   CardTitle,
 } from "@/components/ui/card";
+import { Frame } from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -47,6 +48,7 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { authClient } from "@/lib/auth-client";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
@@ -71,12 +73,28 @@ const ROLE_SELECT_ITEMS = ROLES.map((role) => ({
   label: role,
 }));
 
+const ORG_TABS = ["general", "members", "danger"] as const;
+type OrgTab = (typeof ORG_TABS)[number];
+
 export function OrganizationSettingsForm({
   organizationId,
 }: {
   organizationId: string;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const activeTab: OrgTab = ORG_TABS.includes(tabParam as OrgTab)
+    ? (tabParam as OrgTab)
+    : "general";
+
+  const setActiveTab = (tab: OrgTab) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    const query = params.toString();
+    router.replace(`${pathname}?${query}` as Route, { scroll: false });
+  };
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const { refreshOrganizations, orgs, setActiveOrganization } =
@@ -304,106 +322,137 @@ export function OrganizationSettingsForm({
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <Card>
-        <CardHeader>
-          <CardTitle>Organization</CardTitle>
-          <CardDescription>Name and slug for this workspace.</CardDescription>
-        </CardHeader>
-        <CardPanel className="flex flex-col gap-3">
-          <p className="font-medium">{orgName}</p>
-          <p className="text-muted-foreground text-sm">{orgSlug}</p>
-          <Button type="button" onClick={() => setEditOrgOpen(true)}>
-            Edit organization
-          </Button>
-        </CardPanel>
-      </Card>
+    <>
+      <Frame className="w-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => {
+            if (value) setActiveTab(value as OrgTab);
+          }}
+          className="gap-2"
+        >
+          <TabsList size="sm" className="justify-start">
+            <TabsTab value="general">General</TabsTab>
+            <TabsTab value="members">Members</TabsTab>
+            <TabsTab value="danger">Danger zone</TabsTab>
+          </TabsList>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Invite member</CardTitle>
-          <CardDescription>
-            Send an invitation to join this workspace.
-          </CardDescription>
-        </CardHeader>
-        <CardPanel>
-          <Button type="button" onClick={() => setInviteOpen(true)}>
-            Invite member
-          </Button>
-        </CardPanel>
-      </Card>
+          <TabsPanel value="general" className="min-w-0">
+            <Card>
+              <CardHeader>
+                <CardTitle>Profile</CardTitle>
+                <CardDescription>
+                  Name and slug for this workspace.
+                </CardDescription>
+              </CardHeader>
+              <CardPanel className="flex flex-col gap-2">
+                <p className="font-medium text-sm">{orgName}</p>
+                <p className="text-muted-foreground text-sm">{orgSlug}</p>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setEditOrgOpen(true)}
+                >
+                  Edit organization
+                </Button>
+              </CardPanel>
+            </Card>
+          </TabsPanel>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Members</CardTitle>
-        </CardHeader>
-        <CardPanel>
-          <OrganizationMembersTable
-            members={members}
-            roleSelectItems={ROLE_SELECT_ITEMS}
-            isOwner={isOwner}
-            rolePendingId={rolePendingId}
-            onRoleChange={(memberId, role) => {
-              void handleRoleChange(memberId, role);
-            }}
-          />
-        </CardPanel>
-      </Card>
+          <TabsPanel value="members" className="min-w-0">
+            <Card>
+              <CardHeader>
+                <CardTitle>Members</CardTitle>
+                <CardDescription>
+                  Invite teammates and manage roles.
+                </CardDescription>
+              </CardHeader>
+              <CardPanel className="flex flex-col gap-2">
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => setInviteOpen(true)}
+                  >
+                    Invite member
+                  </Button>
+                </div>
+                <OrganizationMembersTable
+                  members={members}
+                  roleSelectItems={ROLE_SELECT_ITEMS}
+                  isOwner={isOwner}
+                  rolePendingId={rolePendingId}
+                  onRoleChange={(memberId, role) => {
+                    void handleRoleChange(memberId, role);
+                  }}
+                />
+              </CardPanel>
+            </Card>
+          </TabsPanel>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Danger zone</CardTitle>
-          <CardDescription>Irreversible organization actions.</CardDescription>
-        </CardHeader>
-        <CardPanel>
-          {isOwner ? (
-            <>
-              <p className="text-muted-foreground text-sm">
-                {isPersonal
-                  ? "Your personal workspace cannot be deleted."
-                  : "Deleting an organization removes members and invitations. Projects must be removed or moved first."}
-              </p>
-              <Button
-                type="button"
-                variant="destructive"
-                disabled={isPersonal || orgs.length <= 1 || deletePending}
-                onClick={() => {
-                  setDeleteConfirmName("");
-                  setDeleteOpen(true);
-                }}
-              >
-                Delete organization
-              </Button>
-              {orgs.length <= 1 && !isPersonal && (
-                <p className="text-muted-foreground text-xs">
-                  Create another organization before deleting this one.
-                </p>
-              )}
-            </>
-          ) : (
-            <>
-              <p className="text-muted-foreground text-sm">
-                Leave this organization. You will lose access to its projects.
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={leavePending}
-                onClick={() => void handleLeave()}
-              >
-                {leavePending ? (
+          <TabsPanel value="danger" className="min-w-0">
+            <Card>
+              <CardHeader>
+                <CardTitle>Danger zone</CardTitle>
+                <CardDescription>
+                  Irreversible organization actions.
+                </CardDescription>
+              </CardHeader>
+              <CardPanel className="flex flex-col gap-2">
+                {isOwner ? (
                   <>
-                    <Spinner className="me-2" />
-                    Leaving…
+                    <p className="text-muted-foreground text-sm">
+                      {isPersonal
+                        ? "Your personal workspace cannot be deleted."
+                        : "Deleting an organization removes members and invitations. Projects must be removed or moved first."}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      disabled={isPersonal || orgs.length <= 1 || deletePending}
+                      onClick={() => {
+                        setDeleteConfirmName("");
+                        setDeleteOpen(true);
+                      }}
+                    >
+                      Delete organization
+                    </Button>
+                    {orgs.length <= 1 && !isPersonal && (
+                      <p className="text-muted-foreground text-xs">
+                        Create another organization before deleting this one.
+                      </p>
+                    )}
                   </>
                 ) : (
-                  "Leave organization"
+                  <>
+                    <p className="text-muted-foreground text-sm">
+                      Leave this organization. You will lose access to its
+                      projects.
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={leavePending}
+                      onClick={() => void handleLeave()}
+                    >
+                      {leavePending ? (
+                        <>
+                          <Spinner className="me-2" />
+                          Leaving…
+                        </>
+                      ) : (
+                        "Leave organization"
+                      )}
+                    </Button>
+                  </>
                 )}
-              </Button>
-            </>
-          )}
-        </CardPanel>
-      </Card>
+              </CardPanel>
+            </Card>
+          </TabsPanel>
+        </Tabs>
+      </Frame>
 
       <Sheet open={editOrgOpen} onOpenChange={setEditOrgOpen}>
         <SheetPopup variant="inset">
@@ -567,7 +616,7 @@ export function OrganizationSettingsForm({
           </AlertDialogFooter>
         </AlertDialogPopup>
       </AlertDialog>
-    </div>
+    </>
   );
 }
 

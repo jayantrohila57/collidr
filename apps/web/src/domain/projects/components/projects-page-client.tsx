@@ -33,6 +33,7 @@ export function ProjectsPageClient() {
     <>
       <DashboardSection
         title="Projects"
+        description="All workspace projects in one searchable list."
         action={
           <Button type="button" size="sm" onClick={openCreate}>
             New project
