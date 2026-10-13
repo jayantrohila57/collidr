@@ -1,7 +1,6 @@
 "use client";
 
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
-import { format } from "date-fns";
 import type { ReactNode } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
@@ -12,6 +11,7 @@ import {
   AuditEntityBadge,
 } from "@/components/patterns/status-badge";
 import { Button } from "@/components/ui/button";
+import { formatDateTime } from "@/lib/format";
 
 interface AuditLog {
   id: string;
@@ -66,7 +66,7 @@ export function AuditLogTableView({
         ),
         cell: ({ getValue }) => (
           <span className="font-mono text-xs">
-            {format(new Date(getValue()), "MMM dd, yyyy HH:mm")}
+            {formatDateTime(getValue())}
           </span>
         ),
       }),

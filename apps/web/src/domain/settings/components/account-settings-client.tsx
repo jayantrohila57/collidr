@@ -62,7 +62,7 @@ import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { accountSettingsActions } from "@/domain/permissions/org-section-actions";
 import { TimelinePageClient } from "@/domain/timeline/components/timeline-page-client";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
-import { formatDateTime } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import { formatRelativeShort } from "@/lib/format-relative-short";
 import { initialsFromLabel } from "@/lib/initials";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
@@ -630,7 +630,7 @@ export function AccountSettingsClient() {
                               Scopes: {row.scope?.trim() ? row.scope : "—"}
                             </p>
                             <p className="text-muted-foreground text-xs">
-                              Linked {formatDateTime(row.createdAt)}
+                              Linked {formatDate(row.createdAt)}
                             </p>
                           </div>
                           <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">
