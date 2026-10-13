@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrgQueryEnabled } from "@/hooks/use-org-query-enabled";
+import { useOrgScopedQueryPlaceholder } from "@/hooks/use-org-scoped-query-placeholder";
 import {
   prefetchProjectDetail,
   projectDetailQueryStaleTime,
@@ -44,7 +45,13 @@ export function ProjectOverviewSections({ slug }: { slug: string }) {
     gcTime: projectDetailQueryStaleTime * 2,
   });
 
-  if (isPending || !queryEnabled) {
+  const showPlaceholder = useOrgScopedQueryPlaceholder(
+    queryEnabled,
+    data,
+    isPending,
+  );
+
+  if (showPlaceholder) {
     return <ProjectOverviewSectionsSkeleton />;
   }
 

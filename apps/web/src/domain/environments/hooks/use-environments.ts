@@ -80,6 +80,7 @@ export function useEnvironments(projectSlug: string) {
 
   const createEnvMutation = useMutation(
     trpc.environments.create.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onMutate: async (variables) => {
         await queryClient.cancelQueries({
           queryKey: trpc.projects.getBySlug.queryKey({ slug: projectSlug }),
@@ -150,13 +151,13 @@ export function useEnvironments(projectSlug: string) {
         if (newId) {
           setActiveTab(newId);
         }
-        toast.success("Environment created successfully");
       },
     }),
   );
 
   const updateEnvMutation = useMutation(
     trpc.environments.update.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onMutate: async (variables) => {
         await queryClient.cancelQueries({
           queryKey: trpc.projects.getBySlug.queryKey({ slug: projectSlug }),
@@ -206,14 +207,12 @@ export function useEnvironments(projectSlug: string) {
           queryKey: trpc.projects.list.queryKey(),
         });
       },
-      onSuccess: () => {
-        toast.success("Environment updated successfully");
-      },
     }),
   );
 
   const deleteEnvMutation = useMutation(
     trpc.environments.delete.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onSuccess: (_data, variables) => {
         queryClient.invalidateQueries({
           queryKey: trpc.projects.getBySlug.queryKey({ slug: projectSlug }),
@@ -228,7 +227,6 @@ export function useEnvironments(projectSlug: string) {
           const href = (query ? `${pathname}?${query}` : pathname) as Route;
           router.replace(href, { scroll: false });
         }
-        toast.success("Environment deleted");
       },
     }),
   );
@@ -247,11 +245,29 @@ export function useEnvironments(projectSlug: string) {
     isLoading,
     activeTab,
     setActiveTab,
-    createEnvironment: createEnvMutation.mutateAsync,
+    createEnvironment: (
+      input: Parameters<typeof createEnvMutation.mutateAsync>[0],
+    ) =>
+      toast.promise(createEnvMutation.mutateAsync(input), {
+        loading: "Creating environment…",
+        success: "Environment created",
+      }),
     isCreating: createEnvMutation.isPending,
-    updateEnvironment: updateEnvMutation.mutateAsync,
+    updateEnvironment: (
+      input: Parameters<typeof updateEnvMutation.mutateAsync>[0],
+    ) =>
+      toast.promise(updateEnvMutation.mutateAsync(input), {
+        loading: "Saving environment…",
+        success: "Environment updated",
+      }),
     isUpdating: updateEnvMutation.isPending,
-    deleteEnvironment: deleteEnvMutation.mutateAsync,
+    deleteEnvironment: (
+      input: Parameters<typeof deleteEnvMutation.mutateAsync>[0],
+    ) =>
+      toast.promise(deleteEnvMutation.mutateAsync(input), {
+        loading: "Deleting environment…",
+        success: "Environment deleted",
+      }),
     isDeleting: deleteEnvMutation.isPending,
     projectId: projectData.project?.id,
   };

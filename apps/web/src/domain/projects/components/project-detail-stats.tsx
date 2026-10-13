@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
 import {
   type StatCardItem,
   StatCardRow,
@@ -11,7 +12,7 @@ import {
   VisibilityBadge,
 } from "@/components/patterns/status-badge";
 import { useOrgQueryEnabled } from "@/hooks/use-org-query-enabled";
-import { formatRelativeShort } from "@/lib/format-relative-short";
+import { useOrgScopedQueryPlaceholder } from "@/hooks/use-org-scoped-query-placeholder";
 import { projectDetailQueryStaleTime } from "@/lib/prefetch-project-detail";
 import { trpc } from "@/utils/trpc";
 
@@ -24,15 +25,19 @@ export function ProjectDetailStats({ slug }: { slug: string }) {
     gcTime: projectDetailQueryStaleTime * 2,
   });
 
-  if (isPending || !queryEnabled) {
+  const showPlaceholder = useOrgScopedQueryPlaceholder(
+    queryEnabled,
+    data,
+    isPending,
+  );
+
+  if (showPlaceholder) {
     return <StatCardRowSkeleton count={4} />;
   }
 
   if (isError || !data) {
     return null;
   }
-
-  const updatedLabel = formatRelativeShort(data.updatedAt);
 
   const items: StatCardItem[] = [
     {
@@ -49,7 +54,7 @@ export function ProjectDetailStats({ slug }: { slug: string }) {
     },
     {
       label: "Last updated",
-      value: updatedLabel,
+      value: <ClientRelativeTime value={data.updatedAt} />,
       hint: "Project metadata",
       icon: "calendar",
     },

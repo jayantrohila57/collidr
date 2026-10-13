@@ -42,6 +42,7 @@ export function useVariables(environmentId: string) {
 
   const createMutation = useMutation(
     trpc.environmentVariables.create.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onMutate: async (variables) => {
         // Cancel any outgoing refetches
         await queryClient.cancelQueries({
@@ -75,23 +76,20 @@ export function useVariables(environmentId: string) {
 
         return { previousVariables };
       },
-      onError: () => {
-        if (createMutation.context?.previousVariables) {
+      onError: (_err, _vars, context) => {
+        if (context?.previousVariables) {
           queryClient.setQueryData(
             trpc.environmentVariables.list.queryKey({ environmentId }),
-            createMutation.context.previousVariables,
+            context.previousVariables,
           );
         }
-        toast.error("Failed to add variable");
-      },
-      onSuccess: () => {
-        toast.success("Variable added");
       },
     }),
   );
 
   const updateMutation = useMutation(
     trpc.environmentVariables.update.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onMutate: async (variables) => {
         await queryClient.cancelQueries({
           queryKey: trpc.environmentVariables.list.queryKey({ environmentId }),
@@ -120,17 +118,15 @@ export function useVariables(environmentId: string) {
           );
         }
 
-        toast.success("Variable updated successfully");
         return { previousVariables };
       },
-      onError: () => {
-        if (updateMutation.context?.previousVariables) {
+      onError: (_err, _vars, context) => {
+        if (context?.previousVariables) {
           queryClient.setQueryData(
             trpc.environmentVariables.list.queryKey({ environmentId }),
-            updateMutation.context.previousVariables,
+            context.previousVariables,
           );
         }
-        toast.error("Failed to update variable");
       },
       onSuccess: (_result, variables) => {
         if (variables.value !== undefined) {
@@ -150,6 +146,7 @@ export function useVariables(environmentId: string) {
 
   const deleteMutation = useMutation(
     trpc.environmentVariables.delete.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onMutate: async (variables) => {
         await queryClient.cancelQueries({
           queryKey: trpc.environmentVariables.list.queryKey({ environmentId }),
@@ -172,23 +169,22 @@ export function useVariables(environmentId: string) {
           );
         }
 
-        toast.success("Variable deleted");
         return { previousVariables };
       },
-      onError: () => {
-        if (deleteMutation.context?.previousVariables) {
+      onError: (_err, _vars, context) => {
+        if (context?.previousVariables) {
           queryClient.setQueryData(
             trpc.environmentVariables.list.queryKey({ environmentId }),
-            deleteMutation.context.previousVariables,
+            context.previousVariables,
           );
         }
-        toast.error("Failed to delete variable");
       },
     }),
   );
 
   const bulkImportMutation = useMutation(
     trpc.environmentVariables.bulkImport.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onMutate: async (variables) => {
         await queryClient.cancelQueries({
           queryKey: trpc.environmentVariables.list.queryKey({ environmentId }),
@@ -222,16 +218,13 @@ export function useVariables(environmentId: string) {
 
         return { previousVariables };
       },
-      onError: () => {
-        if (bulkImportMutation.context?.previousVariables) {
+      onError: (_err, _vars, context) => {
+        if (context?.previousVariables) {
           queryClient.setQueryData(
             trpc.environmentVariables.list.queryKey({ environmentId }),
-            bulkImportMutation.context.previousVariables,
+            context.previousVariables,
           );
         }
-      },
-      onSuccess: (data) => {
-        toast.success(data.message);
       },
     }),
   );
@@ -320,13 +313,29 @@ export function useVariables(environmentId: string) {
     revealedIds,
     revealingIds,
     toggleReveal,
-    createVariable: createMutation.mutateAsync,
+    createVariable: (input: Parameters<typeof createMutation.mutateAsync>[0]) =>
+      toast.promise(createMutation.mutateAsync(input), {
+        loading: "Adding variable…",
+        success: "Variable added",
+      }),
     isCreating: createMutation.isPending,
-    updateVariable: updateMutation.mutateAsync,
+    updateVariable: (input: Parameters<typeof updateMutation.mutateAsync>[0]) =>
+      toast.promise(updateMutation.mutateAsync(input), {
+        loading: "Saving variable…",
+        success: "Variable updated",
+      }),
     isUpdating: updateMutation.isPending,
-    deleteVariable: deleteMutation.mutateAsync,
+    deleteVariable: (input: Parameters<typeof deleteMutation.mutateAsync>[0]) =>
+      toast.promise(deleteMutation.mutateAsync(input), {
+        loading: "Deleting variable…",
+        success: "Variable deleted",
+      }),
     isDeleting: deleteMutation.isPending,
-    bulkImport: bulkImportMutation.mutateAsync,
+    bulkImport: (input: Parameters<typeof bulkImportMutation.mutateAsync>[0]) =>
+      toast.promise(bulkImportMutation.mutateAsync(input), {
+        loading: "Importing variables…",
+        success: "Variables imported",
+      }),
     isImporting: bulkImportMutation.isPending,
     getRevealedValue,
     fetchVariableValue,

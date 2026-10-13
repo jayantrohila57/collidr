@@ -71,12 +71,16 @@ export function EditVariableSheet({
       return;
     }
     setError(null);
-    await onConfirm({
-      id: variable.id,
-      key: key.trim().toUpperCase(),
-      value,
-    });
-    onOpenChange(false);
+    try {
+      await onConfirm({
+        id: variable.id,
+        key: key.trim().toUpperCase(),
+        value,
+      });
+      onOpenChange(false);
+    } catch {
+      // Toast + sheet stay open on failure.
+    }
   };
 
   return (

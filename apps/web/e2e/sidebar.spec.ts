@@ -22,6 +22,14 @@ test.describe("app sidebar", () => {
     await expect(
       page.getByText("Organizations", { exact: true }),
     ).not.toBeVisible();
+    const footer = page.locator('[data-slot="sidebar-footer"]');
+    await expect(footer.getByRole("link", { name: "Settings" })).toBeVisible();
+    const orgSwitcher = footer.getByRole("button", {
+      name: "Switch organization",
+    });
+    if (await orgSwitcher.count()) {
+      await expect(orgSwitcher).toBeVisible();
+    }
     await page.screenshot({
       path: `${ARTIFACT_DIR}/sidebar-desktop-expanded.png`,
       fullPage: false,
@@ -32,6 +40,11 @@ test.describe("app sidebar", () => {
       .getByRole("button", { name: "Toggle Sidebar" })
       .click();
     await page.waitForTimeout(400);
+    await expect(
+      page.locator('[data-slot="sidebar-footer"]').getByRole("link", {
+        name: "Settings",
+      }),
+    ).toBeVisible();
     await page.screenshot({
       path: `${ARTIFACT_DIR}/sidebar-desktop-icon-collapsed.png`,
       fullPage: false,

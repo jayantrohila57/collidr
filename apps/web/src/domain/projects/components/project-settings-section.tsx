@@ -1,7 +1,9 @@
 "use client";
 
 import type { ProjectOutput } from "@env-manager/api/types";
+import { useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
+import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import {
   SettingsPanel,
   SettingsRow,
@@ -13,7 +15,6 @@ import {
 } from "@/components/patterns/status-badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
-import { toast } from "@/lib/toast";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { ProjectDangerZone } from "./project-danger-zone";
 
@@ -28,6 +29,12 @@ const STATUS_OPTIONS: {
 export function ProjectSettingsSection({
   project,
 }: ProjectSettingsSectionProps) {
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<
+    "active" | "inactive" | "maintenance" | null
+  >(null);
+  const [visibilityDialogOpen, setVisibilityDialogOpen] = useState(false);
+
   const {
     changeProjectStatus,
     toggleProjectPublic,
@@ -35,17 +42,7 @@ export function ProjectSettingsSection({
     isTogglingPublic,
   } = useProjectActions({ projectId: project.id });
 
-  const handleStatusChange = async (
-    status: "active" | "inactive" | "maintenance",
-  ) => {
-    if (status === project.status) return;
-    try {
-      await changeProjectStatus(status);
-      toast.success(`Project marked as ${status}`);
-    } catch {
-      // global toast
-    }
-  };
+  const statusLabel = pendingStatus ?? project.status;
 
   return (
     <div className="flex flex-col gap-4">
@@ -65,11 +62,11 @@ export function ProjectSettingsSection({
             <Tabs
               value={project.status}
               onValueChange={(value) => {
-                if (value) {
-                  void handleStatusChange(
-                    value as "active" | "inactive" | "maintenance",
-                  );
-                }
+                if (!value || value === project.status) return;
+                setPendingStatus(
+                  value as "active" | "inactive" | "maintenance",
+                );
+                setStatusDialogOpen(true);
               }}
             >
               <TabsList size="sm" className="h-auto w-fit justify-start">
@@ -104,7 +101,7 @@ export function ProjectSettingsSection({
               size="sm"
               className="w-fit gap-2"
               disabled={isTogglingPublic}
-              onClick={() => void toggleProjectPublic()}
+              onClick={() => setVisibilityDialogOpen(true)}
             >
               {project.isPublic ? (
                 <>
@@ -122,6 +119,38 @@ export function ProjectSettingsSection({
         </SettingsRow>
       </SettingsPanel>
       <ProjectDangerZone project={project} />
+
+      <ConfirmDialog
+        open={statusDialogOpen}
+        onOpenChange={(open) => {
+          setStatusDialogOpen(open);
+          if (!open) setPendingStatus(null);
+        }}
+        title="Change project status"
+        description={`Mark "${project.name}" as ${statusLabel}? This updates how the project appears across the workspace.`}
+        confirmLabel={`Set ${statusLabel}`}
+        onConfirm={async () => {
+          if (!pendingStatus) return;
+          await changeProjectStatus(pendingStatus);
+        }}
+        isPending={isChangingStatus}
+      />
+
+      <ConfirmDialog
+        open={visibilityDialogOpen}
+        onOpenChange={setVisibilityDialogOpen}
+        title={
+          project.isPublic ? "Make project private" : "Make project public"
+        }
+        description={
+          project.isPublic
+            ? `Make "${project.name}" private? Metadata will no longer be exposed publicly.`
+            : `Make "${project.name}" public? Project metadata may be visible to others.`
+        }
+        confirmLabel={project.isPublic ? "Make private" : "Make public"}
+        onConfirm={toggleProjectPublic}
+        isPending={isTogglingPublic}
+      />
     </div>
   );
 }

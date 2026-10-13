@@ -81,6 +81,12 @@ test.describe("project overview layout", () => {
         await expect(
           page.getByRole("heading", { name: "E2E Demo Project" }),
         ).toBeVisible();
+        if (width >= 1280) {
+          const footer = page.locator('[data-slot="sidebar-footer"]');
+          await expect(
+            footer.getByRole("link", { name: "Settings" }),
+          ).toBeVisible();
+        }
         await assertNoHorizontalOverflow(page);
         await page.screenshot({
           path: `${OVERVIEW_ARTIFACT_DIR}/project-overview-${width}-${scheme}.png`,

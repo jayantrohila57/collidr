@@ -59,9 +59,13 @@ export function CreateEnvironmentSheet({
   });
 
   const onSubmit = async (data: z.infer<typeof environmentNameSchema>) => {
-    await onConfirm(data.name.trim());
-    form.reset();
-    setOpen(false);
+    try {
+      await onConfirm(data.name.trim());
+      form.reset();
+      setOpen(false);
+    } catch {
+      // Toast + dialog stay open on failure.
+    }
   };
 
   return (

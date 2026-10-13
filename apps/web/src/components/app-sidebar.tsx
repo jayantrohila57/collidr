@@ -103,7 +103,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         />
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="mt-auto shrink-0 border-sidebar-border border-t bg-sidebar">
         <SidebarMenu className="flex min-w-0 flex-col gap-1">
           <SidebarMenuItem>
             <SidebarMenuButton

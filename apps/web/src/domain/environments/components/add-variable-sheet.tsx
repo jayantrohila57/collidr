@@ -63,9 +63,13 @@ export function AddVariableSheet({
       return;
     }
     setError(null);
-    await onConfirm({ key: key.trim().toUpperCase(), value });
-    setOpen(false);
-    reset();
+    try {
+      await onConfirm({ key: key.trim().toUpperCase(), value });
+      setOpen(false);
+      reset();
+    } catch {
+      // Toast + sheet stay open on failure.
+    }
   };
 
   return (

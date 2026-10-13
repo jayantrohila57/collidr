@@ -127,6 +127,7 @@ export function useProjects() {
 
   const createMutation = useMutation(
     trpc.projects.create.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onSuccess: (data) => {
         queryClient.setQueryData(
           trpc.projects.list.queryKey(),
@@ -149,6 +150,7 @@ export function useProjects() {
 
   const updateMutation = useMutation(
     trpc.projects.update.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onMutate: async (variables) => {
         // Cancel any outgoing refetches
         await queryClient.cancelQueries({
@@ -206,6 +208,7 @@ export function useProjects() {
 
   const deleteMutation = useMutation(
     trpc.projects.delete.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onMutate: async (variables) => {
         // Cancel any outgoing refetches
         await queryClient.cancelQueries({
@@ -253,6 +256,7 @@ export function useProjects() {
 
   const archiveMutation = useMutation(
     trpc.projects.archive.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onMutate: async (variables) => {
         await queryClient.cancelQueries({
           queryKey: trpc.projects.list.queryKey(),
@@ -297,6 +301,7 @@ export function useProjects() {
 
   const unarchiveMutation = useMutation(
     trpc.projects.unarchive.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onMutate: async (variables) => {
         await queryClient.cancelQueries({
           queryKey: trpc.projects.list.queryKey(),
@@ -341,6 +346,7 @@ export function useProjects() {
 
   const changeStatusMutation = useMutation(
     trpc.projects.changeStatus.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onMutate: async (variables) => {
         await queryClient.cancelQueries({
           queryKey: trpc.projects.list.queryKey(),
@@ -390,6 +396,7 @@ export function useProjects() {
 
   const togglePublicMutation = useMutation(
     trpc.projects.togglePublic.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
       onMutate: async (variables) => {
         await queryClient.cancelQueries({
           queryKey: trpc.projects.list.queryKey(),

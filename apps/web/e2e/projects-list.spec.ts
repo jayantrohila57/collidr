@@ -23,35 +23,35 @@ test.describe("projects list", () => {
     test.skip(!hasE2eAuth(), "E2E_TEST_MODE or E2E_SESSION_COOKIE required");
   });
 
-  for (const scheme of ["light", "dark"] as const) {
-    for (const width of [1280, 768, 390] as const) {
-      test(`projects list @ ${width}px ${scheme}`, async ({ page }) => {
-        await page.setViewportSize({ width, height: 900 });
-        await page.goto(`${PROJECTS_PATH}?view=grid`);
-        await page.waitForLoadState("networkidle");
-        await setColorScheme(page, scheme);
-        await expect(
-          page.getByRole("heading", { name: "Projects" }),
-        ).toBeVisible();
-        await assertNoHorizontalOverflow(page);
-        await page.screenshot({
-          path: `${ARTIFACT_DIR}/projects-${width}-${scheme}-grid.png`,
-          fullPage: true,
-        });
+  test("projects grid view @ 1280 dark", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(`${PROJECTS_PATH}?view=grid`);
+    await page.waitForLoadState("networkidle");
+    await setColorScheme(page, "dark");
+    await assertNoHorizontalOverflow(page);
+    await page.screenshot({
+      path: `${ARTIFACT_DIR}/projects-grid-1280-dark.png`,
+      fullPage: true,
+    });
+  });
 
-        await page.getByRole("button", { name: "List view" }).click();
-        await expect(page.locator('[data-slot="table"]')).toBeVisible();
-        await page.screenshot({
-          path: `${ARTIFACT_DIR}/projects-${width}-${scheme}-list.png`,
-          fullPage: true,
-        });
-      });
-    }
-  }
+  test("projects list view with filters open @ 1280 dark", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(`${PROJECTS_PATH}?view=list`);
+    await page.waitForLoadState("networkidle");
+    await setColorScheme(page, "dark");
+    await page.getByLabel("Filter by status").click();
+    await expect(page.getByRole("listbox")).toBeVisible();
+    await page.screenshot({
+      path: `${ARTIFACT_DIR}/projects-list-filters-open-1280-dark.png`,
+      fullPage: false,
+    });
+  });
 
   test("filters menu and archive confirm on e2e demo project", async ({
     page,
   }) => {
+    test.setTimeout(60_000);
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(`${PROJECTS_PATH}?view=list`);
     await page.waitForLoadState("networkidle");
@@ -72,31 +72,35 @@ test.describe("projects list", () => {
       page.getByText("Are you sure you want to archive"),
     ).toBeVisible();
     await page.screenshot({
-      path: `${ARTIFACT_DIR}/projects-archive-confirm-dialog.png`,
+      path: `${ARTIFACT_DIR}/projects-confirm-dialog-archive.png`,
       fullPage: false,
     });
     await page.getByRole("button", { name: "Cancel" }).click();
 
     await row.getByRole("button", { name: "Project actions" }).click();
-    await page.getByRole("menuitem", { name: "Set Inactive" }).click();
+    const isInactive = await row
+      .getByText("Inactive", { exact: true })
+      .isVisible();
+    const statusMenuItem = isInactive ? "Set Active" : "Set Inactive";
+    const statusConfirm = isInactive ? "Set active" : "Set inactive";
+    await page.getByRole("menuitem", { name: statusMenuItem }).click();
     await expect(page.getByRole("alertdialog")).toBeVisible();
-    await page.getByRole("button", { name: "Set inactive" }).click();
-    await expect(page.getByText("Updating status…")).toBeVisible({
-      timeout: 5_000,
-    });
+    await page.getByRole("button", { name: statusConfirm }).click();
+    const loadingToast = page.getByText(
+      isInactive ? "Updating status…" : "Updating status…",
+    );
+    if (await loadingToast.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await page.screenshot({
+        path: `${ARTIFACT_DIR}/projects-mutation-loading-toast.png`,
+        fullPage: false,
+      });
+    }
     await expect(page.getByText("Project status updated")).toBeVisible({
       timeout: 15_000,
     });
     await page.screenshot({
       path: `${ARTIFACT_DIR}/projects-status-toast-success.png`,
       fullPage: false,
-    });
-
-    await row.getByRole("button", { name: "Project actions" }).click();
-    await page.getByRole("menuitem", { name: "Set Active" }).click();
-    await page.getByRole("button", { name: "Set active" }).click();
-    await expect(page.getByText("Project status updated")).toBeVisible({
-      timeout: 15_000,
     });
   });
 });

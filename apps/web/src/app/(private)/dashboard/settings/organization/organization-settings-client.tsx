@@ -12,6 +12,7 @@ import { useActiveOrganization } from "@/components/org/active-organization-cont
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { OrganizationMembersTable } from "@/components/org/organization-members-table";
 import { AppIcon } from "@/components/patterns/app-icon";
+import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { ErrorState } from "@/components/patterns/error-state";
 import { FormField } from "@/components/patterns/form-field";
 import {
@@ -135,6 +136,13 @@ export function OrganizationSettingsForm({
   const [deleteConfirmName, setDeleteConfirmName] = useState("");
   const [deletePending, setDeletePending] = useState(false);
   const [leavePending, setLeavePending] = useState(false);
+  const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
+  const [roleConfirmOpen, setRoleConfirmOpen] = useState(false);
+  const [pendingRoleChange, setPendingRoleChange] = useState<{
+    memberId: string;
+    role: string;
+    email: string;
+  } | null>(null);
 
   const currentUserId = session?.user?.id;
   const myMembership = members.find(
@@ -189,34 +197,55 @@ export function OrganizationSettingsForm({
     if (!email) return;
     setInvitePending(true);
     try {
-      await authClient.organization.inviteMember({
-        email,
-        role: inviteRole as "member" | "admin" | "owner",
-        organizationId,
-      });
-      toast.success("Invitation sent");
+      await toast.promise(
+        authClient.organization.inviteMember({
+          email,
+          role: inviteRole as "member" | "admin" | "owner",
+          organizationId,
+        }),
+        {
+          loading: "Sending invitation…",
+          success: "Invitation sent",
+          error: "Could not send invitation",
+        },
+      );
       setInviteEmail("");
       setInviteOpen(false);
       await loadOrganization(organizationId);
     } catch {
-      toast.error("Could not send invitation");
+      // Toast handled by toast.promise
     } finally {
       setInvitePending(false);
     }
   };
 
-  const handleRoleChange = async (memberId: string, role: string) => {
+  const requestRoleChange = (memberId: string, role: string, email: string) => {
+    setPendingRoleChange({ memberId, role, email });
+    setRoleConfirmOpen(true);
+  };
+
+  const handleRoleChange = async () => {
+    if (!pendingRoleChange) return;
+    const { memberId, role } = pendingRoleChange;
     setRolePendingId(memberId);
     try {
-      await authClient.organization.updateMemberRole({
-        memberId,
-        role: role as "member" | "admin" | "owner",
-        organizationId,
-      });
-      toast.success("Role updated");
+      await toast.promise(
+        authClient.organization.updateMemberRole({
+          memberId,
+          role: role as "member" | "admin" | "owner",
+          organizationId,
+        }),
+        {
+          loading: "Updating role…",
+          success: "Role updated",
+          error: "Could not update role",
+        },
+      );
+      setRoleConfirmOpen(false);
+      setPendingRoleChange(null);
       await loadOrganization(organizationId);
     } catch {
-      toast.error("Could not update role");
+      // Toast handled by toast.promise
     } finally {
       setRolePendingId(null);
     }
@@ -228,27 +257,34 @@ export function OrganizationSettingsForm({
     setSavePending(true);
     try {
       const slugToSave = resolveOrgSlugForSave(orgSlug, initialSlug);
-      const result = await authClient.organization.update({
-        organizationId,
-        data: {
-          name: orgName.trim(),
-          slug: slugToSave,
+      await toast.promise(
+        (async () => {
+          const result = await authClient.organization.update({
+            organizationId,
+            data: {
+              name: orgName.trim(),
+              slug: slugToSave,
+            },
+          });
+          if (result.error) {
+            const message = formatOrganizationCreateError(result.error.message);
+            if (message.toLowerCase().includes("slug")) {
+              setSlugError(message);
+            }
+            throw new Error(message);
+          }
+        })(),
+        {
+          loading: "Saving organization…",
+          success: "Organization updated",
+          error: "Could not update organization",
         },
-      });
-      if (result.error) {
-        const message = formatOrganizationCreateError(result.error.message);
-        if (message.toLowerCase().includes("slug")) {
-          setSlugError(message);
-        }
-        toast.error(message);
-        return;
-      }
-      toast.success("Organization updated");
+      );
       setEditOrgOpen(false);
       await loadOrganization(organizationId);
       await refreshOrganizations();
     } catch {
-      toast.error("Could not update organization");
+      // Toast handled by toast.promise
     } finally {
       setSavePending(false);
     }
@@ -266,14 +302,23 @@ export function OrganizationSettingsForm({
     void invalidateAfterOrganizationChange(queryClient);
 
     try {
-      const result = await authClient.organization.delete({
-        organizationId: deletedId,
-      });
-      if (result.error) {
-        toast.error(result.error.message ?? "Could not delete organization");
-        return;
-      }
-      toast.success(`Deleted ${deletedName}`);
+      await toast.promise(
+        (async () => {
+          const result = await authClient.organization.delete({
+            organizationId: deletedId,
+          });
+          if (result.error) {
+            throw new Error(
+              result.error.message ?? "Could not delete organization",
+            );
+          }
+        })(),
+        {
+          loading: "Deleting organization…",
+          success: `Deleted ${deletedName}`,
+          error: "Could not delete organization",
+        },
+      );
       if (fallback) {
         await setActiveOrganization(fallback.id);
       } else {
@@ -281,7 +326,7 @@ export function OrganizationSettingsForm({
       }
       router.refresh();
     } catch {
-      toast.error("Could not delete organization");
+      // Toast handled by toast.promise
     } finally {
       setDeletePending(false);
     }
@@ -289,20 +334,30 @@ export function OrganizationSettingsForm({
 
   const handleLeave = async () => {
     setLeavePending(true);
+    setLeaveConfirmOpen(false);
     const leftId = organizationId;
     const fallback = orgs.find((o) => o.id !== leftId);
     router.replace("/dashboard" as Route);
     void invalidateAfterOrganizationChange(queryClient);
 
     try {
-      const result = await authClient.organization.leave({
-        organizationId: leftId,
-      });
-      if (result.error) {
-        toast.error(result.error.message ?? "Could not leave organization");
-        return;
-      }
-      toast.success("You left the organization");
+      await toast.promise(
+        (async () => {
+          const result = await authClient.organization.leave({
+            organizationId: leftId,
+          });
+          if (result.error) {
+            throw new Error(
+              result.error.message ?? "Could not leave organization",
+            );
+          }
+        })(),
+        {
+          loading: "Leaving organization…",
+          success: "You left the organization",
+          error: "Could not leave organization",
+        },
+      );
       if (fallback) {
         await setActiveOrganization(fallback.id);
       } else {
@@ -310,7 +365,7 @@ export function OrganizationSettingsForm({
       }
       router.refresh();
     } catch {
-      toast.error("Could not leave organization");
+      // Toast handled by toast.promise
     } finally {
       setLeavePending(false);
     }
@@ -434,7 +489,12 @@ export function OrganizationSettingsForm({
                   isOwner={isOwner}
                   rolePendingId={rolePendingId}
                   onRoleChange={(memberId, role) => {
-                    void handleRoleChange(memberId, role);
+                    const member = members.find((m) => m.id === memberId);
+                    requestRoleChange(
+                      memberId,
+                      role,
+                      member?.user.email ?? "member",
+                    );
                   }}
                   empty={membersTableEmpty(
                     <Button
@@ -538,7 +598,7 @@ export function OrganizationSettingsForm({
                   size="sm"
                   className="w-fit"
                   disabled={leavePending}
-                  onClick={() => void handleLeave()}
+                  onClick={() => setLeaveConfirmOpen(true)}
                 >
                   {leavePending ? (
                     <>
@@ -679,6 +739,34 @@ export function OrganizationSettingsForm({
           </FormSheetForm>
         </FormSheetPopup>
       </FormSheet>
+
+      <ConfirmDialog
+        open={leaveConfirmOpen}
+        onOpenChange={setLeaveConfirmOpen}
+        title="Leave organization"
+        description={`Leave ${orgName}? You will lose access to its projects and environments.`}
+        confirmLabel="Leave organization"
+        variant="destructive"
+        onConfirm={handleLeave}
+        isPending={leavePending}
+      />
+
+      <ConfirmDialog
+        open={roleConfirmOpen}
+        onOpenChange={(open) => {
+          setRoleConfirmOpen(open);
+          if (!open) setPendingRoleChange(null);
+        }}
+        title="Change member role"
+        description={
+          pendingRoleChange
+            ? `Change role for ${pendingRoleChange.email} to ${pendingRoleChange.role}?`
+            : "Confirm role change."
+        }
+        confirmLabel="Update role"
+        onConfirm={handleRoleChange}
+        isPending={rolePendingId !== null}
+      />
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogPopup>

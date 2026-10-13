@@ -72,8 +72,12 @@ export function EditEnvironmentSheet({
       return;
     }
     setError(null);
-    await onConfirm(environment.id, trimmed);
-    setOpen(false);
+    try {
+      await onConfirm(environment.id, trimmed);
+      setOpen(false);
+    } catch {
+      // Toast + sheet stay open on failure.
+    }
   };
 
   const handleOpenChange = (newOpen: boolean) => {

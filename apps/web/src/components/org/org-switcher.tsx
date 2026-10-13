@@ -57,9 +57,13 @@ export function OrgSwitcher() {
   const onSelectOrg = async (organizationId: string) => {
     if (organizationId === activeOrganizationId) return;
     try {
-      await setActiveOrganization(organizationId);
+      await toast.promise(setActiveOrganization(organizationId), {
+        loading: "Switching organization…",
+        success: "Organization switched",
+        error: "Could not switch organization",
+      });
     } catch {
-      toast.error("Could not switch organization");
+      // Toast handled by toast.promise
     }
   };
 
