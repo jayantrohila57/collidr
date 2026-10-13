@@ -1,8 +1,8 @@
-import type { ActionName } from "@env-manager/actions";
+import type { ActionName } from "@collidr/actions";
 import { TRPCError } from "@trpc/server";
 import {
-  requireAction,
   type RequireActionContext,
+  requireAction,
 } from "../actions/require-action";
 import { PageForbiddenError, PageNotFoundError } from "./errors";
 

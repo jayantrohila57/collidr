@@ -1,4 +1,4 @@
-import { type ActionName, getActionDefinition } from "@env-manager/actions";
+import { type ActionName, getActionDefinition } from "@collidr/actions";
 
 export function formatActionLabel(action: string): string {
   try {

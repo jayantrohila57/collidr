@@ -4,7 +4,7 @@ This repository is maintained on **`main` only**. All work is tracked in GitHub.
 
 ## Issues first
 
-- Every **task**, **bug**, and **docs** change starts as a [GitHub issue](https://github.com/jayantrohila57/env-manager/issues) on the **env-manager** GitHub Project.
+- Every **task**, **bug**, and **docs** change starts as a [GitHub issue](https://github.com/jayantrohila57/collidr/issues) on the **collidr** GitHub Project.
 - **Cloud agents and automated workers must only implement work that is tied to an open issue** (title/description or explicit issue number in the handoff).
 - Commits that complete issue work use the footer: **`Fixes #<number>`** (or `Closes #<number>`).
 
@@ -34,12 +34,12 @@ This repository is maintained on **`main` only**. All work is tracked in GitHub.
 
 ## Product rules (short)
 
-- **Organizations:** Multi-tenant workspaces with **Owner / Manager / Member** (legacy DB `admin` → Manager). **Platform Admin** is reserved in `@env-manager/actions` but not enabled in production UI.
+- **Organizations:** Multi-tenant workspaces with **Owner / Manager / Member** (legacy DB `admin` → Manager). **Platform Admin** is reserved in `@collidr/actions` but not enabled in production UI.
 - **Teams** and **per-project CRUD grants** (`project_manager`, `project_team`, `project_member_grant`) layer on org roles.
-- **Canonical actions** in `@env-manager/actions` drive `requireAction`, blocks, audit, and UI gates.
+- **Canonical actions** in `@collidr/actions` drive `requireAction`, blocks, audit, and UI gates.
 - **Audit:** Prefer `audit_event` + Timeline routes when `ACTIONS_AUDIT_ENABLED=true`.
 - **Soft deletes:** When `SOFT_DELETES_ENABLED=true`, user-facing deletes set `deleted_at` / `deleted_by`.
-- **Notifications:** `@env-manager/notifications` when `NOTIFICATIONS_ENABLED=true`.
+- **Notifications:** `@collidr/notifications` when `NOTIFICATIONS_ENABLED=true`.
 - **Account settings** (`/dashboard/settings/*`): user scope only. **Org administration** lives under **`/dashboard/organizations`**.
 
 ## UI rule for agents

@@ -1,4 +1,4 @@
-import { db } from "@env-manager/db";
+import { db } from "@collidr/db";
 import { sql } from "drizzle-orm";
 
 /** Inserts compatible with pre–soft-delete user/member/invitation columns (0007 SQL). */

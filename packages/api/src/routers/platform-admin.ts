@@ -1,4 +1,4 @@
-import { decrypt } from "@env-manager/crypto";
+import { decrypt } from "@collidr/crypto";
 import {
   activeEnvironmentVariableWhere,
   activeEnvironmentWhere,
@@ -8,28 +8,28 @@ import {
   activeUserWhere,
   db,
   softDeleteSet,
-} from "@env-manager/db";
-import { user } from "@env-manager/db/schema/auth";
-import { notification } from "@env-manager/db/schema/notifications";
+} from "@collidr/db";
+import { user } from "@collidr/db/schema/auth";
+import { notification } from "@collidr/db/schema/notifications";
 import {
   oauthAccessToken,
   oauthClient,
   oauthRefreshToken,
-} from "@env-manager/db/schema/oauth";
+} from "@collidr/db/schema/oauth";
 import {
   invitation,
   member,
   organization,
-} from "@env-manager/db/schema/organization";
-import { platformFeatureFlag } from "@env-manager/db/schema/platform-feature-flag";
+} from "@collidr/db/schema/organization";
+import { platformFeatureFlag } from "@collidr/db/schema/platform-feature-flag";
 import {
   environment,
   environmentVariable,
   project,
-} from "@env-manager/db/schema/projects";
-import { rateLimitBucket } from "@env-manager/db/schema/rate-limit-bucket";
-import { team, teamMember } from "@env-manager/db/schema/team";
-import { isSoftDeletesEnabled } from "@env-manager/env/soft-deletes";
+} from "@collidr/db/schema/projects";
+import { rateLimitBucket } from "@collidr/db/schema/rate-limit-bucket";
+import { team, teamMember } from "@collidr/db/schema/team";
+import { isSoftDeletesEnabled } from "@collidr/env/soft-deletes";
 import { TRPCError } from "@trpc/server";
 import {
   and,

@@ -1,6 +1,6 @@
 "use client";
 
-import type { EnvironmentOutput, ProjectOutput } from "@env-manager/api/types";
+import type { EnvironmentOutput, ProjectOutput } from "@collidr/api/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";

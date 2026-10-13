@@ -3,12 +3,12 @@ import {
   activeEnvironmentWhere,
   db,
   softDeleteEnvironmentById,
-} from "@env-manager/db";
+} from "@collidr/db";
 import {
   environment,
   environmentVariable,
   project,
-} from "@env-manager/db/schema/projects";
+} from "@collidr/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { and, eq, ne, sql } from "drizzle-orm";
 import { z } from "zod/v3";

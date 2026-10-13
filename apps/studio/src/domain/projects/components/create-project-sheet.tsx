@@ -1,6 +1,6 @@
 "use client";
 
-import { createProjectInput } from "@env-manager/api/validation";
+import { createProjectInput } from "@collidr/api/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";

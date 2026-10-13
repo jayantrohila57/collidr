@@ -1,5 +1,5 @@
 import { createMcpProtectedRequestHandler } from "@better-auth/mcp";
-import { resolveAuthServiceUrl } from "@env-manager/env/vercel-services";
+import { resolveAuthServiceUrl } from "@collidr/env/vercel-services";
 import type { JWTPayload } from "jose";
 
 import {
@@ -25,7 +25,7 @@ export function resolveMcpResourceAuthConfig(): McpResourceAuthConfig {
   const audience = (
     process.env.MCP_RESOURCE_URL ??
     process.env.NEXT_PUBLIC_MCP_URL ??
-    "https://mcp-env-manager.vercel.app"
+    "https://collidr.vercel.app"
   ).replace(/\/$/, "");
   const resource = audience.endsWith("/api/mcp")
     ? audience

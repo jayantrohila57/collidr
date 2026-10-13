@@ -1,4 +1,4 @@
-import type { ActionName } from "@env-manager/actions";
+import type { ActionName } from "@collidr/actions";
 import { t } from "../index";
 import type { RequireActionContext } from "./require-action";
 import { requireAction } from "./require-action";

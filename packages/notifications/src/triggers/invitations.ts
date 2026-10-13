@@ -3,13 +3,13 @@ import {
   activeMemberWhere,
   activeUserWhere,
   db,
-} from "@env-manager/db";
-import { user } from "@env-manager/db/schema/auth";
+} from "@collidr/db";
+import { user } from "@collidr/db/schema/auth";
 import {
   invitation,
   member,
   organization,
-} from "@env-manager/db/schema/organization";
+} from "@collidr/db/schema/organization";
 import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { isNotificationsEnabled } from "../feature";
 import { notify } from "../notify";

@@ -1,1 +1,1 @@
-export { cn } from "@env-manager/ui/utils";
+export { cn } from "@collidr/ui/utils";

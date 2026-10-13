@@ -17,11 +17,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Env Manager Docs",
-    template: "%s · Env Manager Docs",
+    default: "Collidr Docs",
+    template: "%s · Collidr Docs",
   },
   description:
-    "Public documentation for Env Manager — organizations, projects, environments, MCP, and API overview.",
+    "Public documentation for Collidr — organizations, projects, environments, MCP, and API overview.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -1,6 +1,6 @@
-import { createEnvManagerAuthClient } from "@env-manager/auth-client";
+import { createCollidrAuthClient } from "@collidr/auth-client";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 
-export const authClient = createEnvManagerAuthClient({
+export const authClient = createCollidrAuthClient({
   organizationsEnabled: isOrganizationsEnabledOnClient(),
 });

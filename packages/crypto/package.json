@@ -1,5 +1,5 @@
 {
-  "name": "@env-manager/crypto",
+  "name": "@collidr/crypto",
   "type": "module",
   "exports": {
     ".": {
@@ -10,10 +10,10 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@env-manager/env": "workspace:*"
+    "@collidr/env": "workspace:*"
   },
   "devDependencies": {
-    "@env-manager/config": "workspace:*",
+    "@collidr/config": "workspace:*",
     "typescript": "catalog:"
   }
 }

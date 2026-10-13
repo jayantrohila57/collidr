@@ -2,7 +2,7 @@ import { createMcpHandler } from "mcp-handler";
 import { createMcpResourceHandler } from "./resource-auth";
 import { registerMcpTools } from "./tools/register-tools";
 
-export function createEnvManagerMcpHttpHandler() {
+export function createCollidrMcpHttpHandler() {
   return createMcpResourceHandler(async (request, claims) => {
     const handler = createMcpHandler((server) => {
       registerMcpTools(server, claims);

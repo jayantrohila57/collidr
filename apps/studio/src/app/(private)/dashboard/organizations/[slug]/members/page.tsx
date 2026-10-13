@@ -1,9 +1,9 @@
-import { isOrganizationsEnabled } from "@env-manager/env/organizations";
+import { isOrganizationsEnabled } from "@collidr/env/organizations";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { guardOrganizationSlugPage } from "@/lib/page-guards";
 import { OrganizationMembersPage } from "@/domain/organizations/components/organization-members-page";
 import { OrganizationsFeatureGate } from "@/domain/organizations/components/organizations-feature-gate";
+import { guardOrganizationSlugPage } from "@/lib/page-guards";
 
 export const metadata: Metadata = {
   title: "Members",
@@ -16,7 +16,7 @@ export default async function OrganizationMembersRoute({
   params: Promise<{ slug: string }>;
 }) {
   if (!isOrganizationsEnabled()) redirect("/dashboard");
-    const { slug } = await params;
+  const { slug } = await params;
   await guardOrganizationSlugPage(slug, "members");
   return (
     <OrganizationsFeatureGate>

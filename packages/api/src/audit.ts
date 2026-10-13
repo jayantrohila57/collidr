@@ -2,12 +2,9 @@ import {
   activeEnvironmentVariableWhere,
   activeEnvironmentWhere,
   db,
-} from "@env-manager/db";
-import { auditLog } from "@env-manager/db/schema/audit";
-import {
-  environment,
-  environmentVariable,
-} from "@env-manager/db/schema/projects";
+} from "@collidr/db";
+import { auditLog } from "@collidr/db/schema/audit";
+import { environment, environmentVariable } from "@collidr/db/schema/projects";
 import { eq } from "drizzle-orm";
 
 export interface AuditLogData {

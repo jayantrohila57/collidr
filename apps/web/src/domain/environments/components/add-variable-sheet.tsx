@@ -1,6 +1,6 @@
 "use client";
 
-import { variableKeySchema } from "@env-manager/api/validation";
+import { variableKeySchema } from "@collidr/api/validation";
 import { useRef, useState } from "react";
 import {
   PageHeaderActionLabel,

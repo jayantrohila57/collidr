@@ -1,5 +1,5 @@
-import { sessionUserIsPlatformAdmin } from "@env-manager/actions/platform-admin-flag";
-import { isEmailAllowedForConsole } from "@env-manager/env/console";
+import { sessionUserIsPlatformAdmin } from "@collidr/actions/platform-admin-flag";
+import { isEmailAllowedForConsole } from "@collidr/env/console";
 import { TRPCError } from "@trpc/server";
 
 type SessionPayload = {

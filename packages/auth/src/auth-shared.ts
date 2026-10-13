@@ -1,19 +1,19 @@
-import { orgAc, orgBetterAuthRoles } from "@env-manager/actions";
-import { activeUserWhere, db } from "@env-manager/db";
-import { assertOrganizationCanBeDeleted } from "@env-manager/db/org-delete-policy";
-import * as authSchema from "@env-manager/db/schema/auth";
-import { user } from "@env-manager/db/schema/auth";
-import { deviceCode } from "@env-manager/db/schema/device-code";
-import { jwks } from "@env-manager/db/schema/jwks";
-import * as oauthSchema from "@env-manager/db/schema/oauth";
-import * as organizationSchema from "@env-manager/db/schema/organization";
-import * as teamSchema from "@env-manager/db/schema/team";
-import { teamMember } from "@env-manager/db/schema/team";
-import { isOrganizationsEnabled } from "@env-manager/env/organizations";
+import { orgAc, orgBetterAuthRoles } from "@collidr/actions";
+import { activeUserWhere, db } from "@collidr/db";
+import { assertOrganizationCanBeDeleted } from "@collidr/db/org-delete-policy";
+import * as authSchema from "@collidr/db/schema/auth";
+import { user } from "@collidr/db/schema/auth";
+import { deviceCode } from "@collidr/db/schema/device-code";
+import { jwks } from "@collidr/db/schema/jwks";
+import * as oauthSchema from "@collidr/db/schema/oauth";
+import * as organizationSchema from "@collidr/db/schema/organization";
+import * as teamSchema from "@collidr/db/schema/team";
+import { teamMember } from "@collidr/db/schema/team";
+import { isOrganizationsEnabled } from "@collidr/env/organizations";
 import {
   isNotificationsEnabled,
   linkPendingNotificationsForUser,
-} from "@env-manager/notifications";
+} from "@collidr/notifications";
 import type { BetterAuthOptions } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";

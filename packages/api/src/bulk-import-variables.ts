@@ -1,5 +1,5 @@
-import { db } from "@env-manager/db";
-import { environmentVariable } from "@env-manager/db/schema/projects";
+import { db } from "@collidr/db";
+import { environmentVariable } from "@collidr/db/schema/projects";
 import { isNull, sql } from "drizzle-orm";
 import type { BulkVariableImportPlan } from "./bulk-import-variables-plan";
 

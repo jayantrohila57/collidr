@@ -1,5 +1,5 @@
-const DEFAULT_MCP_ORIGIN = "https://mcp-env-manager.vercel.app";
-const DEFAULT_AUTH_ORIGIN = "https://auth-env-manager.vercel.app";
+const DEFAULT_MCP_ORIGIN = "https://collidr.vercel.app";
+const DEFAULT_AUTH_ORIGIN = "https://collidr.vercel.app/auth";
 
 function trimTrailingSlash(url: string): string {
   return url.endsWith("/") ? url.slice(0, -1) : url;

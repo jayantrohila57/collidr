@@ -1,6 +1,6 @@
-import { createEnvManagerAuthClient } from "@env-manager/auth-client";
-import { DEFAULT_AUTH_URL } from "@env-manager/env/platform";
-import { resolvePublicServiceUrl } from "@env-manager/env/vercel-services";
+import { createCollidrAuthClient } from "@collidr/auth-client";
+import { DEFAULT_AUTH_URL } from "@collidr/env/platform";
+import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 
 const authBaseURL =
@@ -9,7 +9,7 @@ const authBaseURL =
     ? resolvePublicServiceUrl("auth")
     : DEFAULT_AUTH_URL);
 
-export const authClient = createEnvManagerAuthClient({
+export const authClient = createCollidrAuthClient({
   baseURL: authBaseURL,
   organizationsEnabled: isOrganizationsEnabledOnClient(),
 });

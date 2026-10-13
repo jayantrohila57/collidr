@@ -1,10 +1,10 @@
-import { appendOttToUrl, isCrossOriginReturnTo } from "@env-manager/auth";
-import { validateReturnTo } from "@env-manager/auth/return-to";
-import { env } from "@env-manager/env/server";
+import { appendOttToUrl, isCrossOriginReturnTo } from "@collidr/auth";
+import { validateReturnTo } from "@collidr/auth/return-to";
+import { env } from "@collidr/env/server";
 import {
   resolveAuthServiceUrl,
   resolvePublicServiceUrl,
-} from "@env-manager/env/vercel-services";
+} from "@collidr/env/vercel-services";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { platformAuth } from "@/lib/platform-auth";

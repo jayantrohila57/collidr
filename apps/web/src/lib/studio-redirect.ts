@@ -1,4 +1,4 @@
-import { DEFAULT_STUDIO_URL } from "@env-manager/env/platform";
+import { DEFAULT_STUDIO_URL } from "@collidr/env/platform";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
 

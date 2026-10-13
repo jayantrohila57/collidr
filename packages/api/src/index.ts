@@ -1,9 +1,9 @@
-import { sessionUserIsPlatformAdmin } from "@env-manager/actions/platform-admin-flag";
+import { sessionUserIsPlatformAdmin } from "@collidr/actions/platform-admin-flag";
 import {
   isPostgresMissingColumnError,
   logSchemaOutOfDateOnce,
-} from "@env-manager/db/postgres-errors";
-import { isOrganizationsEnabled } from "@env-manager/env/organizations";
+} from "@collidr/db/postgres-errors";
+import { isOrganizationsEnabled } from "@collidr/env/organizations";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { assertConsoleOperator } from "./console-access";
 import { runWithConsoleAuditContext } from "./console-audit-context";

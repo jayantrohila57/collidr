@@ -1,4 +1,4 @@
-import type { ActionName } from "@env-manager/actions";
+import type { ActionName } from "@collidr/actions";
 
 /** Canonical page actions for organization `[slug]` child routes. */
 export const organizationChildRouteActions: Record<string, ActionName> = {

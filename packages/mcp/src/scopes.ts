@@ -7,4 +7,4 @@ export {
   parseGrantedScopes,
   requiredOAuthScopesForAction,
   tokenHasScopes,
-} from "@env-manager/actions";
+} from "@collidr/actions";

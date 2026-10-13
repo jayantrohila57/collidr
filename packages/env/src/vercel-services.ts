@@ -69,7 +69,7 @@ export function resolvePlatformPublicOrigin(): string {
     const host = preview.replace(/^https?:\/\//, "");
     return `https://${host}`;
   }
-  return "https://www-env-manager.vercel.app";
+  return "https://collidr.vercel.app";
 }
 
 /** Browser-facing URL for a service (includes base path, no trailing slash). */

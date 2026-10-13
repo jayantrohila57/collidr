@@ -1,4 +1,4 @@
-import { auth } from "@env-manager/auth";
+import { auth } from "@collidr/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import HomeSplitLanding from "@/domain/home/components/home-split-landing";

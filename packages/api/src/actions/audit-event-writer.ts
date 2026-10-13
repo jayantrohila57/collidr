@@ -1,7 +1,7 @@
-import { type ActionName, getActionDefinition } from "@env-manager/actions";
-import { db } from "@env-manager/db";
-import { auditEvent } from "@env-manager/db/schema/audit-event";
-import { isNotificationsEnabled } from "@env-manager/notifications";
+import { type ActionName, getActionDefinition } from "@collidr/actions";
+import { db } from "@collidr/db";
+import { auditEvent } from "@collidr/db/schema/audit-event";
+import { isNotificationsEnabled } from "@collidr/notifications";
 import { getConsoleAuditContext } from "../console-audit-context";
 import { getMcpAuditContext } from "../mcp-audit-context";
 import { notifyFromAuditEvent } from "./notify-from-audit";

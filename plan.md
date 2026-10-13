@@ -1,6 +1,6 @@
 # Development planning
 
-**This file is a high-level index.** Detailed specs live under `docs/`. Active work is tracked in [GitHub issues](https://github.com/jayantrohila57/env-manager/issues).
+**This file is a high-level index.** Detailed specs live under `docs/`. Active work is tracked in [GitHub issues](https://github.com/jayantrohila57/collidr/issues).
 
 ## Current stage
 

@@ -1,5 +1,5 @@
-import { DEFAULT_STUDIO_URL } from "@env-manager/env/platform";
-import type { AppRouteStateLinks } from "@env-manager/ui/patterns/app-route-states";
+import { DEFAULT_STUDIO_URL } from "@collidr/env/platform";
+import type { AppRouteStateLinks } from "@collidr/ui/patterns/app-route-states";
 
 const origin = (
   process.env.NEXT_PUBLIC_STUDIO_URL ?? DEFAULT_STUDIO_URL

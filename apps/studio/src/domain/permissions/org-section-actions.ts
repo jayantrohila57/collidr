@@ -1,4 +1,4 @@
-import type { ActionName } from "@env-manager/actions";
+import type { ActionName } from "@collidr/actions";
 
 /** Canonical gates for Organizations hub sections (UI owned by other agents). */
 export const orgHubSectionActions = {

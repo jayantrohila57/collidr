@@ -1,1 +1,1 @@
-export { notifyFromAuditEvent } from "@env-manager/notifications/from-audit";
+export { notifyFromAuditEvent } from "@collidr/notifications/from-audit";

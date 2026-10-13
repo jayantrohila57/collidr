@@ -1,14 +1,14 @@
 import type { Metadata, MetadataRoute } from "next";
 
 export const siteConfig = {
-  name: "Env Manager",
+  name: "Collidr",
   description:
-    "Env Manager is a developer-first system to securely manage environment variables, secrets, and third-party credentials across multiple repositories and environments (dev, staging, prod). It acts as a single source of truth and integrates with local development and CI/CD workflows.",
-  url: process.env.NEXT_PUBLIC_APP_URL || "https://env-manager-web.vercel.app",
+    "Collidr is a developer-first system to securely manage environment variables, secrets, and third-party credentials across multiple repositories and environments (dev, staging, prod). It acts as a single source of truth and integrates with local development and CI/CD workflows.",
+  url: process.env.NEXT_PUBLIC_APP_URL || "https://collidr.vercel.app/studio",
   ogImage: "/og-image.png",
   links: {
     twitter: "https://twitter.com/jayant_rohila",
-    github: "https://github.com/jayantrohila57/env-manager",
+    github: "https://github.com/jayantrohila57/collidr",
   },
   author: {
     name: "Jayant Rohila",

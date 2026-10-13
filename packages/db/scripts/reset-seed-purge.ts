@@ -1,5 +1,5 @@
-import { db } from "@env-manager/db";
-import { user } from "@env-manager/db/schema/auth";
+import { db } from "@collidr/db";
+import { user } from "@collidr/db/schema/auth";
 import { eq, sql } from "drizzle-orm";
 
 /**

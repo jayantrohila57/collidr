@@ -1,21 +1,21 @@
-# env-manager
+# collidr
 
-![env-manager OG Image](https://env-manager-web.vercel.app/opengraph-image.png)
+![collidr OG Image](https://collidr.vercel.app/studio/opengraph-image.png)
 
-**Live app:** [https://env-manager-web.vercel.app](https://env-manager-web.vercel.app)
+**Live app:** [https://collidr.vercel.app/studio](https://collidr.vercel.app/studio)
 
-Env Manager is a web dashboard and **pnpm/Turbo monorepo** for storing and organizing environment variables across **organizations**, **projects**, and **environments** (dev, staging, production). Values are encrypted at rest; changes flow through a **canonical actions** layer with optional **audit timeline**, **notifications**, and **soft deletes**.
+Collidr is a web dashboard and **pnpm/Turbo monorepo** for storing and organizing environment variables across **organizations**, **projects**, and **environments** (dev, staging, production). Values are encrypted at rest; changes flow through a **canonical actions** layer with optional **audit timeline**, **notifications**, and **soft deletes**.
 
 ## Workflow & contributions
 
-- Track work in [GitHub issues](https://github.com/jayantrohila57/env-manager/issues) on the env-manager project. Agents work **from issues only**; closing commits use **`Fixes #N`**.
+- Track work in [GitHub issues](https://github.com/jayantrohila57/collidr/issues) on the collidr project. Agents work **from issues only**; closing commits use **`Fixes #N`**.
 - Delivery: commits on **`main`** → `git pull --rebase origin main` → push (no feature-branch previews, no force-push). See [AGENTS.md](./AGENTS.md).
 
 ## Monorepo layout
 
 | Path | Purpose |
 | ---- | ------- |
-| `apps/web` | **Legacy** production app (unchanged until P3 cutover [#97](https://github.com/jayantrohila57/env-manager/issues/97)) |
+| `apps/web` | **Legacy** production app (unchanged until P3 cutover [#97](https://github.com/jayantrohila57/collidr/issues/97)) |
 | `apps/auth` | Platform auth issuer — sign-in, device flow, MCP OAuth config, email-link origin |
 | `apps/studio` | Product UI (parity with `apps/web`); per-app tRPC + session via auth redirects |
 | `apps/account` | Account settings at `/settings/*`; per-app tRPC subset |
@@ -29,7 +29,7 @@ Env Manager is a web dashboard and **pnpm/Turbo monorepo** for storing and organ
 | `packages/crypto` | AES-256-GCM encrypt/decrypt for secret values |
 | `packages/env` | Shared Zod env validation & feature flags |
 | `packages/config` | Shared TypeScript/Biome config |
-| `packages/ui` | Shared coss/shadcn UI (`@env-manager/ui`) — marketing chrome and primitives |
+| `packages/ui` | Shared coss/shadcn UI (`@collidr/ui`) — marketing chrome and primitives |
 
 Further apps: `apps/console`, `apps/mcp`, `apps/docs`, … — see [docs/PLAN_PLATFORM_APPS.md](./docs/PLAN_PLATFORM_APPS.md). MCP deploy env: [docs/MCP_DEPLOY.md](./docs/MCP_DEPLOY.md).
 
@@ -40,7 +40,7 @@ Further apps: `apps/console`, `apps/mcp`, `apps/docs`, … — see [docs/PLAN_PL
 | **Roles** | Org **Owner**, **Manager**, **Member** (legacy `admin` → Manager). Platform **Admin** reserved for future console. |
 | **Teams** | Better Auth teams under each organization |
 | **Project access** | Per-project manager rows, team links, and member **CRUD grants** |
-| **Actions** | `@env-manager/actions` names every gated operation; server uses `requireAction` |
+| **Actions** | `@collidr/actions` names every gated operation; server uses `requireAction` |
 | **Audit** | `audit_event` + Timeline UIs when `ACTIONS_AUDIT_ENABLED=true` |
 | **Soft delete** | `deleted_at` / `deleted_by` when `SOFT_DELETES_ENABLED=true` |
 | **Organizations** | `/dashboard/organizations` hub (members, teams, invitations, roles, settings, timeline) |
@@ -58,8 +58,8 @@ Deep specs: [docs/ACTIONS_PERMISSIONS_AUDIT.md](./docs/ACTIONS_PERMISSIONS_AUDIT
 ## Install
 
 ```bash
-git clone https://github.com/jayantrohila57/env-manager.git
-cd env-manager
+git clone https://github.com/jayantrohila57/collidr.git
+cd collidr
 corepack enable
 corepack prepare pnpm@10.13.1 --activate
 pnpm install
@@ -67,7 +67,7 @@ pnpm install
 
 ## Environment variables
 
-Create **`apps/web/.env`** (Drizzle Kit reads this path for database commands). Validated via `@env-manager/env`:
+Create **`apps/web/.env`** (Drizzle Kit reads this path for database commands). Validated via `@collidr/env`:
 
 | Variable | Required | Description |
 | -------- | -------- | ----------- |
@@ -132,7 +132,7 @@ pnpm a11y             # accessibility checks (web, Turbo task `a11y` → web)
 - **Auth:** Better Auth (GitHub, organizations, teams)
 - **Database:** PostgreSQL, Drizzle ORM
 - **Tooling:** pnpm workspaces, Turborepo, Biome
-- **Deploy:** Vercel — production from **`main`** only (`env-manager-web.vercel.app`)
+- **Deploy:** Vercel — production from **`main`** only (`collidr-web.vercel.app`)
 
 ## Documentation index
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { accountSettingsNav } from "@env-manager/actions/nav";
+import { accountSettingsNav } from "@collidr/actions/nav";
 import type { LucideIcon } from "lucide-react";
 import {
   ActivityIcon,

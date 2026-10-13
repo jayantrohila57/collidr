@@ -1,6 +1,6 @@
-import { createContext } from "@env-manager/api/context";
-import { supportAppRouter } from "@env-manager/api/routers/support-app";
-import { logSchemaOutOfDateOnce } from "@env-manager/db/postgres-errors";
+import { createContext } from "@collidr/api/context";
+import { supportAppRouter } from "@collidr/api/routers/support-app";
+import { logSchemaOutOfDateOnce } from "@collidr/db/postgres-errors";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";
 

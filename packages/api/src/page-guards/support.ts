@@ -1,5 +1,5 @@
-import { activeSupportTicketWhere, db } from "@env-manager/db";
-import { supportTicket } from "@env-manager/db/schema/support";
+import { activeSupportTicketWhere, db } from "@collidr/db";
+import { supportTicket } from "@collidr/db/schema/support";
 import { eq } from "drizzle-orm";
 import { requireAction } from "../actions/require-action";
 import { userIsSupportManager } from "../support/manager";

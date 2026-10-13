@@ -1,6 +1,6 @@
-import { auth } from "@env-manager/auth";
-import { env } from "@env-manager/env/server";
-import { resolveAuthServiceUrl } from "@env-manager/env/vercel-services";
+import { auth } from "@collidr/auth";
+import { env } from "@collidr/env/server";
+import { resolveAuthServiceUrl } from "@collidr/env/vercel-services";
 import { NextResponse } from "next/server";
 import { isE2eAuthRouteAllowed } from "@/lib/e2e-auth-allowed";
 import { isValidE2eSecret } from "@/lib/e2e-secret";

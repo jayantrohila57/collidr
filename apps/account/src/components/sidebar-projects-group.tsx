@@ -1,6 +1,6 @@
 "use client";
 
-import type { ProjectOutput } from "@env-manager/api/types";
+import type { ProjectOutput } from "@collidr/api/types";
 import { ChevronRight, ChevronUp, MoreHorizontal } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -28,8 +28,8 @@ import { selectSidebarProjects } from "@/lib/sidebar-project-nav";
 import { cn } from "@/lib/utils";
 import { queryClient } from "@/utils/trpc";
 
-const PROJECTS_GROUP_OPEN_KEY = "env-manager-sidebar-projects-open";
-const PROJECTS_LIST_EXPANDED_KEY = "env-manager-sidebar-projects-list-expanded";
+const PROJECTS_GROUP_OPEN_KEY = "collidr-sidebar-projects-open";
+const PROJECTS_LIST_EXPANDED_KEY = "collidr-sidebar-projects-list-expanded";
 
 function readStoredBoolean(key: string, defaultValue: boolean) {
   if (typeof window === "undefined") return defaultValue;

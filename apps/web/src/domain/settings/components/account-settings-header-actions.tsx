@@ -10,16 +10,16 @@ import { accountSettingsActions } from "@/domain/permissions/org-section-actions
 export function AccountSettingsHeaderActions() {
   return (
     <Can action={accountSettingsActions.export}>
-    <Button
-      type="button"
-      size="sm"
-      variant="outline"
-      className="gap-2"
-      render={<Link href={"/dashboard/settings?tab=export" as Route} />}
-    >
-      <AppIcon name="archiveRestore" className="text-current" />
-      Export data
-    </Button>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        className="gap-2"
+        render={<Link href={"/dashboard/settings?tab=export" as Route} />}
+      >
+        <AppIcon name="archiveRestore" className="text-current" />
+        Export data
+      </Button>
     </Can>
   );
 }

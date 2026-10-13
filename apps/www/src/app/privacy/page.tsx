@@ -2,7 +2,7 @@ import { MarketingPage } from "@/components/marketing-page";
 
 export const metadata = {
   title: "Privacy",
-  description: "How Env Manager handles account and configuration data.",
+  description: "How Collidr handles account and configuration data.",
 };
 
 export default function PrivacyPage() {
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
         When you sign in with GitHub, Better Auth stores your account, session,
         and linked OAuth account metadata. Organizations, projects,
         environments, and variables live in PostgreSQL. Secret variable values
-        are encrypted with <code>@env-manager/crypto</code> before persistence.
+        are encrypted with <code>@collidr/crypto</code> before persistence.
       </p>
       <h2>How we use data</h2>
       <p>

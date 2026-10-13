@@ -1,8 +1,8 @@
-import { env } from "@env-manager/env/server";
+import { env } from "@collidr/env/server";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { guardPageAction } from "@/lib/page-guards";
 import { NotificationsPageClient } from "@/domain/notifications/components/notifications-page-client";
+import { guardPageAction } from "@/lib/page-guards";
 
 export const metadata: Metadata = {
   title: "Notifications",

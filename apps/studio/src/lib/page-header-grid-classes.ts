@@ -1,1 +1,1 @@
-export * from "@env-manager/ui/page-header-grid-classes";
+export * from "@collidr/ui/page-header-grid-classes";

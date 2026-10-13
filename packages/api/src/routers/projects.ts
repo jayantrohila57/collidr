@@ -1,9 +1,5 @@
-import {
-  activeEnvironmentWhere,
-  db,
-  softDeleteProjectById,
-} from "@env-manager/db";
-import { environment, project } from "@env-manager/db/schema/projects";
+import { activeEnvironmentWhere, db, softDeleteProjectById } from "@collidr/db";
+import { environment, project } from "@collidr/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod/v3";

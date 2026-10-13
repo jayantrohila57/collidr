@@ -1,6 +1,6 @@
-import { isActionsAuditEnabled } from "@env-manager/actions";
-import { activeMemberWhere, db } from "@env-manager/db";
-import { member, organization } from "@env-manager/db/schema/organization";
+import { isActionsAuditEnabled } from "@collidr/actions";
+import { activeMemberWhere, db } from "@collidr/db";
+import { member, organization } from "@collidr/db/schema/organization";
 import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod/v3";

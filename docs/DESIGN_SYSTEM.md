@@ -1,6 +1,6 @@
 # Design system (coss ui)
 
-Env Manager uses [coss ui](https://coss.com/ui) on [Base UI](https://base-ui.com/) via the shadcn registry (`@coss/*`). Components live under `apps/web/src/components/ui/` as copied source (not Radix).
+Collidr uses [coss ui](https://coss.com/ui) on [Base UI](https://base-ui.com/) via the shadcn registry (`@coss/*`). Components live under `apps/web/src/components/ui/` as copied source (not Radix).
 
 ## Stack
 

@@ -5,9 +5,9 @@ import {
   isActionsAuditEnabled,
   isPlatformAdmin,
   normalizeOrgRole,
-} from "@env-manager/actions";
-import { activeMemberWhere, db } from "@env-manager/db";
-import { member } from "@env-manager/db/schema/organization";
+} from "@collidr/actions";
+import { activeMemberWhere, db } from "@collidr/db";
+import { member } from "@collidr/db/schema/organization";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { writeAuditEvent } from "./audit-event-writer";

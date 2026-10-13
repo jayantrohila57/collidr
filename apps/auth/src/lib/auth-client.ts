@@ -1,8 +1,8 @@
-import { createEnvManagerAuthClient } from "@env-manager/auth-client";
-import { isOrganizationsEnabled } from "@env-manager/env/organizations";
-import { resolvePublicServiceUrl } from "@env-manager/env/vercel-services";
+import { createCollidrAuthClient } from "@collidr/auth-client";
+import { isOrganizationsEnabled } from "@collidr/env/organizations";
+import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
 
-export const authClient = createEnvManagerAuthClient({
+export const authClient = createCollidrAuthClient({
   baseURL:
     process.env.NEXT_PUBLIC_AUTH_URL?.replace(/\/$/, "") ??
     (process.env.VERCEL_SERVICES === "1"

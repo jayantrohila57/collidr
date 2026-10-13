@@ -264,7 +264,7 @@ export function AccountSettingsClient({
     try {
       const payload = await exportMutation.mutateAsync();
       const stamp = new Date().toISOString().slice(0, 10);
-      downloadJson(`env-manager-export-${stamp}.json`, payload);
+      downloadJson(`collidr-export-${stamp}.json`, payload);
       toast.success("Export downloaded");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not export data");

@@ -1,5 +1,5 @@
 {
-  "name": "@env-manager/actions",
+  "name": "@collidr/actions",
   "type": "module",
   "exports": {
     ".": {
@@ -18,7 +18,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@env-manager/config": "workspace:*",
+    "@collidr/config": "workspace:*",
     "tsx": "^4.19.4",
     "typescript": "catalog:"
   }

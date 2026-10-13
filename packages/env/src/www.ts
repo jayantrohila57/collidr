@@ -1,9 +1,6 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 
-import {
-  platformUrlRuntimeEnv,
-  platformUrlSchema,
-} from "./platform";
+import { platformUrlRuntimeEnv, platformUrlSchema } from "./platform";
 
 export const env = createEnv({
   client: platformUrlSchema,

@@ -1,5 +1,5 @@
-import { db } from "@env-manager/db";
-import { platformSupportManager } from "@env-manager/db/schema/support";
+import { db } from "@collidr/db";
+import { platformSupportManager } from "@collidr/db/schema/support";
 import { eq } from "drizzle-orm";
 
 export async function userIsSupportManager(userId: string): Promise<boolean> {

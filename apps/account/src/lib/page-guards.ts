@@ -1,16 +1,16 @@
 import "server-only";
 
-import type { ActionName } from "@env-manager/actions";
-import { requirePageAction, runPageGuard } from "@env-manager/api/page-guards";
+import type { ActionName } from "@collidr/actions";
+import { requirePageAction, runPageGuard } from "@collidr/api/page-guards";
 import {
   type RequirePageSessionResult,
   requirePageSession,
-} from "@env-manager/auth/guards";
+} from "@collidr/auth/guards";
 import {
   type AuthSession,
   getSessionActiveOrganizationId,
-} from "@env-manager/auth/session-types";
-import { DEFAULT_ACCOUNT_URL } from "@env-manager/env/platform";
+} from "@collidr/auth/session-types";
+import { DEFAULT_ACCOUNT_URL } from "@collidr/env/platform";
 import type { Route } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";

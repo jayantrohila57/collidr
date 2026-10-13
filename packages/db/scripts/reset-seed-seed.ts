@@ -1,20 +1,20 @@
-import { encrypt } from "@env-manager/crypto";
-import { db } from "@env-manager/db";
-import { auditLog } from "@env-manager/db/schema/audit";
-import { auditEvent } from "@env-manager/db/schema/audit-event";
-import { notification } from "@env-manager/db/schema/notifications";
-import { organization } from "@env-manager/db/schema/organization";
+import { encrypt } from "@collidr/crypto";
+import { db } from "@collidr/db";
+import { auditLog } from "@collidr/db/schema/audit";
+import { auditEvent } from "@collidr/db/schema/audit-event";
+import { notification } from "@collidr/db/schema/notifications";
+import { organization } from "@collidr/db/schema/organization";
 import {
   projectManager,
   projectMemberGrant,
   projectTeam,
-} from "@env-manager/db/schema/project-access";
+} from "@collidr/db/schema/project-access";
 import {
   environment,
   environmentVariable,
   project,
-} from "@env-manager/db/schema/projects";
-import { team, teamMember } from "@env-manager/db/schema/team";
+} from "@collidr/db/schema/projects";
+import { team, teamMember } from "@collidr/db/schema/team";
 import { eq } from "drizzle-orm";
 
 import {
@@ -234,13 +234,13 @@ export async function seedSampleData(owner: {
     {
       id: managerId,
       name: "Morgan Sample",
-      email: "seed-manager@fake.env-manager.local",
+      email: "seed-manager@fake.collidr.local",
       emailVerified: true,
     },
     {
       id: memberId,
       name: "Casey Sample",
-      email: "seed-member@fake.env-manager.local",
+      email: "seed-member@fake.collidr.local",
       emailVerified: true,
     },
   ]);
@@ -413,7 +413,7 @@ export async function seedSampleData(owner: {
   await insertSeedInvitation({
     id: pendingInviteId,
     organizationId: teamOrgId,
-    email: "pending-invite@fake.env-manager.local",
+    email: "pending-invite@fake.collidr.local",
     role: "member",
     status: "pending",
     expiresAt,

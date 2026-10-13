@@ -1,9 +1,9 @@
-import { resolvePublicServiceUrl } from "@env-manager/env/vercel-services";
+import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
 
-const DEFAULT_AUTH_URL = "https://auth-env-manager.vercel.app";
-const DEFAULT_STUDIO_URL = "https://studio-env-manager.vercel.app";
-const DEFAULT_CONSOLE_URL = "https://console-env-manager.vercel.app";
-const DEFAULT_SUPPORT_URL = "https://support-env-manager.vercel.app";
+const DEFAULT_AUTH_URL = "https://collidr.vercel.app/auth";
+const DEFAULT_STUDIO_URL = "https://collidr.vercel.app/studio";
+const DEFAULT_CONSOLE_URL = "https://collidr.vercel.app/console";
+const DEFAULT_SUPPORT_URL = "https://collidr.vercel.app/support";
 
 function authUrlDefault(): string {
   return process.env.VERCEL_SERVICES === "1"

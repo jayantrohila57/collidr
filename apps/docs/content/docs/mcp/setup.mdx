@@ -3,7 +3,7 @@ title: MCP setup
 description: Connect an MCP client to apps/mcp with OAuth from apps/auth.
 ---
 
-The MCP HTTP server lives in **`apps/mcp`** and delegates tool registration to **`@env-manager/mcp`** (`registerMcpTools`). Each tool maps to a canonical action implemented in **`@env-manager/api/mcp`.
+The MCP HTTP server lives in **`apps/mcp`** and delegates tool registration to **`@collidr/mcp`** (`registerMcpTools`). Each tool maps to a canonical action implemented in **`@collidr/api/mcp`.
 
 **End users:** start with [Using MCP](/docs/mcp/usage) and [Connect MCP clients](/docs/mcp/connecting-clients).
 
@@ -11,10 +11,10 @@ The MCP HTTP server lives in **`apps/mcp`** and delegates tool registration to *
 
 Configure your client with:
 
-- **Auth issuer** — `NEXT_PUBLIC_AUTH_URL` (default `https://auth-env-manager.vercel.app`)
+- **Auth issuer** — `NEXT_PUBLIC_AUTH_URL` (default `https://collidr.vercel.app/auth`)
 - **MCP URL** — `NEXT_PUBLIC_MCP_URL` (deployment-specific)
 
-Tokens must include the base scope **`mcp:tools`** plus resource scopes listed on each tool page. The auth app advertises scopes from `MCP_OAUTH_SCOPES` in `@env-manager/actions`.
+Tokens must include the base scope **`mcp:tools`** plus resource scopes listed on each tool page. The auth app advertises scopes from `MCP_OAUTH_SCOPES` in `@collidr/actions`.
 
 ## Tool discovery
 
@@ -22,7 +22,7 @@ Call the built-in **`permissions_snapshot`** tool (requires only `mcp:tools`) to
 
 ## Rate limits
 
-`@env-manager/mcp` applies per-user and per-client rate limits (`rate-limit.ts`). Write and reveal verbs use stricter limits than reads.
+`@collidr/mcp` applies per-user and per-client rate limits (`rate-limit.ts`). Write and reveal verbs use stricter limits than reads.
 
 ## Authorization
 

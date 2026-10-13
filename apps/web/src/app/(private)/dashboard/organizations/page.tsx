@@ -1,4 +1,4 @@
-import { isOrganizationsEnabled } from "@env-manager/env/organizations";
+import { isOrganizationsEnabled } from "@collidr/env/organizations";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";

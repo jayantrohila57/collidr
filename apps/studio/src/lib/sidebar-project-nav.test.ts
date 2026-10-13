@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import type { ProjectOutput } from "@env-manager/api/types";
+import type { ProjectOutput } from "@collidr/api/types";
 
 import {
   isSidebarProjectNavItem,

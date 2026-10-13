@@ -1,6 +1,6 @@
 "use client";
 
-import { EnvManagerImpersonationBanner } from "@env-manager/auth-client";
+import { CollidrImpersonationBanner } from "@collidr/auth-client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState } from "react";
@@ -51,7 +51,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           >
             <ToastProvider position="bottom-left">
               <SkipLink />
-              <EnvManagerImpersonationBanner authClient={authClient} />
+              <CollidrImpersonationBanner authClient={authClient} />
               <OfflineBanner />
               {children}
               <ReactQueryDevtools />

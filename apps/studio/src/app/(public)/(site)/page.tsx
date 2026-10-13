@@ -1,4 +1,4 @@
-import { DEFAULT_WWW_URL } from "@env-manager/auth";
+import { DEFAULT_WWW_URL } from "@collidr/auth";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
 

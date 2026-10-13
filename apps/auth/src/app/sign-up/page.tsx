@@ -1,11 +1,11 @@
-import { Button } from "@env-manager/ui/button";
+import { Button } from "@collidr/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@env-manager/ui/card";
+} from "@collidr/ui/card";
 import Link from "next/link";
 import { Suspense } from "react";
 import { GitHubSignInButton } from "@/components/github-sign-in-button";
@@ -17,8 +17,8 @@ export default function SignUpPage() {
         <CardHeader>
           <CardTitle>Create your account</CardTitle>
           <CardDescription>
-            Env Manager uses GitHub for sign-up and sign-in. Enterprise SSO is
-            not enabled yet—your GitHub account is how we verify you.
+            Collidr uses GitHub for sign-up and sign-in. Enterprise SSO is not
+            enabled yet—your GitHub account is how we verify you.
           </CardDescription>
         </CardHeader>
         <CardPanel className="flex flex-col gap-4">

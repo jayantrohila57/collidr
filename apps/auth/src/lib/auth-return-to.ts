@@ -1,8 +1,8 @@
 import {
   DEFAULT_AUTH_URL,
   trimTrailingSlash,
-} from "@env-manager/auth/platform-urls";
-import { validateReturnTo } from "@env-manager/auth/return-to";
+} from "@collidr/auth/platform-urls";
+import { validateReturnTo } from "@collidr/auth/return-to";
 
 /** Absolute HTTPS return URL for post–sign-in flows on the auth app (device, consent). */
 export function authAppReturnTo(pathWithQuery: string): string {

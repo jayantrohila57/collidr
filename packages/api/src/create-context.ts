@@ -1,11 +1,9 @@
-import type { AuthSession } from "@env-manager/auth/session-types";
+import type { AuthSession } from "@collidr/auth/session-types";
 import type { NextRequest } from "next/server";
 
 type SessionAuth = {
   api: {
-    getSession: (input: {
-      headers: Headers;
-    }) => Promise<AuthSession | null>;
+    getSession: (input: { headers: Headers }) => Promise<AuthSession | null>;
   };
 };
 

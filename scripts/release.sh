@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Release Script for env-manager
+# Release Script for collidr
 # This script automates the release process with version management, changelog updates, and tagging
 
 set -e

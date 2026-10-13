@@ -1,4 +1,4 @@
-import type { ActionName } from "@env-manager/actions";
+import type { ActionName } from "@collidr/actions";
 import { runWithMcpAuditContext } from "../mcp-audit-context";
 import { executeMcpAction, type McpToolContext } from "./handlers";
 

@@ -1,6 +1,6 @@
 # Scripts directory
 
-Automation helpers for env-manager. **Delivery is issue → commit on `main` → push** ([AGENTS.md](../AGENTS.md), [commit-workflow.md](./commit-workflow.md)).
+Automation helpers for collidr. **Delivery is issue → commit on `main` → push** ([AGENTS.md](../AGENTS.md), [commit-workflow.md](./commit-workflow.md)).
 
 ## Release scripts
 

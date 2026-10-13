@@ -112,7 +112,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS "notification_email_idempotency_uidx" ON "noti
 ## Apply locally
 
 ```bash
-pnpm --filter @env-manager/db db:migrate
+pnpm --filter @collidr/db db:migrate
 ```
 
 ## E2E (local only)

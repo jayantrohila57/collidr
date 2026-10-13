@@ -1,6 +1,6 @@
 # Production deploy (Vercel)
 
-Env Manager ships from **`main` only** — each push to `origin/main` triggers a **production** deployment on Vercel (`env-manager-web.vercel.app`). There are **no** branch preview deploys for this repo.
+Collidr ships from **`main` only** — each push to `origin/main` triggers a **production** deployment on Vercel (`collidr-web.vercel.app`). There are **no** branch preview deploys for this repo.
 
 This runbook addresses **Hobby / Pro deploy limits**, **feature-flag reliability** (`NEXT_PUBLIC_*` + Turbo cache), and the **approved production schema path** (`drizzle-kit push`).
 
@@ -110,6 +110,6 @@ Full workflow: [packages/db/DATABASE.md](../packages/db/DATABASE.md).
 Root `turbo.json` must include every `NEXT_PUBLIC_*` feature flag in `globalEnv` and the matching server keys in `tasks.build.env`. The list is defined in code:
 
 - `packages/env/src/feature-flags.ts`
-- Test: `pnpm --filter @env-manager/env test` (parses `turbo.json`)
+- Test: `pnpm --filter @collidr/env test` (parses `turbo.json`)
 
 When adding a new paired flag, update `packages/env/src/web.ts`, `packages/env/src/server.ts`, `turbo.json`, and `feature-flags.ts` together.

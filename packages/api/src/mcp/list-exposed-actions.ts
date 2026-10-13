@@ -1,4 +1,4 @@
-import { type ActionName, actionRegistry } from "@env-manager/actions";
+import { type ActionName, actionRegistry } from "@collidr/actions";
 import { mcpActionHandlers } from "./handlers";
 
 const EXCLUDED_SCOPES = new Set<ActionName>([

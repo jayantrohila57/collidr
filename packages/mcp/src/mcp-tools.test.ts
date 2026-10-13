@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { mcpToolNameFromAction } from "@env-manager/actions";
+import { mcpToolNameFromAction } from "@collidr/actions";
 import { resolveMcpRateLimitConfig } from "./rate-limit";
 
 describe("MCP tools", () => {
@@ -21,7 +21,7 @@ describe("MCP tools", () => {
 
   it("registers handlers for exposed product actions", async () => {
     const { listMcpExposedActions, mcpActionHandlers } = await import(
-      "@env-manager/api/mcp"
+      "@collidr/api/mcp"
     );
     const actions = listMcpExposedActions();
     assert.ok(actions.length >= 40);

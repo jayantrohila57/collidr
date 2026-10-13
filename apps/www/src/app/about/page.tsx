@@ -1,10 +1,10 @@
-import { docsSiteUrl } from "@env-manager/ui/platform-urls";
+import { docsSiteUrl } from "@collidr/ui/platform-urls";
 
 import { MarketingPage } from "@/components/marketing-page";
 
 export const metadata = {
   title: "About",
-  description: "What Env Manager is and how the monorepo is structured.",
+  description: "What Collidr is and how the monorepo is structured.",
 };
 
 export default function AboutPage() {
@@ -12,11 +12,11 @@ export default function AboutPage() {
 
   return (
     <MarketingPage
-      title="About Env Manager"
+      title="About Collidr"
       description="A multi-tenant workspace for environment variables, built as a TypeScript monorepo on Vercel and Neon."
     >
       <p>
-        Env Manager helps teams store configuration and secrets per project and
+        Collidr helps teams store configuration and secrets per project and
         environment. Values are encrypted at rest; the UI masks secrets until an
         authorized user reveals them. Organizations add members, teams, and
         fine-grained project access on top of owner / manager / member roles.
@@ -30,7 +30,7 @@ export default function AboutPage() {
       <p>
         Source code is open on{" "}
         <a
-          href="https://github.com/jayantrohila57/env-manager"
+          href="https://github.com/jayantrohila57/collidr"
           target="_blank"
           rel="noopener noreferrer"
         >

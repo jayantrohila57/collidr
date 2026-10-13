@@ -28,9 +28,7 @@ export function isCrossOriginReturnTo(
 ): boolean {
   try {
     const target = new URL(returnTo);
-    return (
-      trimTrailingSlash(target.origin) !== trimTrailingSlash(authOrigin)
-    );
+    return trimTrailingSlash(target.origin) !== trimTrailingSlash(authOrigin);
   } catch {
     return false;
   }

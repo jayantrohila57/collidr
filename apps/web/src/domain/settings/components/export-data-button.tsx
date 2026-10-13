@@ -11,24 +11,24 @@ export function ExportDataButton() {
 
   return (
     <Can action={accountSettingsActions.export}>
-    <Button
-      type="button"
-      disabled={mutation.isPending}
-      onClick={async () => {
-        const data = await mutation.mutateAsync();
-        const blob = new Blob([JSON.stringify(data, null, 2)], {
-          type: "application/json",
-        });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = `env-manager-export-${new Date().toISOString()}.json`;
-        anchor.click();
-        URL.revokeObjectURL(url);
-      }}
-    >
-      {mutation.isPending ? "Preparing…" : "Download JSON"}
-    </Button>
+      <Button
+        type="button"
+        disabled={mutation.isPending}
+        onClick={async () => {
+          const data = await mutation.mutateAsync();
+          const blob = new Blob([JSON.stringify(data, null, 2)], {
+            type: "application/json",
+          });
+          const url = URL.createObjectURL(blob);
+          const anchor = document.createElement("a");
+          anchor.href = url;
+          anchor.download = `collidr-export-${new Date().toISOString()}.json`;
+          anchor.click();
+          URL.revokeObjectURL(url);
+        }}
+      >
+        {mutation.isPending ? "Preparing…" : "Download JSON"}
+      </Button>
     </Can>
   );
 }

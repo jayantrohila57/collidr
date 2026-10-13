@@ -1,6 +1,6 @@
 "use client";
 
-import type { ConsoleAppRouter } from "@env-manager/api/routers/console";
+import type { ConsoleAppRouter } from "@collidr/api/routers/console";
 import { QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import {

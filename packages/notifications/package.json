@@ -1,5 +1,5 @@
 {
-  "name": "@env-manager/notifications",
+  "name": "@collidr/notifications",
   "type": "module",
   "exports": {
     ".": {
@@ -10,13 +10,13 @@
     }
   },
   "dependencies": {
-    "@env-manager/db": "workspace:*",
-    "@env-manager/env": "workspace:*",
+    "@collidr/db": "workspace:*",
+    "@collidr/env": "workspace:*",
     "drizzle-orm": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@env-manager/config": "workspace:*",
+    "@collidr/config": "workspace:*",
     "tsx": "^4.19.4",
     "typescript": "catalog:"
   },

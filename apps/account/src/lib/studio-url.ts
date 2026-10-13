@@ -1,4 +1,4 @@
-import { DEFAULT_STUDIO_URL } from "@env-manager/env/platform";
+import { DEFAULT_STUDIO_URL } from "@collidr/env/platform";
 
 export function getStudioAppOrigin(): string {
   return (process.env.NEXT_PUBLIC_STUDIO_URL ?? DEFAULT_STUDIO_URL).replace(

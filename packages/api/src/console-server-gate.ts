@@ -1,6 +1,6 @@
-import { sessionUserIsPlatformAdmin } from "@env-manager/actions/platform-admin-flag";
-import { auth } from "@env-manager/auth";
-import { isEmailAllowedForConsole } from "@env-manager/env/console";
+import { sessionUserIsPlatformAdmin } from "@collidr/actions/platform-admin-flag";
+import { auth } from "@collidr/auth";
+import { isEmailAllowedForConsole } from "@collidr/env/console";
 export type ConsoleGateResult =
   | {
       ok: true;
@@ -18,11 +18,7 @@ export async function getConsoleGate(
   if (!session) {
     return { ok: false, reason: "unauthenticated" };
   }
-  if (
-    !sessionUserIsPlatformAdmin(
-      session.user as { role?: string | null },
-    )
-  ) {
+  if (!sessionUserIsPlatformAdmin(session.user as { role?: string | null })) {
     return { ok: false, reason: "not_admin" };
   }
   if (!session.user.email || !isEmailAllowedForConsole(session.user.email)) {

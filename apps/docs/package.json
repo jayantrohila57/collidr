@@ -11,9 +11,9 @@
     "postinstall": "SKIP_ENV_VALIDATION=1 DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres node --import tsx scripts/generate-mcp-tool-pages.ts && node --input-type=module -e \"import('fumadocs-mdx/next').then((m) => m.postInstall())\""
   },
   "dependencies": {
-    "@env-manager/actions": "workspace:*",
-    "@env-manager/api": "workspace:*",
-    "@env-manager/ui": "workspace:*",
+    "@collidr/actions": "workspace:*",
+    "@collidr/api": "workspace:*",
+    "@collidr/ui": "workspace:*",
     "@base-ui/react": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -30,7 +30,7 @@
     "zod-to-json-schema": "^3.25.1"
   },
   "devDependencies": {
-    "@env-manager/config": "workspace:*",
+    "@collidr/config": "workspace:*",
     "tsx": "^4.20.5",
     "@tailwindcss/postcss": "^4.1.10",
     "@types/mdx": "^2.0.13",

@@ -1,7 +1,7 @@
 "use client";
 
-import { ImpersonationBanner } from "@env-manager/ui/patterns/impersonation-banner";
-import { ThemeProvider } from "@env-manager/ui/theme-provider";
+import { ImpersonationBanner } from "@collidr/ui/patterns/impersonation-banner";
+import { ThemeProvider } from "@collidr/ui/theme-provider";
 import { authClient } from "@/lib/auth-client";
 
 export function Providers({ children }: { children: React.ReactNode }) {

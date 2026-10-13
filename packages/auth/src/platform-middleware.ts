@@ -1,8 +1,7 @@
-import { resolvePublicServiceUrl } from "@env-manager/env/vercel-services";
+import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 import { readOttFromSearchParams, stripOttFromPath } from "./cross-app-session";
-
 import { DEFAULT_AUTH_URL, trimTrailingSlash } from "./platform-urls";
 import { validateReturnTo } from "./return-to";
 

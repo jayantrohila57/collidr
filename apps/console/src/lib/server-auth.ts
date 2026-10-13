@@ -1,6 +1,6 @@
 import "server-only";
 
-import { auth } from "@env-manager/auth";
+import { auth } from "@collidr/auth";
 import { headers } from "next/headers";
 import { cache } from "react";
 

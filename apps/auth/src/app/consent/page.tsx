@@ -1,11 +1,11 @@
-import { Button } from "@env-manager/ui/button";
+import { Button } from "@collidr/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@env-manager/ui/card";
+} from "@collidr/ui/card";
 import Link from "next/link";
 import { ConsentScreen } from "@/components/consent-screen";
 import { authAppReturnTo } from "@/lib/auth-return-to";

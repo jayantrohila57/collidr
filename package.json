@@ -1,5 +1,5 @@
 {
-  "name": "env-manager",
+  "name": "collidr",
   "version": "1.8.0",
   "private": true,
   "workspaces": [
@@ -22,11 +22,11 @@
     "dev:studio": "turbo -F studio dev",
     "dev:account": "turbo -F account dev",
     "dev:support": "turbo -F support dev",
-    "db:push": "turbo -F @env-manager/db db:push",
-    "db:studio": "turbo -F @env-manager/db db:studio",
-    "db:generate": "turbo -F @env-manager/db db:generate",
-    "db:migrate": "turbo -F @env-manager/db db:migrate",
-    "db:reset-seed": "turbo -F @env-manager/db db:reset-seed",
+    "db:push": "turbo -F @collidr/db db:push",
+    "db:studio": "turbo -F @collidr/db db:studio",
+    "db:generate": "turbo -F @collidr/db db:generate",
+    "db:migrate": "turbo -F @collidr/db db:migrate",
+    "db:reset-seed": "turbo -F @collidr/db db:reset-seed",
     "check": "biome check --write .",
     "format": "biome format --write .",
     "lint": "biome lint .",
@@ -41,13 +41,13 @@
     "a11y": "turbo -F web a11y"
   },
   "dependencies": {
-    "@env-manager/env": "workspace:*",
+    "@collidr/env": "workspace:*",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.0",
-    "@env-manager/config": "workspace:*",
+    "@collidr/config": "workspace:*",
     "@types/node": "^22.13.14",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",

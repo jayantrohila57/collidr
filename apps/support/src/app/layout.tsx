@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Env Manager Support",
+  title: "Collidr Support",
   description: "Help center, support tickets, and legal information",
 };
 

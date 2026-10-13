@@ -1,6 +1,6 @@
 "use client";
 
-import { type MatrixCell, PERMISSION_MATRIX_ROWS } from "@env-manager/actions";
+import { type MatrixCell, PERMISSION_MATRIX_ROWS } from "@collidr/actions";
 import {
   Card,
   CardDescription,

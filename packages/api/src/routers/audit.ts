@@ -1,5 +1,5 @@
-import { db } from "@env-manager/db";
-import { auditLog } from "@env-manager/db/schema/audit";
+import { db } from "@collidr/db";
+import { auditLog } from "@collidr/db/schema/audit";
 import { and, count, desc, eq, ilike, or, type SQL } from "drizzle-orm";
 import { z } from "zod/v3";
 

@@ -2,11 +2,11 @@ import {
   type ActionName,
   getActionDefinition,
   isActionsAuditEnabled,
-} from "@env-manager/actions";
-import { db } from "@env-manager/db";
-import { auditEvent } from "@env-manager/db/schema/audit-event";
-import { isNotificationsEnabled } from "@env-manager/notifications";
-import { notifyFromAuditEvent } from "@env-manager/notifications/from-audit";
+} from "@collidr/actions";
+import { db } from "@collidr/db";
+import { auditEvent } from "@collidr/db/schema/audit-event";
+import { isNotificationsEnabled } from "@collidr/notifications";
+import { notifyFromAuditEvent } from "@collidr/notifications/from-audit";
 
 export type AuthAuditResult = "success" | "failure" | "denied";
 

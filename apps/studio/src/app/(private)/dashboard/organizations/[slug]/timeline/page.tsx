@@ -1,11 +1,11 @@
-import { isOrganizationsEnabled } from "@env-manager/env/organizations";
+import { isOrganizationsEnabled } from "@collidr/env/organizations";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { guardOrganizationSlugPage } from "@/lib/page-guards";
 import { OrganizationSectionPage } from "@/domain/organizations/components/organization-section-page";
 import { OrganizationsFeatureGate } from "@/domain/organizations/components/organizations-feature-gate";
 import { TimelinePageClient } from "@/domain/timeline/components/timeline-page-client";
 import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
+import { guardOrganizationSlugPage } from "@/lib/page-guards";
 
 export const metadata: Metadata = {
   title: "Timeline",
@@ -22,7 +22,7 @@ export default async function OrganizationTimelineRoute({
     redirect("/dashboard/activity");
   }
 
-    const { slug } = await params;
+  const { slug } = await params;
   await guardOrganizationSlugPage(slug, "timeline");
 
   return (

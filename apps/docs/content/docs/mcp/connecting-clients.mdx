@@ -20,8 +20,8 @@ After saving config, restart the client if required, then complete **OAuth** or 
 ```json
 {
   "mcpServers": {
-    "env-manager": {
-      "url": "https://mcp-env-manager.vercel.app/api/mcp"
+    "collidr": {
+      "url": "https://collidr.vercel.app/api/mcp"
     }
   }
 }
@@ -36,14 +36,14 @@ Edit `claude_desktop_config.json` (location depends on OS — see Anthropic docs
 ```json
 {
   "mcpServers": {
-    "env-manager": {
-      "url": "https://mcp-env-manager.vercel.app/api/mcp"
+    "collidr": {
+      "url": "https://collidr.vercel.app/api/mcp"
     }
   }
 }
 ```
 
-Restart Claude Desktop and complete browser OAuth when the Env Manager tools are first used.
+Restart Claude Desktop and complete browser OAuth when the Collidr tools are first used.
 
 ## Claude Code (CLI)
 
@@ -58,9 +58,9 @@ VS Code MCP uses `mcp.json` (user or workspace). Add an HTTP server entry:
 ```json
 {
   "servers": {
-    "env-manager": {
+    "collidr": {
       "type": "http",
-      "url": "https://mcp-env-manager.vercel.app/api/mcp"
+      "url": "https://collidr.vercel.app/api/mcp"
     }
   }
 }
@@ -74,7 +74,7 @@ In Windsurf MCP settings, add a remote server with URL <McpHttpUrl />. Windsurf 
 
 ## Generic / custom clients
 
-Env Manager implements **MCP over HTTP** (`POST /api/mcp`, protocol `mcp-2026-07-28` per `apps/mcp` `GET /api/mcp` discovery).
+Collidr implements **MCP over HTTP** (`POST /api/mcp`, protocol `mcp-2026-07-28` per `apps/mcp` `GET /api/mcp` discovery).
 
 | Requirement | Value |
 | --- | --- |

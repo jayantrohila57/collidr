@@ -1,17 +1,17 @@
 import {
   resolvePlatformPublicOrigin,
   resolvePublicServiceUrl,
-} from "@env-manager/env/vercel-services";
+} from "@collidr/env/vercel-services";
 
 /** Production phase-1 hostnames (PLAN §2.0); overridden when `VERCEL_SERVICES=1`. */
-export const DEFAULT_AUTH_URL = "https://auth-env-manager.vercel.app";
-export const DEFAULT_STUDIO_URL = "https://studio-env-manager.vercel.app";
-export const DEFAULT_ACCOUNT_URL = "https://account-env-manager.vercel.app";
-export const DEFAULT_WWW_URL = "https://www-env-manager.vercel.app";
-export const DEFAULT_MCP_URL = "https://mcp-env-manager.vercel.app";
-export const DEFAULT_CONSOLE_URL = "https://console-env-manager.vercel.app";
-export const DEFAULT_SUPPORT_URL = "https://support-env-manager.vercel.app";
-export const DEFAULT_DOCS_URL = "https://docs-env-manager.vercel.app";
+export const DEFAULT_AUTH_URL = "https://collidr.vercel.app/auth";
+export const DEFAULT_STUDIO_URL = "https://collidr.vercel.app/studio";
+export const DEFAULT_ACCOUNT_URL = "https://collidr.vercel.app/account";
+export const DEFAULT_WWW_URL = "https://collidr.vercel.app";
+export const DEFAULT_MCP_URL = "https://collidr.vercel.app";
+export const DEFAULT_CONSOLE_URL = "https://collidr.vercel.app/console";
+export const DEFAULT_SUPPORT_URL = "https://collidr.vercel.app/support";
+export const DEFAULT_DOCS_URL = "https://collidr.vercel.app/docs";
 
 function defaultAuthUrl(): string {
   return process.env.VERCEL_SERVICES === "1"
@@ -47,6 +47,14 @@ function defaultMcpPublicUrl(): string {
 
 export function trimTrailingSlash(url: string): string {
   return url.endsWith("/") ? url.slice(0, -1) : url;
+}
+
+function toTrustedOrigin(url: string): string {
+  try {
+    return new URL(trimTrailingSlash(url)).origin;
+  } catch {
+    return trimTrailingSlash(url);
+  }
 }
 
 /** Origins allowed for `return_to` and Better Auth `trustedOrigins` (production only). */
@@ -92,11 +100,5 @@ export function getPlatformProductionOrigins(
       : []),
   ].filter(Boolean) as string[];
 
-  return [
-    ...new Set(
-      origins
-        .filter((o): o is string => typeof o === "string" && o.length > 0)
-        .map((o) => trimTrailingSlash(o)),
-    ),
-  ];
+  return [...new Set(origins.map((o) => toTrustedOrigin(o)))];
 }

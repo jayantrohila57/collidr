@@ -1,6 +1,6 @@
 "use client";
 
-import type { ProjectOutput } from "@env-manager/api/types";
+import type { ProjectOutput } from "@collidr/api/types";
 import type { ReactNode } from "react";
 import {
   StatusBadge,

@@ -1,3 +1,3 @@
-import { createPlatformAuth } from "@env-manager/auth/platform-auth";
+import { createPlatformAuth } from "@collidr/auth/platform-auth";
 
 export const platformAuth = createPlatformAuth();

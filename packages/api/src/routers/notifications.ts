@@ -1,12 +1,12 @@
-import { activeNotificationWhere, db } from "@env-manager/db";
-import { user } from "@env-manager/db/schema/auth";
-import { notification } from "@env-manager/db/schema/notifications";
+import { activeNotificationWhere, db } from "@collidr/db";
+import { user } from "@collidr/db/schema/auth";
+import { notification } from "@collidr/db/schema/notifications";
 import {
   isNotificationsEnabled,
   resolveNotificationPresentation,
   syncInvitationAcceptedByEmail,
   syncInvitationReceivedByEmail,
-} from "@env-manager/notifications";
+} from "@collidr/notifications";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, isNull, lt, or, sql } from "drizzle-orm";
 import { z } from "zod/v3";

@@ -1,13 +1,13 @@
 "use client";
 
-import { Button } from "@env-manager/ui/button";
+import { Button } from "@collidr/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@env-manager/ui/card";
+} from "@collidr/ui/card";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -71,8 +71,8 @@ export function DeviceCodeForm() {
         <CardHeader>
           <CardTitle>Device sign-in</CardTitle>
           <CardDescription>
-            Enter the code from the Env Manager CLI or another device. Only
-            approve codes you requested on a device you control.
+            Enter the code from the Collidr CLI or another device. Only approve
+            codes you requested on a device you control.
           </CardDescription>
         </CardHeader>
         <CardPanel className="flex flex-col gap-4">

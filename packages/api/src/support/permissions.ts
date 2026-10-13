@@ -1,4 +1,4 @@
-import type { TicketStatus } from "@env-manager/db/schema/support";
+import type { TicketStatus } from "@collidr/db/schema/support";
 
 export type TicketRecord = {
   requesterUserId: string;

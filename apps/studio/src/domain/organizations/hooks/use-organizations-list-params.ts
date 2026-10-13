@@ -9,7 +9,7 @@ import type {
   OrganizationsTypeFilter,
 } from "../lib/filter-organizations";
 
-const VIEW_STORAGE_KEY = "env-manager-organizations-view";
+const VIEW_STORAGE_KEY = "collidr-organizations-view";
 
 export type OrganizationsViewMode = "grid" | "list";
 

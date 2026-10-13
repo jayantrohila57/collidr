@@ -9,7 +9,9 @@ function isAllowedReturnOrigin(
   allowedOrigins: readonly string[],
 ): boolean {
   const normalized = trimTrailingSlash(origin);
-  return allowedOrigins.some((allowed) => trimTrailingSlash(allowed) === normalized);
+  return allowedOrigins.some(
+    (allowed) => trimTrailingSlash(allowed) === normalized,
+  );
 }
 
 /**
@@ -23,8 +25,7 @@ export function validateReturnTo(
     fallback?: string;
   } = {},
 ): string {
-  const allowed =
-    options.allowedOrigins ?? getPlatformProductionOrigins();
+  const allowed = options.allowedOrigins ?? getPlatformProductionOrigins();
   const fallback =
     options.fallback ??
     `${trimTrailingSlash(

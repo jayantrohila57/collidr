@@ -1,4 +1,4 @@
-import { AppNotFoundPage } from "@env-manager/ui/patterns/app-route-states";
+import { AppNotFoundPage } from "@collidr/ui/patterns/app-route-states";
 
 const links = { homeHref: "/" };
 

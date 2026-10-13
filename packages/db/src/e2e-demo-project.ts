@@ -10,7 +10,7 @@ import {
   activeUserWhere,
 } from "./soft-delete";
 
-const E2E_EMAIL = "e2e-playwright@env-manager.local";
+const E2E_EMAIL = "e2e-playwright@collidr.local";
 const E2E_PROJECT_NAME = "E2E Demo Project";
 const E2E_PROJECT_SLUG = "e2e-demo-project";
 const E2E_ENV_NAME = "Development";
@@ -38,7 +38,7 @@ export async function ensureE2eDemoProject() {
     .limit(1);
 
   const demoUrls = {
-    repositoryUrl: "https://github.com/env-manager/e2e-demo",
+    repositoryUrl: "https://github.com/collidr/e2e-demo",
     websiteUrl: "https://example.com/e2e-demo",
   };
 

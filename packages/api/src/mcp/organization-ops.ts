@@ -3,16 +3,16 @@ import {
   activeMemberWhere,
   db,
   softDeleteSet,
-} from "@env-manager/db";
-import { assertOrganizationCanBeDeleted } from "@env-manager/db/org-delete-policy";
-import { user } from "@env-manager/db/schema/auth";
+} from "@collidr/db";
+import { assertOrganizationCanBeDeleted } from "@collidr/db/org-delete-policy";
+import { user } from "@collidr/db/schema/auth";
 import {
   invitation,
   member,
   organization,
-} from "@env-manager/db/schema/organization";
-import { team, teamMember } from "@env-manager/db/schema/team";
-import { isSoftDeletesEnabled } from "@env-manager/env/soft-deletes";
+} from "@collidr/db/schema/organization";
+import { team, teamMember } from "@collidr/db/schema/team";
+import { isSoftDeletesEnabled } from "@collidr/env/soft-deletes";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { requireAction } from "../actions/require-action";
 import { resolveOrganizationIdForUser } from "./resolve-organization";

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { evaluatePermission } from "@env-manager/actions";
+import { evaluatePermission } from "@collidr/actions";
 
 describe("evaluatePermission", () => {
   it("denies project mutations for org members without project grants", () => {

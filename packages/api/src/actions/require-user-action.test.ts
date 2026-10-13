@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import type { ActionName } from "@env-manager/actions";
+import type { ActionName } from "@collidr/actions";
 import { TRPCError } from "@trpc/server";
 import { requireUserAction } from "./require-user-action";
 

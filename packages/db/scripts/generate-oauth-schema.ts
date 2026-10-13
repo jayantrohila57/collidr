@@ -11,7 +11,9 @@ const generatePath = join(
   "../node_modules/@better-auth/drizzle-adapter/dist/generate-drizzle-schema-iWvrXnu0.mjs",
 );
 
-const { generateDrizzleSchema } = await import(pathToFileURL(generatePath).href);
+const { generateDrizzleSchema } = await import(
+  pathToFileURL(generatePath).href
+);
 
 const options = {
   advanced: { database: { generateId: false } },
@@ -20,7 +22,7 @@ const options = {
     mcp({
       loginPage: "/sign-in",
       consentPage: "/consent",
-      resource: "https://mcp-env-manager.vercel.app/api/mcp",
+      resource: "https://collidr.vercel.app/api/mcp",
     }),
   ],
 };
@@ -43,7 +45,9 @@ const result = await generateDrizzleSchema({
 });
 
 const lines = result.code.split("\n");
-const oauthStart = lines.findIndex((line) => line.startsWith("export const oauth"));
+const oauthStart = lines.findIndex((line) =>
+  line.startsWith("export const oauth"),
+);
 const header = `import {
   boolean,
   index,
@@ -64,11 +68,8 @@ const body = lines
   .filter((line) => !line.includes("authRelations"))
   .filter((line) => !line.includes("defineRelationsPart"));
 // Drop generated relation blocks (not needed for drizzle adapter).
-const relationStart = body.findIndex((line) =>
-  /^\s+user:\s*\{/.test(line),
-);
-const trimmed =
-  relationStart === -1 ? body : body.slice(0, relationStart);
+const relationStart = body.findIndex((line) => /^\s+user:\s*\{/.test(line));
+const trimmed = relationStart === -1 ? body : body.slice(0, relationStart);
 writeFileSync(
   join(__dirname, "../src/schema/oauth.ts"),
   `${header}${trimmed.join("\n").trim()}\n`,

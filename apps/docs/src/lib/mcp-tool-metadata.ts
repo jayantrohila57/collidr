@@ -1,4 +1,4 @@
-import type { ActionName } from "@env-manager/actions";
+import type { ActionName } from "@collidr/actions";
 
 import catalog from "@/generated/mcp-tools-catalog.json";
 

@@ -5,13 +5,13 @@ import {
   requireSupportManagerPage,
   requireSupportTicketPage,
   runPageGuard,
-} from "@env-manager/api/page-guards";
+} from "@collidr/api/page-guards";
 import {
   type RequirePageSessionResult,
   requirePageSession,
-} from "@env-manager/auth/guards";
-import type { AuthSession } from "@env-manager/auth/session-types";
-import { DEFAULT_SUPPORT_URL } from "@env-manager/env/platform";
+} from "@collidr/auth/guards";
+import type { AuthSession } from "@collidr/auth/session-types";
+import { DEFAULT_SUPPORT_URL } from "@collidr/env/platform";
 import type { Route } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ActionName } from "@env-manager/actions";
+import type { ActionName } from "@collidr/actions";
 import { useQuery } from "@tanstack/react-query";
 import { trpc } from "@/utils/trpc";
 

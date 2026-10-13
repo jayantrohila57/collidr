@@ -1,5 +1,5 @@
 import { oauthProviderClient } from "@better-auth/oauth-provider/client";
-import { orgAc, orgBetterAuthRoles } from "@env-manager/actions";
+import { orgAc, orgBetterAuthRoles } from "@collidr/actions";
 import {
   adminClient,
   deviceAuthorizationClient,
@@ -7,7 +7,7 @@ import {
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
-export type CreateEnvManagerAuthClientOptions = {
+export type CreateCollidrAuthClientOptions = {
   /** Auth app origin when the client runs on a sibling app (e.g. studio). Omit on same host as `/api/auth`. */
   baseURL?: string;
   organizationsEnabled?: boolean;
@@ -17,8 +17,8 @@ export type CreateEnvManagerAuthClientOptions = {
   platformOAuth?: boolean;
 };
 
-export function createEnvManagerAuthClient(
-  options: CreateEnvManagerAuthClientOptions = {},
+export function createCollidrAuthClient(
+  options: CreateCollidrAuthClientOptions = {},
 ) {
   const {
     baseURL,

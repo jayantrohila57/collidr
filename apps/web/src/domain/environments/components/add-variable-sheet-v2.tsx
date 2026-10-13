@@ -1,6 +1,6 @@
 "use client";
 
-import { variableKeySchema } from "@env-manager/api/validation";
+import { variableKeySchema } from "@collidr/api/validation";
 import { useMemo, useRef, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";

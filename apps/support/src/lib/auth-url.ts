@@ -1,7 +1,4 @@
-import {
-  buildSignInUrl,
-  defaultSupportReturnTo,
-} from "@env-manager/ui/auth-links";
+import { buildSignInUrl, defaultSupportReturnTo } from "@collidr/ui/auth-links";
 
 export function supportSignInUrl(requestUrl?: string): string {
   const returnTo =

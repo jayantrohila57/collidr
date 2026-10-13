@@ -36,7 +36,7 @@ export function McpToolsTable() {
       </table>
       <p className="border-t px-4 py-3 text-muted-foreground text-xs">
         Includes <code className="text-foreground">permissions_snapshot</code>{" "}
-        (registered in <code>@env-manager/mcp</code>, not tied to a product
+        (registered in <code>@collidr/mcp</code>, not tied to a product
         handler). User-scoped account actions and platform admin APIs are
         excluded from MCP.
       </p>

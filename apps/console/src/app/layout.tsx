@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Env Manager Console",
-  description: "Platform administration for Env Manager",
+  title: "Collidr Console",
+  description: "Platform administration for Collidr",
 };
 
 export default function RootLayout({

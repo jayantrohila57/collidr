@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
-import { registerPlatformAdminReader } from "@env-manager/actions/platform-admin-flag";
+import { registerPlatformAdminReader } from "@collidr/actions/platform-admin-flag";
 
 type Store = { platformAdmin: boolean };
 

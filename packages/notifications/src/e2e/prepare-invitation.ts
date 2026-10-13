@@ -1,16 +1,16 @@
-import { db } from "@env-manager/db";
-import { user } from "@env-manager/db/schema/auth";
-import { notification } from "@env-manager/db/schema/notifications";
+import { db } from "@collidr/db";
+import { user } from "@collidr/db/schema/auth";
+import { notification } from "@collidr/db/schema/notifications";
 import {
   invitation,
   member,
   organization,
-} from "@env-manager/db/schema/organization";
+} from "@collidr/db/schema/organization";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { notifyInvitationReceived } from "../triggers/invitations";
 
-const E2E_PRIMARY_EMAIL = "e2e-playwright@env-manager.local";
-const E2E_INVITEE_EMAIL = "e2e-playwright-invitee@env-manager.local";
+const E2E_PRIMARY_EMAIL = "e2e-playwright@collidr.local";
+const E2E_INVITEE_EMAIL = "e2e-playwright-invitee@collidr.local";
 const E2E_NOTIFICATIONS_ORG_SLUG = "e2e-notifications-org";
 
 async function userIdForEmail(email: string) {

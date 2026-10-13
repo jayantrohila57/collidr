@@ -3,7 +3,7 @@ title: Roles and permissions
 description: Owner, manager, member, project grants, and requireAction.
 ---
 
-Authorization is driven by **canonical action names** in `@env-manager/actions`. Server code calls `requireAction(action, ctx)` which evaluates, in order:
+Authorization is driven by **canonical action names** in `@collidr/actions`. Server code calls `requireAction(action, ctx)` which evaluates, in order:
 
 1. **Platform admin** (reserved — `isPlatformAdmin()` is false in production UI today)
 2. **Action blocks** at org, project, or user scope

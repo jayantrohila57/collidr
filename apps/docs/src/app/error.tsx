@@ -1,6 +1,6 @@
 "use client";
 
-import { AppRouteErrorPage } from "@env-manager/ui/patterns/app-route-states";
+import { AppRouteErrorPage } from "@collidr/ui/patterns/app-route-states";
 
 export default function RouteError({
   error,

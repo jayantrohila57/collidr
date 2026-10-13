@@ -1,4 +1,4 @@
-import { env } from "@env-manager/env/server";
+import { env } from "@collidr/env/server";
 import { betterAuth } from "better-auth";
 import { oneTimeToken } from "better-auth/plugins";
 import {
@@ -8,7 +8,10 @@ import {
   sharedE2eEmailPassword,
   sharedSessionConfig,
 } from "./auth-shared";
-import { DEFAULT_AUTH_URL, getPlatformProductionOrigins } from "./platform-urls";
+import {
+  DEFAULT_AUTH_URL,
+  getPlatformProductionOrigins,
+} from "./platform-urls";
 
 export type CreateSiblingAuthOptions = {
   /** Public origin of this app (`BETTER_AUTH_URL` for studio/account). */
@@ -27,8 +30,7 @@ export function createSiblingAuth(options: CreateSiblingAuthOptions) {
   return betterAuth({
     baseURL: options.baseURL || env.BETTER_AUTH_URL || DEFAULT_AUTH_URL,
     secret:
-      env.BETTER_AUTH_SECRET ??
-      "local-build-placeholder-secret-min-32-chars",
+      env.BETTER_AUTH_SECRET ?? "local-build-placeholder-secret-min-32-chars",
     databaseHooks: sharedDatabaseHooks(),
     session: sharedSessionConfig(),
     ...sharedE2eEmailPassword(),

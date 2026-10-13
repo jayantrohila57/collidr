@@ -3,9 +3,9 @@ import {
   actionNames,
   evaluatePermission,
   normalizeOrgRole,
-} from "@env-manager/actions";
-import { db } from "@env-manager/db";
-import { member } from "@env-manager/db/schema/organization";
+} from "@collidr/actions";
+import { db } from "@collidr/db";
+import { member } from "@collidr/db/schema/organization";
 import { and, eq } from "drizzle-orm";
 import { isActionBlocked } from "./is-action-blocked";
 import {

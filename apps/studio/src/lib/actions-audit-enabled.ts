@@ -1,4 +1,4 @@
-import { env } from "@env-manager/env/web";
+import { env } from "@collidr/env/web";
 
 export function isActionsAuditEnabledOnClient(): boolean {
   return env.NEXT_PUBLIC_ACTIONS_AUDIT_ENABLED === "true";

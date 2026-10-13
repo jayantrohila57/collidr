@@ -38,7 +38,7 @@ importers:
 
   .:
     dependencies:
-      '@env-manager/env':
+      '@collidr/env':
         specifier: workspace:*
         version: link:packages/env
       dotenv:
@@ -51,7 +51,7 @@ importers:
       '@biomejs/biome':
         specifier: ^2.2.0
         version: 2.3.11
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:packages/config
       '@types/node':
@@ -75,33 +75,33 @@ importers:
       '@base-ui/react':
         specifier: ^1.9.0
         version: 1.9.0(@date-fns/tz@1.4.1)(@types/react@19.2.8)(date-fns@4.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@collidr/actions':
+        specifier: workspace:*
+        version: link:../../packages/actions
+      '@collidr/api':
+        specifier: workspace:*
+        version: link:../../packages/api
+      '@collidr/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@collidr/auth-client':
+        specifier: workspace:*
+        version: link:../../packages/auth-client
+      '@collidr/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@collidr/env':
+        specifier: workspace:*
+        version: link:../../packages/env
+      '@collidr/notifications':
+        specifier: workspace:*
+        version: link:../../packages/notifications
+      '@collidr/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@daypicker/react':
         specifier: ^10.0.2
         version: 10.0.2(@types/react@19.2.8)(react@19.2.3)
-      '@env-manager/actions':
-        specifier: workspace:*
-        version: link:../../packages/actions
-      '@env-manager/api':
-        specifier: workspace:*
-        version: link:../../packages/api
-      '@env-manager/auth':
-        specifier: workspace:*
-        version: link:../../packages/auth
-      '@env-manager/auth-client':
-        specifier: workspace:*
-        version: link:../../packages/auth-client
-      '@env-manager/db':
-        specifier: workspace:*
-        version: link:../../packages/db
-      '@env-manager/env':
-        specifier: workspace:*
-        version: link:../../packages/env
-      '@env-manager/notifications':
-        specifier: workspace:*
-        version: link:../../packages/notifications
-      '@env-manager/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.71.1(react@19.2.3))
@@ -131,7 +131,7 @@ importers:
         version: 1.0.0
       better-auth:
         specifier: 'catalog:'
-        version: 1.7.7(drizzle-kit@0.31.8)(drizzle-orm@0.45.4(@types/pg@8.16.0)(kysely@0.29.6)(pg@8.17.1))(next@16.1.3(@babel/core@7.28.6)(@playwright/test@1.64.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.17.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 1.7.7(drizzle-kit@0.31.8)(drizzle-orm@0.45.4(@types/pg@8.16.0)(kysely@0.29.6)(pg@8.17.1))(next@16.1.3(@playwright/test@1.64.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.17.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -184,7 +184,7 @@ importers:
       '@axe-core/playwright':
         specifier: ^4.10.2
         version: 4.13.0(playwright-core@1.64.0)
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@playwright/test':
@@ -226,22 +226,22 @@ importers:
       '@better-auth/oauth-provider':
         specifier: ^1.7.7
         version: 1.7.7(@better-auth/core@1.7.7(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.0(zod@4.6.7))(jose@6.2.12)(kysely@0.29.6)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-auth@1.7.7(drizzle-kit@0.31.8)(drizzle-orm@0.45.4(@types/pg@8.16.0)(kysely@0.29.6)(pg@8.17.1))(next@16.1.3(@playwright/test@1.64.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.17.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(better-call@1.4.0(zod@4.6.7))
-      '@env-manager/actions':
+      '@collidr/actions':
         specifier: workspace:*
         version: link:../../packages/actions
-      '@env-manager/auth':
+      '@collidr/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@env-manager/auth-client':
+      '@collidr/auth-client':
         specifier: workspace:*
         version: link:../../packages/auth-client
-      '@env-manager/db':
+      '@collidr/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@env-manager/env':
+      '@collidr/env':
         specifier: workspace:*
         version: link:../../packages/env
-      '@env-manager/ui':
+      '@collidr/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       babel-plugin-react-compiler:
@@ -269,7 +269,7 @@ importers:
         specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@tailwindcss/postcss':
@@ -302,22 +302,22 @@ importers:
       '@base-ui/react':
         specifier: ^1.9.0
         version: 1.9.0(@date-fns/tz@1.4.1)(@types/react@19.2.8)(date-fns@4.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@env-manager/api':
+      '@collidr/api':
         specifier: workspace:*
         version: link:../../packages/api
-      '@env-manager/auth':
+      '@collidr/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@env-manager/auth-client':
+      '@collidr/auth-client':
         specifier: workspace:*
         version: link:../../packages/auth-client
-      '@env-manager/db':
+      '@collidr/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@env-manager/env':
+      '@collidr/env':
         specifier: workspace:*
         version: link:../../packages/env
-      '@env-manager/ui':
+      '@collidr/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@tanstack/react-query':
@@ -340,7 +340,7 @@ importers:
         version: 1.0.0
       better-auth:
         specifier: 'catalog:'
-        version: 1.7.7(drizzle-kit@0.31.8)(drizzle-orm@0.45.4(@types/pg@8.16.0)(kysely@0.29.6)(pg@8.17.1))(next@16.1.3(@playwright/test@1.64.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.17.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 1.7.7(drizzle-kit@0.31.8)(drizzle-orm@0.45.4(@types/pg@8.16.0)(kysely@0.29.6)(pg@8.17.1))(next@16.1.3(@babel/core@7.28.6)(@playwright/test@1.64.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.17.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -378,7 +378,7 @@ importers:
         specifier: 'catalog:'
         version: 4.3.5
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@tailwindcss/postcss':
@@ -405,13 +405,13 @@ importers:
       '@base-ui/react':
         specifier: ^1.9.0
         version: 1.9.0(@date-fns/tz@1.4.1)(@types/react@19.2.8)(date-fns@4.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@env-manager/actions':
+      '@collidr/actions':
         specifier: workspace:*
         version: link:../../packages/actions
-      '@env-manager/api':
+      '@collidr/api':
         specifier: workspace:*
         version: link:../../packages/api
-      '@env-manager/ui':
+      '@collidr/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       class-variance-authority:
@@ -454,7 +454,7 @@ importers:
         specifier: ^3.25.1
         version: 3.25.1(zod@4.6.7)
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@tailwindcss/postcss':
@@ -484,17 +484,17 @@ importers:
 
   apps/mcp:
     dependencies:
-      '@env-manager/env':
+      '@collidr/env':
         specifier: workspace:*
         version: link:../../packages/env
-      '@env-manager/mcp':
+      '@collidr/mcp':
         specifier: workspace:*
         version: link:../../packages/mcp
       next:
         specifier: 'catalog:'
         version: 16.1.3(@babel/core@7.28.6)(@playwright/test@1.64.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@types/node':
@@ -509,33 +509,33 @@ importers:
       '@base-ui/react':
         specifier: ^1.9.0
         version: 1.9.0(@date-fns/tz@1.4.1)(@types/react@19.2.8)(date-fns@4.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@collidr/actions':
+        specifier: workspace:*
+        version: link:../../packages/actions
+      '@collidr/api':
+        specifier: workspace:*
+        version: link:../../packages/api
+      '@collidr/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@collidr/auth-client':
+        specifier: workspace:*
+        version: link:../../packages/auth-client
+      '@collidr/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@collidr/env':
+        specifier: workspace:*
+        version: link:../../packages/env
+      '@collidr/notifications':
+        specifier: workspace:*
+        version: link:../../packages/notifications
+      '@collidr/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@daypicker/react':
         specifier: ^10.0.2
         version: 10.0.2(@types/react@19.2.8)(react@19.2.3)
-      '@env-manager/actions':
-        specifier: workspace:*
-        version: link:../../packages/actions
-      '@env-manager/api':
-        specifier: workspace:*
-        version: link:../../packages/api
-      '@env-manager/auth':
-        specifier: workspace:*
-        version: link:../../packages/auth
-      '@env-manager/auth-client':
-        specifier: workspace:*
-        version: link:../../packages/auth-client
-      '@env-manager/db':
-        specifier: workspace:*
-        version: link:../../packages/db
-      '@env-manager/env':
-        specifier: workspace:*
-        version: link:../../packages/env
-      '@env-manager/notifications':
-        specifier: workspace:*
-        version: link:../../packages/notifications
-      '@env-manager/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.71.1(react@19.2.3))
@@ -618,7 +618,7 @@ importers:
       '@axe-core/playwright':
         specifier: ^4.10.2
         version: 4.13.0(playwright-core@1.64.0)
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@playwright/test':
@@ -657,22 +657,22 @@ importers:
       '@base-ui/react':
         specifier: ^1.9.0
         version: 1.9.0(@date-fns/tz@1.4.1)(@types/react@19.2.8)(date-fns@4.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@env-manager/api':
+      '@collidr/api':
         specifier: workspace:*
         version: link:../../packages/api
-      '@env-manager/auth':
+      '@collidr/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@env-manager/auth-client':
+      '@collidr/auth-client':
         specifier: workspace:*
         version: link:../../packages/auth-client
-      '@env-manager/db':
+      '@collidr/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@env-manager/env':
+      '@collidr/env':
         specifier: workspace:*
         version: link:../../packages/env
-      '@env-manager/ui':
+      '@collidr/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@tanstack/react-query':
@@ -733,7 +733,7 @@ importers:
         specifier: 'catalog:'
         version: 4.3.5
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@tailwindcss/postcss':
@@ -760,33 +760,33 @@ importers:
       '@base-ui/react':
         specifier: ^1.9.0
         version: 1.9.0(@date-fns/tz@1.4.1)(@types/react@19.2.8)(date-fns@4.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@collidr/actions':
+        specifier: workspace:*
+        version: link:../../packages/actions
+      '@collidr/api':
+        specifier: workspace:*
+        version: link:../../packages/api
+      '@collidr/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@collidr/auth-client':
+        specifier: workspace:*
+        version: link:../../packages/auth-client
+      '@collidr/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@collidr/env':
+        specifier: workspace:*
+        version: link:../../packages/env
+      '@collidr/notifications':
+        specifier: workspace:*
+        version: link:../../packages/notifications
+      '@collidr/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@daypicker/react':
         specifier: ^10.0.2
         version: 10.0.2(@types/react@19.2.8)(react@19.2.3)
-      '@env-manager/actions':
-        specifier: workspace:*
-        version: link:../../packages/actions
-      '@env-manager/api':
-        specifier: workspace:*
-        version: link:../../packages/api
-      '@env-manager/auth':
-        specifier: workspace:*
-        version: link:../../packages/auth
-      '@env-manager/auth-client':
-        specifier: workspace:*
-        version: link:../../packages/auth-client
-      '@env-manager/db':
-        specifier: workspace:*
-        version: link:../../packages/db
-      '@env-manager/env':
-        specifier: workspace:*
-        version: link:../../packages/env
-      '@env-manager/notifications':
-        specifier: workspace:*
-        version: link:../../packages/notifications
-      '@env-manager/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.71.1(react@19.2.3))
@@ -869,7 +869,7 @@ importers:
       '@axe-core/playwright':
         specifier: ^4.10.2
         version: 4.13.0(playwright-core@1.64.0)
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@playwright/test':
@@ -905,10 +905,10 @@ importers:
 
   apps/www:
     dependencies:
-      '@env-manager/env':
+      '@collidr/env':
         specifier: workspace:*
         version: link:../../packages/env
-      '@env-manager/ui':
+      '@collidr/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       babel-plugin-react-compiler:
@@ -930,7 +930,7 @@ importers:
         specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@tailwindcss/postcss':
@@ -967,7 +967,7 @@ importers:
         specifier: 'catalog:'
         version: 4.3.5
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../config
       tsx:
@@ -979,22 +979,22 @@ importers:
 
   packages/api:
     dependencies:
-      '@env-manager/actions':
+      '@collidr/actions':
         specifier: workspace:*
         version: link:../actions
-      '@env-manager/auth':
+      '@collidr/auth':
         specifier: workspace:*
         version: link:../auth
-      '@env-manager/crypto':
+      '@collidr/crypto':
         specifier: workspace:*
         version: link:../crypto
-      '@env-manager/db':
+      '@collidr/db':
         specifier: workspace:*
         version: link:../db
-      '@env-manager/env':
+      '@collidr/env':
         specifier: workspace:*
         version: link:../env
-      '@env-manager/notifications':
+      '@collidr/notifications':
         specifier: workspace:*
         version: link:../notifications
       '@trpc/client':
@@ -1022,7 +1022,7 @@ importers:
         specifier: 'catalog:'
         version: 4.3.5
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../config
       tsx:
@@ -1040,19 +1040,19 @@ importers:
       '@better-auth/mcp':
         specifier: ^1.7.7
         version: 1.7.7(@better-auth/core@1.7.7(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.0(zod@4.3.5))(jose@6.2.12)(kysely@0.29.6)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-auth@1.7.7(drizzle-kit@0.31.8)(drizzle-orm@0.45.4(@types/pg@8.16.0)(kysely@0.29.6)(pg@8.17.1))(next@16.1.3(@playwright/test@1.64.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.17.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(better-call@1.4.0(zod@4.3.5))
-      '@env-manager/actions':
+      '@collidr/actions':
         specifier: workspace:*
         version: link:../actions
-      '@env-manager/db':
+      '@collidr/db':
         specifier: workspace:*
         version: link:../db
-      '@env-manager/env':
+      '@collidr/env':
         specifier: workspace:*
         version: link:../env
-      '@env-manager/notifications':
+      '@collidr/notifications':
         specifier: workspace:*
         version: link:../notifications
-      '@env-manager/ui':
+      '@collidr/ui':
         specifier: workspace:*
         version: link:../ui
       better-auth:
@@ -1068,7 +1068,7 @@ importers:
         specifier: 'catalog:'
         version: 4.3.5
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../config
       next:
@@ -1086,17 +1086,17 @@ importers:
       '@better-auth/oauth-provider':
         specifier: ^1.7.7
         version: 1.7.7(@better-auth/core@1.7.7(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.0(zod@4.6.7))(jose@6.2.12)(kysely@0.29.6)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-auth@1.7.7(drizzle-kit@0.31.8)(drizzle-orm@0.45.4(@types/pg@8.16.0)(kysely@0.29.6)(pg@8.17.1))(next@16.1.3(@playwright/test@1.64.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.17.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(better-call@1.4.0(zod@4.6.7))
-      '@env-manager/actions':
+      '@collidr/actions':
         specifier: workspace:*
         version: link:../actions
-      '@env-manager/ui':
+      '@collidr/ui':
         specifier: workspace:*
         version: link:../ui
       better-auth:
         specifier: 'catalog:'
         version: 1.7.7(drizzle-kit@0.31.8)(drizzle-orm@0.45.4(@types/pg@8.16.0)(kysely@0.29.6)(pg@8.17.1))(next@16.1.3(@playwright/test@1.64.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.17.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../config
       '@types/react':
@@ -1113,11 +1113,11 @@ importers:
 
   packages/crypto:
     dependencies:
-      '@env-manager/env':
+      '@collidr/env':
         specifier: workspace:*
         version: link:../env
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../config
       typescript:
@@ -1126,10 +1126,10 @@ importers:
 
   packages/db:
     dependencies:
-      '@env-manager/crypto':
+      '@collidr/crypto':
         specifier: workspace:*
         version: link:../crypto
-      '@env-manager/env':
+      '@collidr/env':
         specifier: workspace:*
         version: link:../env
       dotenv:
@@ -1151,7 +1151,7 @@ importers:
       '@better-auth/mcp':
         specifier: 1.7.7
         version: 1.7.7(@better-auth/core@1.7.7(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.0(zod@4.3.5))(jose@6.2.12)(kysely@0.29.6)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-auth@1.7.7(drizzle-kit@0.31.8)(drizzle-orm@0.45.4(@types/pg@8.16.0)(kysely@0.29.6)(pg@8.17.1))(next@16.1.3(@playwright/test@1.64.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.17.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(better-call@1.4.0(zod@4.3.5))
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../config
       '@types/pg':
@@ -1185,7 +1185,7 @@ importers:
         specifier: 'catalog:'
         version: 4.3.5
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../config
       '@types/node':
@@ -1203,16 +1203,16 @@ importers:
       '@better-auth/mcp':
         specifier: ^1.7.7
         version: 1.7.7(@better-auth/core@1.7.7(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.0(zod@4.3.5))(jose@6.2.12)(kysely@0.29.6)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-auth@1.7.7(drizzle-kit@0.31.8)(drizzle-orm@0.45.4(@types/pg@8.16.0)(kysely@0.29.6)(pg@8.17.1))(next@16.1.3(@playwright/test@1.64.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.17.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(better-call@1.4.0(zod@4.3.5))
-      '@env-manager/actions':
+      '@collidr/actions':
         specifier: workspace:*
         version: link:../actions
-      '@env-manager/api':
+      '@collidr/api':
         specifier: workspace:*
         version: link:../api
-      '@env-manager/db':
+      '@collidr/db':
         specifier: workspace:*
         version: link:../db
-      '@env-manager/env':
+      '@collidr/env':
         specifier: workspace:*
         version: link:../env
       '@modelcontextprotocol/server':
@@ -1231,7 +1231,7 @@ importers:
         specifier: 'catalog:'
         version: 4.3.5
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../config
       tsx:
@@ -1243,10 +1243,10 @@ importers:
 
   packages/notifications:
     dependencies:
-      '@env-manager/db':
+      '@collidr/db':
         specifier: workspace:*
         version: link:../db
-      '@env-manager/env':
+      '@collidr/env':
         specifier: workspace:*
         version: link:../env
       drizzle-orm:
@@ -1256,7 +1256,7 @@ importers:
         specifier: 'catalog:'
         version: 4.3.5
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../config
       tsx:
@@ -1308,7 +1308,7 @@ importers:
         specifier: ^1.3.4
         version: 1.4.0
     devDependencies:
-      '@env-manager/config':
+      '@collidr/config':
         specifier: workspace:*
         version: link:../config
       '@types/react':

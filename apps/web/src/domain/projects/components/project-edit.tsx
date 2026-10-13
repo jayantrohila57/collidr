@@ -1,7 +1,7 @@
 "use client";
 
-import type { ProjectOutput } from "@env-manager/api/types";
-import { updateProjectInput } from "@env-manager/api/validation";
+import type { ProjectOutput } from "@collidr/api/types";
+import { updateProjectInput } from "@collidr/api/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";

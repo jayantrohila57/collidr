@@ -1,5 +1,5 @@
-export const E2E_PRIMARY_EMAIL = "e2e-playwright@env-manager.local";
-export const E2E_INVITEE_EMAIL = "e2e-playwright-invitee@env-manager.local";
+export const E2E_PRIMARY_EMAIL = "e2e-playwright@collidr.local";
+export const E2E_INVITEE_EMAIL = "e2e-playwright-invitee@collidr.local";
 export const E2E_PASSWORD = "e2e-local-only-not-for-production";
 export const E2E_PRIMARY_NAME = "Playwright E2E";
 export const E2E_INVITEE_NAME = "Playwright E2E Invitee";

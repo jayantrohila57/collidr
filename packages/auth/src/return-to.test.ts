@@ -4,18 +4,21 @@ import { validateReturnTo } from "./return-to";
 
 describe("validateReturnTo", () => {
   it("accepts allowlisted https URLs", () => {
-    const result = validateReturnTo("https://studio-env-manager.vercel.app/dashboard", {
-      allowedOrigins: ["https://studio-env-manager.vercel.app"],
-      fallback: "https://studio-env-manager.vercel.app/dashboard",
-    });
-    assert.equal(result, "https://studio-env-manager.vercel.app/dashboard");
+    const result = validateReturnTo(
+      "https://collidr.vercel.app/studio/dashboard",
+      {
+        allowedOrigins: ["https://collidr.vercel.app"],
+        fallback: "https://collidr.vercel.app/studio/dashboard",
+      },
+    );
+    assert.equal(result, "https://collidr.vercel.app/studio/dashboard");
   });
 
   it("rejects javascript: URLs", () => {
     const result = validateReturnTo("javascript:alert(1)", {
-      allowedOrigins: ["https://studio-env-manager.vercel.app"],
-      fallback: "https://studio-env-manager.vercel.app/dashboard",
+      allowedOrigins: ["https://collidr.vercel.app"],
+      fallback: "https://collidr.vercel.app/studio/dashboard",
     });
-    assert.equal(result, "https://studio-env-manager.vercel.app/dashboard");
+    assert.equal(result, "https://collidr.vercel.app/studio/dashboard");
   });
 });

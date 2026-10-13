@@ -1,6 +1,6 @@
 "use client";
 
-import type { ProjectOutput } from "@env-manager/api/types";
+import type { ProjectOutput } from "@collidr/api/types";
 import { useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";

@@ -1,4 +1,4 @@
-import type { ActionName } from "@env-manager/actions";
+import type { ActionName } from "@collidr/actions";
 import { z } from "zod/v3";
 import {
   bulkImportVariablesInput,

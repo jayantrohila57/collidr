@@ -1,5 +1,5 @@
 /**
- * Canonical layout spacing for env-manager UI apps (coss / shadcn sidebar scale).
+ * Canonical layout spacing for collidr UI apps (coss / shadcn sidebar scale).
  *
  * Documented in `docs/DESIGN_SYSTEM.md` (Spacing) and `docs/REDESIGN.md`.
  */

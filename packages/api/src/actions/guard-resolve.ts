@@ -1,8 +1,5 @@
-import { db } from "@env-manager/db";
-import {
-  environment,
-  environmentVariable,
-} from "@env-manager/db/schema/projects";
+import { db } from "@collidr/db";
+import { environment, environmentVariable } from "@collidr/db/schema/projects";
 import { eq } from "drizzle-orm";
 import type { RequireActionContext } from "./require-action";
 

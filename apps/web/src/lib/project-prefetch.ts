@@ -1,7 +1,7 @@
 import "server-only";
 
-import { appRouter } from "@env-manager/api/routers/index";
-import type { auth } from "@env-manager/auth";
+import { appRouter } from "@collidr/api/routers/index";
+import type { auth } from "@collidr/auth";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { getServerSession } from "@/lib/server-auth";
 import type { ServerTiming } from "@/lib/server-timing";

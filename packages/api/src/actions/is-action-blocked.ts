@@ -1,6 +1,6 @@
-import type { ActionName } from "@env-manager/actions";
-import { db } from "@env-manager/db";
-import { actionBlock } from "@env-manager/db/schema/action-block";
+import type { ActionName } from "@collidr/actions";
+import { db } from "@collidr/db";
+import { actionBlock } from "@collidr/db/schema/action-block";
 import { and, eq, gt, isNull, or, sql } from "drizzle-orm";
 
 type BlockScope = {

@@ -1,8 +1,8 @@
-import { isActionsAuditEnabled } from "@env-manager/actions";
-import { db } from "@env-manager/db";
-import { auditEvent } from "@env-manager/db/schema/audit-event";
-import { user } from "@env-manager/db/schema/auth";
-import { project } from "@env-manager/db/schema/projects";
+import { isActionsAuditEnabled } from "@collidr/actions";
+import { db } from "@collidr/db";
+import { auditEvent } from "@collidr/db/schema/audit-event";
+import { user } from "@collidr/db/schema/auth";
+import { project } from "@collidr/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, lte, type SQL } from "drizzle-orm";
 import { z } from "zod/v3";

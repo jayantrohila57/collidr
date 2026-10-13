@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Quick Commit Script for env-manager
+# Quick Commit Script for collidr
 # Simple script for daily commits without version changes
 
 set -e

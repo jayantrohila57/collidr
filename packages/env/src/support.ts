@@ -3,7 +3,7 @@ import { z } from "zod/v3";
 
 import { productAppClientSchema, productAppRuntimeEnv } from "./platform";
 
-export const DEFAULT_SUPPORT_URL = "https://support-env-manager.vercel.app";
+export const DEFAULT_SUPPORT_URL = "https://collidr.vercel.app/support";
 
 /** Client env for `apps/support`. */
 export const supportEnv = createEnv({

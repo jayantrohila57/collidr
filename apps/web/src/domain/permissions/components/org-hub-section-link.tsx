@@ -3,11 +3,11 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  orgHubSectionActions,
-  type OrgHubSection,
-} from "../org-section-actions";
 import { useCan } from "../hooks/use-permissions";
+import {
+  type OrgHubSection,
+  orgHubSectionActions,
+} from "../org-section-actions";
 
 type OrgHubSectionLinkProps = {
   slug: string;
@@ -32,9 +32,7 @@ export function OrgHubSectionLink({
       variant="outline"
       size="sm"
       render={
-        <Link
-          href={`/dashboard/organizations/${slug}/${section}` as Route}
-        />
+        <Link href={`/dashboard/organizations/${slug}/${section}` as Route} />
       }
     >
       {label}

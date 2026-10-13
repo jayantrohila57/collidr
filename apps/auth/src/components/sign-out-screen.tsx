@@ -1,14 +1,14 @@
 "use client";
 
-import { validateReturnTo } from "@env-manager/auth/return-to";
-import { Button } from "@env-manager/ui/button";
+import { validateReturnTo } from "@collidr/auth/return-to";
+import { Button } from "@collidr/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@env-manager/ui/card";
+} from "@collidr/ui/card";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -42,8 +42,8 @@ export function SignOutScreen() {
         <CardHeader>
           <CardTitle>Sign out</CardTitle>
           <CardDescription>
-            You will be signed out of Env Manager on this browser and returned
-            to your application.
+            You will be signed out of Collidr on this browser and returned to
+            your application.
           </CardDescription>
         </CardHeader>
         <CardPanel className="flex flex-col gap-4">

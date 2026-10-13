@@ -1,5 +1,5 @@
-import { buildSignInUrl } from "@env-manager/ui/auth-links";
-import { MarketingLanding } from "@env-manager/ui/marketing";
+import { buildSignInUrl } from "@collidr/ui/auth-links";
+import { MarketingLanding } from "@collidr/ui/marketing";
 
 import { ModeToggle } from "@/components/mode-toggle";
 

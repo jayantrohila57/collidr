@@ -1,6 +1,6 @@
-import { createContextWithAuth } from "@env-manager/api/create-context";
-import { studioRouter } from "@env-manager/api/routers/studio";
-import { logSchemaOutOfDateOnce } from "@env-manager/db/postgres-errors";
+import { createContextWithAuth } from "@collidr/api/create-context";
+import { studioRouter } from "@collidr/api/routers/studio";
+import { logSchemaOutOfDateOnce } from "@collidr/db/postgres-errors";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";
 import { siblingAuth } from "@/lib/sibling-auth";

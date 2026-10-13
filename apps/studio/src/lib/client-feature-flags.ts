@@ -1,4 +1,4 @@
-import { FEATURE_FLAG_PAIRS } from "@env-manager/env/feature-flags";
+import { FEATURE_FLAG_PAIRS } from "@collidr/env/feature-flags";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";

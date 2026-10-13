@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sign in · Env Manager",
-  description: "Authentication for Env Manager platform apps.",
+  title: "Sign in · Collidr",
+  description: "Authentication for Collidr platform apps.",
 };
 
 export default function RootLayout({

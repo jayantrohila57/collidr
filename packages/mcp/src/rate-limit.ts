@@ -1,6 +1,6 @@
-import type { ActionName } from "@env-manager/actions";
-import { db } from "@env-manager/db";
-import { rateLimitBucket } from "@env-manager/db/schema/rate-limit-bucket";
+import type { ActionName } from "@collidr/actions";
+import { db } from "@collidr/db";
+import { rateLimitBucket } from "@collidr/db/schema/rate-limit-bucket";
 import { sql } from "drizzle-orm";
 
 export type RateLimitConfig = {

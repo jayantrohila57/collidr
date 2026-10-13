@@ -15,7 +15,7 @@ Secure, organization-aware dashboard for managing environment variables across p
 | Auth | Better Auth — GitHub, organizations, teams |
 | Database | PostgreSQL (Neon) + Drizzle ORM |
 | Monorepo | pnpm workspaces + Turborepo |
-| Deploy | Vercel — **`main` only** → `env-manager-web.vercel.app` |
+| Deploy | Vercel — **`main` only** → `collidr-web.vercel.app` |
 
 ## Monorepo packages
 
@@ -44,11 +44,11 @@ Secure, organization-aware dashboard for managing environment variables across p
 | **Member** | Project access via explicit grants |
 | **Admin** (platform) | Reserved — future `apps/console`; not enabled in web today |
 
-Legacy Better Auth `admin` org role is normalized to **Manager** in `@env-manager/actions`.
+Legacy Better Auth `admin` org role is normalized to **Manager** in `@collidr/actions`.
 
 ## Workflow
 
-- Tasks and bugs → **GitHub issues** on env-manager; commits **`Fixes #N`**
+- Tasks and bugs → **GitHub issues** on collidr; commits **`Fixes #N`**
 - Agents: see [AGENTS.md](./AGENTS.md)
 - UI rules: [UI.md](./UI.md) + [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md)
 

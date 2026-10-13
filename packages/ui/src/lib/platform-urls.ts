@@ -1,4 +1,4 @@
-const DEFAULT_DOCS_URL = "https://docs-env-manager.vercel.app";
+const DEFAULT_DOCS_URL = "https://collidr.vercel.app/docs";
 
 function trimTrailingSlash(url: string): string {
   return url.endsWith("/") ? url.slice(0, -1) : url;

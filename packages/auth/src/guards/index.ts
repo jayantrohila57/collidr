@@ -1,4 +1,9 @@
 export {
+  type PageSessionRedirect,
+  type RequirePageSessionResult,
+  requirePageSession,
+} from "./page-session";
+export {
   evaluateSessionAccess,
   type SessionAccessResult,
   type SessionAccessStatus,
@@ -12,8 +17,3 @@ export {
   type SignInRedirectMode,
   type SignInRedirectOptions,
 } from "./sign-in-redirect";
-export {
-  requirePageSession,
-  type PageSessionRedirect,
-  type RequirePageSessionResult,
-} from "./page-session";

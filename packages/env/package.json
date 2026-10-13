@@ -1,5 +1,5 @@
 {
-  "name": "@env-manager/env",
+  "name": "@collidr/env",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -30,7 +30,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@env-manager/config": "workspace:*",
+    "@collidr/config": "workspace:*",
     "@types/node": "^22.13.14",
     "tsx": "^4.19.4",
     "typescript": "catalog:"

@@ -1,14 +1,14 @@
 "use client";
 
-import { describeMcpOAuthScopes } from "@env-manager/actions";
-import { Button } from "@env-manager/ui/button";
+import { describeMcpOAuthScopes } from "@collidr/actions";
+import { Button } from "@collidr/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@env-manager/ui/card";
+} from "@collidr/ui/card";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { GitHubSignInButton } from "@/components/github-sign-in-button";

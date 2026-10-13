@@ -9,8 +9,8 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@env-manager/env": "workspace:*",
-    "@env-manager/ui": "workspace:*",
+    "@collidr/env": "workspace:*",
+    "@collidr/ui": "workspace:*",
     "babel-plugin-react-compiler": "^1.0.0",
     "lucide-react": "^0.546.0",
     "next": "catalog:",
@@ -19,7 +19,7 @@
     "react-dom": "^19.2.3"
   },
   "devDependencies": {
-    "@env-manager/config": "workspace:*",
+    "@collidr/config": "workspace:*",
     "@tailwindcss/postcss": "^4.1.10",
     "@types/node": "^20",
     "@types/react": "^19.2.7",

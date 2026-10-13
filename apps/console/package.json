@@ -10,12 +10,12 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
-    "@env-manager/api": "workspace:*",
-    "@env-manager/db": "workspace:*",
-    "@env-manager/auth": "workspace:*",
-    "@env-manager/auth-client": "workspace:*",
-    "@env-manager/env": "workspace:*",
-    "@env-manager/ui": "workspace:*",
+    "@collidr/api": "workspace:*",
+    "@collidr/db": "workspace:*",
+    "@collidr/auth": "workspace:*",
+    "@collidr/auth-client": "workspace:*",
+    "@collidr/env": "workspace:*",
+    "@collidr/ui": "workspace:*",
     "@tanstack/react-query": "^5.90.19",
     "@tanstack/react-table": "^9.3.1",
     "@trpc/client": "catalog:",
@@ -37,7 +37,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@env-manager/config": "workspace:*",
+    "@collidr/config": "workspace:*",
     "@tailwindcss/postcss": "^4.1.10",
     "@types/node": "^20",
     "@types/react": "^19.2.7",

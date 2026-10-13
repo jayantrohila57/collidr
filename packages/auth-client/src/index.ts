@@ -1,9 +1,9 @@
 export { createAuthClient } from "better-auth/react";
 export {
-  type CreateEnvManagerAuthClientOptions,
-  createEnvManagerAuthClient,
+  type CreateCollidrAuthClientOptions,
+  createCollidrAuthClient,
 } from "./create-auth-client";
 export {
-  EnvManagerImpersonationBanner,
+  CollidrImpersonationBanner,
   getImpersonatedByUserId,
 } from "./impersonation-banner";

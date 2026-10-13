@@ -16,7 +16,7 @@ export default async function ProfileSettingsPage() {
   return (
     <SettingsSectionShell
       title="Profile"
-      description="Your name and avatar shown across Env Manager."
+      description="Your name and avatar shown across Collidr."
       showStats
     >
       <Suspense fallback={<AccountSettingsSkeleton />}>

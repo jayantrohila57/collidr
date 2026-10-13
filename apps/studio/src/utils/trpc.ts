@@ -1,4 +1,4 @@
-import type { AppRouter } from "@env-manager/api/routers/index";
+import type { AppRouter } from "@collidr/api/routers/index";
 
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";

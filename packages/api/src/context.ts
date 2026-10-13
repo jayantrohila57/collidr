@@ -1,4 +1,4 @@
-import { auth } from "@env-manager/auth";
+import { auth } from "@collidr/auth";
 import type { NextRequest } from "next/server";
 import { createContextWithAuth } from "./create-context";
 

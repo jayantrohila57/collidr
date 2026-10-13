@@ -1,6 +1,6 @@
 "use client";
 
-import { platformNav } from "@env-manager/actions/nav";
+import { platformNav } from "@collidr/actions/nav";
 import type { LucideIcon } from "lucide-react";
 import {
   ActivityIcon,

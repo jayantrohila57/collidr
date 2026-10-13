@@ -3,12 +3,12 @@ import {
   activeProjectWhere,
   activeUserWhere,
   db,
-} from "@env-manager/db";
-import { auditEvent } from "@env-manager/db/schema/audit-event";
-import { session, user } from "@env-manager/db/schema/auth";
-import { member, organization } from "@env-manager/db/schema/organization";
-import { project } from "@env-manager/db/schema/projects";
-import { platformSupportManager } from "@env-manager/db/schema/support";
+} from "@collidr/db";
+import { auditEvent } from "@collidr/db/schema/audit-event";
+import { session, user } from "@collidr/db/schema/auth";
+import { member, organization } from "@collidr/db/schema/organization";
+import { project } from "@collidr/db/schema/projects";
+import { platformSupportManager } from "@collidr/db/schema/support";
 import { TRPCError } from "@trpc/server";
 import {
   and,

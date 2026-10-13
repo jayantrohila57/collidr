@@ -1,4 +1,4 @@
-import type { ProjectOutput } from "@env-manager/api/types";
+import type { ProjectOutput } from "@collidr/api/types";
 
 export type ProjectsStatusFilter =
   | "active"

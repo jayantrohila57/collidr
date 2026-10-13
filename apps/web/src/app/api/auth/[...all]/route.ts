@@ -1,5 +1,5 @@
-import { auth } from "@env-manager/auth";
-import { logSchemaOutOfDateOnce } from "@env-manager/db/postgres-errors";
+import { auth } from "@collidr/auth";
+import { logSchemaOutOfDateOnce } from "@collidr/db/postgres-errors";
 import { toNextJsHandler } from "better-auth/next-js";
 import type { NextRequest } from "next/server";
 

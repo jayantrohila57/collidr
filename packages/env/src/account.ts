@@ -1,9 +1,6 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 
-import {
-  productAppClientSchema,
-  productAppRuntimeEnv,
-} from "./platform";
+import { productAppClientSchema, productAppRuntimeEnv } from "./platform";
 
 /** Client env for `apps/account`. */
 export const env = createEnv({

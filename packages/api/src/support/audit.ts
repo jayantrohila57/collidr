@@ -1,5 +1,5 @@
-import type { ActionName } from "@env-manager/actions";
-import { isActionsAuditEnabled } from "@env-manager/actions";
+import type { ActionName } from "@collidr/actions";
+import { isActionsAuditEnabled } from "@collidr/actions";
 import { writeAuditEvent } from "../actions/audit-event-writer";
 
 export async function auditSupportSuccess(

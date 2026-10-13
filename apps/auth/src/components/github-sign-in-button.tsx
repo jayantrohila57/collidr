@@ -1,8 +1,8 @@
 "use client";
 
-import { validateReturnTo } from "@env-manager/auth/return-to";
-import { publicServicePath } from "@env-manager/env/vercel-services";
-import { Button } from "@env-manager/ui/button";
+import { validateReturnTo } from "@collidr/auth/return-to";
+import { publicServicePath } from "@collidr/env/vercel-services";
+import { Button } from "@collidr/ui/button";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";

@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Security fixes are applied on the **`main`** branch and released via Vercel deploys from `main`. Use the latest production deployment at [env-manager-web.vercel.app](https://env-manager-web.vercel.app).
+Security fixes are applied on the **`main`** branch and released via Vercel deploys from `main`. Use the latest production deployment at [collidr-web.vercel.app](https://collidr.vercel.app/studio).
 
 | Version (package.json) | Supported |
 | ---------------------- | --------- |

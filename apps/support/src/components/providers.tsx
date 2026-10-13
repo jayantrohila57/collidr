@@ -1,7 +1,7 @@
 "use client";
 
-import { EnvManagerImpersonationBanner } from "@env-manager/auth-client";
-import { ThemeProvider } from "@env-manager/ui/theme-provider";
+import { CollidrImpersonationBanner } from "@collidr/auth-client";
+import { ThemeProvider } from "@collidr/ui/theme-provider";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
@@ -20,7 +20,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           enableSystem
           disableTransitionOnChange
         >
-          <EnvManagerImpersonationBanner authClient={authClient} />
+          <CollidrImpersonationBanner authClient={authClient} />
           {children}
         </ThemeProvider>
       </QueryClientProvider>

@@ -1,5 +1,5 @@
-import { activeUserWhere, db } from "@env-manager/db";
-import { user } from "@env-manager/db/schema/auth";
+import { activeUserWhere, db } from "@collidr/db";
+import { user } from "@collidr/db/schema/auth";
 import { eq } from "drizzle-orm";
 import { studioRouter } from "../routers/studio";
 
@@ -46,7 +46,7 @@ export async function createMcpStudioCaller(options: {
       createdAt: now,
       updatedAt: now,
       ipAddress: null,
-      userAgent: "env-manager-mcp",
+      userAgent: "collidr-mcp",
       activeOrganizationId: options.organizationId ?? null,
     },
   };

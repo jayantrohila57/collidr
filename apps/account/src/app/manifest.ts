@@ -3,15 +3,15 @@ import { siteConfig } from "@/lib/siteConfig";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Env Manager",
-    short_name: "Env Manager",
+    name: "Collidr",
+    short_name: "Collidr",
     description: siteConfig.description,
     start_url: "/",
     display: "standalone",
     background_color: "#000000",
     theme_color: "#5EA500",
     scope: "/",
-    id: "env-manager-pwa",
+    id: "collidr-pwa",
     icons: [
       {
         src: "/favicon/web-app-manifest-192x192.png",
@@ -44,14 +44,14 @@ export default function manifest(): MetadataRoute.Manifest {
         sizes: "1200x630",
         type: "image/png",
         form_factor: "wide",
-        label: "env-manager dashboard",
+        label: "collidr dashboard",
       },
       {
         src: "/favicon/screenshot-narrow.png",
         sizes: "1024x1536",
         type: "image/png",
         form_factor: "narrow",
-        label: "env-manager dashboard mobile",
+        label: "collidr dashboard mobile",
       },
     ],
     protocol_handlers: [

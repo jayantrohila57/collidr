@@ -1,4 +1,4 @@
-# Commit workflow (env-manager)
+# Commit workflow (collidr)
 
 This repository ships from **`main`** only. Every change should reference a GitHub issue.
 
@@ -6,7 +6,7 @@ This repository ships from **`main`** only. Every change should reference a GitH
 
 ### 1. Issue
 
-Create or pick an issue on [jayantrohila57/env-manager](https://github.com/jayantrohila57/env-manager/issues).
+Create or pick an issue on [jayantrohila57/collidr](https://github.com/jayantrohila57/collidr/issues).
 
 ### 2. Implement on `main`
 

@@ -1,4 +1,4 @@
-import { type ActionName, isActionsAuditEnabled } from "@env-manager/actions";
+import { type ActionName, isActionsAuditEnabled } from "@collidr/actions";
 import { TRPCError } from "@trpc/server";
 
 type RequireUserActionDeps = {

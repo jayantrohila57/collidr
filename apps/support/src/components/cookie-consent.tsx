@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const STORAGE_KEY = "env-manager-support-cookie-consent";
+const STORAGE_KEY = "collidr-support-cookie-consent";
 
 export function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);

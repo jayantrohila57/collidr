@@ -1,4 +1,4 @@
-import { isActionsAuditEnabled } from "@env-manager/actions";
+import { isActionsAuditEnabled } from "@collidr/actions";
 import { z } from "zod/v3";
 import { requireAction } from "../actions/require-action";
 

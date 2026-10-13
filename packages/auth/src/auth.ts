@@ -1,4 +1,4 @@
-import { env } from "@env-manager/env/server";
+import { env } from "@collidr/env/server";
 import { betterAuth } from "better-auth";
 import {
   basePlugins,

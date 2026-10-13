@@ -6,16 +6,16 @@ import {
   activeProjectWhere,
   activeUserWhere,
   db,
-} from "@env-manager/db";
-import { auditLog } from "@env-manager/db/schema/audit";
-import { user } from "@env-manager/db/schema/auth";
-import { invitation, member } from "@env-manager/db/schema/organization";
+} from "@collidr/db";
+import { auditLog } from "@collidr/db/schema/audit";
+import { user } from "@collidr/db/schema/auth";
+import { invitation, member } from "@collidr/db/schema/organization";
 import {
   environment,
   environmentVariable,
   project,
-} from "@env-manager/db/schema/projects";
-import { isOrganizationsEnabled } from "@env-manager/env/organizations";
+} from "@collidr/db/schema/projects";
+import { isOrganizationsEnabled } from "@collidr/env/organizations";
 import { and, count, eq, gte, or, sql } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";

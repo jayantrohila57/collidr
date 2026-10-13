@@ -3,10 +3,10 @@
  *
  *   DATABASE_URL=... pnpm exec tsx packages/db/scripts/backfill-personal-orgs.ts
  */
-import { db } from "@env-manager/db";
-import { user } from "@env-manager/db/schema/auth";
-import { member, organization } from "@env-manager/db/schema/organization";
-import { project } from "@env-manager/db/schema/projects";
+import { db } from "@collidr/db";
+import { user } from "@collidr/db/schema/auth";
+import { member, organization } from "@collidr/db/schema/organization";
+import { project } from "@collidr/db/schema/projects";
 import { eq, sql } from "drizzle-orm";
 
 function slugifyPersonal(userId: string, name: string): string {

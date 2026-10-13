@@ -28,7 +28,7 @@ export const MCP_OAUTH_SCOPE_DESCRIPTIONS: Record<McpOAuthScope, string> = {
   openid: "Verify your identity",
   profile: "View your name and profile picture",
   offline_access: "Stay signed in and refresh access in the background",
-  "mcp:tools": "Use Env Manager tools through MCP clients",
+  "mcp:tools": "Use Collidr tools through MCP clients",
   "organizations:read": "View organizations you belong to",
   "organizations:write": "Create and manage organizations",
   "projects:read": "View projects and environments",

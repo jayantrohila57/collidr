@@ -1,15 +1,15 @@
-import { normalizeOrgRole } from "@env-manager/actions";
-import { activeProjectWhere, db } from "@env-manager/db";
-import { member } from "@env-manager/db/schema/organization";
+import { normalizeOrgRole } from "@collidr/actions";
+import { activeProjectWhere, db } from "@collidr/db";
+import { member } from "@collidr/db/schema/organization";
 import {
   projectManager,
   projectMemberGrant,
   projectTeam,
-} from "@env-manager/db/schema/project-access";
-import { project } from "@env-manager/db/schema/projects";
-import { teamMember } from "@env-manager/db/schema/team";
-import { isOrganizationsEnabled } from "@env-manager/env/organizations";
-import { and, eq, inArray, isNull, sql, type SQL } from "drizzle-orm";
+} from "@collidr/db/schema/project-access";
+import { project } from "@collidr/db/schema/projects";
+import { teamMember } from "@collidr/db/schema/team";
+import { isOrganizationsEnabled } from "@collidr/env/organizations";
+import { and, eq, inArray, isNull, type SQL, sql } from "drizzle-orm";
 import { projectListFilter } from "./org-access";
 
 export async function listAccessibleProjectIds(

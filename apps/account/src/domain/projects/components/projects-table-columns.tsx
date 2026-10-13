@@ -1,6 +1,6 @@
 "use client";
 
-import type { ProjectOutput } from "@env-manager/api/types";
+import type { ProjectOutput } from "@collidr/api/types";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import type { Route } from "next";
 import Link from "next/link";

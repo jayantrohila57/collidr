@@ -1,6 +1,6 @@
 # MCP server deploy (`apps/mcp`)
 
-Remote MCP (HTTP `POST /api/mcp`, MCP 2026-07-28) on Vercel project **`env-manager-mcp`** (`mcp-env-manager.vercel.app`). OAuth issuer and consent live on **`apps/auth`**.
+Remote MCP (HTTP `POST /api/mcp`, MCP 2026-07-28) on Vercel project **`collidr-mcp`** (`mcp-collidr.vercel.app`). OAuth issuer and consent live on **`apps/auth`**.
 
 ## Migrations (before production)
 
@@ -11,15 +11,15 @@ Remote MCP (HTTP `POST /api/mcp`, MCP 2026-07-28) on Vercel project **`env-manag
    - `packages/db/src/migrations/0012_better_auth_jwks_device_code.sql` (JWT `jwks` + device flow `device_code`; review on a branch — not on prod default until approved)
 3. Do **not** enable MCP in auth until `0009` is applied.
 
-## Vercel: `env-manager-mcp`
+## Vercel: `collidr-mcp`
 
 | Variable | Required | Notes |
 |----------|----------|--------|
 | `DATABASE_URL` | yes | Same Neon DB as auth/studio |
 | `DATABASE_URL_POOLED` | recommended | Neon pooler |
 | `BETTER_AUTH_SECRET` | yes | Same value as auth app |
-| `BETTER_AUTH_URL` | yes | Auth issuer origin, e.g. `https://auth-env-manager.vercel.app` |
-| `MCP_RESOURCE_URL` | yes | Canonical resource, e.g. `https://mcp-env-manager.vercel.app/api/mcp` |
+| `BETTER_AUTH_URL` | yes | Auth issuer origin, e.g. `https://collidr.vercel.app/auth` |
+| `MCP_RESOURCE_URL` | yes | Canonical resource, e.g. `https://collidr.vercel.app/api/mcp` |
 | `NEXT_PUBLIC_AUTH_URL` | yes | Auth origin (build-time link graph) |
 | `NEXT_PUBLIC_MCP_URL` | yes | MCP app origin without path |
 | `MCP_RATE_LIMIT_WINDOW_MS` | optional | Default `60000` |
@@ -28,9 +28,9 @@ Remote MCP (HTTP `POST /api/mcp`, MCP 2026-07-28) on Vercel project **`env-manag
 | `MCP_RATE_LIMIT_MAX_REVEAL` | optional | Default `30` (`variable.reveal` / export) |
 | `SKIP_ENV_VALIDATION` | build only | `1` for CI/build without secrets |
 
-Shared platform flags (`ORGANIZATIONS_ENABLED`, `ACTIONS_AUDIT_ENABLED`, etc.) match studio when MCP tools call `@env-manager/api`.
+Shared platform flags (`ORGANIZATIONS_ENABLED`, `ACTIONS_AUDIT_ENABLED`, etc.) match studio when MCP tools call `@collidr/api`.
 
-## Vercel: `env-manager-auth` (MCP issuer)
+## Vercel: `collidr-auth` (MCP issuer)
 
 | Variable | Required | Notes |
 |----------|----------|--------|

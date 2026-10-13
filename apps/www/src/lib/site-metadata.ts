@@ -1,7 +1,7 @@
-import { marketingSiteConfig } from "@env-manager/ui/marketing";
+import { marketingSiteConfig } from "@collidr/ui/marketing";
 import type { Metadata } from "next";
 
-const defaultWwwUrl = "https://www-env-manager.vercel.app";
+const defaultWwwUrl = "https://collidr.vercel.app";
 
 export function getWwwSiteUrl(): string {
   return process.env.NEXT_PUBLIC_WWW_URL ?? defaultWwwUrl;

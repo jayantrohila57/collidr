@@ -1,5 +1,5 @@
 {
-  "name": "@env-manager/auth-client",
+  "name": "@collidr/auth-client",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,12 +12,12 @@
   },
   "dependencies": {
     "@better-auth/oauth-provider": "^1.7.7",
-    "@env-manager/actions": "workspace:*",
-    "@env-manager/ui": "workspace:*",
+    "@collidr/actions": "workspace:*",
+    "@collidr/ui": "workspace:*",
     "better-auth": "catalog:"
   },
   "devDependencies": {
-    "@env-manager/config": "workspace:*",
+    "@collidr/config": "workspace:*",
     "@types/react": "^19.2.7",
     "react": "^19.2.3",
     "typescript": "catalog:"

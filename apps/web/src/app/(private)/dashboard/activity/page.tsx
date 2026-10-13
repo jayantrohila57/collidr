@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { guardPageAction } from "@/lib/page-guards";
 import DashboardSection from "@/components/section-dashboard";
 import { ActivitySummaryStats } from "@/domain/audit/components/activity-summary-stats";
 import AuditLogs from "@/domain/audit/components/audit-logs";
 import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
+import { guardPageAction } from "@/lib/page-guards";
 
 export const metadata: Metadata = {
   title: "Activity",

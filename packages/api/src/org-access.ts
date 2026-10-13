@@ -1,10 +1,10 @@
-import { evaluatePermission, normalizeOrgRole } from "@env-manager/actions";
-import type { AuthSession } from "@env-manager/auth";
-import { getSessionActiveOrganizationId } from "@env-manager/auth";
-import { activeMemberWhere, activeProjectWhere, db } from "@env-manager/db";
-import { member } from "@env-manager/db/schema/organization";
-import { project } from "@env-manager/db/schema/projects";
-import { isOrganizationsEnabled } from "@env-manager/env/organizations";
+import { evaluatePermission, normalizeOrgRole } from "@collidr/actions";
+import type { AuthSession } from "@collidr/auth";
+import { getSessionActiveOrganizationId } from "@collidr/auth";
+import { activeMemberWhere, activeProjectWhere, db } from "@collidr/db";
+import { member } from "@collidr/db/schema/organization";
+import { project } from "@collidr/db/schema/projects";
+import { isOrganizationsEnabled } from "@collidr/env/organizations";
 import { TRPCError } from "@trpc/server";
 import { and, eq, isNull, type SQL } from "drizzle-orm";
 import { loadProjectAccessContext } from "./actions/project-access";

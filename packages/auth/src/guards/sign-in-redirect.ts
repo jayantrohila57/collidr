@@ -1,6 +1,9 @@
-import { buildSignInUrl } from "@env-manager/ui/auth-links";
-import { absoluteReturnToFromRelativePath, validateReturnTo } from "../return-to";
+import { buildSignInUrl } from "@collidr/ui/auth-links";
 import { trimTrailingSlash } from "../platform-urls";
+import {
+  absoluteReturnToFromRelativePath,
+  validateReturnTo,
+} from "../return-to";
 
 export type SignInRedirectMode = "platform" | "legacy";
 
@@ -30,9 +33,7 @@ export function buildLegacySignInRedirectPath(returnPath: string): string {
   return `/sign-in?redirect=${encodeURIComponent(path)}`;
 }
 
-export function resolveSignInRedirect(
-  options: SignInRedirectOptions,
-): string {
+export function resolveSignInRedirect(options: SignInRedirectOptions): string {
   const mode = options.mode ?? "platform";
   if (mode === "legacy") {
     return buildLegacySignInRedirectPath(options.returnPath);

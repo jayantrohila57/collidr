@@ -1,10 +1,10 @@
-import { db } from "@env-manager/db";
+import { db } from "@collidr/db";
 import {
   environment,
   environmentVariable,
   project,
-} from "@env-manager/db/schema/projects";
-import { isSoftDeletesEnabled } from "@env-manager/env/soft-deletes";
+} from "@collidr/db/schema/projects";
+import { isSoftDeletesEnabled } from "@collidr/env/soft-deletes";
 import { and, eq } from "drizzle-orm";
 import { requireAction } from "../actions/require-action";
 

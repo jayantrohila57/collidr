@@ -16,10 +16,10 @@
 | **`apps/studio`** | **Main product** — rename/migrate from `apps/web`: orgs, projects, environments, variables, org hub, notifications, onboarding. **No** account settings (link out to account). | coss ui | Session cookie (SSO) |
 | **`apps/console`** | **Platform admin** (`user.role = admin` + Better Auth admin plugin): users, orgs, projects, sessions, global audit, impersonation/ban, MCP OAuth clients/tokens, feature flags, health. | coss ui | Session cookie (SSO) + **Admin role** + **email allowlist** (Decision 11) |
 | **`apps/mcp`** | **API-only** remote MCP server (stateless HTTP `POST`, MCP 2026-07-28). | none | OAuth access token (+ optional DPoP) |
-| **`apps/docs`** | Product + MCP documentation (**Fumadocs** + built-in search, Decision 9) with **our** chrome (`@env-manager/ui`). **Fully public** (Decision 10). | coss ui shell + Fumadocs primitives | Public read; optional “edit on GitHub”; optional sign-in link to studio |
+| **`apps/docs`** | Product + MCP documentation (**Fumadocs** + built-in search, Decision 9) with **our** chrome (`@collidr/ui`). **Fully public** (Decision 10). | coss ui shell + Fumadocs primitives | Public read; optional “edit on GitHub”; optional sign-in link to studio |
 | **`apps/www`** | **Marketing landing** at apex / `www` (Decision 4) — product positioning, CTAs to auth/studio; not the signed-in app. | coss ui | Public; links to auth `sign-in` with `return_to` |
 
-**Invariant:** One Postgres database, one `@env-manager/auth` server config instantiated **only** on `apps/auth` (other apps use `@env-manager/auth-client` + session validation / tRPC context).
+**Invariant:** One Postgres database, one `@collidr/auth` server config instantiated **only** on `apps/auth` (other apps use `@collidr/auth-client` + session validation / tRPC context).
 
 ---
 
@@ -31,25 +31,25 @@ Each app = **one Vercel project** with its own root directory. Production deploy
 
 Until custom DNS is approved, **every app** is deployed on its own hostname under **`vercel.app`**, using a **fixed naming pattern** (one Vercel project per app):
 
-**Pattern:** `https://<app>-env-manager.vercel.app`
+**Pattern:** `https://<app>-collidr.vercel.app`
 
 | App | Planned production hostname | `BETTER_AUTH_URL` (auth app only) |
 |-----|-----------------------------|-----------------------------------|
-| **`apps/auth`** | `https://auth-env-manager.vercel.app` | **self** |
-| **`apps/studio`** | `https://studio-env-manager.vercel.app` | `https://auth-env-manager.vercel.app` |
-| **`apps/account`** | `https://account-env-manager.vercel.app` | `https://auth-env-manager.vercel.app` |
-| **`apps/console`** | `https://console-env-manager.vercel.app` | `https://auth-env-manager.vercel.app` |
-| **`apps/mcp`** | `https://mcp-env-manager.vercel.app` | issuer/JWKS → auth |
-| **`apps/docs`** | `https://docs-env-manager.vercel.app` | auth URL (nav only) |
-| **`apps/www`** | `https://www-env-manager.vercel.app` | links to auth |
+| **`apps/auth`** | `https://collidr.vercel.app/auth` | **self** |
+| **`apps/studio`** | `https://collidr.vercel.app/studio` | `https://collidr.vercel.app/auth` |
+| **`apps/account`** | `https://collidr.vercel.app/account` | `https://collidr.vercel.app/auth` |
+| **`apps/console`** | `https://collidr.vercel.app/console` | `https://collidr.vercel.app/auth` |
+| **`apps/mcp`** | `https://collidr.vercel.app` | issuer/JWKS → auth |
+| **`apps/docs`** | `https://collidr.vercel.app/docs` | auth URL (nav only) |
+| **`apps/www`** | `https://collidr.vercel.app` | links to auth |
 
-**Legacy (today):** `https://env-manager-web.vercel.app` (`apps/web`) → at P3 cutover, alias or redirect to **`studio-env-manager.vercel.app`** (§8.3).
+**Legacy (today):** `https://collidr.vercel.app/studio` (`apps/web`) → at P3 cutover, alias or redirect to **`studio-collidr.vercel.app`** (§8.3).
 
-**GitHub OAuth callback (phase 1):** `https://auth-env-manager.vercel.app/api/auth/callback/github` after auth app cutover.
+**GitHub OAuth callback (phase 1):** `https://collidr.vercel.app/auth/api/auth/callback/github` after auth app cutover.
 
 #### Public Suffix List (why cookies cannot span apps)
 
-`vercel.app` is on the [Public Suffix List](https://publicsuffix.org/) (PSL). Browsers treat each `*-env-manager.vercel.app` host as a **separate site** for cookies — you **cannot** set `Domain=.vercel.app` or share a session cookie across `auth-env-manager` and `studio-env-manager`. **`crossSubDomainCookies` does not work on `vercel.app`** (Decision 1).
+`vercel.app` is on the [Public Suffix List](https://publicsuffix.org/) (PSL). Browsers treat each `*-collidr.vercel.app` host as a **separate site** for cookies — you **cannot** set `Domain=.vercel.app` or share a session cookie across `auth-collidr` and `studio-collidr`. **`crossSubDomainCookies` does not work on `vercel.app`** (Decision 1).
 
 #### SSO on `vercel.app` (redirect / OIDC)
 
@@ -64,30 +64,30 @@ Implement URLs and cookie policy so **P4** is **configuration**, not a rewrite o
 
 | Concern | Phase 1 (`vercel.app`) | After P4 (custom apex) |
 |---------|------------------------|-------------------------|
-| Public URLs | `@env-manager/env` — `BETTER_AUTH_URL`, `NEXT_PUBLIC_*_URL` per app (§2.1 hostnames) | Same env keys; swap values to `https://auth.env-manager.com`, etc. |
+| Public URLs | `@collidr/env` — `BETTER_AUTH_URL`, `NEXT_PUBLIC_*_URL` per app (§2.1 hostnames) | Same env keys; swap values to `https://auth.collidr.com`, etc. |
 | `trustedOrigins` / `allowedReturnOrigins` | Explicit list of §2.0 hostnames (Decision 12) | Replace list with §2.1 production origins |
-| Session cookies | Per-app origin only; **no** `crossSubDomainCookies` | Optionally enable `crossSubDomainCookies` with `domain: ".env-manager.com"` (Decision 2) after security review |
+| Session cookies | Per-app origin only; **no** `crossSubDomainCookies` | Optionally enable `crossSubDomainCookies` with `domain: ".collidr.com"` (Decision 2) after security review |
 | SSO UX | Redirect + silent re-auth per app | May reduce round-trips if shared cookie enabled |
 
 No separate “vercel mode” vs “apex mode” code paths in product routers — only env + Better Auth `advanced.crossSubDomainCookies` toggles.
 
 ### 2.1 Future — custom apex (deferred)
 
-Example apex: **`env-manager.com`**.
+Example apex: **`collidr.com`**.
 
 | App | Subdomain | Public role |
 |-----|-----------|-------------|
-| auth | `https://auth.env-manager.com` | Login, OAuth `/oauth2/*`, well-known |
-| account | `https://account.env-manager.com` | Account settings |
-| studio | `https://app.env-manager.com` | Product |
-| console | `https://console.env-manager.com` | Platform admin |
-| mcp | `https://mcp.env-manager.com` | MCP `POST /api/mcp` |
-| docs | `https://docs.env-manager.com` | Documentation |
-| www | `https://env-manager.com` / `https://www.env-manager.com` | Marketing (Decision 4) |
+| auth | `https://auth.collidr.com` | Login, OAuth `/oauth2/*`, well-known |
+| account | `https://account.collidr.com` | Account settings |
+| studio | `https://app.collidr.com` | Product |
+| console | `https://console.collidr.com` | Platform admin |
+| mcp | `https://mcp.collidr.com` | MCP `POST /api/mcp` |
+| docs | `https://docs.collidr.com` | Documentation |
+| www | `https://collidr.com` / `https://www.collidr.com` | Marketing (Decision 4) |
 
 **Marketing / www:** served by **`apps/www`** (Decision 4), not studio or docs.
 
-**GitHub OAuth callback (apex):** `https://auth.env-manager.com/api/auth/callback/github` (single callback after cutover).
+**GitHub OAuth callback (apex):** `https://auth.collidr.com/api/auth/callback/github` (single callback after cutover).
 
 ### 2.2 Local development
 
@@ -130,14 +130,14 @@ flowchart TB
   end
 
   subgraph pkgs [Shared packages]
-    AUTHPKG["@env-manager/auth"]
-    AUTHCLI["@env-manager/auth-client"]
-    UI["@env-manager/ui"]
-    PERM["@env-manager/permissions"]
-    API["@env-manager/api"]
-    DB["@env-manager/db"]
-    ENV["@env-manager/env"]
-    CFG["@env-manager/config"]
+    AUTHPKG["@collidr/auth"]
+    AUTHCLI["@collidr/auth-client"]
+    UI["@collidr/ui"]
+    PERM["@collidr/permissions"]
+    API["@collidr/api"]
+    DB["@collidr/db"]
+    ENV["@collidr/env"]
+    CFG["@collidr/config"]
   end
 
   PG[(PostgreSQL)]
@@ -184,7 +184,7 @@ Implement **`apps/auth`** strictly from Better Auth **≥ 1.7.x** docs (**Decisi
 |---------|-----|----------------------|
 | Core server + database | [Database](https://www.better-auth.com/docs/concepts/database) | Drizzle adapter, shared schema |
 | Sessions + cookies | [Sessions](https://www.better-auth.com/docs/concepts/session-management), [Cookies](https://www.better-auth.com/docs/concepts/cookies) | `crossSubDomainCookies`, `trustedOrigins` |
-| Browser client | [Client](https://www.better-auth.com/docs/concepts/client) | Re-exported from `@env-manager/auth-client` |
+| Browser client | [Client](https://www.better-auth.com/docs/concepts/client) | Re-exported from `@collidr/auth-client` |
 | OAuth for MCP | [MCP plugin](https://www.better-auth.com/docs/plugins/mcp) | `mcp({ loginPage, consentPage, resource })` — **is** the OAuth 2.1 provider; do **not** add separate `oauthProvider()` |
 | OAuth 2.1 details | [OAuth 2.1 Provider](https://www.better-auth.com/docs/plugins/oauth-provider) | Schema: `oauthClient`, tokens, consent |
 | MCP client identity | [CIMD](https://www.better-auth.com/docs/plugins/cimd), [MCP DCR](https://www.better-auth.com/docs/plugins/mcp#optional-dcr-fallback) | **Both** enabled (Decision 7): `cimd({ metadataProfile: "mcp-2026-07-28" })` + dynamic client registration where clients support it |
@@ -195,7 +195,7 @@ Implement **`apps/auth`** strictly from Better Auth **≥ 1.7.x** docs (**Decisi
 | Enterprise SSO | [SSO plugin](https://www.better-auth.com/docs/plugins/sso) | **Deferred** (Decision 17) — post platform split / MCP; v1 auth = GitHub OAuth + device flow only |
 | Legacy | Avoid deprecated in-repo `oidcProvider` / old `mcp` plugin — use **`@better-auth/mcp`** per [MCP plugin](https://www.better-auth.com/docs/plugins/mcp) |
 
-**MCP resource URL:** phase 1 `mcp({ resource: "https://mcp-env-manager.vercel.app/api/mcp" })`; apex `https://mcp.env-manager.com/api/mcp` (§2.1). `apps/mcp` protects route with `requireMcpAuth` / `createMcpProtectedRequestHandler` ([MCP plugin — Protecting an MCP Route](https://www.better-auth.com/docs/plugins/mcp#protecting-an-mcp-route)).
+**MCP resource URL:** phase 1 `mcp({ resource: "https://collidr.vercel.app/api/mcp" })`; apex `https://mcp.collidr.com/api/mcp` (§2.1). `apps/mcp` protects route with `requireMcpAuth` / `createMcpProtectedRequestHandler` ([MCP plugin — Protecting an MCP Route](https://www.better-auth.com/docs/plugins/mcp#protecting-an-mcp-route)).
 
 **Vercel MCP hosting (Decision 15):** [`mcp-handler`](https://github.com/vercel-labs/mcp-handler) on `apps/mcp` per [Deploy MCP servers](https://vercel.com/docs/mcp/deploy-mcp-servers-to-vercel); auth via Better Auth **`requireMcpAuth`** / `createMcpProtectedRequestHandler` — not raw `@modelcontextprotocol/server` HTTP alone.
 
@@ -203,38 +203,38 @@ Implement **`apps/auth`** strictly from Better Auth **≥ 1.7.x** docs (**Decisi
 
 ## 5. SSO: session sharing and return-to
 
-**Phase 1 (§14 Decision 1, §2.0):** `vercel.app` is on the **PSL** — **no cross-subdomain cookies**. SSO is **auth-app redirect + OIDC** (authorization code + PKCE; **silent re-auth** on first hit to each sibling app when the user already has an auth session). Each app holds its **own** session cookie on its `*-env-manager.vercel.app` origin. MCP uses **Bearer tokens** from auth, not browser cookies. **§5.1** (`crossSubDomainCookies`) applies only after **custom apex** (config flip per §2.0).
+**Phase 1 (§14 Decision 1, §2.0):** `vercel.app` is on the **PSL** — **no cross-subdomain cookies**. SSO is **auth-app redirect + OIDC** (authorization code + PKCE; **silent re-auth** on first hit to each sibling app when the user already has an auth session). Each app holds its **own** session cookie on its `*-collidr.vercel.app` origin. MCP uses **Bearer tokens** from auth, not browser cookies. **§5.1** (`crossSubDomainCookies`) applies only after **custom apex** (config flip per §2.0).
 
 ### 5.1 Future: shared parent domain + cross-subdomain cookies (custom apex only)
 
-When all apps sit under one registrable apex (e.g. `*.env-manager.com`), per [Cross Subdomain Cookies](https://www.better-auth.com/docs/concepts/cookies#cross-subdomain-cookies):
+When all apps sit under one registrable apex (e.g. `*.collidr.com`), per [Cross Subdomain Cookies](https://www.better-auth.com/docs/concepts/cookies#cross-subdomain-cookies):
 
 ```ts
 // packages/auth — used only by apps/auth
 advanced: {
   crossSubDomainCookies: {
     enabled: true,
-    domain: ".env-manager.com", // Decision 2 — enable only at P4 via config
+    domain: ".collidr.com", // Decision 2 — enable only at P4 via config
   },
 },
 trustedOrigins: [
-  "https://auth.env-manager.com",
-  "https://app.env-manager.com",
-  "https://account.env-manager.com",
-  "https://console.env-manager.com",
-  "https://docs.env-manager.com",
+  "https://auth.collidr.com",
+  "https://app.collidr.com",
+  "https://account.collidr.com",
+  "https://console.collidr.com",
+  "https://docs.collidr.com",
 ],
 ```
 
 `trustedOrigins` lists **production hostnames only** (Decision 12) — no `*.vercel.app` preview wildcard, no branch preview URLs.
 
-`BETTER_AUTH_URL` = `https://auth.env-manager.com` (issuer + `/api/auth/*`).
+`BETTER_AUTH_URL` = `https://auth.collidr.com` (issuer + `/api/auth/*`).
 
 **Sibling apps** do **not** mount `/api/auth/*`; they call `authClient` with `baseURL: process.env.NEXT_PUBLIC_AUTH_URL` and rely on the shared session cookie.
 
 ### 5.2 Safari / ITP fallback: per-app auth proxy
 
-If auth and studio ever sit on **unrelated** domains, use [reverse proxy rewrites](https://www.better-auth.com/docs/concepts/cookies#using-a-reverse-proxy) so each app exposes **same-origin** `/api/auth/*` → `auth.env-manager.com`.
+If auth and studio ever sit on **unrelated** domains, use [reverse proxy rewrites](https://www.better-auth.com/docs/concepts/cookies#using-a-reverse-proxy) so each app exposes **same-origin** `/api/auth/*` → `auth.collidr.com`.
 
 ```json
 // apps/studio/vercel.json (example)
@@ -242,7 +242,7 @@ If auth and studio ever sit on **unrelated** domains, use [reverse proxy rewrite
   "rewrites": [
     {
       "source": "/api/auth/:path*",
-      "destination": "https://auth.env-manager.com/api/auth/:path*"
+      "destination": "https://auth.collidr.com/api/auth/:path*"
     }
   ]
 }
@@ -255,8 +255,8 @@ Prefer **one** strategy in prod: either all apps use rewrites **or** all use cro
 ```mermaid
 sequenceDiagram
   participant B as Browser
-  participant S as app.env-manager.com
-  participant A as auth.env-manager.com
+  participant S as app.collidr.com
+  participant A as auth.collidr.com
 
   B->>S: GET /dashboard/projects
   S->>S: middleware: no session cookie
@@ -264,7 +264,7 @@ sequenceDiagram
   Note over S: return_to is absolute HTTPS URL on studio origin
   B->>A: GET /sign-in?return_to=https://app.../dashboard/projects
   B->>A: GitHub OAuth / credentials
-  A->>B: Set-Cookie session (Domain=.env-manager.com)
+  A->>B: Set-Cookie session (Domain=.collidr.com)
   A->>B: 302 return_to (validated allowlist)
   B->>S: GET /dashboard/projects (cookie sent)
   S->>S: middleware: session OK
@@ -281,20 +281,20 @@ sequenceDiagram
 |-------|-------|--------|
 | `return_to` | Auth sign-in/sign-up/sign-out | **Required** for cross-app flows. Full `https://` URL. |
 | Allowlist | `packages/auth` config | `allowedReturnOrigins`: production studio, account, console, docs origins only (Decision 12). |
-| Validation | Auth app | Reject missing scheme, `javascript:`, non-allowlisted host; default fallback `https://app.env-manager.com/dashboard`. |
+| Validation | Auth app | Reject missing scheme, `javascript:`, non-allowlisted host; default fallback `https://app.collidr.com/dashboard`. |
 | Relative paths | Deprecated | Map old `?redirect=/dashboard` on studio middleware → build absolute `return_to` pointing at studio. |
 
-**Sign-out:** `auth/sign-out?return_to=https://docs.env-manager.com` clears session cookie (domain-wide) then redirects.
+**Sign-out:** `auth/sign-out?return_to=https://docs.collidr.com` clears session cookie (domain-wide) then redirects.
 
-**Account deep links from studio:** `https://account.env-manager.com/settings/sessions` (no auth routes on account).
+**Account deep links from studio:** `https://account.collidr.com/settings/sessions` (no auth routes on account).
 
 ### 5.5 MCP OAuth flow (machine clients)
 
 ```mermaid
 sequenceDiagram
   participant C as MCP client
-  participant M as mcp.env-manager.com
-  participant A as auth.env-manager.com
+  participant M as mcp.collidr.com
+  participant A as auth.collidr.com
   participant U as User browser
 
   C->>M: POST /api/mcp (no token)
@@ -344,7 +344,7 @@ Each app’s tRPC context / middleware:
 
 - Keep: `/dashboard/**` orgs, projects, envs, variables, notifications, onboarding.
 - Remove: `/sign-in` (redirect to auth), `/dashboard/settings/*` (link to account app).
-- Remove public marketing `(public)/(site)` — lives on **`apps/www`** (Decision 4, [#103](https://github.com/jayantrohila57/env-manager/issues/103)).
+- Remove public marketing `(public)/(site)` — lives on **`apps/www`** (Decision 4, [#103](https://github.com/jayantrohila57/collidr/issues/103)).
 - tRPC: full `appRouter` minus account-only procedures (or thin re-export).
 - Middleware: same pattern as today (`apps/web/src/middleware.ts`) with auth URL for redirects.
 
@@ -353,23 +353,23 @@ Each app’s tRPC context / middleware:
 - Platform `platform.*` actions, admin plugin, MCP OAuth admin UI.
 - Sign-in: auth with `return_to=console`; gate requires **platform Admin** (`isPlatformAdmin()`) **and** session user email ∈ **`CONSOLE_ALLOWED_EMAILS`** (Decision 11).
 - **Env:** `CONSOLE_ALLOWED_EMAILS` — comma-separated emails allowed to use console in production (operator-set in Vercel; not committed). Initial production value: **`jrohila55@gmail.com`**. No **IP** allowlist or network restriction for console v1.
-- Validate in `@env-manager/env` when `apps/console` ships; non-allowlisted emails get **403** before console routes/tRPC even if they have Admin role elsewhere.
+- Validate in `@collidr/env` when `apps/console` ships; non-allowlisted emails get **403** before console routes/tRPC even if they have Admin role elsewhere.
 
 ### 6.5 `apps/mcp`
 
 - API-only; **transport:** Vercel [`mcp-handler`](https://github.com/vercel-labs/mcp-handler) adapter (Decision 15) exposing `POST /api/mcp` on Vercel.
 - **Auth:** Better Auth MCP plugin — `requireMcpAuth` + tool handlers; issuer/JWKS from `apps/auth`; no session cookies.
 - Tool inventory: see **Appendix A** (58 tools, scopes, canonical `requireAction`).
-- **Rate limits:** token-bucket state in Postgres (`rate_limit_bucket` via `@env-manager/db`) — Decision 14; no Vercel KV or Redis for MCP v1.
+- **Rate limits:** token-bucket state in Postgres (`rate_limit_bucket` via `@collidr/db`) — Decision 14; no Vercel KV or Redis for MCP v1.
 
 ### 6.6 `apps/docs` (Fumadocs + our UI)
 
 - **Content:** Fumadocs MDX (`fumadocs-mdx`, `fumadocs-core`) for docs structure, **built-in search** (Decision 9), sidebar tree.
-- **Chrome:** `@env-manager/ui` layout — app shell, header, footer, typography tokens from `apps/studio` / `DESIGN_SYSTEM.md`; **do not** ship Fumadocs default UI theme as-is.
+- **Chrome:** `@collidr/ui` layout — app shell, header, footer, typography tokens from `apps/studio` / `DESIGN_SYSTEM.md`; **do not** ship Fumadocs default UI theme as-is.
 - **Approach:** Fumadocs headless patterns + custom `docs/layout.tsx` wrapping coss `Sidebar`, `Breadcrumb`, `Button`; map Fumadocs `pageTree` to our nav components.
 - Sections: product guides, API/tRPC overview, MCP tool reference (generated from registry), OAuth scopes, console (admin-only note).
 - **Access:** **All documentation is public** — no gated or enterprise-only sections (Decision 10). Optional header link to product sign-in is cosmetic only.
-- Deploy: `docs.env-manager.com` (phase 1: `docs-env-manager.vercel.app` per §2.0).
+- Deploy: `docs.collidr.com` (phase 1: `docs-collidr.vercel.app` per §2.0).
 
 ---
 
@@ -377,16 +377,16 @@ Each app’s tRPC context / middleware:
 
 | Package | Status | Contents |
 |---------|--------|----------|
-| **`@env-manager/config`** | exists | `tsconfig`, shared ESLint — extend per-app `next.config` helpers |
-| **`@env-manager/env`** | exists | Per-app Zod modules: `auth.ts`, `studio.ts`, `account.ts`, … + shared `server.ts` |
-| **`@env-manager/db`** | exists | Drizzle schema + migrations |
-| **`@env-manager/actions`** | exists | Canonical action registry |
-| **`@env-manager/permissions`** | **new** | `requireAction`, `actionGuard`, MCP scope maps (from `packages/api/src/actions`) |
-| **`@env-manager/auth`** | extend | `createAuth()` — **only imported by `apps/auth`** |
-| **`@env-manager/auth-client`** | **new** | `createAuthClient({ baseURL })`, React hooks, org client plugin |
-| **`@env-manager/api`** | extend | Shared `appRouter` / sub-routers + `services/*` for tRPC and MCP; each app mounts a **subset** at `/api/trpc` (Decision 16) |
-| **`@env-manager/ui`** | **new** | coss components, toast, icons, patterns (`PageHeader`, data-table) from `apps/web`; **impersonation banner** (Decision 19) |
-| **`@env-manager/docs-config`** | optional | Shared MDX components for docs + studio help links |
+| **`@collidr/config`** | exists | `tsconfig`, shared ESLint — extend per-app `next.config` helpers |
+| **`@collidr/env`** | exists | Per-app Zod modules: `auth.ts`, `studio.ts`, `account.ts`, … + shared `server.ts` |
+| **`@collidr/db`** | exists | Drizzle schema + migrations |
+| **`@collidr/actions`** | exists | Canonical action registry |
+| **`@collidr/permissions`** | **new** | `requireAction`, `actionGuard`, MCP scope maps (from `packages/api/src/actions`) |
+| **`@collidr/auth`** | extend | `createAuth()` — **only imported by `apps/auth`** |
+| **`@collidr/auth-client`** | **new** | `createAuthClient({ baseURL })`, React hooks, org client plugin |
+| **`@collidr/api`** | extend | Shared `appRouter` / sub-routers + `services/*` for tRPC and MCP; each app mounts a **subset** at `/api/trpc` (Decision 16) |
+| **`@collidr/ui`** | **new** | coss components, toast, icons, patterns (`PageHeader`, data-table) from `apps/web`; **impersonation banner** (Decision 19) |
+| **`@collidr/docs-config`** | optional | Shared MDX components for docs + studio help links |
 
 **Turbo:** `globalEnv` adds `NEXT_PUBLIC_AUTH_URL`, `NEXT_PUBLIC_STUDIO_URL`, etc.
 
@@ -395,7 +395,7 @@ Each app’s tRPC context / middleware:
 | Pattern | Detail |
 |---------|--------|
 | **Mount** | Each UI app (`studio`, `account`, `console`) exposes its own **`/api/trpc`** Next.js route. |
-| **Router** | Import composed routers from **`@env-manager/api`** — e.g. studio mounts full product router; account mounts `account` + self-scoped audit; console mounts operator procedures only. |
+| **Router** | Import composed routers from **`@collidr/api`** — e.g. studio mounts full product router; account mounts `account` + self-scoped audit; console mounts operator procedures only. |
 | **Excluded** | **No** dedicated `apps/gateway` or shared API-only Vercel project for tRPC in v1. |
 | **MCP** | Same service layer as tRPC; MCP does not proxy through another app’s `/api/trpc`. |
 
@@ -432,7 +432,7 @@ Complete on a **Neon branch** (and matching Vercel **staging** hostnames or loca
 - [ ] All §8.2 verification rows signed off on Neon branch + staging URLs.
 - [ ] GitHub OAuth app: **new callback URL** on auth hostname tested; old web callback removal planned for cutover instant.
 - [ ] Vercel env: `BETTER_AUTH_URL`, `NEXT_PUBLIC_AUTH_URL`, studio/account URL graph, shared `BETTER_AUTH_SECRET` / `DATABASE_URL` aligned across three projects.
-- [ ] Redirect map drafted: `env-manager-web.vercel.app` → `studio-env-manager.vercel.app`; `/dashboard/settings/*` → account paths.
+- [ ] Redirect map drafted: `collidr-web.vercel.app` → `studio-collidr.vercel.app`; `/dashboard/settings/*` → account paths.
 - [ ] Owner comms: maintenance window + **one-time re-login** (Decision 6); no promise of seamless session continuity.
 - [ ] Rollback owner identified; §8.4 steps reviewed.
 
@@ -445,7 +445,7 @@ Execute in order during one coordinated change (no beta cohort).
 | **C1** | Freeze merges to `main` except cutover fixes; final `git pull --rebase` + green CI. |
 | **C2** | Deploy **`apps/auth`**, **`apps/account`**, **`apps/studio`** to production `*.vercel.app` hostnames (§2.0). |
 | **C3** | Update GitHub OAuth callback to auth URL only; remove web callback. |
-| **C4** | Point **studio** alias to `studio-env-manager.vercel.app`; redirect legacy `env-manager-web.vercel.app`. |
+| **C4** | Point **studio** alias to `studio-collidr.vercel.app`; redirect legacy `collidr-web.vercel.app`. |
 | **C5** | Enable `vercel.json` redirects: legacy `/sign-in` on old web → auth; `/dashboard/settings/*` → account app. |
 | **C6** | **Disable / remove** `apps/web` Vercel production deployment; repo renames package to `apps/studio` when code lands. |
 | **C7** | Smoke test prod checklist (subset of §8.2) on live URLs within 30 minutes. |
@@ -465,7 +465,7 @@ If failure **after** web decommission:
 
 1. **Redeploy last known-good `apps/web`** build from git tag/commit recorded in cutover runbook.
 2. Restore `BETTER_AUTH_URL` to web origin; restore OAuth callback.
-3. Point `env-manager-web.vercel.app` back to web project.
+3. Point `collidr-web.vercel.app` back to web project.
 4. Use Neon **backup branch** only if a bad migration ran (not required for routing-only split); follow [DB_RESET.md](./DB_RESET.md) / [PLATFORM_MIGRATION_COMBINED.md](./PLATFORM_MIGRATION_COMBINED.md) if schema was touched.
 
 Target rollback decision time: **< 1 hour** from go/no-go.
@@ -476,17 +476,17 @@ Target rollback decision time: **< 1 hour** from go/no-go.
 
 | Vercel project | Root | Phase 1 (`vercel.app`) | Apex (P4, §2.1) |
 |----------------|------|-------------------------|------------------|
-| `env-manager-auth` | `apps/auth` | `auth-env-manager.vercel.app` | `auth.env-manager.com` |
-| `env-manager-studio` | `apps/studio` | `studio-env-manager.vercel.app` | `app.env-manager.com` |
-| `env-manager-account` | `apps/account` | `account-env-manager.vercel.app` | `account.env-manager.com` |
-| `env-manager-console` | `apps/console` | `console-env-manager.vercel.app` | `console.env-manager.com` |
-| `env-manager-mcp` | `apps/mcp` | `mcp-env-manager.vercel.app` | `mcp.env-manager.com` |
-| `env-manager-docs` | `apps/docs` | `docs-env-manager.vercel.app` | `docs.env-manager.com` |
-| `env-manager-www` | `apps/www` | `www-env-manager.vercel.app` | `env-manager.com` / `www` (D4) |
+| `collidr-auth` | `apps/auth` | `auth-collidr.vercel.app` | `auth.collidr.com` |
+| `collidr-studio` | `apps/studio` | `studio-collidr.vercel.app` | `app.collidr.com` |
+| `collidr-account` | `apps/account` | `account-collidr.vercel.app` | `account.collidr.com` |
+| `collidr-console` | `apps/console` | `console-collidr.vercel.app` | `console.collidr.com` |
+| `collidr-mcp` | `apps/mcp` | `mcp-collidr.vercel.app` | `mcp.collidr.com` |
+| `collidr-docs` | `apps/docs` | `docs-collidr.vercel.app` | `docs.collidr.com` |
+| `collidr-www` | `apps/www` | `www-collidr.vercel.app` | `collidr.com` / `www` (D4) |
 
 **Build:** `turbo build --filter=studio` (etc.). **Env:** duplicate DB secrets; per-app `NEXT_PUBLIC_*_URL` link graph; console **`CONSOLE_ALLOWED_EMAILS`** (Decision 11). **Previews:** disabled — production **`main` only** (Decision 12); `trustedOrigins` / `allowedReturnOrigins` are explicit production URLs, no preview wildcard.
 
-**Legacy:** At cutover (§8.3), `env-manager-web.vercel.app` → **`studio-env-manager.vercel.app`** (Decision 5); web project removed same window.
+**Legacy:** At cutover (§8.3), `collidr-web.vercel.app` → **`studio-collidr.vercel.app`** (Decision 5); web project removed same window.
 
 ---
 
@@ -519,16 +519,16 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 | Phase | Issue | Deliverable | Acceptance |
 |-------|-------|-------------|------------|
-| **P0** | [#94](https://github.com/jayantrohila57/env-manager/issues/94) | Plan baseline | §14 decisions 1–20 resolved; §15 empty |
-| **P1** | [#95](https://github.com/jayantrohila57/env-manager/issues/95) | Better Auth 1.7 ([#93](https://github.com/jayantrohila57/env-manager/issues/93)), `@env-manager/ui`, `@env-manager/auth-client` | D20; `apps/web` auth passes on 1.7 |
-| **P2** | [#96](https://github.com/jayantrohila57/env-manager/issues/96) | `apps/auth`, `apps/account`, `apps/studio` on staging / Neon | §8.2 complete ([#89](https://github.com/jayantrohila57/env-manager/issues/89)) |
-| **P3** | [#97](https://github.com/jayantrohila57/env-manager/issues/97) | Big-bang prod cutover (D5–D6) | §8.3 C7 smoke tests |
-| **P4** | [#98](https://github.com/jayantrohila57/env-manager/issues/98) | Custom apex DNS (D2) | §2.1 + `apps/www` apex ([#103](https://github.com/jayantrohila57/env-manager/issues/103)) |
-| **P5** | [#99](https://github.com/jayantrohila57/env-manager/issues/99) | `apps/docs` MVP (D9–D10) | Fumadocs + public docs |
-| **P6** | [#100](https://github.com/jayantrohila57/env-manager/issues/100) | `apps/mcp` OAuth E2E (D7–D8, D14–D15) | MCP client auth ([#87](https://github.com/jayantrohila57/env-manager/issues/87)) |
-| **P7** | [#101](https://github.com/jayantrohila57/env-manager/issues/101) | `apps/console` (D11, D19) | Admin + email allowlist ([#88](https://github.com/jayantrohila57/env-manager/issues/88)) |
-| **P8** | [#102](https://github.com/jayantrohila57/env-manager/issues/102) | MCP tool parity | Appendix A inventory |
-| **www** | [#103](https://github.com/jayantrohila57/env-manager/issues/103) | `apps/www` marketing (D4) | Apex landing; CTAs → auth |
+| **P0** | [#94](https://github.com/jayantrohila57/collidr/issues/94) | Plan baseline | §14 decisions 1–20 resolved; §15 empty |
+| **P1** | [#95](https://github.com/jayantrohila57/collidr/issues/95) | Better Auth 1.7 ([#93](https://github.com/jayantrohila57/collidr/issues/93)), `@collidr/ui`, `@collidr/auth-client` | D20; `apps/web` auth passes on 1.7 |
+| **P2** | [#96](https://github.com/jayantrohila57/collidr/issues/96) | `apps/auth`, `apps/account`, `apps/studio` on staging / Neon | §8.2 complete ([#89](https://github.com/jayantrohila57/collidr/issues/89)) |
+| **P3** | [#97](https://github.com/jayantrohila57/collidr/issues/97) | Big-bang prod cutover (D5–D6) | §8.3 C7 smoke tests |
+| **P4** | [#98](https://github.com/jayantrohila57/collidr/issues/98) | Custom apex DNS (D2) | §2.1 + `apps/www` apex ([#103](https://github.com/jayantrohila57/collidr/issues/103)) |
+| **P5** | [#99](https://github.com/jayantrohila57/collidr/issues/99) | `apps/docs` MVP (D9–D10) | Fumadocs + public docs |
+| **P6** | [#100](https://github.com/jayantrohila57/collidr/issues/100) | `apps/mcp` OAuth E2E (D7–D8, D14–D15) | MCP client auth ([#87](https://github.com/jayantrohila57/collidr/issues/87)) |
+| **P7** | [#101](https://github.com/jayantrohila57/collidr/issues/101) | `apps/console` (D11, D19) | Admin + email allowlist ([#88](https://github.com/jayantrohila57/collidr/issues/88)) |
+| **P8** | [#102](https://github.com/jayantrohila57/collidr/issues/102) | MCP tool parity | Appendix A inventory |
+| **www** | [#103](https://github.com/jayantrohila57/collidr/issues/103) | `apps/www` marketing (D4) | Apex landing; CTAs → auth |
 
 ---
 
@@ -539,7 +539,7 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 | OAuth callback misconfiguration during auth split | Checklist; staging callback first |
 | Open redirect via `return_to` | Strict allowlist in `packages/auth` |
 | Safari ITP | Shared parent domain or rewrites ([Cookies — Safari](https://www.better-auth.com/docs/concepts/cookies#safari-itp-and-cross-domain-setups)) |
-| Six Vercel projects env drift | `@env-manager/env` + deployment matrix doc |
+| Six Vercel projects env drift | `@collidr/env` + deployment matrix doc |
 | Fumadocs + coss integration cost | Headless Fumadocs; timebox P6 |
 | Big-bang cutover failure | §8.2 checklist + §8.4 rollback; Neon backup before window |
 | Duplicate code during prep | Feature freeze on web until Decision 5 cutover |
@@ -552,8 +552,8 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 
 | # | Summary |
 |---|---------|
-| 1 | `*-env-manager.vercel.app` per app; PSL → no shared cookies; auth OIDC + silent re-auth; apex later config-only |
-| 2 | Custom apex: `.env-manager.com` cookie domain if cookie SSO approved (P4) |
+| 1 | `*-collidr.vercel.app` per app; PSL → no shared cookies; auth OIDC + silent re-auth; apex later config-only |
+| 2 | Custom apex: `.collidr.com` cookie domain if cookie SSO approved (P4) |
 | 3 | OIDC-first; no per-app auth rewrites at v1 (ITP fallback only later) |
 | 4 | Separate marketing app **`apps/www`** for apex / www |
 | 5 | Big-bang cutover auth + account + studio |
@@ -564,34 +564,34 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 | 10 | All docs public |
 | 11 | Console `CONSOLE_ALLOWED_EMAILS` + Admin (no IP gate) |
 | 12 | Prod-only deploys; no preview `trustedOrigins` wildcard |
-| 13 | `project.unarchive` action ([#92](https://github.com/jayantrohila57/env-manager/issues/92)) |
+| 13 | `project.unarchive` action ([#92](https://github.com/jayantrohila57/collidr/issues/92)) |
 | 14 | MCP rate limits in Postgres |
 | 15 | MCP transport: `mcp-handler` + Better Auth MCP auth |
-| 16 | Per-app `/api/trpc`, shared `@env-manager/api` |
+| 16 | Per-app `/api/trpc`, shared `@collidr/api` |
 | 17 | Enterprise SSO plugin deferred |
 | 18 | Transactional email links via auth app |
 | 19 | Impersonation banner in all UI apps |
-| 20 | Better Auth 1.7 before `apps/auth` ([#93](https://github.com/jayantrohila57/env-manager/issues/93)) |
+| 20 | Better Auth 1.7 before `apps/auth` ([#93](https://github.com/jayantrohila57/collidr/issues/93)) |
 
 ### Decision 1 — Hosting & SSO (accepted)
 
 | Topic | Choice |
 |-------|--------|
-| **Hostnames (now)** | Fixed **`https://<app>-env-manager.vercel.app`** per project (§2.0 table). |
+| **Hostnames (now)** | Fixed **`https://<app>-collidr.vercel.app`** per project (§2.0 table). |
 | **PSL** | `vercel.app` is a **public suffix** — **cross-subdomain cookies are impossible**; do not enable `crossSubDomainCookies` on phase 1 hostnames. |
 | **SSO (now)** | **`apps/auth`** OAuth/OIDC issuer; sibling apps redirect for login; **silent re-auth** when opening another app with an existing auth session; **per-host** session cookies. |
 | **Hostnames (later)** | §2.1 custom apex — **config-only** URL + cookie domain swap (§2.0). |
-| **SSO (later)** | Optional `crossSubDomainCookies` on `.env-manager.com` (Decision 2) after review; OIDC redirects remain valid. |
+| **SSO (later)** | Optional `crossSubDomainCookies` on `.collidr.com` (Decision 2) after review; OIDC redirects remain valid. |
 | **MCP / machines** | Bearer tokens from auth issuer; no cross-subdomain browser cookies. |
 
-**Implication:** Do not plan one shared browser cookie across `auth-env-manager` and `studio-env-manager`; plan redirect + per-app cookies and env-driven apex migration.
+**Implication:** Do not plan one shared browser cookie across `auth-collidr` and `studio-collidr`; plan redirect + per-app cookies and env-driven apex migration.
 
 ### Decision 2 — Custom apex cookie domain (accepted)
 
 | Topic | Choice |
 |-------|--------|
 | **When** | Applies only after **P4** custom apex DNS is live and a security review approves optional cookie SSO (§5.1). |
-| **Domain** | Use **`domain: ".env-manager.com"`** (leading dot) for `crossSubDomainCookies` when enabled. |
+| **Domain** | Use **`domain: ".collidr.com"`** (leading dot) for `crossSubDomainCookies` when enabled. |
 | **Until P4** | Not applicable — phase 1 uses per-origin sessions + OIDC (Decision 1). |
 
 **Implication:** Do not configure apex cookie domain on `*.vercel.app` hostnames.
@@ -609,11 +609,11 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 
 | Topic | Choice |
 |-------|--------|
-| **App** | Dedicated **`apps/www`** — marketing landing at **apex** / **`www`** (`env-manager.com`, `www.env-manager.com` when P4 DNS exists). |
+| **App** | Dedicated **`apps/www`** — marketing landing at **apex** / **`www`** (`collidr.com`, `www.collidr.com` when P4 DNS exists). |
 | **Excluded** | Studio product UI, Fumadocs docs site, and signed-in dashboard are **not** the marketing homepage. |
 | **Content** | Public marketing pages (hero, features, pricing if any, CTAs); primary CTA → auth `sign-in` with `return_to` studio. |
-| **Chrome** | `@env-manager/ui` / coss ui consistent with Decision 9–10 visual language. |
-| **Phase 1** | `https://www-env-manager.vercel.app` (§2.0); alias apex to www project at P4. |
+| **Chrome** | `@collidr/ui` / coss ui consistent with Decision 9–10 visual language. |
+| **Phase 1** | `https://collidr.vercel.app` (§2.0); alias apex to www project at P4. |
 
 **Implication:** Remove marketing `(public)/(site)` from studio during split; track build-out in a dedicated feature issue.
 
@@ -668,7 +668,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 | **Search** | Use **Fumadocs built-in search** (index from `fumadocs-core` / MDX pipeline). |
 | **Excluded** | No Algolia, no external search SaaS for `apps/docs` v1. |
 
-**Implication:** Docs MVP (P5) includes local/search API shipped with Fumadocs, styled to match `@env-manager/ui` chrome.
+**Implication:** Docs MVP (P5) includes local/search API shipped with Fumadocs, styled to match `@collidr/ui` chrome.
 
 ### Decision 10 — Documentation access (accepted)
 
@@ -705,9 +705,9 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 
 | Topic | Choice |
 |-------|--------|
-| **Registry** | Add canonical action **`project.unarchive`** to `@env-manager/actions` (paired with existing archive semantics). |
+| **Registry** | Add canonical action **`project.unarchive`** to `@collidr/actions` (paired with existing archive semantics). |
 | **Scope** | Wire through `requireAction`, `audit_event` when `ACTIONS_AUDIT_ENABLED`, and MCP tool map when MCP ships; align `projects.unarchive` tRPC with the registry. |
-| **Implementation** | Tracked in GitHub **[#92](https://github.com/jayantrohila57/env-manager/issues/92)** — `[Feature] Add project.unarchive action`. |
+| **Implementation** | Tracked in GitHub **[#92](https://github.com/jayantrohila57/collidr/issues/92)** — `[Feature] Add project.unarchive action`. |
 
 **Implication:** Unarchive is a first-class permissioned operation, not an ad-hoc mutation bypassing the action matrix.
 
@@ -729,7 +729,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 | **Transport** | **[`mcp-handler`](https://github.com/vercel-labs/mcp-handler)** (Vercel MCP adapter) for HTTP MCP on `apps/mcp` / Vercel serverless or Node runtime. |
 | **Auth** | **[Better Auth MCP](https://www.better-auth.com/docs/plugins/mcp)** — `requireMcpAuth` / protected route handler; OAuth tokens from `apps/auth` (Decisions 7–8). |
 | **Excluded** | Do not build a custom `@modelcontextprotocol/server` transport layer as the primary path; do not use a non-Vercel MCP host for v1 production. |
-| **Tools** | Register tools in `mcp-handler` handlers that call shared `@env-manager/api` services + `requireAction` (same semantics as tRPC). |
+| **Tools** | Register tools in `mcp-handler` handlers that call shared `@collidr/api` services + `requireAction` (same semantics as tRPC). |
 
 **Implication:** `apps/mcp` is a thin Vercel MCP surface; business logic stays in packages.
 
@@ -738,8 +738,8 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 | Topic | Choice |
 |-------|--------|
 | **Topology** | **Per-app `/api/trpc`** on each Next.js deployable (`apps/studio`, `apps/account`, `apps/console`). |
-| **Shared router** | All procedures live in **`@env-manager/api`** (`packages/api`); apps import a composed router subset and mount the standard Next.js tRPC handler — no duplicated business logic. |
-| **Excluded** | No standalone **API gateway** app, no central `api.env-manager.com` tRPC proxy for v1. |
+| **Shared router** | All procedures live in **`@collidr/api`** (`packages/api`); apps import a composed router subset and mount the standard Next.js tRPC handler — no duplicated business logic. |
+| **Excluded** | No standalone **API gateway** app, no central `api.collidr.com` tRPC proxy for v1. |
 | **Auth app** | `apps/auth` does **not** mount product tRPC — auth routes only (`/api/auth/*`). |
 
 **Implication:** HTTP handlers are per-app; the **router implementation is one shared package**.
@@ -759,7 +759,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 
 | Topic | Choice |
 |-------|--------|
-| **Link host** | All transactional auth links (**email verification**, **password reset** if enabled, **organization invitations**, and similar Better Auth / org emails) use **`BETTER_AUTH_URL`** on **`apps/auth`** (e.g. `https://auth-env-manager.vercel.app/...`). |
+| **Link host** | All transactional auth links (**email verification**, **password reset** if enabled, **organization invitations**, and similar Better Auth / org emails) use **`BETTER_AUTH_URL`** on **`apps/auth`** (e.g. `https://collidr.vercel.app/auth/...`). |
 | **Flow** | Auth app completes the token/callback step, then **redirects** to an allowlisted destination (`return_to` / configured default) on studio, account, or onboarding — links do **not** deep-link directly to studio/account hosts for verify/reset/invite. |
 | **Excluded** | Do not embed `account.*` or `app.*` origins as the primary click target in email templates for auth-sensitive actions. |
 | **Config** | `packages/auth` + email templates reference auth origin only; sibling apps receive users only after redirect validation (§5.4). |
@@ -772,7 +772,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 |-------|--------|
 | **Visibility** | When Better Auth **admin impersonation** is active, show a persistent **impersonation banner** in **every UI app** — `apps/auth` (consent/sign-in shells), `apps/studio`, `apps/account`, `apps/console`, and `apps/docs` (when a session exists). |
 | **Excluded** | `apps/mcp` is API-only (no banner); banner is not console-only. |
-| **Implementation** | Shared component in **`@env-manager/ui`** (or equivalent) driven by session/admin plugin state; include **exit impersonation** action wired to auth API. |
+| **Implementation** | Shared component in **`@collidr/ui`** (or equivalent) driven by session/admin plugin state; include **exit impersonation** action wired to auth API. |
 | **UX** | High-contrast, non-dismissible while impersonating; must not be hidden behind collapsible chrome. |
 
 **Implication:** Operators cannot impersonate from console and lose context on navigation to studio/account; users always see when a session is impersonated.
@@ -784,7 +784,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 | **Order** | Upgrade the monorepo to **Better Auth 1.7.x** (catalog, `packages/auth`, `@better-auth/*` peers) as the **first platform implementation milestone** — **complete before** creating or deploying **`apps/auth`**. |
 | **Gate** | No `apps/auth` Vercel project, MCP plugin wiring, or auth-app cutover work until 1.7 is on `main` and `apps/web` still authenticates successfully. |
 | **Rationale** | 1.7 documents `@better-auth/mcp`, JWT, device authorization, and OAuth 2.1 provider paths required by Decisions 7–8 and 15. |
-| **Implementation** | GitHub **[#93](https://github.com/jayantrohila57/env-manager/issues/93)** — `[Feature] Upgrade Better Auth to 1.7`. |
+| **Implementation** | GitHub **[#93](https://github.com/jayantrohila57/collidr/issues/93)** — `[Feature] Upgrade Better Auth to 1.7`. |
 
 **Implication:** P1 starts with #93; shared UI/auth-client packages follow on the same phase but **after** the version bump lands.
 
@@ -798,7 +798,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 
 ## Appendix A — MCP tools (summary)
 
-Full inventory unchanged from v1 plan: **58 tools** (`organizations_*` through `permissions_snapshot`), each with OAuth scopes (`projects:read`, `variables:reveal`, etc.) and canonical `requireAction` names. See git history of `PLAN_MCP_AND_CONSOLE.md` §5.3 or regenerate from `@env-manager/actions` in implementation.
+Full inventory unchanged from v1 plan: **58 tools** (`organizations_*` through `permissions_snapshot`), each with OAuth scopes (`projects:read`, `variables:reveal`, etc.) and canonical `requireAction` names. See git history of `PLAN_MCP_AND_CONSOLE.md` §5.3 or regenerate from `@collidr/actions` in implementation.
 
 **Console** and **account** tools are **not** exposed via MCP.
 
@@ -816,7 +816,7 @@ Full inventory unchanged from v1 plan: **58 tools** (`organizations_*` through `
 - [Better Auth — SSO](https://www.better-auth.com/docs/plugins/sso)
 - [Better Auth — Device Authorization](https://www.better-auth.com/docs/plugins/device-authorization)
 - [Vercel — MCP](https://vercel.com/docs/mcp)
-- [Fumadocs](https://fumadocs.dev/) (content layer; UI replaced by `@env-manager/ui`)
+- [Fumadocs](https://fumadocs.dev/) (content layer; UI replaced by `@collidr/ui`)
 - Internal: [`docs/ACTIONS_PERMISSIONS_AUDIT.md`](./ACTIONS_PERMISSIONS_AUDIT.md), [`docs/DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)
 
 ---

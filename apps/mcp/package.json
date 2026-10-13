@@ -9,12 +9,12 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@env-manager/env": "workspace:*",
-    "@env-manager/mcp": "workspace:*",
+    "@collidr/env": "workspace:*",
+    "@collidr/mcp": "workspace:*",
     "next": "catalog:"
   },
   "devDependencies": {
-    "@env-manager/config": "workspace:*",
+    "@collidr/config": "workspace:*",
     "@types/node": "^20",
     "typescript": "catalog:"
   }

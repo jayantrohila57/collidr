@@ -12,7 +12,7 @@ One SQL file for the full delta after `0004_organizations`:
 
 ## Neon branch test (completed)
 
-- Project: `env-manager`
+- Project: `collidr`
 - Branch: `cursor-migration-test-combined` (`br-royal-rice-a11qraud`)
 - Result: migration applied successfully (`audit_event`, `team`, variables v2 columns verified)
 
