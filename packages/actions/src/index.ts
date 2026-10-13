@@ -5,3 +5,4 @@ export * from "./nav";
 export * from "./org-roles";
 export * from "./registry";
 export * from "./types";
+export * from "./mcp-scopes";

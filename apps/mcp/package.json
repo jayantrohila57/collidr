@@ -1,0 +1,21 @@
+{
+  "name": "mcp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3004",
+    "build": "SKIP_ENV_VALIDATION=1 next build",
+    "start": "next start --port 3004",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@env-manager/env": "workspace:*",
+    "@env-manager/mcp": "workspace:*",
+    "next": "catalog:"
+  },
+  "devDependencies": {
+    "@env-manager/config": "workspace:*",
+    "@types/node": "^20",
+    "typescript": "catalog:"
+  }
+}

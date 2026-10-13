@@ -16,6 +16,7 @@
     "dev:www": "turbo -F www dev",
     "dev:docs": "turbo -F docs dev",
     "dev:console": "turbo -F console dev",
+    "dev:mcp": "turbo -F mcp dev",
     "dev:auth": "turbo -F auth dev",
     "dev:studio": "turbo -F studio dev",
     "dev:account": "turbo -F account dev",

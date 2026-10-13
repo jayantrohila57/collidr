@@ -31,7 +31,7 @@ Env Manager is a web dashboard and **pnpm/Turbo monorepo** for storing and organ
 | `packages/config` | Shared TypeScript/Biome config |
 | `packages/ui` | Shared coss/shadcn UI (`@env-manager/ui`) — marketing chrome and primitives |
 
-Further apps: `apps/console`, `apps/mcp`, `apps/docs`, … — see [docs/PLAN_PLATFORM_APPS.md](./docs/PLAN_PLATFORM_APPS.md).
+Further apps: `apps/console`, `apps/mcp`, `apps/docs`, … — see [docs/PLAN_PLATFORM_APPS.md](./docs/PLAN_PLATFORM_APPS.md). MCP deploy env: [docs/MCP_DEPLOY.md](./docs/MCP_DEPLOY.md).
 
 ## Product concepts
 

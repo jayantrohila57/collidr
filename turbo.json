@@ -18,7 +18,10 @@
     "NEXT_PUBLIC_WWW_URL",
     "NEXT_PUBLIC_CONSOLE_URL",
     "CONSOLE_ALLOWED_EMAILS",
-    "MCP_RESOURCE_URL"
+    "MCP_RESOURCE_URL",
+    "MCP_RATE_LIMIT_WINDOW_MS",
+    "MCP_RATE_LIMIT_MAX_REQUESTS",
+    "PLATFORM_AUTH_ENABLE_MCP"
   ],
   "tasks": {
     "build": {
@@ -53,7 +56,10 @@
         "NEXT_PUBLIC_WWW_URL",
         "NEXT_PUBLIC_CONSOLE_URL",
         "CONSOLE_ALLOWED_EMAILS",
-        "MCP_RESOURCE_URL"
+        "MCP_RESOURCE_URL",
+        "MCP_RATE_LIMIT_WINDOW_MS",
+        "MCP_RATE_LIMIT_MAX_REQUESTS",
+        "PLATFORM_AUTH_ENABLE_MCP"
       ]
     },
     "lint": {

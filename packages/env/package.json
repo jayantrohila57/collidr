@@ -18,7 +18,8 @@
     "./auth-app": "./src/auth-app.ts",
     "./studio": "./src/studio.ts",
     "./account": "./src/account.ts",
-    "./platform": "./src/platform.ts"
+    "./platform": "./src/platform.ts",
+    "./mcp-app": "./src/mcp-app.ts"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.1",

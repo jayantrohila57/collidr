@@ -1,13 +1,14 @@
 import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { cimd } from "@better-auth/cimd";
 import { mcp } from "@better-auth/mcp";
+import { MCP_OAUTH_SCOPES } from "@env-manager/actions";
 import { env } from "@env-manager/env/server";
 import type { BetterAuthPlugin } from "better-auth";
 import { betterAuth } from "better-auth";
 import { deviceAuthorization, jwt, oneTimeToken } from "better-auth/plugins";
 import {
   basePlugins,
-  sharedDatabaseConfig,
+  platformDatabaseConfig,
   sharedDatabaseHooks,
   sharedE2eEmailPassword,
   sharedSessionConfig,
@@ -37,6 +38,8 @@ function buildMcpPlugins(): BetterAuthPlugin[] {
       loginPage: "/sign-in",
       consentPage: "/consent",
       resource: mcpResource,
+      scopes: [...MCP_OAUTH_SCOPES],
+      allowDynamicClientRegistration: true,
     }) as BetterAuthPlugin,
     cimd({
       fetchClientMetadataResource,
@@ -64,7 +67,7 @@ export function createPlatformAuth() {
     databaseHooks: sharedDatabaseHooks(),
     session: sharedSessionConfig(),
     ...sharedE2eEmailPassword(),
-    database: sharedDatabaseConfig(),
+    database: platformDatabaseConfig(),
     trustedOrigins,
     socialProviders: {
       github: {

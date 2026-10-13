@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3000",
-    "build": "PLATFORM_AUTH_ENABLE_MCP=0 next build",
+    "build": "SKIP_ENV_VALIDATION=1 PLATFORM_AUTH_ENABLE_MCP=0 next build",
     "start": "next start --port 3000",
     "check-types": "tsc --noEmit"
   },

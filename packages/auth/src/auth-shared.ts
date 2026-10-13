@@ -2,6 +2,8 @@ import { orgAc, orgBetterAuthRoles } from "@env-manager/actions";
 import { activeUserWhere, db } from "@env-manager/db";
 import { assertOrganizationCanBeDeleted } from "@env-manager/db/org-delete-policy";
 import * as authSchema from "@env-manager/db/schema/auth";
+import { jwks } from "@env-manager/db/schema/jwks";
+import * as oauthSchema from "@env-manager/db/schema/oauth";
 import { user } from "@env-manager/db/schema/auth";
 import * as organizationSchema from "@env-manager/db/schema/organization";
 import * as teamSchema from "@env-manager/db/schema/team";
@@ -100,6 +102,26 @@ export function sharedDatabaseConfig(): BetterAuthOptions["database"] {
       ...authSchema,
       ...organizationSchema,
       ...teamSchema,
+    },
+  });
+}
+
+/** OAuth/MCP tables for `apps/auth` when `PLATFORM_AUTH_ENABLE_MCP=1`. */
+export function platformDatabaseConfig(): BetterAuthOptions["database"] {
+  const base = {
+    ...authSchema,
+    ...organizationSchema,
+    ...teamSchema,
+  };
+  if (process.env.PLATFORM_AUTH_ENABLE_MCP !== "1") {
+    return drizzleAdapter(db, { provider: "pg", schema: base });
+  }
+  return drizzleAdapter(db, {
+    provider: "pg",
+    schema: {
+      ...base,
+      ...oauthSchema,
+      jwks,
     },
   });
 }

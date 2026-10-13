@@ -27,8 +27,11 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@better-auth/drizzle-adapter": "1.7.7",
+    "@better-auth/mcp": "1.7.7",
     "@env-manager/config": "workspace:*",
     "@types/pg": "catalog:",
+    "better-auth": "catalog:",
     "drizzle-kit": "^0.31.8",
     "tsx": "^4.19.2",
     "typescript": "catalog:"

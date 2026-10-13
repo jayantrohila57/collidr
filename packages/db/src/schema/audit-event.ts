@@ -41,6 +41,10 @@ export const auditEvent = pgTable(
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
     durationMs: integer("duration_ms"),
+    /** `trpc` | `mcp` | `auth` | … */
+    source: text("source").notNull().default("trpc"),
+    oauthClientId: text("oauth_client_id"),
+    mcpTool: text("mcp_tool"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -59,6 +63,7 @@ export const auditEvent = pgTable(
       table.createdAt,
     ),
     index("audit_event_action_created_idx").on(table.action, table.createdAt),
+    index("audit_event_source_created_idx").on(table.source, table.createdAt),
   ],
 );
 
