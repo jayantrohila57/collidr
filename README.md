@@ -113,8 +113,10 @@ pnpm dev:web          # Next.js on http://localhost:3000
 pnpm dev              # Turbo dev (all apps with dev tasks)
 pnpm build
 pnpm check-types
-pnpm a11y             # accessibility checks (web)
+pnpm a11y             # accessibility checks (web, Turbo task `a11y` → web)
 ```
+
+**Turbo / remote cache (`a11y`):** Root `pnpm a11y` runs the `a11y` pipeline in `turbo.json` (scoped to `web`). Turbo restores a cached run when inputs (`e2e/**`, `playwright.config.ts`, and default package files) and env are unchanged. Cache keys include `globalEnv` feature flags plus `tasks.a11y.env` (CI, Playwright/E2E URLs and secrets, auth/DB URLs). Change those env vars or e2e sources to invalidate the cache — same pattern as `build` and CI `pnpm a11y`.
 
 ## Tech stack
 
