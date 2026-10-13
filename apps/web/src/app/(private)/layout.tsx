@@ -53,7 +53,7 @@ export default function OrganizationLayout({
             <AppSidebar />
             <SidebarInset
               id="main-content"
-              className="min-h-svh min-w-0 overflow-x-hidden"
+              className="flex h-svh max-h-svh min-h-0 flex-col overflow-hidden md:h-[calc(100svh-1rem)] md:max-h-[calc(100svh-1rem)]"
             >
               <PageHeaderBar>
                 <PageHeaderRow>
@@ -79,8 +79,8 @@ export default function OrganizationLayout({
               <Shell.Main
                 variant="dashboard"
                 padding="none"
-                scale={"dashboard"}
-                className="min-w-0 max-w-full overflow-x-hidden"
+                scale="dashboard"
+                className="min-w-0 max-w-full"
               >
                 <OrgOnboardingGate>{children}</OrgOnboardingGate>
               </Shell.Main>

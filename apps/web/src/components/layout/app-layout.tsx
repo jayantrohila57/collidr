@@ -42,7 +42,7 @@ export function PageHeaderBar({
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 shrink-0 border-b bg-background",
+        "z-40 shrink-0 border-b bg-background",
         layoutChromeClass,
         className,
       )}

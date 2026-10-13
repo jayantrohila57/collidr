@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import React, { type ReactNode } from "react";
-import { layoutContentClass, layoutGutterClass } from "@/lib/layout-spacing";
+import { layoutDashboardScrollClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 
 export const Shell = ({ children }: { children: React.ReactNode }) => {
@@ -114,7 +114,7 @@ const MainVariants = cva("relative", {
   variants: {
     variant: {
       default: "flex flex-col",
-      dashboard: layoutContentClass,
+      dashboard: layoutDashboardScrollClass,
       centered: "flex flex-col items-center justify-center py-16",
     },
     scale: {
