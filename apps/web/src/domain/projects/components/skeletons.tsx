@@ -1,4 +1,5 @@
 import { Card, CardFooter, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function ProjectCardSkeleton() {
@@ -12,7 +13,7 @@ function ProjectCardSkeleton() {
       </CardHeader>
       <CardFooter className="flex justify-between">
         <Skeleton className="h-4 w-24" />
-        <Skeleton className="size-8 rounded-md" />
+        <Skeleton className="size-7 rounded-md" />
       </CardFooter>
     </Card>
   );
@@ -21,18 +22,19 @@ function ProjectCardSkeleton() {
 export function ProjectsSkeleton() {
   return (
     <div
-      className="space-y-4"
+      className="flex flex-col gap-6"
       role="status"
       aria-live="polite"
       aria-busy="true"
     >
-      <div className="rounded-lg border">
-        <div className="flex items-center gap-2 p-4">
+      <div>
+        <div className="flex items-center gap-2 py-2">
           <Skeleton className="size-2 rounded-full" />
           <Skeleton className="h-4 w-32" />
           <Skeleton className="h-4 w-8" />
         </div>
-        <div className="grid gap-4 px-4 pb-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <Separator />
+        <div className="grid gap-4 pt-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {["a", "b", "c", "d"].map((id) => (
             <ProjectCardSkeleton key={id} />
           ))}

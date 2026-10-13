@@ -1,16 +1,17 @@
 "use client";
 
 import type { ProjectOutput } from "@env-manager/api/types";
-import { Folder, Plus } from "lucide-react";
+import { ChevronDown, Folder, Plus } from "lucide-react";
 import { useMemo } from "react";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { ErrorState } from "@/components/patterns/error-state";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import { useProjects } from "../hooks/use-projects";
 import { ProjectCardView } from "./project-card-view";
 import { ProjectsSkeleton } from "./skeletons";
@@ -101,27 +102,31 @@ export default function ProjectList() {
       );
     case "success":
       return (
-        <Accordion
-          type="multiple"
-          defaultValue={["Active Projects"]}
-          className="space-y-4"
-        >
+        <div className="flex flex-col gap-6">
           {projectCategories.map((category) => (
-            <AccordionItem
+            <Collapsible
               key={category.title}
-              value={category.title}
-              className="rounded-lg border"
+              defaultOpen={category.defaultOpen ?? false}
+              className="min-w-0"
             >
-              <AccordionTrigger className="p-4 hover:no-underline">
-                <div className="flex items-center gap-2">
-                  {category.icon}
-                  <span className="font-medium">{category.title}</span>
-                  <span className="text-muted-foreground text-sm">
-                    ({category.count})
-                  </span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="h-full px-4 pb-4">
+              <CollapsibleTrigger
+                className={cn(
+                  "group flex w-full cursor-pointer items-center gap-2 py-2 text-start",
+                  "font-medium text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/30",
+                )}
+              >
+                {category.icon}
+                <span>{category.title}</span>
+                <span className="text-muted-foreground text-sm">
+                  ({category.count})
+                </span>
+                <ChevronDown
+                  className="ms-auto size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180"
+                  aria-hidden
+                />
+              </CollapsibleTrigger>
+              <Separator />
+              <CollapsibleContent className="pt-4">
                 {category.projects.length > 0 ? (
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {category.projects.map((project) => (
@@ -137,10 +142,10 @@ export default function ProjectList() {
                     actionHref="/dashboard/projects/new"
                   />
                 )}
-              </AccordionContent>
-            </AccordionItem>
+              </CollapsibleContent>
+            </Collapsible>
           ))}
-        </Accordion>
+        </div>
       );
   }
 }

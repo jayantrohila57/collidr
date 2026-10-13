@@ -41,7 +41,7 @@ export default function ProjectDetail({
   const hasLinks = Boolean(project.repositoryUrl || project.websiteUrl);
 
   return (
-    <div className="min-w-0 max-w-full space-y-4">
+    <div className="flex min-w-0 max-w-full flex-col gap-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">

@@ -195,4 +195,8 @@
   html {
     @apply font-sans;
   }
+
+  a[href]:not([aria-disabled="true"]) {
+    @apply cursor-pointer;
+  }
 }

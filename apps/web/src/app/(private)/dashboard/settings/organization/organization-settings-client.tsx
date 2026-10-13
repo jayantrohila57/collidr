@@ -5,8 +5,6 @@ import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { FormSection } from "@/components/layout/form-section";
-import { PageContainer } from "@/components/layout/page-container";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { ErrorState } from "@/components/patterns/error-state";
@@ -23,6 +21,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -261,12 +260,10 @@ export function OrganizationSettingsForm({
 
   if (loading) {
     return (
-      <PageContainer size="narrow" aria-busy="true">
-        <div className="space-y-4">
-          <Skeleton className="h-8 w-64" />
-          <Skeleton className="h-24 w-full" />
-        </div>
-      </PageContainer>
+      <div className="flex flex-col gap-6" aria-busy="true">
+        <Skeleton className="h-24 w-full rounded-xl" />
+        <Skeleton className="h-32 w-full rounded-xl" />
+      </div>
     );
   }
 
@@ -281,168 +278,196 @@ export function OrganizationSettingsForm({
   }
 
   return (
-    <PageContainer size="narrow" className="space-y-6">
-      <form onSubmit={handleSaveProfile} className="space-y-4">
-        <FormSection
-          title="Organization"
-          description="Name and slug for this workspace."
-        >
-          <FormField id="org-name-edit" label="Name" required>
-            <Input
-              id="org-name-edit"
-              value={orgName}
-              onChange={(e) => setOrgName(e.target.value)}
-            />
-          </FormField>
-          <FormField
-            id="org-slug-edit"
-            label="Slug"
-            required
-            hint="Slugs use lowercase letters, numbers, and hyphens."
-            error={slugError}
-          >
-            <OrgSlugInput
-              id="org-slug-edit"
-              value={orgSlug}
-              onChange={(value) => {
-                setSlugError(undefined);
-                setOrgSlug(value);
-              }}
-            />
-          </FormField>
-          <SubmitButton isLoading={savePending} loadingLabel="Saving…">
-            Save changes
-          </SubmitButton>
-        </FormSection>
-      </form>
-
-      <form
-        onSubmit={handleInvite}
-        className="space-y-4 rounded-lg border p-4 md:p-6"
-      >
-        <FormSection title="Invite member">
-          <div className="grid gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-end">
-            <FormField id="invite-email" label="Email" required>
+    <div className="flex flex-col gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Organization</CardTitle>
+          <p className="text-muted-foreground text-sm">
+            Name and slug for this workspace.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSaveProfile} className="space-y-4">
+            <FormField id="org-name-edit" label="Name" required>
               <Input
-                id="invite-email"
-                type="email"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                placeholder="colleague@example.com"
-                autoComplete="email"
+                id="org-name-edit"
+                value={orgName}
+                onChange={(e) => setOrgName(e.target.value)}
               />
             </FormField>
-            <FormField id="invite-role" label="Role">
-              <Select value={inviteRole} onValueChange={setInviteRole}>
-                <SelectTrigger id="invite-role" className="w-full sm:w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {ROLES.map((role) => (
-                    <SelectItem key={role} value={role} className="capitalize">
-                      {role}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <FormField
+              id="org-slug-edit"
+              label="Slug"
+              required
+              hint="Slugs use lowercase letters, numbers, and hyphens."
+              error={slugError}
+            >
+              <OrgSlugInput
+                id="org-slug-edit"
+                value={orgSlug}
+                onChange={(value) => {
+                  setSlugError(undefined);
+                  setOrgSlug(value);
+                }}
+              />
             </FormField>
-            <SubmitButton
-              isLoading={invitePending}
-              loadingLabel="Sending…"
-              disabled={!inviteEmail.trim()}
-            >
-              Invite
+            <SubmitButton isLoading={savePending} loadingLabel="Saving…">
+              Save changes
             </SubmitButton>
-          </div>
-        </FormSection>
-      </form>
+          </form>
+        </CardContent>
+      </Card>
 
-      <FormSection title="Members">
-        <ul className="divide-y rounded-md border">
-          {members.map((member) => (
-            <li
-              key={member.id}
-              className="flex flex-col gap-2 px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
-            >
-              <span>
-                {member.user.name}{" "}
-                <span className="text-muted-foreground">
-                  ({member.user.email})
-                </span>
-              </span>
-              <Select
-                value={member.role}
-                onValueChange={(role) => void handleRoleChange(member.id, role)}
-                disabled={rolePendingId === member.id || !isOwner}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Invite member</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleInvite} className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-end">
+              <FormField id="invite-email" label="Email" required>
+                <Input
+                  id="invite-email"
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="colleague@example.com"
+                  autoComplete="email"
+                />
+              </FormField>
+              <FormField id="invite-role" label="Role">
+                <Select value={inviteRole} onValueChange={setInviteRole}>
+                  <SelectTrigger id="invite-role" className="w-full sm:w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLES.map((role) => (
+                      <SelectItem
+                        key={role}
+                        value={role}
+                        className="capitalize"
+                      >
+                        {role}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+              <SubmitButton
+                isLoading={invitePending}
+                loadingLabel="Sending…"
+                disabled={!inviteEmail.trim()}
               >
-                <SelectTrigger
-                  className="w-full capitalize sm:w-32"
-                  aria-label={`Role for ${member.user.email}`}
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {ROLES.map((role) => (
-                    <SelectItem key={role} value={role} className="capitalize">
-                      {role}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </li>
-          ))}
-        </ul>
-      </FormSection>
+                Invite
+              </SubmitButton>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
 
-      <div className="space-y-4 rounded-lg border border-destructive/40 p-4 md:p-6">
-        <h3 className="font-medium text-destructive text-sm">Danger zone</h3>
-        {isOwner ? (
-          <>
-            <p className="text-muted-foreground text-sm">
-              {isPersonal
-                ? "Your personal workspace cannot be deleted."
-                : "Deleting an organization removes members and invitations. Projects must be removed or moved first."}
-            </p>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={isPersonal || orgs.length <= 1 || deletePending}
-              onClick={() => {
-                setDeleteConfirmName("");
-                setDeleteOpen(true);
-              }}
-            >
-              Delete organization
-            </Button>
-            {orgs.length <= 1 && !isPersonal && (
-              <p className="text-muted-foreground text-xs">
-                Create another organization before deleting this one.
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Members</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <ul className="divide-y">
+            {members.map((member) => (
+              <li
+                key={member.id}
+                className="flex flex-col gap-2 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+              >
+                <span>
+                  {member.user.name}{" "}
+                  <span className="text-muted-foreground">
+                    ({member.user.email})
+                  </span>
+                </span>
+                <Select
+                  value={member.role}
+                  onValueChange={(role) =>
+                    void handleRoleChange(member.id, role)
+                  }
+                  disabled={rolePendingId === member.id || !isOwner}
+                >
+                  <SelectTrigger
+                    className="w-full capitalize sm:w-32"
+                    aria-label={`Role for ${member.user.email}`}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLES.map((role) => (
+                      <SelectItem
+                        key={role}
+                        value={role}
+                        className="capitalize"
+                      >
+                        {role}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+
+      <Card className="border-destructive/40">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base text-destructive">
+            Danger zone
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {isOwner ? (
+            <>
+              <p className="text-muted-foreground text-sm">
+                {isPersonal
+                  ? "Your personal workspace cannot be deleted."
+                  : "Deleting an organization removes members and invitations. Projects must be removed or moved first."}
               </p>
-            )}
-          </>
-        ) : (
-          <>
-            <p className="text-muted-foreground text-sm">
-              Leave this organization. You will lose access to its projects.
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={leavePending}
-              onClick={() => void handleLeave()}
-            >
-              {leavePending ? (
-                <>
-                  <Spinner className="me-2" />
-                  Leaving…
-                </>
-              ) : (
-                "Leave organization"
+              <Button
+                type="button"
+                variant="destructive"
+                disabled={isPersonal || orgs.length <= 1 || deletePending}
+                onClick={() => {
+                  setDeleteConfirmName("");
+                  setDeleteOpen(true);
+                }}
+              >
+                Delete organization
+              </Button>
+              {orgs.length <= 1 && !isPersonal && (
+                <p className="text-muted-foreground text-xs">
+                  Create another organization before deleting this one.
+                </p>
               )}
-            </Button>
-          </>
-        )}
-      </div>
+            </>
+          ) : (
+            <>
+              <p className="text-muted-foreground text-sm">
+                Leave this organization. You will lose access to its projects.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={leavePending}
+                onClick={() => void handleLeave()}
+              >
+                {leavePending ? (
+                  <>
+                    <Spinner className="me-2" />
+                    Leaving…
+                  </>
+                ) : (
+                  "Leave organization"
+                )}
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
@@ -483,7 +508,7 @@ export function OrganizationSettingsForm({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </PageContainer>
+    </div>
   );
 }
 

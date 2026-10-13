@@ -83,11 +83,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
     <>
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`size-11 ${touchTarget}`}
-          >
+          <Button variant="ghost" size="icon-sm" className={touchTarget}>
             <MoreHorizontal className="h-4 w-4" />
             <span className="sr-only">Actions</span>
           </Button>

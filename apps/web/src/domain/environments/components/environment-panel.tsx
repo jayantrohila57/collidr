@@ -1,6 +1,7 @@
 "use client";
 
 import { ErrorState } from "@/components/patterns/error-state";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useVariables } from "../hooks/use-variables";
 import { AddVariableDialog } from "./add-variable-dialog";
 import { VariablesSkeleton } from "./skeletons";
@@ -52,7 +53,19 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
     await deleteVariable({ id });
   };
 
-  if (status === "loading") return <VariablesSkeleton />;
+  if (status === "loading") {
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardTitle className="text-base">Variables</CardTitle>
+          <SkeletonActionsPlaceholder />
+        </CardHeader>
+        <CardContent>
+          <VariablesSkeleton />
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (status === "error") {
     return (
@@ -65,26 +78,29 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="font-semibold text-lg">Variables</h3>
-        <div className="shrink-0 self-start sm:self-auto">
-          <AddVariableDialog onConfirm={handleCreate} isPending={isCreating} />
-        </div>
-      </div>
-
-      <VariablesTableView
-        variables={variablesWithValues}
-        revealedIds={revealedIds}
-        revealingIds={revealingIds}
-        onReveal={toggleReveal}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onAddVariable={handleCreate}
-        onFetchValue={fetchVariableValue}
-        isAddingVariable={isCreating}
-        isUpdating={isUpdating}
-      />
-    </div>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
+        <CardTitle className="text-base">Variables</CardTitle>
+        <AddVariableDialog onConfirm={handleCreate} isPending={isCreating} />
+      </CardHeader>
+      <CardContent className="min-w-0">
+        <VariablesTableView
+          variables={variablesWithValues}
+          revealedIds={revealedIds}
+          revealingIds={revealingIds}
+          onReveal={toggleReveal}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onAddVariable={handleCreate}
+          onFetchValue={fetchVariableValue}
+          isAddingVariable={isCreating}
+          isUpdating={isUpdating}
+        />
+      </CardContent>
+    </Card>
   );
+}
+
+function SkeletonActionsPlaceholder() {
+  return <div className="h-7 w-28 shrink-0" aria-hidden />;
 }

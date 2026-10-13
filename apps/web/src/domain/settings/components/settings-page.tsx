@@ -3,11 +3,9 @@
 import { Github, Shield } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { PageContainer } from "@/components/layout/page-container";
 import { ErrorState } from "@/components/patterns/error-state";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { formatDateTime } from "@/lib/format";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
@@ -32,7 +30,7 @@ export function SettingsPage() {
   }
 
   return (
-    <PageContainer size="narrow" className="space-y-6">
+    <div className="flex flex-col gap-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -57,8 +55,6 @@ export function SettingsPage() {
           </div>
         </CardContent>
       </Card>
-
-      <Separator />
 
       <Card>
         <CardHeader>
@@ -86,7 +82,7 @@ export function SettingsPage() {
           <CardContent>
             <Link
               href={"/dashboard/settings/organization" as Route}
-              className="text-primary text-sm underline-offset-4 hover:underline"
+              className="cursor-pointer text-primary text-sm underline-offset-4 hover:underline"
             >
               Manage organization and members
             </Link>
@@ -98,6 +94,6 @@ export function SettingsPage() {
         Project visibility and secrets are managed per project. Use the project
         actions menu to change status, visibility, or delete data.
       </p>
-    </PageContainer>
+    </div>
   );
 }

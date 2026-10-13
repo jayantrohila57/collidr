@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ActivityIcon,
   FolderClosedIcon,
   FolderIcon,
   LayoutDashboardIcon,
@@ -61,6 +62,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const menuItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboardIcon },
     { href: "/dashboard/projects", label: "Projects", icon: FolderClosedIcon },
+    { href: "/dashboard/activity", label: "Activity", icon: ActivityIcon },
     { href: "/dashboard/settings", label: "Settings", icon: SettingsIcon },
   ];
 

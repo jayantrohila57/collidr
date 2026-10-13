@@ -23,6 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { touchTarget } from "@/lib/utils";
 import { AddVariableDialog } from "./add-variable-dialog";
 import { EditVariableDialog } from "./edit-variable-dialog";
 import { VariablesMobileList } from "./variables-mobile-list";
@@ -216,8 +217,8 @@ export function VariablesTableView({
                           <Button
                             type="button"
                             variant="ghost"
-                            size="icon"
-                            className="size-11"
+                            size="icon-sm"
+                            className={touchTarget}
                             aria-label="Variable actions"
                           >
                             <MoreVertical className="size-4" aria-hidden />

@@ -30,7 +30,14 @@ export default function EditProjectClient({ slug }: EditProjectClientProps) {
   const project = projectBySlug?.data?.project;
 
   if (isLoading) {
-    return <ProjectDetailSkeleton />;
+    return (
+      <DashboardSection
+        title="Edit project"
+        description="Update project information and settings."
+      >
+        <ProjectDetailSkeleton />
+      </DashboardSection>
+    );
   }
 
   if (!project) {

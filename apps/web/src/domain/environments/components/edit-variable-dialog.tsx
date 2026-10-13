@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 
 interface EditVariableDialogProps {
@@ -109,21 +109,26 @@ export function EditVariableDialog({
               />
             </FormField>
             <FormField id="edit-value" label="Value" required>
-              {isLoadingValue ? (
-                <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                  <Spinner />
-                  Loading current value…
-                </div>
-              ) : (
+              <div className="relative min-h-24">
+                {isLoadingValue ? (
+                  <>
+                    <Skeleton
+                      className="absolute inset-0 min-h-24 w-full rounded-md"
+                      aria-hidden
+                    />
+                    <span className="sr-only">Loading current value</span>
+                  </>
+                ) : null}
                 <Textarea
                   id="edit-value"
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
                   placeholder="your-value-here"
                   rows={3}
+                  disabled={isLoadingValue}
                   className="wrap-anywhere max-h-72 min-h-24 overflow-y-auto font-mono"
                 />
-              )}
+              </div>
             </FormField>
           </div>
           <DialogFooter>

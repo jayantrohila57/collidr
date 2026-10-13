@@ -3,7 +3,6 @@
 import { FileKey, Plus } from "lucide-react";
 import { useMemo } from "react";
 import { HorizontalScrollRail } from "@/components/patterns/horizontal-scroll-rail";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Empty,
   EmptyContent,
@@ -88,99 +87,92 @@ export function EnvironmentsTabsView({
   }
 
   return (
-    <Card className="min-w-0 bg-background">
-      <CardHeader className="space-y-0">
-        <div className="flex min-w-0 items-center justify-between gap-4">
-          <CardTitle className="flex min-w-0 items-center gap-2 text-lg">
-            <FileKey className="size-5 shrink-0" />
-            <span className="truncate">Environments</span>
-          </CardTitle>
-          <CreateEnvironmentDialog
-            onConfirm={onCreate}
-            isPending={isCreating}
-            triggerText="Add Environment"
-            compactOnMobile
-          />
-        </div>
-      </CardHeader>
-      <CardContent className="min-w-0">
-        <Tabs
-          value={resolvedActive}
-          onValueChange={onTabChange}
-          className="min-w-0 gap-4"
-        >
-          <div className="min-w-0 space-y-2 lg:hidden">
-            <Select value={resolvedActive} onValueChange={onTabChange}>
-              <SelectTrigger
-                className={`w-full ${touchTarget}`}
-                aria-label="Select environment"
-              >
-                <SelectValue placeholder="Select environment" />
-              </SelectTrigger>
-              <SelectContent>
-                {environments.map((env) => (
-                  <SelectItem key={env.id} value={env.id}>
-                    {env.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {activeEnvironment && (
-              <div className="flex items-center gap-1">
-                <EditEnvironmentDialog
-                  environment={activeEnvironment}
-                  onConfirm={onUpdate}
-                  isPending={isUpdating}
-                />
-                <DeleteEnvironmentDialog
-                  environmentName={activeEnvironment.name}
-                  onConfirm={() => onDelete(activeEnvironment.id)}
-                  isPending={isDeleting}
-                />
-              </div>
-            )}
-          </div>
+    <section className="flex min-w-0 flex-col gap-4">
+      <div className="flex min-w-0 items-center justify-between gap-4">
+        <h2 className="flex min-w-0 items-center gap-2 font-semibold text-lg tracking-tight">
+          <FileKey className="size-5 shrink-0 text-muted-foreground" />
+          <span className="truncate">Environments</span>
+        </h2>
+        <CreateEnvironmentDialog
+          onConfirm={onCreate}
+          isPending={isCreating}
+          triggerText="Add Environment"
+          compactOnMobile
+        />
+      </div>
 
-          <div className="hidden min-w-0 lg:block">
-            <HorizontalScrollRail>
-              <TabsList className="inline-flex h-auto w-max flex-nowrap justify-start">
-                {environments.map((env) => (
-                  <div
-                    key={env.id}
-                    className="inline-flex shrink-0 items-center gap-0.5"
-                  >
-                    <TabsTrigger className="shrink-0" value={env.id}>
-                      {env.name}
-                    </TabsTrigger>
-                    <span className="flex shrink-0 items-center gap-0.5 pe-2">
-                      <EditEnvironmentDialog
-                        environment={env}
-                        onConfirm={onUpdate}
-                        isPending={isUpdating}
-                      />
-                      <DeleteEnvironmentDialog
-                        environmentName={env.name}
-                        onConfirm={() => onDelete(env.id)}
-                        isPending={isDeleting}
-                      />
-                    </span>
-                  </div>
-                ))}
-              </TabsList>
-            </HorizontalScrollRail>
-          </div>
-
-          {environments.map((env) => (
-            <TabsContent
-              key={env.id}
-              value={env.id}
-              className="min-w-0 rounded-md border p-4"
+      <Tabs
+        value={resolvedActive}
+        onValueChange={onTabChange}
+        className="min-w-0 gap-4"
+      >
+        <div className="min-w-0 space-y-2 lg:hidden">
+          <Select value={resolvedActive} onValueChange={onTabChange}>
+            <SelectTrigger
+              className={`w-full ${touchTarget}`}
+              aria-label="Select environment"
             >
-              {children(env)}
-            </TabsContent>
-          ))}
-        </Tabs>
-      </CardContent>
-    </Card>
+              <SelectValue placeholder="Select environment" />
+            </SelectTrigger>
+            <SelectContent>
+              {environments.map((env) => (
+                <SelectItem key={env.id} value={env.id}>
+                  {env.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {activeEnvironment && (
+            <div className="flex items-center gap-1">
+              <EditEnvironmentDialog
+                environment={activeEnvironment}
+                onConfirm={onUpdate}
+                isPending={isUpdating}
+              />
+              <DeleteEnvironmentDialog
+                environmentName={activeEnvironment.name}
+                onConfirm={() => onDelete(activeEnvironment.id)}
+                isPending={isDeleting}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="hidden min-w-0 lg:block">
+          <HorizontalScrollRail>
+            <TabsList className="inline-flex h-auto w-max flex-nowrap justify-start">
+              {environments.map((env) => (
+                <div
+                  key={env.id}
+                  className="inline-flex shrink-0 items-center gap-0.5"
+                >
+                  <TabsTrigger className="shrink-0" value={env.id}>
+                    {env.name}
+                  </TabsTrigger>
+                  <span className="flex shrink-0 items-center gap-0.5 pe-2">
+                    <EditEnvironmentDialog
+                      environment={env}
+                      onConfirm={onUpdate}
+                      isPending={isUpdating}
+                    />
+                    <DeleteEnvironmentDialog
+                      environmentName={env.name}
+                      onConfirm={() => onDelete(env.id)}
+                      isPending={isDeleting}
+                    />
+                  </span>
+                </div>
+              ))}
+            </TabsList>
+          </HorizontalScrollRail>
+        </div>
+
+        {environments.map((env) => (
+          <TabsContent key={env.id} value={env.id} className="min-w-0 pt-2">
+            {children(env)}
+          </TabsContent>
+        ))}
+      </Tabs>
+    </section>
   );
 }

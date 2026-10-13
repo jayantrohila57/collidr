@@ -54,7 +54,7 @@ export default function ProjectDetailPage({
             <Skeleton className="h-5 w-20 rounded-md" />
           </div>
         }
-        action={<Skeleton className="h-9 w-9 rounded-md" />}
+        action={<Skeleton className="size-7 rounded-md" />}
       >
         <ProjectDetailSkeleton />
       </DashboardSection>

@@ -32,7 +32,7 @@ export function PageHeader({
     ) : null);
 
   return (
-    <header className="flex min-w-0 shrink-0 flex-col gap-4">
+    <header className="flex min-w-0 shrink-0 flex-col gap-4 pb-1">
       {showBack ? (
         <div className="-ms-1">
           <GoBackButton />

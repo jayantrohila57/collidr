@@ -1,10 +1,9 @@
-import { PageContainer } from "@/components/layout/page-container";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function SettingsPageSkeleton() {
   return (
-    <PageContainer size="narrow" className="space-y-6" aria-busy="true">
+    <div className="flex flex-col gap-6" aria-busy="true">
       <Card>
         <CardHeader>
           <Skeleton className="h-6 w-32" />
@@ -26,6 +25,6 @@ export function SettingsPageSkeleton() {
           <Skeleton className="h-4 w-2/3" />
         </CardContent>
       </Card>
-    </PageContainer>
+    </div>
   );
 }

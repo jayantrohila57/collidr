@@ -7,7 +7,7 @@ import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -63,11 +63,6 @@ export function EditProject({
 
   return (
     <Card>
-      {!embedded && (
-        <CardHeader>
-          <CardTitle className="text-xl">Edit Project</CardTitle>
-        </CardHeader>
-      )}
       <CardContent className={embedded ? "px-0 pt-0" : undefined}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Project Name Field */}

@@ -86,12 +86,12 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
               onClick={(e) => e.stopPropagation()}
               aria-label={`Open ${project.name} repository`}
             >
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon-sm">
                 <Github className="size-4" aria-hidden />
               </Button>
             </Link>
           ) : (
-            <span className="size-8 shrink-0" aria-hidden />
+            <span className="size-7 shrink-0" aria-hidden />
           )}
           {project.websiteUrl ? (
             <Link
@@ -101,12 +101,12 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
               onClick={(e) => e.stopPropagation()}
               aria-label={`Open ${project.name} website`}
             >
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon-sm">
                 <Globe className="size-4" aria-hidden />
               </Button>
             </Link>
           ) : (
-            <span className="size-8 shrink-0" aria-hidden />
+            <span className="size-7 shrink-0" aria-hidden />
           )}
         </div>
       </CardFooter>
