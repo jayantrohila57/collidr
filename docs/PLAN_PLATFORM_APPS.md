@@ -598,6 +598,16 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 **Implication:** Auth config stays a closed set of production origins; preview deploys are out of scope for this repo.
 
+### Decision 13 — `project.unarchive` canonical action (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Registry** | Add canonical action **`project.unarchive`** to `@env-manager/actions` (paired with existing archive semantics). |
+| **Scope** | Wire through `requireAction`, `audit_event` when `ACTIONS_AUDIT_ENABLED`, and MCP tool map when MCP ships; align `projects.unarchive` tRPC with the registry. |
+| **Implementation** | Tracked in GitHub **[#92](https://github.com/jayantrohila57/env-manager/issues/92)** — `[Feature] Add project.unarchive action`. |
+
+**Implication:** Unarchive is a first-class permissioned operation, not an ad-hoc mutation bypassing the action matrix.
+
 ---
 
 ## 15. Open decisions (numbered)
@@ -605,14 +615,13 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 1. **Cookie domain** (custom apex) — `env-manager.com` vs `.env-manager.com` vs per-subdomain only?
 2. **Auth proxy vs cookie-only** (custom apex) — rewrites on every sibling app or only `crossSubDomainCookies`?
 3. **Marketing site** — `www` → docs, studio landing, or separate?
-4. **`project.unarchive` canonical action** — add to registry?
-5. **Rate limit store** for MCP — KV vs Postgres?
-6. **MCP transport** — `@modelcontextprotocol/server` + `requireMcpAuth` vs `@vercel/mcp-adapter`?
-7. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
-8. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
-9. **Account app URL in emails** — branding and link targets?
-10. **Impersonation banner** — show on studio, account, or all apps?
-11. **Better Auth upgrade** — before P2 or as part of P2?
+4. **Rate limit store** for MCP — KV vs Postgres?
+5. **MCP transport** — `@modelcontextprotocol/server` + `requireMcpAuth` vs `@vercel/mcp-adapter`?
+6. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
+7. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
+8. **Account app URL in emails** — branding and link targets?
+9. **Impersonation banner** — show on studio, account, or all apps?
+10. **Better Auth upgrade** — before P2 or as part of P2?
 
 ---
 
