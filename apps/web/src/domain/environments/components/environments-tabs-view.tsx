@@ -1,9 +1,10 @@
 "use client";
 
-import { Plus } from "lucide-react";
-import { useMemo } from "react";
+import { MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
 import { HorizontalScrollRail } from "@/components/patterns/horizontal-scroll-rail";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Empty,
   EmptyContent,
@@ -12,8 +13,14 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
-import { layoutGapClass, layoutToolbarClass } from "@/lib/layout-spacing";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { layoutGapClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 import { useEnvironmentVariableCounts } from "../hooks/use-environment-variable-counts";
 import { CreateEnvironmentSheet } from "./create-environment-sheet";
@@ -50,6 +57,9 @@ export function EnvironmentsTabsView({
   isDeleting,
   children,
 }: EnvironmentsTabsViewProps) {
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
   const resolvedActive =
     activeTab && environments.some((e) => e.id === activeTab)
       ? activeTab
@@ -90,48 +100,100 @@ export function EnvironmentsTabsView({
         onValueChange={onTabChange}
         className="min-w-0 gap-2"
       >
-        <HorizontalScrollRail>
-          <TabsList size="sm" className="h-auto w-max max-w-full justify-start">
-            {environments.map((env) => {
-              const count = variableCounts[env.id];
-              return (
-                <TabsTab key={env.id} value={env.id} className="gap-1.5">
-                  <span>{env.name}</span>
-                  {count !== undefined ? (
-                    <Badge
-                      variant="secondary"
-                      size="sm"
-                      className="tabular-nums"
-                    >
-                      {count}
-                    </Badge>
-                  ) : null}
-                </TabsTab>
-              );
-            })}
-          </TabsList>
-        </HorizontalScrollRail>
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <HorizontalScrollRail className="min-w-0 flex-1">
+            <TabsList
+              size="sm"
+              className="h-auto w-max max-w-full justify-start"
+            >
+              {environments.map((env) => {
+                const count = variableCounts[env.id];
+                return (
+                  <TabsTab
+                    key={env.id}
+                    value={env.id}
+                    className="max-w-[10rem] gap-1.5 sm:max-w-none"
+                  >
+                    <span className="truncate">{env.name}</span>
+                    {count !== undefined ? (
+                      <Badge
+                        variant="secondary"
+                        size="sm"
+                        className="tabular-nums"
+                      >
+                        {count}
+                      </Badge>
+                    ) : null}
+                  </TabsTab>
+                );
+              })}
+            </TabsList>
+          </HorizontalScrollRail>
+          {activeEnvironment ? (
+            <Menu>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <MenuTrigger
+                      render={
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          aria-label="Environment actions"
+                        />
+                      }
+                    />
+                  }
+                >
+                  <MoreVertical className="size-4" aria-hidden />
+                </TooltipTrigger>
+                <TooltipContent>Environment actions</TooltipContent>
+              </Tooltip>
+              <MenuPopup align="end">
+                <MenuItem onClick={() => setEditOpen(true)}>
+                  <Pencil className="me-2 size-4" aria-hidden />
+                  Rename
+                </MenuItem>
+                <MenuItem
+                  variant="destructive"
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <Trash2 className="me-2 size-4" aria-hidden />
+                  Delete
+                </MenuItem>
+              </MenuPopup>
+            </Menu>
+          ) : null}
+        </div>
 
         {activeEnvironment ? (
           <TabsPanel value={activeEnvironment.id} className="min-w-0">
-            <div className={cn(layoutToolbarClass, "items-center pb-0")}>
-              <div className="flex flex-1 items-center gap-1">
-                <EditEnvironmentSheet
-                  environment={activeEnvironment}
-                  onConfirm={onUpdate}
-                  isPending={isUpdating}
-                />
-                <DeleteEnvironmentDialog
-                  environmentName={activeEnvironment.name}
-                  onConfirm={() => onDelete(activeEnvironment.id)}
-                  isPending={isDeleting}
-                />
-              </div>
-            </div>
             {children(activeEnvironment)}
           </TabsPanel>
         ) : null}
       </Tabs>
+
+      {activeEnvironment ? (
+        <>
+          <EditEnvironmentSheet
+            open={editOpen}
+            onOpenChange={setEditOpen}
+            hideTrigger
+            environment={activeEnvironment}
+            onConfirm={onUpdate}
+            isPending={isUpdating}
+          />
+          <DeleteEnvironmentDialog
+            open={deleteOpen}
+            onOpenChange={setDeleteOpen}
+            hideTrigger
+            environmentName={activeEnvironment.name}
+            onConfirm={() => onDelete(activeEnvironment.id)}
+            isPending={isDeleting}
+          />
+        </>
+      ) : null}
     </section>
   );
 }

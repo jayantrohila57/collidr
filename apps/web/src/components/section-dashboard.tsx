@@ -27,7 +27,7 @@ export default function DashboardSection({
   actionHref,
   actionUrl,
   children,
-  showBack = true,
+  showBack = false,
 }: SectionProps) {
   const resolvedActionHref = actionHref ?? actionUrl;
   const trailingAction =

@@ -37,13 +37,26 @@ interface RecentActivity {
 const DASHBOARD_LOAD_TIMEOUT_MS = 20_000;
 
 export function useDashboard() {
-  const { isSwitching } = useActiveOrganization();
+  const {
+    isSwitching,
+    enabled: orgsEnabled,
+    initialLoadDone,
+    activeOrganizationId,
+  } = useActiveOrganization();
+  const orgReady =
+    !orgsEnabled || (initialLoadDone && Boolean(activeOrganizationId));
   const [loadTimedOut, setLoadTimedOut] = useState(false);
 
   const overviewQuery = useQuery({
     ...trpc.dashboard.getOverview.queryOptions(),
     meta: { toastOnError: false },
-    retry: 2,
+    retry: (failureCount, err) => {
+      const code = (err as { data?: { code?: string } })?.data?.code;
+      if (code === "FORBIDDEN" && failureCount < 4) return true;
+      return failureCount < 2;
+    },
+    retryDelay: (attempt) => Math.min(500 * 2 ** attempt, 4000),
+    enabled: !isSwitching && orgReady,
   });
 
   const pending = isSwitching || overviewQuery.isPending;

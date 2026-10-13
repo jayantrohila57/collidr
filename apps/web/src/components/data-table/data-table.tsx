@@ -54,7 +54,16 @@ export type DataTableProps<TData extends RowData> = {
   pageSize?: number;
   /** Client-side search across row values */
   searchable?: boolean;
+  /** Constrain table to parent width (responsive tables) */
+  compactLayout?: boolean;
 };
+
+function columnClassName<TData extends RowData>(
+  columnDef: DataTableColumnDef<TData>,
+) {
+  const meta = columnDef.meta as { className?: string } | undefined;
+  return meta?.className;
+}
 
 function defaultGlobalFilterFn<TData extends RowData>(
   row: { original: TData },
@@ -91,6 +100,7 @@ export function DataTable<TData extends RowData>({
   enablePagination = false,
   pageSize = 10,
   searchable = false,
+  compactLayout = false,
 }: DataTableProps<TData>) {
   const [internalSearch, setInternalSearch] = useState("");
   const searchEnabled =
@@ -138,13 +148,16 @@ export function DataTable<TData extends RowData>({
     showEmpty && emptyState !== undefined ? (
       emptyMarkup
     ) : (
-      <Table variant="card">
+      <Table variant="card" className={cn(compactLayout && "table-fixed")}>
         {caption ? <TableCaption>{caption}</TableCaption> : null}
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
+                <TableHead
+                  key={header.id}
+                  className={columnClassName(header.column.columnDef)}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -169,7 +182,10 @@ export function DataTable<TData extends RowData>({
                 data-state={row.getIsSelected() ? "selected" : undefined}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell
+                    key={cell.id}
+                    className={columnClassName(cell.column.columnDef)}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -201,7 +217,17 @@ export function DataTable<TData extends RowData>({
           primaryAction={primaryAction}
         />
       ) : null}
-      {framed ? <Frame className="w-full">{tableMarkup}</Frame> : tableMarkup}
+      {framed ? (
+        <Frame className="w-full min-w-0 max-w-full overflow-x-auto">
+          {tableMarkup}
+        </Frame>
+      ) : (
+        <div
+          className={cn(compactLayout && "min-w-0 max-w-full overflow-x-auto")}
+        >
+          {tableMarkup}
+        </div>
+      )}
       {enablePagination && !isLoading && hasRows ? (
         <DataTablePagination table={table} />
       ) : null}

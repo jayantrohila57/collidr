@@ -57,6 +57,8 @@ export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
           });
           await invalidateAfterOrganizationChange(queryClient);
           router.refresh();
+          if (!cancelled) setReady(true);
+          return;
         }
         if (!cancelled) setReady(true);
       } catch {

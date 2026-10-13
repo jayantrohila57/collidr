@@ -5,6 +5,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { ErrorState } from "@/components/patterns/error-state";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardDescription,
@@ -12,7 +13,6 @@ import {
   CardPanel,
   CardTitle,
 } from "@/components/ui/card";
-import { Frame } from "@/components/ui/frame";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { formatDateTime } from "@/lib/format";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
@@ -37,77 +37,67 @@ export function SettingsPage() {
   }
 
   return (
-    <Frame className="w-full">
-      <div className="flex flex-col gap-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Account</CardTitle>
-            <CardDescription>Your profile in this workspace.</CardDescription>
-          </CardHeader>
-          <CardPanel>
-            <div className="flex items-center gap-2">
-              <Avatar>
-                <AvatarImage src={user.image ?? undefined} alt="" />
-                <AvatarFallback>
-                  {user.name?.slice(0, 2)?.toUpperCase() ??
-                    user.email?.slice(0, 2)?.toUpperCase() ??
-                    "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0">
-                <p className="truncate font-medium text-sm">
-                  {user.name ?? "User"}
-                </p>
-                <p className="truncate text-muted-foreground text-xs">
-                  {user.email}
-                </p>
-              </div>
-            </div>
-          </CardPanel>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Session</CardTitle>
-          </CardHeader>
-          <CardPanel className="text-sm">
-            <p>
-              <span className="text-muted-foreground">Signed in via</span>{" "}
-              <Github className="inline size-4 align-text-bottom" aria-hidden />{" "}
-              GitHub
-            </p>
-            {"createdAt" in user && user.createdAt ? (
-              <p className="text-muted-foreground text-xs">
-                Member since {formatDateTime(String(user.createdAt))}
+    <div className="flex min-w-0 flex-col gap-2">
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Account</CardTitle>
+          <CardDescription>Profile and sign-in method.</CardDescription>
+        </CardHeader>
+        <CardPanel className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <Avatar className="size-8">
+              <AvatarImage src={user.image ?? undefined} alt="" />
+              <AvatarFallback className="text-xs">
+                {user.name?.slice(0, 2)?.toUpperCase() ??
+                  user.email?.slice(0, 2)?.toUpperCase() ??
+                  "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="truncate font-medium text-sm">
+                {user.name ?? "User"}
               </p>
-            ) : null}
+              <p className="truncate text-muted-foreground text-xs">
+                {user.email}
+              </p>
+            </div>
+          </div>
+          <p className="flex items-center gap-1 text-muted-foreground text-xs">
+            <Github className="size-3.5" aria-hidden />
+            GitHub
+          </p>
+        </CardPanel>
+      </Card>
+
+      {"createdAt" in user && user.createdAt ? (
+        <Card>
+          <CardPanel className="text-muted-foreground text-xs">
+            Member since {formatDateTime(String(user.createdAt))}
           </CardPanel>
         </Card>
+      ) : null}
 
-        {isOrganizationsEnabledOnClient() && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Organization</CardTitle>
-              <CardDescription>
-                Workspace profile, members, and invitations.
-              </CardDescription>
-            </CardHeader>
-            <CardPanel>
-              <Link
-                href={"/dashboard/settings/organization" as Route}
-                className="text-primary text-sm underline-offset-4 hover:underline"
-              >
-                Manage organization
-              </Link>
-            </CardPanel>
-          </Card>
-        )}
-
-        <p className="text-muted-foreground text-xs">
-          Project visibility and secrets are managed per project from the
-          project actions menu.
-        </p>
-      </div>
-    </Frame>
+      {isOrganizationsEnabledOnClient() ? (
+        <Card>
+          <CardPanel className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="font-medium text-sm">Organization</p>
+              <p className="text-muted-foreground text-xs">
+                Members, invitations, and workspace profile.
+              </p>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              render={
+                <Link href={"/dashboard/settings/organization" as Route} />
+              }
+            >
+              Manage organization
+            </Button>
+          </CardPanel>
+        </Card>
+      ) : null}
+    </div>
   );
 }

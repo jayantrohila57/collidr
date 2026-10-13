@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSwitcher } from "@/components/org/org-switcher";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +26,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
   SidebarRail,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
@@ -94,6 +96,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        <SidebarSeparator className="mx-2" />
+
         <SidebarGroup>
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -141,8 +145,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           />
                         }
                       >
-                        <FolderIcon />
-                        <span>{project.name}</span>
+                        <Avatar className="size-5 shrink-0">
+                          <AvatarFallback className="bg-muted font-medium text-[9px]">
+                            {project.name
+                              .split(/\s+/)
+                              .map((part) => part[0])
+                              .join("")
+                              .slice(0, 2)
+                              .toUpperCase() || "P"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="truncate">{project.name}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}

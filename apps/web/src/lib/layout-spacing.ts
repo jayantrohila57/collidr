@@ -54,5 +54,6 @@ export const layoutToolbarClass = `flex flex-col sm:flex-row ${layoutGapClass}`;
 export const layoutGroupLabelClass =
   "flex h-8 shrink-0 items-center px-2 font-medium text-xs";
 
-/** Page title typography — matches sidebar menu label density */
-export const layoutPageTitleClass = "font-semibold text-sm leading-none";
+/** Page title typography — primary in-page heading */
+export const layoutPageTitleClass =
+  "font-semibold text-lg leading-tight tracking-tight sm:text-xl";

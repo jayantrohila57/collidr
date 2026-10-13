@@ -1,8 +1,10 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageStack, PageTitleRow } from "@/components/layout/app-layout";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { ErrorState } from "@/components/patterns/error-state";
@@ -11,6 +13,7 @@ import { CreateProjectSheet } from "@/domain/projects/components/create-project-
 import { ProjectsTableView } from "@/domain/projects/components/projects-table-view";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
 import { useDashboard } from "../hooks/use-dashboard";
+import { DashboardStatRow } from "./dashboard-stat-row";
 import { DashboardPageSkeleton } from "./skeletons";
 
 export function DashboardHome() {
@@ -23,6 +26,15 @@ export function DashboardHome() {
     status: overviewStatus,
     refetch: refetchOverview,
   } = useDashboard();
+
+  const recentProjects = useMemo(() => {
+    return [...projects]
+      .sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+      )
+      .slice(0, 5);
+  }, [projects]);
 
   useEffect(() => {
     if (searchParams.get("create") === "1") {
@@ -48,6 +60,7 @@ export function DashboardHome() {
       <PageStack>
         <PageTitleRow
           title="Dashboard"
+          description="Workspace overview and recent projects."
           action={
             <Button type="button" size="sm" onClick={openCreate}>
               New project
@@ -74,28 +87,7 @@ export function DashboardHome() {
           />
         ) : (
           <>
-            {stats ? (
-              <dl className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
-                <div className="flex gap-1.5">
-                  <dt className="text-muted-foreground">Projects</dt>
-                  <dd className="font-medium tabular-nums">
-                    {stats.totalProjects}
-                  </dd>
-                </div>
-                <div className="flex gap-1.5">
-                  <dt className="text-muted-foreground">Environments</dt>
-                  <dd className="font-medium tabular-nums">
-                    {stats.totalEnvironments}
-                  </dd>
-                </div>
-                <div className="flex gap-1.5">
-                  <dt className="text-muted-foreground">Variables</dt>
-                  <dd className="font-medium tabular-nums">
-                    {stats.totalVariables}
-                  </dd>
-                </div>
-              </dl>
-            ) : null}
+            {stats ? <DashboardStatRow stats={stats} /> : null}
 
             {status === "empty" ? (
               <EmptyState
@@ -106,11 +98,27 @@ export function DashboardHome() {
                 onAction={openCreate}
               />
             ) : (
-              <ProjectsTableView
-                projects={projects}
-                caption="Projects"
-                emptyMessage="No projects yet"
-              />
+              <div className="flex min-w-0 flex-col gap-2">
+                <div className="flex items-center justify-between gap-2">
+                  <h2 className="font-medium text-sm">Recent projects</h2>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    render={<Link href={"/dashboard/projects" as Route} />}
+                  >
+                    View all
+                  </Button>
+                </div>
+                <ProjectsTableView
+                  projects={recentProjects}
+                  caption="Recent projects"
+                  emptyMessage="No projects yet"
+                  searchable={false}
+                  enablePagination={false}
+                  limitRows={5}
+                />
+              </div>
             )}
           </>
         )}

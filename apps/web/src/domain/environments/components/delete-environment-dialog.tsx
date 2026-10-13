@@ -14,14 +14,22 @@ interface DeleteEnvironmentDialogProps {
   environmentName: string;
   onConfirm: () => Promise<void>;
   isPending: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 }
 
 export function DeleteEnvironmentDialog({
   environmentName,
   onConfirm,
   isPending,
+  open: openProp,
+  onOpenChange: onOpenChangeProp,
+  hideTrigger = false,
 }: DeleteEnvironmentDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = openProp ?? internalOpen;
+  const setOpen = onOpenChangeProp ?? setInternalOpen;
 
   const handleConfirm = async () => {
     await onConfirm();
@@ -30,26 +38,28 @@ export function DeleteEnvironmentDialog({
 
   return (
     <>
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-11 shrink-0"
-              aria-label={`Delete ${environmentName} environment`}
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpen(true);
-              }}
-            />
-          }
-        >
-          <Trash2 className="h-3.5 w-3.5" aria-hidden />
-        </TooltipTrigger>
-        <TooltipContent>Delete environment</TooltipContent>
-      </Tooltip>
+      {!hideTrigger ? (
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-11 shrink-0"
+                aria-label={`Delete ${environmentName} environment`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpen(true);
+                }}
+              />
+            }
+          >
+            <Trash2 className="h-3.5 w-3.5" aria-hidden />
+          </TooltipTrigger>
+          <TooltipContent>Delete environment</TooltipContent>
+        </Tooltip>
+      ) : null}
       <ConfirmDialog
         open={open}
         onOpenChange={setOpen}

@@ -92,6 +92,10 @@ export function ActiveOrganizationProvider({
         if (!cancelled) {
           setLoading(false);
           setInitialLoadDone(true);
+          void queryClient.prefetchQuery(trpc.projects.list.queryOptions());
+          void queryClient.prefetchQuery(
+            trpc.dashboard.getOverview.queryOptions(),
+          );
         }
       }
     })();

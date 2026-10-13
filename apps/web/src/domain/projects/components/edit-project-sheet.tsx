@@ -87,7 +87,10 @@ export function EditProjectSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetPopup variant="inset">
+      <SheetPopup
+        variant="inset"
+        className="flex max-h-[min(90vh,720px)] flex-col"
+      >
         <SheetHeader>
           <SheetTitle>Edit Project</SheetTitle>
           <SheetDescription>
@@ -96,7 +99,9 @@ export function EditProjectSheet({
           </SheetDescription>
         </SheetHeader>
         <form className="contents" onSubmit={form.handleSubmit(onSubmit)}>
-          <SheetPanel className={layoutSheetPanelClass}>
+          <SheetPanel
+            className={`${layoutSheetPanelClass} min-h-0 flex-1 overflow-y-auto`}
+          >
             <Controller
               name="name"
               control={form.control}
@@ -125,10 +130,21 @@ export function EditProjectSheet({
               control={form.control}
               render={({ field, fieldState }) => (
                 <div className="space-y-2">
-                  <Label htmlFor={field.name} className="font-medium text-sm">
-                    Description{" "}
-                    <span className="text-muted-foreground">(Optional)</span>
-                  </Label>
+                  <div className="flex items-baseline justify-between gap-2">
+                    <Label htmlFor={field.name} className="font-medium text-sm">
+                      Description{" "}
+                      <span className="text-muted-foreground">(Optional)</span>
+                    </Label>
+                    <span
+                      className={`shrink-0 text-xs tabular-nums ${
+                        descriptionLength > 500
+                          ? "text-destructive"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {descriptionLength}/500
+                    </span>
+                  </div>
                   <Textarea
                     {...field}
                     id={field.name}
@@ -144,15 +160,6 @@ export function EditProjectSheet({
                       {fieldState.error?.message}
                     </p>
                   )}
-                  <p
-                    className={`text-xs ${
-                      descriptionLength > 500
-                        ? "text-destructive"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    {descriptionLength}/500 characters
-                  </p>
                 </div>
               )}
             />

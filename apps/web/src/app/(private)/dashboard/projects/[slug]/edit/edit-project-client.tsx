@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
 import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
+import { ProjectSettingsSection } from "@/domain/projects/components/project-settings-section";
 import { trpc } from "@/utils/trpc";
 
 const EditProject = dynamic(
@@ -49,7 +50,8 @@ export default function EditProjectClient({ slug }: EditProjectClientProps) {
       title={`Edit ${project.name}`}
       description="Update project information and settings."
     >
-      <EditProject project={project} />
+      <EditProject project={project} embedded />
+      <ProjectSettingsSection project={project} />
     </DashboardSection>
   );
 }

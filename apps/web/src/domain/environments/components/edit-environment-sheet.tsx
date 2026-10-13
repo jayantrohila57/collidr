@@ -32,14 +32,22 @@ interface EditEnvironmentSheetProps {
   environment: Environment;
   onConfirm: (id: string, name: string) => Promise<void>;
   isPending: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 }
 
 export function EditEnvironmentSheet({
   environment,
   onConfirm,
   isPending,
+  open: openProp,
+  onOpenChange: onOpenChangeProp,
+  hideTrigger = false,
 }: EditEnvironmentSheetProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = openProp ?? internalOpen;
+  const setOpen = onOpenChangeProp ?? setInternalOpen;
   const [name, setName] = useState(environment.name);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,30 +88,32 @@ export function EditEnvironmentSheet({
 
   return (
     <>
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-11 shrink-0"
-              aria-label={`Edit ${environment.name} environment`}
-              onClick={(e) => {
-                e.stopPropagation();
-                setName(environment.name);
-                setError(null);
-                setOpen(true);
-              }}
-            />
-          }
-        >
-          <Edit className="h-3.5 w-3.5" aria-hidden />
-        </TooltipTrigger>
-        <TooltipContent side="bottom" align="end">
-          Edit environment
-        </TooltipContent>
-      </Tooltip>
+      {!hideTrigger ? (
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-11 shrink-0"
+                aria-label={`Edit ${environment.name} environment`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setName(environment.name);
+                  setError(null);
+                  setOpen(true);
+                }}
+              />
+            }
+          >
+            <Edit className="h-3.5 w-3.5" aria-hidden />
+          </TooltipTrigger>
+          <TooltipContent side="bottom" align="end">
+            Edit environment
+          </TooltipContent>
+        </Tooltip>
+      ) : null}
       <Sheet open={open} onOpenChange={handleOpenChange}>
         <SheetPopup variant="inset">
           <SheetHeader>

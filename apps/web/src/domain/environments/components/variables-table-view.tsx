@@ -1,17 +1,16 @@
 "use client";
 
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
-import { Eye, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
+import { Copy, Eye, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableEmpty } from "@/components/data-table/data-table-empty";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
-import { CopyButton } from "@/components/patterns/copy-button";
-import { IconButton } from "@/components/patterns/icon-button";
 import { SecretValue } from "@/components/patterns/secret-value";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/lib/toast";
 import { AddVariableSheet } from "./add-variable-sheet";
 import { EditVariableSheet } from "./edit-variable-sheet";
 
@@ -118,15 +117,24 @@ export function VariablesTableView({
   const columns = useMemo(
     () => [
       columnHelper.accessor("key", {
+        meta: {
+          className: "w-[38%] max-w-[9rem] min-w-0 sm:max-w-[12rem]",
+        },
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Key" />
         ),
         cell: ({ getValue }) => (
-          <span className="font-medium font-mono">{getValue()}</span>
+          <span className="block truncate font-medium font-mono text-xs sm:text-sm">
+            {getValue()}
+          </span>
         ),
       }),
       columnHelper.display({
         id: "value",
+        meta: {
+          className:
+            "hidden min-w-0 max-w-[10rem] sm:table-cell md:max-w-[14rem]",
+        },
         header: "Value",
         enableSorting: false,
         cell: ({ row }) => {
@@ -158,6 +166,10 @@ export function VariablesTableView({
       }),
       columnHelper.display({
         id: "actions",
+        meta: {
+          className:
+            "sticky end-0 z-10 w-12 bg-background shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)] dark:shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.35)]",
+        },
         header: () => <span className="sr-only">Actions</span>,
         enableSorting: false,
         cell: ({ row }) => {
@@ -165,21 +177,29 @@ export function VariablesTableView({
           const isRevealed = revealedIds.has(variable.id);
 
           return (
-            <div className="flex items-center justify-end gap-1">
-              <IconButton
-                icon={isRevealed ? EyeOff : Eye}
-                label={isRevealed ? "Hide value" : "Reveal value"}
-                isLoading={revealingIds?.has(variable.id)}
-                onClick={() => onReveal(variable.id)}
-              />
-              <CopyButton
-                value={variable.value ?? ""}
-                label="Copy value"
-                disabled={!isRevealed || !variable.value}
-              />
+            <div className="flex justify-end">
               <DataTableRowActions
                 label="Variable actions"
                 actions={[
+                  {
+                    label: isRevealed ? "Hide value" : "Reveal value",
+                    icon: isRevealed ? (
+                      <EyeOff className="me-2 size-4" aria-hidden />
+                    ) : (
+                      <Eye className="me-2 size-4" aria-hidden />
+                    ),
+                    disabled: revealingIds?.has(variable.id),
+                    onSelect: () => onReveal(variable.id),
+                  },
+                  {
+                    label: "Copy value",
+                    icon: <Copy className="me-2 size-4" aria-hidden />,
+                    disabled: !isRevealed || !variable.value,
+                    onSelect: () => {
+                      void navigator.clipboard.writeText(variable.value ?? "");
+                      toast.success("Copied to clipboard");
+                    },
+                  },
                   {
                     label: "Edit",
                     icon: <Pencil className="me-2 size-4" aria-hidden />,
@@ -217,10 +237,11 @@ export function VariablesTableView({
         isLoading={isLoading}
         searchable
         searchPlaceholder="Search variables…"
-        enablePagination
+        enablePagination={variables.length > 15}
         pageSize={15}
         caption="Environment variables"
         framed
+        compactLayout
         emptyState={
           <DataTableEmpty
             icon={Plus}

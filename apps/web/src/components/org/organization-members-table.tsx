@@ -92,6 +92,7 @@ export function OrganizationMembersTable({
       caption="Organization members"
       emptyMessage="No members yet."
       framed
+      compactLayout
       searchable
       searchPlaceholder="Search members…"
       enablePagination

@@ -105,11 +105,7 @@ export default function ProjectDetailPage({
         }
         action={<ProjectActions project={project} />}
       >
-        <ProjectDetail
-          projectSlug={slug}
-          project={project}
-          onEditProject={() => setEditOpen(true)}
-        />
+        <ProjectDetail projectSlug={slug} project={project} />
       </DashboardSection>
       <EditProjectSheet
         project={project}

@@ -90,15 +90,27 @@ const PROJECTS_LOAD_TIMEOUT_MS = 20_000;
 export function useProjects() {
   const queryClient = useQueryClient();
   const [loadTimedOut, setLoadTimedOut] = useState(false);
-  const { isSwitching } = useActiveOrganization();
+  const {
+    isSwitching,
+    enabled: orgsEnabled,
+    initialLoadDone,
+    activeOrganizationId,
+  } = useActiveOrganization();
+
+  const orgReady =
+    !orgsEnabled || (initialLoadDone && Boolean(activeOrganizationId));
 
   const projectsQuery = useQuery({
     ...trpc.projects.list.queryOptions(),
     meta: { toastOnError: false },
-    retry: 2,
-    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
+    retry: (failureCount, err) => {
+      const code = (err as { data?: { code?: string } })?.data?.code;
+      if (code === "FORBIDDEN" && failureCount < 4) return true;
+      return failureCount < 2;
+    },
+    retryDelay: (attempt) => Math.min(500 * 2 ** attempt, 4000),
     refetchOnWindowFocus: true,
-    enabled: !isSwitching,
+    enabled: !isSwitching && orgReady,
   });
 
   useEffect(() => {
