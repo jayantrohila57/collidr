@@ -20,6 +20,7 @@ import { appIcons } from "@/lib/icons";
 import { toast } from "@/lib/toast";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { OrganizationSectionPage } from "./organization-section-page";
+import { TeamMembersSheet } from "./team-members-sheet";
 
 type TeamRow = { id: string; name: string };
 
@@ -42,6 +43,7 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
   const [createOpen, setCreateOpen] = useState(false);
   const [teamName, setTeamName] = useState("");
   const [createPending, setCreatePending] = useState(false);
+  const [membersTeam, setMembersTeam] = useState<TeamRow | null>(null);
 
   const resetCreateForm = () => {
     setTeamName("");
@@ -144,10 +146,20 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
           {teams.map((team) => (
             <li
               key={team.id}
-              className="flex items-center gap-2 px-4 py-3 text-sm"
+              className="flex items-center justify-between gap-3 px-4 py-3 text-sm"
             >
-              <AppIcon name="member" className="text-muted-foreground" />
-              {team.name}
+              <span className="flex min-w-0 items-center gap-2">
+                <AppIcon name="member" className="text-muted-foreground" />
+                <span className="truncate font-medium">{team.name}</span>
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setMembersTeam(team)}
+              >
+                Members
+              </Button>
             </li>
           ))}
         </ul>
@@ -198,6 +210,17 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
           </DialogFooter>
         </DialogContent>
       </GuardedDialog>
+
+      {organization && membersTeam ? (
+        <TeamMembersSheet
+          organizationId={organization.id}
+          team={membersTeam}
+          open={Boolean(membersTeam)}
+          onOpenChange={(open) => {
+            if (!open) setMembersTeam(null);
+          }}
+        />
+      ) : null}
     </OrganizationSectionPage>
   );
 }

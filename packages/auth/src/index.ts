@@ -5,6 +5,7 @@ import * as authSchema from "@env-manager/db/schema/auth";
 import { user } from "@env-manager/db/schema/auth";
 import * as organizationSchema from "@env-manager/db/schema/organization";
 import * as teamSchema from "@env-manager/db/schema/team";
+import { teamMember } from "@env-manager/db/schema/team";
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import { env } from "@env-manager/env/server";
 import {
@@ -212,6 +213,14 @@ export const auth = betterAuth({
                   organizationId: org.id,
                   entityId: memberRow.id,
                   targetUserId: memberRow.userId,
+                });
+              },
+              afterCreateTeam: async ({ team, user }) => {
+                if (!user?.id) return;
+                await db.insert(teamMember).values({
+                  id: crypto.randomUUID(),
+                  teamId: team.id,
+                  userId: user.id,
                 });
               },
             },
