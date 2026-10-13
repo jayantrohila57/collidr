@@ -1,16 +1,26 @@
-import { Skeleton } from "@/components/ui/skeleton";
+"use client";
+
+import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
+import { DataTable } from "@/components/data-table/data-table";
+
+type AuditSkeletonRow = { id: string };
+
+const columnHelper = legacyCreateColumnHelper<AuditSkeletonRow>();
+const skeletonColumns = [
+  columnHelper.display({ id: "date", header: "Date", cell: () => null }),
+  columnHelper.display({ id: "action", header: "Action", cell: () => null }),
+  columnHelper.display({ id: "entity", header: "Entity", cell: () => null }),
+  columnHelper.display({ id: "details", header: "Details", cell: () => null }),
+];
 
 export function AuditSkeleton() {
   return (
-    <div className="space-y-4">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <div key={i} className="flex items-center space-x-4">
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-4 w-16" />
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-4 flex-1" />
-        </div>
-      ))}
-    </div>
+    <DataTable
+      columns={skeletonColumns}
+      data={[]}
+      isLoading
+      skeletonRowCount={5}
+      framed
+    />
   );
 }

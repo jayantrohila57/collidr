@@ -1,23 +1,20 @@
-import { Card, CardFooter, CardHeader } from "@/components/ui/card";
+"use client";
+
+import type { ProjectOutput } from "@env-manager/api/types";
+import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
+import { DataTable } from "@/components/data-table/data-table";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function ProjectCardSkeleton() {
-  return (
-    <Card>
-      <CardHeader>
-        <Skeleton className="size-10 rounded-lg" />
-        <Skeleton className="h-5 w-3/4" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-2/3" />
-      </CardHeader>
-      <CardFooter className="flex justify-between">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="size-7 rounded-md" />
-      </CardFooter>
-    </Card>
-  );
-}
+const columnHelper = legacyCreateColumnHelper<ProjectOutput>();
+const skeletonColumns = [
+  columnHelper.display({ id: "a", header: "Project", cell: () => null }),
+  columnHelper.display({ id: "b", header: "Status", cell: () => null }),
+  columnHelper.display({ id: "c", header: "Visibility", cell: () => null }),
+  columnHelper.display({ id: "d", header: "Updated", cell: () => null }),
+  columnHelper.display({ id: "e", header: "Links", cell: () => null }),
+  columnHelper.display({ id: "f", header: "Actions", cell: () => null }),
+];
 
 export function ProjectsSkeleton() {
   return (
@@ -34,10 +31,13 @@ export function ProjectsSkeleton() {
           <Skeleton className="h-4 w-8" />
         </div>
         <Separator />
-        <div className="grid gap-4 pt-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {["a", "b", "c", "d"].map((id) => (
-            <ProjectCardSkeleton key={id} />
-          ))}
+        <div className="pt-4">
+          <DataTable
+            columns={skeletonColumns}
+            data={[]}
+            isLoading
+            skeletonRowCount={4}
+          />
         </div>
       </div>
     </div>

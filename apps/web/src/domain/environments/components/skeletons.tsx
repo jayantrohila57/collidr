@@ -1,5 +1,34 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+"use client";
+
+import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
+import { DataTable } from "@/components/data-table/data-table";
+import {
+  Card,
+  CardFrame,
+  CardFrameHeader,
+  CardFrameTitle,
+  CardHeader,
+  CardPanel,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+
+type VariableSkeletonRow = { id: string };
+
+const variableColumnHelper = legacyCreateColumnHelper<VariableSkeletonRow>();
+const variableSkeletonColumns = [
+  variableColumnHelper.display({ id: "key", header: "Key", cell: () => null }),
+  variableColumnHelper.display({
+    id: "value",
+    header: "Value",
+    cell: () => null,
+  }),
+  variableColumnHelper.display({
+    id: "actions",
+    header: "Actions",
+    cell: () => null,
+  }),
+];
 
 export function ProjectDetailSkeleton() {
   return (
@@ -11,12 +40,14 @@ export function ProjectDetailSkeleton() {
     >
       <Card>
         <CardHeader>
-          <Skeleton className="h-5 w-40" />
+          <CardTitle>
+            <Skeleton className="h-5 w-40" />
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardPanel>
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-3/4" />
-        </CardContent>
+        </CardPanel>
       </Card>
 
       <section className="flex flex-col gap-4">
@@ -30,15 +61,12 @@ export function ProjectDetailSkeleton() {
         <div className="lg:hidden">
           <Skeleton className="h-7 w-full rounded-md" />
         </div>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <Skeleton className="h-5 w-24" />
-            <Skeleton className="h-7 w-28 rounded-md" />
-          </CardHeader>
-          <CardContent>
-            <VariablesSkeleton />
-          </CardContent>
-        </Card>
+        <CardFrame>
+          <CardFrameHeader>
+            <CardFrameTitle>Variables</CardFrameTitle>
+          </CardFrameHeader>
+          <VariablesSkeleton />
+        </CardFrame>
       </section>
     </div>
   );
@@ -46,23 +74,11 @@ export function ProjectDetailSkeleton() {
 
 export function VariablesSkeleton() {
   return (
-    <div className="rounded-md border">
-      <div className="border-b px-4 py-3">
-        <div className="flex gap-4">
-          <Skeleton className="h-4 w-1/4" />
-          <Skeleton className="h-4 w-1/2" />
-          <Skeleton className="ms-auto h-4 w-1/6" />
-        </div>
-      </div>
-      <div className="space-y-0 divide-y">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="flex gap-4 px-4 py-3">
-            <Skeleton className="h-4 w-1/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="ms-auto h-7 w-1/6" />
-          </div>
-        ))}
-      </div>
-    </div>
+    <DataTable
+      columns={variableSkeletonColumns}
+      data={[]}
+      isLoading
+      skeletonRowCount={4}
+    />
   );
 }

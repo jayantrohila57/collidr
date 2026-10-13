@@ -1,7 +1,12 @@
 "use client";
 
 import { ErrorState } from "@/components/patterns/error-state";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  CardFrame,
+  CardFrameAction,
+  CardFrameHeader,
+  CardFrameTitle,
+} from "@/components/ui/card";
 import { useVariables } from "../hooks/use-variables";
 import { AddVariableDialog } from "./add-variable-dialog";
 import { VariablesSkeleton } from "./skeletons";
@@ -55,15 +60,15 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
 
   if (status === "loading") {
     return (
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base">Variables</CardTitle>
-          <SkeletonActionsPlaceholder />
-        </CardHeader>
-        <CardContent>
-          <VariablesSkeleton />
-        </CardContent>
-      </Card>
+      <CardFrame>
+        <CardFrameHeader>
+          <CardFrameTitle>Variables</CardFrameTitle>
+          <CardFrameAction>
+            <div className="h-7 w-28 shrink-0" aria-hidden />
+          </CardFrameAction>
+        </CardFrameHeader>
+        <VariablesSkeleton />
+      </CardFrame>
     );
   }
 
@@ -78,29 +83,25 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
-        <CardTitle className="text-base">Variables</CardTitle>
-        <AddVariableDialog onConfirm={handleCreate} isPending={isCreating} />
-      </CardHeader>
-      <CardContent className="min-w-0">
-        <VariablesTableView
-          variables={variablesWithValues}
-          revealedIds={revealedIds}
-          revealingIds={revealingIds}
-          onReveal={toggleReveal}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onAddVariable={handleCreate}
-          onFetchValue={fetchVariableValue}
-          isAddingVariable={isCreating}
-          isUpdating={isUpdating}
-        />
-      </CardContent>
-    </Card>
+    <CardFrame>
+      <CardFrameHeader>
+        <CardFrameTitle>Variables</CardFrameTitle>
+        <CardFrameAction>
+          <AddVariableDialog onConfirm={handleCreate} isPending={isCreating} />
+        </CardFrameAction>
+      </CardFrameHeader>
+      <VariablesTableView
+        variables={variablesWithValues}
+        revealedIds={revealedIds}
+        revealingIds={revealingIds}
+        onReveal={toggleReveal}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onAddVariable={handleCreate}
+        onFetchValue={fetchVariableValue}
+        isAddingVariable={isCreating}
+        isUpdating={isUpdating}
+      />
+    </CardFrame>
   );
-}
-
-function SkeletonActionsPlaceholder() {
-  return <div className="h-7 w-28 shrink-0" aria-hidden />;
 }

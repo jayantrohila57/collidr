@@ -13,7 +13,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useProjects } from "../hooks/use-projects";
-import { ProjectCardView } from "./project-card-view";
+import { ProjectsTableView } from "./projects-table-view";
 import { ProjectsSkeleton } from "./skeletons";
 
 interface ProjectCategory {
@@ -128,11 +128,11 @@ export default function ProjectList() {
               <Separator />
               <CollapsibleContent className="pt-4">
                 {category.projects.length > 0 ? (
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {category.projects.map((project) => (
-                      <ProjectCardView key={project.id} project={project} />
-                    ))}
-                  </div>
+                  <ProjectsTableView
+                    projects={category.projects}
+                    caption={category.title}
+                    emptyMessage={`No ${category.title.toLowerCase()}.`}
+                  />
                 ) : (
                   <EmptyState
                     icon={Folder}

@@ -15,9 +15,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
+  CardPanel,
   CardTitle,
 } from "@/components/ui/card";
 import { useSession } from "@/domain/auth/lib/auth-actions";
@@ -94,21 +94,15 @@ export default function Features() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => (
             <Card key={`feature-${feature.title.toLowerCase()}`}>
-              <CardHeader className="pb-4">
-                <div className="mb-2 flex items-center justify-between">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <feature.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <Badge variant="secondary" className="text-xs">
-                    {feature.badge}
-                  </Badge>
-                </div>
-                <CardTitle className="text-xl">{feature.title}</CardTitle>
-                <CardDescription className="text-base">
-                  {feature.description}
-                </CardDescription>
+              <CardHeader>
+                <CardTitle>{feature.title}</CardTitle>
+                <CardDescription>{feature.description}</CardDescription>
               </CardHeader>
-              <CardContent className="pt-0">
+              <CardPanel>
+                <div className="flex items-center justify-between">
+                  <feature.icon className="size-6 text-primary" aria-hidden />
+                  <Badge variant="secondary">{feature.badge}</Badge>
+                </div>
                 <ul className="space-y-2">
                   {feature.details.map((detail, detailIndex) => (
                     <li
@@ -120,21 +114,23 @@ export default function Features() {
                     </li>
                   ))}
                 </ul>
-              </CardContent>
+              </CardPanel>
             </Card>
           ))}
         </div>
 
         <div className="mt-6">
-          <Card className="mx-auto">
-            <CardContent>
-              <h3 className="mb-4 font-bold text-2xl">
+          <Card>
+            <CardHeader>
+              <CardTitle>
                 Ready to streamline your environment management?
-              </h3>
-              <p className="mb-6 text-muted-foreground">
+              </CardTitle>
+              <CardDescription>
                 Join thousands of developers who trust env-manager for their
                 environment variable security and management needs.
-              </p>
+              </CardDescription>
+            </CardHeader>
+            <CardPanel>
               {isPending ? (
                 <div className="h-11 w-32 animate-pulse rounded-lg bg-muted" />
               ) : session?.user ? (
@@ -152,7 +148,7 @@ export default function Features() {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               )}
-            </CardContent>
+            </CardPanel>
           </Card>
         </div>
       </div>

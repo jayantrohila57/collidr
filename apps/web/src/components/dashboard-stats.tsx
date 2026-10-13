@@ -1,6 +1,10 @@
 "use client";
 
 import {
+  type LegacyColumnDef,
+  legacyCreateColumnHelper,
+} from "@tanstack/react-table/legacy";
+import {
   Activity,
   Factory,
   FolderOpen,
@@ -11,14 +15,17 @@ import {
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import { DataTable } from "@/components/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { ErrorState } from "@/components/patterns/error-state";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardAction,
-  CardContent,
+  CardDescription,
   CardHeader,
+  CardPanel,
   CardTitle,
 } from "@/components/ui/card";
 // import { Button } from "@/components/ui/button";
@@ -70,37 +77,70 @@ interface StatCardProps {
   value: React.ReactNode;
   icon: React.ReactNode;
   description?: string;
-  variant?: "default" | "secondary";
   href?: string;
 }
 
+type RecentProjectRow = {
+  id: string;
+  name: string;
+  slug: string;
+  status: "active" | "inactive" | "maintenance";
+  createdAt: string;
+};
+
+const recentProjectColumnHelper = legacyCreateColumnHelper<RecentProjectRow>();
+const recentProjectColumns = [
+  recentProjectColumnHelper.accessor("name", {
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Project" />
+    ),
+  }),
+  recentProjectColumnHelper.accessor("slug", {
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Slug" />
+    ),
+  }),
+  recentProjectColumnHelper.accessor("status", {
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Status" />
+    ),
+    cell: ({ getValue }) => (
+      <Badge variant={getValue() === "active" ? "default" : "secondary"}>
+        {getValue()}
+      </Badge>
+    ),
+  }),
+  recentProjectColumnHelper.accessor("createdAt", {
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Created" />
+    ),
+    cell: ({ getValue }) => formatDate(String(getValue())),
+  }),
+] as LegacyColumnDef<RecentProjectRow, unknown>[];
+
 function StatCard({ title, value, icon, description, href }: StatCardProps) {
-  const cardContent = (
-    <Card
-      className={
-        href ? "cursor-pointer transition-colors hover:bg-accent/50" : ""
-      }
-    >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="font-medium text-sm">{title}</CardTitle>
+  const body = (
+    <>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
         <CardAction>{icon}</CardAction>
       </CardHeader>
-      <CardContent>
+      <CardPanel>
         <div className="font-bold text-2xl">
           {typeof value === "number" ? value.toLocaleString() : value}
         </div>
-        {description && (
+        {description ? (
           <p className="text-muted-foreground text-xs">{description}</p>
-        )}
-      </CardContent>
-    </Card>
+        ) : null}
+      </CardPanel>
+    </>
   );
 
   if (href) {
-    return <Link href={href as Route}>{cardContent}</Link>;
+    return <Card render={<Link href={href as Route} />}>{body}</Card>;
   }
 
-  return cardContent;
+  return <Card>{body}</Card>;
 }
 
 function _ChartSkeleton() {
@@ -152,45 +192,47 @@ export default function DashboardStats() {
 
   return (
     <div className="space-y-4">
-      <div className="min-w-0 rounded-lg border bg-card p-4 md:p-6">
-        <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-            <Avatar className="size-14 shrink-0 border-2 sm:size-20">
-              <AvatarImage
-                src={user?.image || undefined}
-                alt={user?.name || "User"}
-              />
-              <AvatarFallback className="bg-primary text-primary-foreground">
-                {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0">
-              <h1 className="font-bold text-lg leading-tight sm:text-2xl">
-                Welcome back, {user?.name || user?.email || "User"}!
-              </h1>
-              <p className="wrap-anywhere text-muted-foreground text-sm">
-                Here's what's happening with your projects today
-              </p>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Welcome back, {user?.name || user?.email || "User"}!
+          </CardTitle>
+          <CardDescription>
+            Here&apos;s what&apos;s happening with your projects today
+          </CardDescription>
+        </CardHeader>
+        <CardPanel>
+          <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+              <Avatar className="size-14 shrink-0 border-2 sm:size-20">
+                <AvatarImage
+                  src={user?.image || undefined}
+                  alt={user?.name || "User"}
+                />
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
+              <Badge
+                variant="secondary"
+                className="flex max-w-full items-center gap-1"
+              >
+                <Sparkles className="h-3 w-3 shrink-0" />
+                <span className="truncate">{stats.totalProjects} Projects</span>
+              </Badge>
+              <Badge
+                variant="outline"
+                className="flex max-w-full items-center gap-1"
+              >
+                <TrendingUp className="h-3 w-3 shrink-0" />
+                <span className="truncate">{stats.activeProjects} Active</span>
+              </Badge>
             </div>
           </div>
-          <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
-            <Badge
-              variant="secondary"
-              className="flex max-w-full items-center gap-1"
-            >
-              <Sparkles className="h-3 w-3 shrink-0" />
-              <span className="truncate">{stats.totalProjects} Projects</span>
-            </Badge>
-            <Badge
-              variant="outline"
-              className="flex max-w-full items-center gap-1"
-            >
-              <TrendingUp className="h-3 w-3 shrink-0" />
-              <span className="truncate">{stats.activeProjects} Active</span>
-            </Badge>
-          </div>
-        </div>
-      </div>
+        </CardPanel>
+      </Card>
 
       <Separator />
 
@@ -200,7 +242,6 @@ export default function DashboardStats() {
           value={stats.totalProjects}
           icon={<FolderOpen className="h-6 w-6 text-muted-foreground" />}
           description={`${stats.activeProjects} active`}
-          variant="secondary"
           href="/dashboard/projects"
         />
         <StatCard
@@ -208,7 +249,6 @@ export default function DashboardStats() {
           value={stats.totalEnvironments}
           icon={<Server className="h-6 w-6 text-muted-foreground" />}
           description={`${stats.activeEnvironments} active`}
-          variant="secondary"
           href="/dashboard/projects"
         />
         <StatCard
@@ -216,7 +256,6 @@ export default function DashboardStats() {
           value={stats.totalVariables}
           icon={<Key className="h-6 w-6 text-muted-foreground" />}
           description="Across all environments"
-          variant="secondary"
           href="/dashboard/projects"
         />
         <StatCard
@@ -224,7 +263,6 @@ export default function DashboardStats() {
           value={stats.productionEnvironments}
           icon={<Factory className="h-6 w-6 text-muted-foreground" />}
           description="Live environments"
-          variant="secondary"
           href="/dashboard/projects"
         />
         <StatCard
@@ -232,7 +270,6 @@ export default function DashboardStats() {
           value={stats.recentAuditLogs}
           icon={<Activity className="h-6 w-6 text-muted-foreground" />}
           description="Last 7 days"
-          variant="secondary"
         />
         <StatCard
           title="Active Rate"
@@ -245,7 +282,6 @@ export default function DashboardStats() {
           }
           icon={<Activity className="h-6 w-6 text-muted-foreground" />}
           description="Share of projects marked active"
-          variant="secondary"
         />
       </div>
 
@@ -255,43 +291,14 @@ export default function DashboardStats() {
             <CardHeader>
               <CardTitle>Recent Projects</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {activity.recentProjects.length === 0 ? (
-                  <p className="text-muted-foreground text-sm">
-                    No projects yet
-                  </p>
-                ) : (
-                  activity.recentProjects.map((project) => (
-                    <div
-                      key={project.id}
-                      className="flex items-center justify-between"
-                    >
-                      <div>
-                        <p className="font-medium text-sm">{project.name}</p>
-                        <p className="text-muted-foreground text-xs">
-                          {project.slug}
-                        </p>
-                      </div>
-                      <div className="text-end">
-                        <Badge
-                          variant={
-                            project.status === "active"
-                              ? "default"
-                              : "secondary"
-                          }
-                        >
-                          {project.status}
-                        </Badge>
-                        <p className="text-muted-foreground text-xs">
-                          {formatDate(project.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </CardContent>
+            <CardPanel>
+              <DataTable
+                columns={recentProjectColumns}
+                data={activity.recentProjects}
+                emptyMessage="No projects yet"
+                caption="Recently created projects"
+              />
+            </CardPanel>
           </Card>
         </div>
       )}

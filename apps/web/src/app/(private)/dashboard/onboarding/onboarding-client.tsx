@@ -11,7 +11,13 @@ import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { FormField } from "@/components/patterns/form-field";
 import { PageHeader } from "@/components/patterns/page-header";
 import { SubmitButton } from "@/components/patterns/submit-button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardPanel,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -102,9 +108,12 @@ export default function OnboardingClient() {
       />
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Organization details</CardTitle>
+          <CardTitle>Organization details</CardTitle>
+          <CardDescription>
+            Choose a name and URL slug for your workspace.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardPanel>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <Controller
               name="name"
@@ -154,7 +163,7 @@ export default function OnboardingClient() {
               </SubmitButton>
             </div>
           </form>
-        </CardContent>
+        </CardPanel>
       </Card>
     </PageContainer>
   );

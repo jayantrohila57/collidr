@@ -4,7 +4,13 @@ import { ArrowRight, CheckCircle, Shield, Zap } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardPanel,
+  CardTitle,
+} from "@/components/ui/card";
 import { GitHubLoginButton } from "@/domain/auth/components/github-login";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 
@@ -50,37 +56,35 @@ export default function Hero() {
 
       <div className="grid w-full grid-cols-1 gap-6 pt-4 sm:grid-cols-3">
         <Card>
-          <CardContent className="p-4 text-start">
-            <div className="mb-2 flex justify-start">
-              <Shield className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="font-semibold">Secure Storage</h3>
-            <p className="text-muted-foreground text-sm">
+          <CardHeader>
+            <CardTitle>Secure Storage</CardTitle>
+            <CardDescription>
               Bank-level encryption for your secrets
-            </p>
-          </CardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardPanel>
+            <Shield className="size-8 text-primary" aria-hidden />
+          </CardPanel>
         </Card>
         <Card>
-          <CardContent className="p-4 text-start">
-            <div className="mb-2 flex justify-start">
-              <Zap className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="font-semibold">CI/CD Integration</h3>
-            <p className="text-muted-foreground text-sm">
-              Seamless deployment workflows
-            </p>
-          </CardContent>
+          <CardHeader>
+            <CardTitle>CI/CD Integration</CardTitle>
+            <CardDescription>Seamless deployment workflows</CardDescription>
+          </CardHeader>
+          <CardPanel>
+            <Zap className="size-8 text-primary" aria-hidden />
+          </CardPanel>
         </Card>
         <Card>
-          <CardContent className="p-4 text-start">
-            <div className="mb-2 flex justify-start">
-              <CheckCircle className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="font-semibold">Multi-Environment</h3>
-            <p className="text-muted-foreground text-sm">
+          <CardHeader>
+            <CardTitle>Multi-Environment</CardTitle>
+            <CardDescription>
               Dev, staging, and production support
-            </p>
-          </CardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardPanel>
+            <CheckCircle className="size-8 text-primary" aria-hidden />
+          </CardPanel>
         </Card>
       </div>
     </div>

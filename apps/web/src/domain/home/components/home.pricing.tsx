@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
+  CardPanel,
   CardTitle,
 } from "@/components/ui/card";
 import { useSession } from "@/domain/auth/lib/auth-actions";
@@ -93,28 +94,16 @@ export default function Pricing() {
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {pricingPlans.map((plan) => (
-            <Card
-              key={`plan-${plan.name.toLowerCase()}`}
-              className={`relative overflow-hidden border-0 shadow-lg transition-all duration-300 hover:shadow-xl ${
-                plan.popular ? "scale-105 ring-2 ring-primary" : ""
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
-                  <Badge className="bg-primary text-primary-foreground">
+            <Card key={`plan-${plan.name.toLowerCase()}`}>
+              <CardHeader>
+                {plan.popular ? (
+                  <Badge>
                     <Star className="me-1 h-3 w-3" />
                     {plan.badge}
                   </Badge>
-                </div>
-              )}
-
-              <CardHeader className="pb-6 text-center">
-                <CardTitle className="font-bold text-2xl">
-                  {plan.name}
-                </CardTitle>
-                <CardDescription className="text-base">
-                  {plan.description}
-                </CardDescription>
+                ) : null}
+                <CardTitle>{plan.name}</CardTitle>
+                <CardDescription>{plan.description}</CardDescription>
                 <div className="mt-4">
                   <span className="font-bold text-4xl">{plan.price}</span>
                   {plan.period && (
@@ -125,7 +114,7 @@ export default function Pricing() {
                 </div>
               </CardHeader>
 
-              <CardContent className="flex-1">
+              <CardPanel>
                 <div className="space-y-3">
                   {plan.features.map((feature, featureIndex) => (
                     <div
@@ -180,26 +169,26 @@ export default function Pricing() {
                     <ArrowRight className="ms-2 h-4 w-4" />
                   </Button>
                 )}
-              </CardContent>
+              </CardPanel>
             </Card>
           ))}
         </div>
 
         <div className="mt-16">
-          <Card className="mx-auto border-muted">
-            <CardContent className="p-8">
-              <h3 className="mb-4 font-bold text-xl">
-                Not sure which plan is right for you?
-              </h3>
-              <p className="mb-6 text-muted-foreground">
+          <Card>
+            <CardHeader>
+              <CardTitle>Not sure which plan is right for you?</CardTitle>
+              <CardDescription>
                 Our team is here to help you choose the perfect plan for your
                 needs.
-              </p>
-              <Button variant="outline" size="lg" className="gap-2">
+              </CardDescription>
+            </CardHeader>
+            <CardFooter>
+              <Button variant="outline" size="lg">
                 Schedule a Call
                 <ArrowRight className="h-4 w-4" />
               </Button>
-            </CardContent>
+            </CardFooter>
           </Card>
         </div>
       </div>

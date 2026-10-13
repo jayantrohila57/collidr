@@ -1,16 +1,12 @@
 "use client";
 
+import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import { format } from "date-fns";
 import { Eye, EyeOff } from "lucide-react";
+import { DataTable } from "@/components/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { AuditSkeleton } from "./skeletons";
 
 const actionVariants: Record<
@@ -58,77 +54,95 @@ const getEntityDescription = (log: AuditLog) => {
   return "System operation";
 };
 
+const columnHelper = legacyCreateColumnHelper<AuditLog>();
+
 export function AuditLogTableView({
   logs,
   status,
   revealedIds,
   onToggleReveal,
 }: AuditLogTableViewProps) {
+  const columns: import("@/components/data-table/data-table").DataTableColumnDef<AuditLog>[] =
+    [
+      columnHelper.accessor("createdAt", {
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Date" />
+        ),
+        cell: ({ getValue }) => (
+          <span className="font-mono text-xs">
+            {format(new Date(getValue()), "MMM dd, yyyy HH:mm")}
+          </span>
+        ),
+      }),
+      columnHelper.accessor("action", {
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Action" />
+        ),
+        cell: ({ getValue }) => (
+          <Badge variant={actionVariants[getValue()] || "secondary"}>
+            {getValue()}
+          </Badge>
+        ),
+      }),
+      columnHelper.accessor("entityType", {
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Entity" />
+        ),
+        cell: ({ getValue }) => (
+          <Badge variant={entityTypeVariants[getValue()] || "secondary"}>
+            {getValue()}
+          </Badge>
+        ),
+      }),
+      columnHelper.display({
+        id: "details",
+        header: "Details",
+        enableSorting: false,
+        cell: ({ row }) => {
+          const log = row.original;
+          return (
+            <div className="flex items-center justify-between gap-2">
+              <span className="truncate">{getEntityDescription(log)}</span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => onToggleReveal(log.id)}
+                aria-label={
+                  revealedIds.has(log.id) ? "Hide details" : "Reveal details"
+                }
+              >
+                {revealedIds.has(log.id) ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
+              </Button>
+            </div>
+          );
+        },
+      }),
+    ];
+
   if (status === "loading") return <AuditSkeleton />;
   if (status === "error") {
     return (
-      <div className="rounded-lg border p-8 text-center text-muted-foreground">
-        Failed to load logs.
-      </div>
+      <DataTable
+        columns={columns}
+        data={[]}
+        emptyMessage="Failed to load logs."
+      />
     );
   }
   if (status === "empty") {
     return (
-      <div className="rounded-lg border p-8 text-center text-muted-foreground">
-        No audit logs found.
-      </div>
+      <DataTable
+        columns={columns}
+        data={[]}
+        emptyMessage="No audit logs found."
+      />
     );
   }
 
-  return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>Action</TableHead>
-            <TableHead>Entity</TableHead>
-            <TableHead>Details</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {logs.map((log) => (
-            <TableRow key={log.id}>
-              <TableCell className="font-mono text-xs">
-                {format(new Date(log.createdAt), "MMM dd, yyyy HH:mm")}
-              </TableCell>
-              <TableCell>
-                <Badge variant={actionVariants[log.action] || "secondary"}>
-                  {log.action}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Badge
-                  variant={entityTypeVariants[log.entityType] || "secondary"}
-                >
-                  {log.entityType}
-                </Badge>
-              </TableCell>
-              <TableCell className="max-w-xs truncate">
-                <div className="flex items-center justify-between">
-                  <span className="truncate">{getEntityDescription(log)}</span>
-                  <button
-                    type="button"
-                    onClick={() => onToggleReveal(log.id)}
-                    className="rounded p-1 hover:bg-muted"
-                  >
-                    {revealedIds.has(log.id) ? (
-                      <EyeOff size={14} />
-                    ) : (
-                      <Eye size={14} />
-                    )}
-                  </button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
+  return <DataTable columns={columns} data={logs} caption="Audit log" framed />;
 }

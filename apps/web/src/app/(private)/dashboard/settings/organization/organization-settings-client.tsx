@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
+import { OrganizationMembersTable } from "@/components/org/organization-members-table";
 import { ErrorState } from "@/components/patterns/error-state";
 import { FormField } from "@/components/patterns/form-field";
 import { SubmitButton } from "@/components/patterns/submit-button";
@@ -19,7 +20,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardPanel,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -285,12 +292,10 @@ export function OrganizationSettingsForm({
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Organization</CardTitle>
-          <p className="text-muted-foreground text-sm">
-            Name and slug for this workspace.
-          </p>
+          <CardTitle>Organization</CardTitle>
+          <CardDescription>Name and slug for this workspace.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardPanel>
           <form onSubmit={handleSaveProfile} className="space-y-4">
             <FormField id="org-name-edit" label="Name" required>
               <Input
@@ -319,14 +324,14 @@ export function OrganizationSettingsForm({
               Save changes
             </SubmitButton>
           </form>
-        </CardContent>
+        </CardPanel>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Invite member</CardTitle>
+          <CardTitle>Invite member</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardPanel>
           <form onSubmit={handleInvite} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-end">
               <FormField id="invite-email" label="Email" required>
@@ -372,65 +377,32 @@ export function OrganizationSettingsForm({
               </SubmitButton>
             </div>
           </form>
-        </CardContent>
+        </CardPanel>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Members</CardTitle>
+          <CardTitle>Members</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
-          <ul className="divide-y">
-            {members.map((member) => (
-              <li
-                key={member.id}
-                className="flex flex-col gap-2 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
-              >
-                <span>
-                  {member.user.name}{" "}
-                  <span className="text-muted-foreground">
-                    ({member.user.email})
-                  </span>
-                </span>
-                <Select
-                  value={member.role}
-                  items={ROLE_SELECT_ITEMS}
-                  onValueChange={(role) => {
-                    if (role) void handleRoleChange(member.id, role);
-                  }}
-                  disabled={rolePendingId === member.id || !isOwner}
-                >
-                  <SelectTrigger
-                    className="w-full capitalize sm:w-32"
-                    aria-label={`Role for ${member.user.email}`}
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ROLES.map((role) => (
-                      <SelectItem
-                        key={role}
-                        value={role}
-                        className="capitalize"
-                      >
-                        {role}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
+        <CardPanel>
+          <OrganizationMembersTable
+            members={members}
+            roleSelectItems={ROLE_SELECT_ITEMS}
+            isOwner={isOwner}
+            rolePendingId={rolePendingId}
+            onRoleChange={(memberId, role) => {
+              void handleRoleChange(memberId, role);
+            }}
+          />
+        </CardPanel>
       </Card>
 
-      <Card className="border-destructive/40">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base text-destructive">
-            Danger zone
-          </CardTitle>
+      <Card>
+        <CardHeader>
+          <CardTitle>Danger zone</CardTitle>
+          <CardDescription>Irreversible organization actions.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardPanel>
           {isOwner ? (
             <>
               <p className="text-muted-foreground text-sm">
@@ -477,7 +449,7 @@ export function OrganizationSettingsForm({
               </Button>
             </>
           )}
-        </CardContent>
+        </CardPanel>
       </Card>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
