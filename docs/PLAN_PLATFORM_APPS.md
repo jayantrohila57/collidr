@@ -165,7 +165,7 @@ Implement **`apps/auth`** strictly from current Better Auth docs (target **≥ 1
 
 **MCP resource URL:** `mcp({ resource: "https://mcp.env-manager.com/api/mcp" })` on auth; `apps/mcp` protects route with `requireMcpAuth` / `createMcpProtectedRequestHandler` ([MCP plugin — Protecting an MCP Route](https://www.better-auth.com/docs/plugins/mcp#protecting-an-mcp-route)).
 
-**Vercel MCP hosting:** [Deploy MCP servers](https://vercel.com/docs/mcp/deploy-mcp-servers-to-vercel), [mcp-handler](https://github.com/vercel-labs/mcp-handler) — evaluate vs official SDK + `requireMcpAuth`.
+**Vercel MCP hosting (Decision 15):** [`mcp-handler`](https://github.com/vercel-labs/mcp-handler) on `apps/mcp` per [Deploy MCP servers](https://vercel.com/docs/mcp/deploy-mcp-servers-to-vercel); auth via Better Auth **`requireMcpAuth`** / `createMcpProtectedRequestHandler` — not raw `@modelcontextprotocol/server` HTTP alone.
 
 ---
 
@@ -324,8 +324,9 @@ Each app’s tRPC context / middleware:
 
 ### 6.5 `apps/mcp`
 
-- API-only; `requireMcpAuth` + MCP tool inventory (see **Appendix A** — 58 tools, scopes, canonical actions).
-- Issuer/JWKS from auth; no session cookies.
+- API-only; **transport:** Vercel [`mcp-handler`](https://github.com/vercel-labs/mcp-handler) adapter (Decision 15) exposing `POST /api/mcp` on Vercel.
+- **Auth:** Better Auth MCP plugin — `requireMcpAuth` + tool handlers; issuer/JWKS from `apps/auth`; no session cookies.
+- Tool inventory: see **Appendix A** (58 tools, scopes, canonical `requireAction`).
 - **Rate limits:** token-bucket state in Postgres (`rate_limit_bucket` via `@env-manager/db`) — Decision 14; no Vercel KV or Redis for MCP v1.
 
 ### 6.6 `apps/docs` (Fumadocs + our UI)
@@ -620,6 +621,17 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 **Implication:** MCP deploy env does not require KV bindings; rate limiting is a DB concern like the rest of the platform.
 
+### Decision 15 — MCP transport stack (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Transport** | **[`mcp-handler`](https://github.com/vercel-labs/mcp-handler)** (Vercel MCP adapter) for HTTP MCP on `apps/mcp` / Vercel serverless or Node runtime. |
+| **Auth** | **[Better Auth MCP](https://www.better-auth.com/docs/plugins/mcp)** — `requireMcpAuth` / protected route handler; OAuth tokens from `apps/auth` (Decisions 7–8). |
+| **Excluded** | Do not build a custom `@modelcontextprotocol/server` transport layer as the primary path; do not use a non-Vercel MCP host for v1 production. |
+| **Tools** | Register tools in `mcp-handler` handlers that call shared `@env-manager/api` services + `requireAction` (same semantics as tRPC). |
+
+**Implication:** `apps/mcp` is a thin Vercel MCP surface; business logic stays in packages.
+
 ---
 
 ## 15. Open decisions (numbered)
@@ -627,12 +639,11 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 1. **Cookie domain** (custom apex) — `env-manager.com` vs `.env-manager.com` vs per-subdomain only?
 2. **Auth proxy vs cookie-only** (custom apex) — rewrites on every sibling app or only `crossSubDomainCookies`?
 3. **Marketing site** — `www` → docs, studio landing, or separate?
-4. **MCP transport** — `@modelcontextprotocol/server` + `requireMcpAuth` vs `@vercel/mcp-adapter`?
-5. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
-6. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
-7. **Account app URL in emails** — branding and link targets?
-8. **Impersonation banner** — show on studio, account, or all apps?
-9. **Better Auth upgrade** — before P2 or as part of P2?
+4. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
+5. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
+6. **Account app URL in emails** — branding and link targets?
+7. **Impersonation banner** — show on studio, account, or all apps?
+8. **Better Auth upgrade** — before P2 or as part of P2?
 
 ---
 
