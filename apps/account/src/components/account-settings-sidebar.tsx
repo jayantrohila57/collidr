@@ -1,11 +1,11 @@
 "use client";
 
 import { accountSettingsNav } from "@collidr/actions/nav";
+import { GithubIcon } from "@collidr/ui/github-icon";
 import type { LucideIcon } from "lucide-react";
 import {
   ActivityIcon,
   BellIcon,
-  GithubIcon,
   LockIcon,
   ShieldIcon,
   SkullIcon,

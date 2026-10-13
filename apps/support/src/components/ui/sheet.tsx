@@ -222,7 +222,7 @@ export function SheetPanel({
 }
 
 export {
-  SheetPrimitive,
   SheetBackdrop as SheetOverlay,
   SheetPopup as SheetContent,
+  SheetPrimitive,
 };

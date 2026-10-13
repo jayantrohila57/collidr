@@ -211,7 +211,7 @@ export function DialogPanel({
 }
 
 export {
-  DialogPrimitive,
   DialogBackdrop as DialogOverlay,
   DialogPopup as DialogContent,
+  DialogPrimitive,
 };

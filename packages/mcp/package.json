@@ -22,14 +22,14 @@
     "@collidr/env": "workspace:*",
     "@better-auth/mcp": "^1.7.7",
     "drizzle-orm": "catalog:",
-    "jose": "^6.2.3",
+    "jose": "^6.2.12",
     "mcp-handler": "^2.3.0",
-    "@modelcontextprotocol/server": "^2.0.0",
+    "@modelcontextprotocol/server": "^2.3.1",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@collidr/config": "workspace:*",
-    "tsx": "^4.19.4",
+    "tsx": "^4.23.15",
     "typescript": "catalog:"
   }
 }

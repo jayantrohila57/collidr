@@ -23,7 +23,7 @@
     "@collidr/env": "workspace:*",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
-    "pg": "^8.17.1",
+    "pg": "^8.23.1",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -32,8 +32,8 @@
     "@collidr/config": "workspace:*",
     "@types/pg": "catalog:",
     "better-auth": "catalog:",
-    "drizzle-kit": "^0.31.8",
-    "tsx": "^4.19.2",
+    "drizzle-kit": "^0.31.11",
+    "tsx": "^4.23.15",
     "typescript": "catalog:"
   }
 }

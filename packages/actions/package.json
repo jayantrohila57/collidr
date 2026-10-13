@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@collidr/config": "workspace:*",
-    "tsx": "^4.19.4",
+    "tsx": "^4.23.15",
     "typescript": "catalog:"
   }
 }

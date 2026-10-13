@@ -1,3 +1,4 @@
+import { Github } from "@collidr/ui/github-icon";
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
@@ -16,7 +17,6 @@ import {
   EyeOff,
   Folder,
   FolderKanban,
-  Github,
   Globe,
   KeyRound,
   Layers,

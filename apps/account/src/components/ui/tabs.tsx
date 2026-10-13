@@ -110,9 +110,9 @@ export function TabsPanel({
 }
 
 export {
-  TabsPrimitive,
-  TabsTab as TabsTrigger,
   TabsPanel as TabsContent,
+  TabsPrimitive,
   type TabsSize,
+  TabsTab as TabsTrigger,
   type TabsVariant,
 };

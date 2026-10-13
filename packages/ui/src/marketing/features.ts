@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
-import { Activity, Boxes, Github, Layers, Lock } from "lucide-react";
+import { Activity, Boxes, Layers, Lock } from "lucide-react";
+import { GithubIcon } from "../components/icons/github-icon";
 
 export type MarketingFeature = {
   icon: LucideIcon;
@@ -33,7 +34,7 @@ export const marketingFeatures: MarketingFeature[] = [
       "See who changed what with an audit-style feed across your workspace.",
   },
   {
-    icon: Github,
+    icon: GithubIcon,
     title: "GitHub sign-in",
     description:
       "Authenticate with GitHub—no extra passwords to rotate or forget.",
