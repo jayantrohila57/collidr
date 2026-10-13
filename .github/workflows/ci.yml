@@ -24,6 +24,16 @@ jobs:
         env:
           SKIP_ENV_VALIDATION: true
           DATABASE_URL: postgresql://localhost:5432/test
+      - run: pnpm build
+        env:
+          SKIP_ENV_VALIDATION: true
+          DATABASE_URL: postgresql://localhost:5432/test
+          BETTER_AUTH_SECRET: ci-build-placeholder-secret-min-32-chars
+          BETTER_AUTH_URL: http://localhost:3000
+          GITHUB_CLIENT_ID: ci-github-client-id
+          GITHUB_CLIENT_SECRET: ci-github-client-secret
+          CORS_ORIGIN: http://localhost:3000
+          ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
       - run: pnpm exec playwright install chromium --with-deps
         working-directory: apps/web
       - run: pnpm a11y

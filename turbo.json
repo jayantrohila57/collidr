@@ -59,7 +59,8 @@
         "MCP_RESOURCE_URL",
         "MCP_RATE_LIMIT_WINDOW_MS",
         "MCP_RATE_LIMIT_MAX_REQUESTS",
-        "PLATFORM_AUTH_ENABLE_MCP"
+        "PLATFORM_AUTH_ENABLE_MCP",
+        "NODE_OPTIONS"
       ]
     },
     "lint": {
