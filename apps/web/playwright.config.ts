@@ -35,7 +35,10 @@ export default defineConfig({
         timeout: 120_000,
         env: {
           ...process.env,
-          SKIP_ENV_VALIDATION: "true",
+          SKIP_ENV_VALIDATION: "1",
+          BETTER_AUTH_SECRET:
+            process.env.BETTER_AUTH_SECRET ??
+            "playwright-local-auth-secret-32chars",
         },
       },
 });

@@ -1,5 +1,13 @@
 import { expect, type Page } from "@playwright/test";
 
+export async function assertNoVerticalPageScroll(page: Page) {
+  const overflow = await page.evaluate(() => {
+    const doc = document.documentElement;
+    return doc.scrollHeight - doc.clientHeight;
+  });
+  expect(overflow).toBeLessThanOrEqual(2);
+}
+
 export async function assertNoHorizontalOverflow(page: Page) {
   const overflow = await page.evaluate(() => {
     const doc = document.documentElement;

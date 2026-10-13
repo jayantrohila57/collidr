@@ -1,8 +1,7 @@
 import { auth } from "@env-manager/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import Features from "@/domain/home/components/home.features";
-import Hero from "@/domain/home/components/home.hero";
+import HomeSplitLanding from "@/domain/home/components/home-split-landing";
 
 export default async function Home() {
   const session = await auth.api.getSession({
@@ -13,10 +12,5 @@ export default async function Home() {
     redirect("/dashboard");
   }
 
-  return (
-    <>
-      <Hero />
-      <Features />
-    </>
-  );
+  return <HomeSplitLanding />;
 }

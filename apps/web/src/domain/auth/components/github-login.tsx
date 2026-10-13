@@ -5,14 +5,17 @@ import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 import { signInWithGithub } from "../lib/auth-actions";
 
 export function GitHubLoginButton({
   size = "lg",
   label = "Sign in with GitHub",
+  className,
 }: {
   size?: "default" | "sm" | "lg";
   label?: string;
+  className?: string;
 }) {
   const [isLoading, startTransition] = useTransition();
 
@@ -39,7 +42,7 @@ export function GitHubLoginButton({
       onClick={handleSignIn}
       disabled={isLoading}
       size={size}
-      className="gap-2"
+      className={cn("gap-2", className)}
     >
       {isLoading ? <Spinner /> : <Github className="h-4 w-4" />}
       {label}

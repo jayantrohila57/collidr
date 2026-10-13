@@ -42,6 +42,6 @@ test.describe("landing prod smoke", () => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
-    await expect(page.getByTestId("marketing-hero")).toBeVisible();
+    await expect(page.getByTestId("marketing-sign-in")).toBeVisible();
   });
 });
