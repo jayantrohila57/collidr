@@ -6,8 +6,8 @@ import {
   SettingsSectionHeader,
 } from "@/components/patterns/settings-layout";
 import { RoleBadge } from "@/components/patterns/status-badge";
-import { Can } from "@/domain/permissions/components/can";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Can } from "@/domain/permissions/components/can";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { OrganizationSectionPage } from "./organization-section-page";
 

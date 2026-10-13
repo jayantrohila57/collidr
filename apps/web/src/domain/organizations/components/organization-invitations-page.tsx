@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import { invitationsEmpty } from "@/components/data-table/data-table-empty-presets";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { RoleBadge } from "@/components/patterns/status-badge";
-import { Can } from "@/domain/permissions/components/can";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -23,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Can } from "@/domain/permissions/components/can";
 import { authClient } from "@/lib/auth-client";
 import { formatDateTime } from "@/lib/format";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
 import { auditLogEmpty } from "@/components/data-table/data-table-empty-presets";
+import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { ErrorState } from "@/components/patterns/error-state";
 import { useAudit } from "../hooks/use-audit";
@@ -45,7 +45,10 @@ export default function AuditLogs() {
         value: project.id,
         label: project.name,
         icon: (
-          <AppIcon name="projectFolder" className="size-4 text-muted-foreground" />
+          <AppIcon
+            name="projectFolder"
+            className="size-4 text-muted-foreground"
+          />
         ),
       })),
     [projects],
@@ -58,9 +61,7 @@ export default function AuditLogs() {
       ariaLabel="Filter by project"
       multiple={false}
       isLoading={status === "loading" && projects.length === 0}
-      value={
-        selectedProjectId === ALL_PROJECTS ? [] : [selectedProjectId]
-      }
+      value={selectedProjectId === ALL_PROJECTS ? [] : [selectedProjectId]}
       badgeCount={selectedProjectId === ALL_PROJECTS ? 0 : 1}
       onValueChange={async (next) => {
         setSelectedProjectId(next[0] ?? ALL_PROJECTS);

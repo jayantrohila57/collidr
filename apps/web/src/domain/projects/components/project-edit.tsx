@@ -4,7 +4,6 @@ import type { ProjectOutput } from "@env-manager/api/types";
 import { updateProjectInput } from "@env-manager/api/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import { UnsavedChangesPageGuard } from "@/components/patterns/unsaved-changes-page-guard";
 import type { z } from "zod/v3";
 import {
   SettingsField,
@@ -14,6 +13,7 @@ import {
   settingsControlWidthClass,
 } from "@/components/patterns/settings-layout";
 import { SubmitButton } from "@/components/patterns/submit-button";
+import { UnsavedChangesPageGuard } from "@/components/patterns/unsaved-changes-page-guard";
 import { Button } from "@/components/ui/button";
 import { Card, CardPanel } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
