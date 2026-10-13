@@ -11,15 +11,14 @@ import { auditLog } from "@env-manager/db/schema/audit";
 import { auditEvent } from "@env-manager/db/schema/audit-event";
 import { account, session, user } from "@env-manager/db/schema/auth";
 import { notification } from "@env-manager/db/schema/notifications";
-import { member, organization } from "@env-manager/db/schema/organization";
+import { member } from "@env-manager/db/schema/organization";
 import {
   environment,
   environmentVariable,
   project,
 } from "@env-manager/db/schema/projects";
-import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
 import { requireAction } from "../actions/require-action";
@@ -31,45 +30,7 @@ import {
   makeResponseSchema,
   respond,
 } from "../validation";
-
-async function findSoleOwnerOrganizations(userId: string) {
-  if (!isOrganizationsEnabled()) {
-    return [];
-  }
-
-  const owned = await db
-    .select({
-      organizationId: member.organizationId,
-      orgName: organization.name,
-      orgSlug: organization.slug,
-    })
-    .from(member)
-    .innerJoin(organization, eq(member.organizationId, organization.id))
-    .where(and(eq(member.userId, userId), eq(member.role, "owner")));
-
-  const blockers: { organizationId: string; name: string; slug: string }[] = [];
-
-  for (const row of owned) {
-    const owners = await db
-      .select({ id: member.id })
-      .from(member)
-      .where(
-        and(
-          eq(member.organizationId, row.organizationId),
-          eq(member.role, "owner"),
-        ),
-      );
-    if (owners.length === 1) {
-      blockers.push({
-        organizationId: row.organizationId,
-        name: row.orgName,
-        slug: row.orgSlug,
-      });
-    }
-  }
-
-  return blockers;
-}
+import { findSoleOwnerOrganizations } from "./find-sole-owner-organizations";
 
 export const accountRouter = router({
   listConnectedAccounts: protectedProcedure
