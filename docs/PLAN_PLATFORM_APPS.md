@@ -299,6 +299,7 @@ Each app’s tRPC context / middleware:
 - Plugins: `jwt()`, `mcp()` (CIMD + DCR per Decision 7), `cimd()`, `organization()`, `admin()` (when migration lands), **device authorization**, `nextCookies()`, social providers.
 - **Does not** serve product or account settings UI beyond auth/consent.
 - Env: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `DATABASE_URL`, GitHub OAuth, `allowedReturnOrigins`, MCP `resource` URL.
+- **Transactional emails (Decision 18):** verify / reset / invite links point at **auth** origin; after token handling, redirect onward to studio/account via allowlisted `return_to`.
 
 ### 6.2 `apps/account`
 
@@ -646,22 +647,33 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 | Topic | Choice |
 |-------|--------|
 | **Topology** | **Per-app `/api/trpc`** on each Next.js deployable (`apps/studio`, `apps/account`, `apps/console`). |
-| **Code** | Single implementation in **`@env-manager/api`** — composed `appRouter` and/or `studioRouter`, `accountRouter`, `consoleRouter`; apps only wire context, auth session, and route handler. |
+| **Shared router** | All procedures live in **`@env-manager/api`** (`packages/api`); apps import a composed router subset and mount the standard Next.js tRPC handler — no duplicated business logic. |
 | **Excluded** | No standalone **API gateway** app, no central `api.env-manager.com` tRPC proxy for v1. |
 | **Auth app** | `apps/auth` does **not** mount product tRPC — auth routes only (`/api/auth/*`). |
 
-**Implication:** Vercel project count stays one per UI app; API surface is duplicated at the HTTP edge but not in business logic.
+**Implication:** HTTP handlers are per-app; the **router implementation is one shared package**.
 
 ### Decision 17 — Enterprise SSO plugin (accepted)
 
 | Topic | Choice |
 |-------|--------|
-| **Scope** | **[Better Auth SSO plugin](https://www.better-auth.com/docs/plugins/sso)** (SAML/OIDC IdP federation into `apps/auth`) is **deferred** to a **later phase** after auth/studio/account cutover and initial MCP/console work. |
+| **Scope** | **[Better Auth SSO plugin](https://www.better-auth.com/docs/plugins/sso)** (SAML/OIDC IdP federation into `apps/auth`) ships in a **later phase** — not auth v1, not the studio/account big-bang. |
 | **v1 auth** | GitHub OAuth (social provider) + **device authorization** (Decision 8) only. |
 | **Excluded** | No SAML/OIDC enterprise IdP configuration, no SSO admin UI, and no `sso()` plugin on the first production `apps/auth` release. |
-| **Revisit** | Re-open when a customer or internal requirement needs non-GitHub workforce identity; may coincide with custom apex (§2.1) but is not blocked on it. |
+| **Revisit** | Re-open when workforce identity beyond GitHub is required; may coincide with custom apex (§2.1) but is not blocked on it. |
 
 **Implication:** `0008` / auth v1 schema and docs should not assume enterprise SSO tables or routes unless Better Auth requires them for unrelated plugins.
+
+### Decision 18 — Transactional email links (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Link host** | All transactional auth links (**email verification**, **password reset** if enabled, **organization invitations**, and similar Better Auth / org emails) use **`BETTER_AUTH_URL`** on **`apps/auth`** (e.g. `https://env-manager-auth.vercel.app/...`). |
+| **Flow** | Auth app completes the token/callback step, then **redirects** to an allowlisted destination (`return_to` / configured default) on studio, account, or onboarding — links do **not** deep-link directly to studio/account hosts for verify/reset/invite. |
+| **Excluded** | Do not embed `account.*` or `app.*` origins as the primary click target in email templates for auth-sensitive actions. |
+| **Config** | `packages/auth` + email templates reference auth origin only; sibling apps receive users only after redirect validation (§5.4). |
+
+**Implication:** One canonical URL namespace for trust-sensitive email links; product hostnames stay out of transactional mail footers except as post-auth redirect targets.
 
 ---
 
@@ -670,9 +682,8 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 1. **Cookie domain** (custom apex) — `env-manager.com` vs `.env-manager.com` vs per-subdomain only?
 2. **Auth proxy vs cookie-only** (custom apex) — rewrites on every sibling app or only `crossSubDomainCookies`?
 3. **Marketing site** — `www` → docs, studio landing, or separate?
-4. **Account app URL in emails** — branding and link targets?
-5. **Impersonation banner** — show on studio, account, or all apps?
-6. **Better Auth upgrade** — before P2 or as part of P2?
+4. **Impersonation banner** — show on studio, account, or all apps?
+5. **Better Auth upgrade** — before P2 or as part of P2?
 
 ---
 
