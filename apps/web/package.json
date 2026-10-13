@@ -8,7 +8,7 @@
     "start": "next start",
     "a11y": "playwright test e2e/",
     "check-types": "tsc --noEmit",
-    "test": "node --import tsx --test src/lib/e2e-secret.test.ts src/lib/errors/client-errors.test.ts src/lib/form-dirty.test.ts src/lib/org-switch-redirect.test.ts src/lib/sidebar-project-nav.test.ts src/lib/dashboard-path.test.ts src/lib/organization-invitations.test.ts src/lib/page-back.test.ts src/lib/page-header-grid-classes.test.ts src/components/data-table/data-table-filter-refetch.test.ts"
+    "test": "node --import tsx --test src/lib/e2e-secret.test.ts src/lib/errors/client-errors.test.ts src/lib/form-dirty.test.ts src/lib/format-action-label.test.ts src/lib/org-switch-redirect.test.ts src/lib/sidebar-project-nav.test.ts src/lib/dashboard-path.test.ts src/lib/organization-invitations.test.ts src/lib/page-back.test.ts src/lib/page-header-grid-classes.test.ts src/components/data-table/data-table-filter-refetch.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

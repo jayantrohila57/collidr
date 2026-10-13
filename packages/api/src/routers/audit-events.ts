@@ -2,10 +2,12 @@ import { isActionsAuditEnabled } from "@env-manager/actions";
 import { db } from "@env-manager/db";
 import { auditEvent } from "@env-manager/db/schema/audit-event";
 import { user } from "@env-manager/db/schema/auth";
+import { project } from "@env-manager/db/schema/projects";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, lte, not, or, type SQL, sql } from "drizzle-orm";
+import { and, desc, eq, lte, type SQL } from "drizzle-orm";
 import { z } from "zod/v3";
 import { requireAction } from "../actions/require-action";
+import { passiveActionSqlFilter } from "../audit-passive-actions";
 import { orgAwareProcedure, router } from "../index";
 import { getActiveOrganizationId } from "../org-access";
 
@@ -19,18 +21,6 @@ const listInput = z.object({
   cursor: z.string().optional(),
   limit: z.number().min(1).max(100).default(50),
 });
-
-function passiveActionFilter() {
-  const passive = or(
-    sql`${auditEvent.action} like '%.read'`,
-    sql`${auditEvent.action} like '%.view.%'`,
-    sql`${auditEvent.action} like '%.view'`,
-  );
-  if (!passive) {
-    throw new Error("passiveActionFilter: expected non-empty OR clause");
-  }
-  return not(passive);
-}
 
 export const auditEventsRouter = router({
   list: orgAwareProcedure.input(listInput).query(async ({ ctx, input }) => {
@@ -82,7 +72,7 @@ export const auditEventsRouter = router({
       conditions.push(eq(auditEvent.result, input.result));
     }
     if (input.excludePassive ?? true) {
-      conditions.push(passiveActionFilter());
+      conditions.push(passiveActionSqlFilter());
     }
     if (input.cursor) {
       conditions.push(lte(auditEvent.createdAt, new Date(input.cursor)));
@@ -98,6 +88,8 @@ export const auditEventsRouter = router({
         actorEmail: user.email,
         organizationId: auditEvent.organizationId,
         projectId: auditEvent.projectId,
+        projectName: project.name,
+        projectSlug: project.slug,
         environmentId: auditEvent.environmentId,
         entityType: auditEvent.entityType,
         entityId: auditEvent.entityId,
@@ -113,6 +105,7 @@ export const auditEventsRouter = router({
       })
       .from(auditEvent)
       .leftJoin(user, eq(auditEvent.actorUserId, user.id))
+      .leftJoin(project, eq(auditEvent.projectId, project.id))
       .where(conditions.length ? and(...conditions) : undefined)
       .orderBy(desc(auditEvent.createdAt))
       .limit(input.limit + 1);

@@ -11,7 +11,7 @@
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "test": "SKIP_ENV_VALIDATION=1 node --import tsx --test src/actions/evaluate-rbac.test.ts src/actions/require-action-membership.test.ts src/actions/require-user-action.test.ts src/bulk-import-variables-plan.test.ts src/environment-access.test.ts src/invitation-sync-auth.test.ts src/routers/audit-stats-mappers.test.ts src/routers/index.test.ts src/routers/notifications-action-guard.test.ts src/routers/organizations-member-filter.test.ts src/routers/project-access-router.test.ts src/routers/projects-not-found.test.ts src/routers/sole-owner-blockers.test.ts src/routers/variables-create-batch-access.test.ts src/variable-audit-payload.test.ts"
+    "test": "SKIP_ENV_VALIDATION=1 node --import tsx --test src/actions/evaluate-rbac.test.ts src/actions/require-action-membership.test.ts src/actions/require-user-action.test.ts src/audit-passive-actions.test.ts src/bulk-import-variables-plan.test.ts src/environment-access.test.ts src/invitation-sync-auth.test.ts src/routers/audit-stats-mappers.test.ts src/routers/index.test.ts src/routers/notifications-action-guard.test.ts src/routers/organizations-member-filter.test.ts src/routers/project-access-router.test.ts src/routers/projects-not-found.test.ts src/routers/sole-owner-blockers.test.ts src/routers/variables-create-batch-access.test.ts src/variable-audit-payload.test.ts"
   },
   "dependencies": {
     "@env-manager/actions": "workspace:*",
