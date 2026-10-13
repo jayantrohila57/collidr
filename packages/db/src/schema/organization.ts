@@ -68,6 +68,7 @@ export const invitation = pgTable(
     inviterId: text("inviter_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    teamId: text("team_id"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     ...softDeleteColumns,
   },
