@@ -48,6 +48,20 @@ test.describe("projects list", () => {
     });
   });
 
+  test("filtered no-results shows a single Clear filters control", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(
+      `${PROJECTS_PATH}?view=list&q=__e2e_no_matching_projects__`,
+    );
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByText("No matching projects")).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Clear filters" }),
+    ).toHaveCount(1);
+  });
+
   test("filters menu and archive confirm on e2e demo project", async ({
     page,
   }) => {

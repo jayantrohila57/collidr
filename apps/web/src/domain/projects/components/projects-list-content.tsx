@@ -7,9 +7,8 @@ import { waitForClientTableRefresh } from "@/components/data-table/data-table-fi
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { runDataTableClearAllFilters } from "@/components/data-table/run-data-table-clear-all-filters";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { EmptyState } from "@/components/patterns/empty-state";
+import { FilteredListNoResultsEmpty } from "@/components/patterns/filtered-list-no-results-empty";
 import { Button } from "@/components/ui/button";
-import { appIcons } from "@/lib/icons";
 import { layoutSectionStackClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 import { useProjectsListParams } from "../hooks/use-projects-list-params";
@@ -72,11 +71,7 @@ export function ProjectsListContent({
   ) : null;
 
   const emptyNoResults = (
-    <EmptyState
-      icon={appIcons.searchEmpty}
-      title="No matching projects"
-      description="Try adjusting search or filters, or clear filters from the toolbar above."
-    />
+    <FilteredListNoResultsEmpty title="No matching projects" />
   );
 
   return (

@@ -4,9 +4,8 @@ import { useCallback, useMemo, useState } from "react";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { runDataTableClearAllFilters } from "@/components/data-table/run-data-table-clear-all-filters";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
-import { EmptyState } from "@/components/patterns/empty-state";
+import { FilteredListNoResultsEmpty } from "@/components/patterns/filtered-list-no-results-empty";
 import { ProjectsViewToggle } from "@/domain/projects/components/projects-view-toggle";
-import { appIcons } from "@/lib/icons";
 import { layoutSectionStackClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 import { useOrganizationsListParams } from "../hooks/use-organizations-list-params";
@@ -46,11 +45,7 @@ export function OrganizationsListContent({
   );
 
   const emptyNoResults = (
-    <EmptyState
-      icon={appIcons.searchEmpty}
-      title="No matching organizations"
-      description="Try adjusting search or filters."
-    />
+    <FilteredListNoResultsEmpty title="No matching organizations" />
   );
 
   return (
