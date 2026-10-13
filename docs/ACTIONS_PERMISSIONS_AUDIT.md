@@ -132,7 +132,8 @@ const orgAc = createAccessControl({
 
 const ownerRole = orgAc.newRole({ /* all org resources */ });
 const managerRole = orgAc.newRole({
-  member: ["list"],
+  member: ["list", "create"], // invite to org (member.invite)
+  invitation: ["create"],
   team: ["create", "update", "member_add", "member_remove"],
   project: ["assign_team"], // only on assigned projects enforced in app layer
   timeline: ["view_org"], // scoped to assigned projects in app layer
@@ -310,7 +311,7 @@ async function requireAction(
 3. **User scope** — authenticated session; **self-only** unless future ADMIN; **no active org required**  
 4. **Org context** — require active org (or org slug on route) when scope is `organization` or `project`  
 5. **Org OWNER** — all org actions + all projects in org  
-6. **Org MANAGER** — org actions allowed by `manager` org role; project actions only if `project_manager` row exists for `projectId`  
+6. **Org MANAGER** — org actions allowed by `manager` org role (including **`member.invite`** and **`team.member.add`**); **`member.role.update`** and **`member.remove`** remain **OWNER-only**; project actions only if `project_manager` row exists for `projectId`  
 7. **Project MEMBER** — user in team linked via `project_team` → `project_member_grant` must include `projectGrantKey`  
 8. **Legacy owner** — during migration, `project.userId === actor` treated as OWNER-equivalent for that project until backfill completes  
 
@@ -344,14 +345,15 @@ All audited via `audit_event` (`success` \| `failure` \| `denied`). Better Auth 
 |------------|:-----:|:-----:|:-------:|:----------------:|
 | All orgs / all projects | ✓ | — | — | — |
 | Org settings, billing (future) | ✓ | ✓ | — | — |
-| Members & invitations | ✓ | ✓ | — | — |
+| Members & invitations (invite) | ✓ | ✓ | ✓ (org invite) | — |
+| Member role change / remove | ✓ | ✓ | — | — |
 | Teams CRUD | ✓ | ✓ | ✓ (org) | — |
 | Assign manager to project | ✓ | ✓ | — | — |
 | Assign team to project | ✓ | ✓ | ✓ (assigned project) | — |
 | Project CRUD | ✓ | ✓ (all org) | ✓ (assigned) | grant |
 | Env / variable CRUD | ✓ | ✓ | ✓ (assigned) | grant |
 | Variable reveal (secret) | ✓ | ✓ | ✓ (assigned) | grant |
-| Org timeline | ✓ | ✓ | ✓ (assigned projects filter) | — |
+| Org timeline | ✓ | ✓ | ✓ (assigned projects filter) | — (no team/project → empty feed) |
 | Any user timeline | ✓ | ✓ | — | — |
 | Own user timeline | ✓ | ✓ | ✓ | ✓ |
 | Account settings (profile, sessions, accounts, export) | ✓ | ✓ (self) | ✓ (self) | ✓ (self) |
@@ -390,7 +392,7 @@ Legend:
 | `organization.settings.view` | Y | Y | Y | — |
 | `organization.settings.update` | Y | Y | — | — |
 | `member.list` | Y | Y | Y | — |
-| `member.invite` | Y | Y | — | — |
+| `member.invite` | Y | Y | Y | — |
 | `member.remove` | Y | Y | — | — |
 | `member.role.update` | Y | Y | — | — |
 | `invitation.accept` | Y | Y | Y | Y |
@@ -454,6 +456,20 @@ Managers assign grants as subsets of:
 `project.read`, `environment.read`, `environment.create`, `environment.update`, `environment.delete`, `variable.read`, `variable.create`, `variable.update`, `variable.delete`, `variable.reveal`, `variable.export`
 
 Default for new team on project: `project.read`, `environment.read`, `variable.read` (no reveal).
+
+### 6.2 Restore actions (soft-delete reversal)
+
+Soft-deleted entities are hidden from default queries but can be restored by authorized roles. Registry entries (high level):
+
+| Action | OWNER | MANAGER | MEMBER |
+|--------|:-----:|:-------:|:------:|
+| `project.restore` | Y | G (assigned project) | — |
+| `environment.restore` | Y | G | — |
+| `variable.restore` | Y | G | — |
+| `team.restore` | Y | Y | — |
+| `organization.restore` | Y | — | — |
+
+Each restore writes `audit_event` with `result: success` and references the prior delete event via `payload`. Hard deletes are avoided except where justified (e.g. **session revoke** remains a true delete).
 
 ---
 
@@ -520,6 +536,8 @@ Project sidebar (`sidebar-project-nav.ts`) adds `action: "project.read"` per pro
 
 **Global `/dashboard/timeline`:** When orgs are enabled, show **active org** feed (`audit.timeline.view.org`). If no active org, redirect to **`/dashboard/organizations/[slug]/timeline`** for a sensible default org or to the org list. **Personal** activity: **Settings → Timeline** (`audit.timeline.view.self`).
 
+**Org `member` with no team or project:** User remains in the organization but has **no project grants** and **no org timeline rows** (`audit.timeline.view.org` denied or API returns empty). Show empty state copy: *"Contact your manager to get assigned to a team or project"* on org Timeline and on **`/dashboard/projects`** when the list is empty for that reason (distinct from “no projects in org” for owners).
+
 ---
 
 ## 8. Audit timeline & notifications
@@ -548,6 +566,8 @@ Project sidebar (`sidebar-project-nav.ts`) adds `action: "project.read"` per pro
 | `created_at` | timestamptz | |
 
 Indexes: `(organization_id, created_at DESC)`, `(actor_user_id, created_at DESC)`, `(project_id, created_at DESC)`, `(action, created_at DESC)`.
+
+**Retention:** `audit_event` rows are retained **indefinitely** (no TTL or automatic purge in Phase 1). Compliance exports and future archival jobs may add cold storage later; product default is **forever** for org and user timelines.
 
 **Migration:** backfill from `audit_log` mapping old enums → canonical names (§9).
 
@@ -716,34 +736,35 @@ CREATE TABLE audit_event (
 | `audit_log` rows | Map `CREATE`+`PROJECT` → `project.create`, etc.; `result = 'success'` |
 | Platform admins | **Deferred** — no `user.role` seed in Phase 1 |
 
-### 9.7 User data export (optional async)
+### 9.7 User data export (Phase 1)
 
-**Phase 1 default:** synchronous JSON response from `account.export` (no new table).
+**Confirmed:** `account.export` returns a **synchronous JSON** download assembled from user-owned tables. **No** `user_data_export_job` table in Phase 1 (defer async/blob export to a later phase if needed).
 
-If export payloads are large, add optional:
+### 9.8 Soft deletes (app-wide)
 
-```sql
-CREATE TABLE user_data_export_job (
-  id text PRIMARY KEY,
-  user_id text NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
-  status text NOT NULL, -- pending | ready | failed
-  storage_key text, -- blob path when ready
-  error_message text,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  completed_at timestamptz
-);
+Apply **`deleted_at`** (`timestamptz`, nullable) and **`deleted_by`** (`text` FK → `user`, nullable) on:
 
-CREATE INDEX user_data_export_job_user_idx ON user_data_export_job (user_id, created_at DESC);
-```
+- `project`, `environment`, `environment_variable`
+- `team`, project access rows (`project_manager`, `project_team`, `project_member_grant`)
+- `notification`
+- `organization` (org delete = soft delete + anonymize/sign-out flow for members; audit rows keep stable references)
 
-### 9.8 Route redirects (app config)
+**Query rules:** default Drizzle helpers / shared filter exclude rows where `deleted_at IS NOT NULL`. Partial unique indexes use `WHERE deleted_at IS NULL` so slugs and natural keys can be reused only after hard purge (not Phase 1).
+
+**Delete behavior:** user-facing deletes call registry `*.delete` actions → set `deleted_at` / `deleted_by`, emit `audit_event`; **`account.delete`** = soft delete user row + anonymize PII + revoke sessions (audit retains actor/target ids as today).
+
+**Restore:** `*.restore` actions (§6.2) clear `deleted_at` / `deleted_by` with audit. **OWNER** org-wide; **MANAGER** on assigned projects for project/env/variable restore.
+
+**Hard delete:** only where justified (session revoke, idempotent cleanup jobs); document in registry `audit.severity`.
+
+### 9.9 Route redirects (app config)
 
 Document in migration notes / Next redirects:
 
 - `/dashboard/settings/organization` → `/dashboard/organizations/[slug]` or `/dashboard/organizations`
 - `/dashboard/activity` → `/dashboard/timeline` (or org hub timeline per §7.4)
 
-### 9.9 Feature flags
+### 9.10 Feature flags
 
 ```env
 ACTIONS_AUDIT_ENABLED=true
@@ -772,7 +793,7 @@ Gate registry, `requireAction`, and Timeline UI until migration applied.
 
 **Suggested order:** W1 → (W2 ∥ W4) → W3 → (W9 ∥ W10) → (W5 ∥ W6 ∥ W7) → W8.
 
-**Do not merge** until user approves combined migration (0005 + 0006 bundle).
+**Production rollout:** ship **one combined SQL migration** for prod (**`0005_platform_variables_and_notifications`** already bundled variables v2 + notifications; **`0006_actions_permissions_audit`** adds registry tables, soft deletes, `audit_event`, teams, etc.). Enable feature flags in a **single** approval step after the combined migration is applied (align flags with `docs/PLATFORM_MIGRATION_0005.md` + forthcoming `0006` notes).
 
 ---
 
@@ -780,16 +801,17 @@ Gate registry, `requireAction`, and Timeline UI until migration applied.
 
 | # | Question | Status |
 |---|----------|--------|
-| 1 | **Account settings scope** — `/dashboard/settings` is account-only; org UI moves to Organizations module | **Resolved** (user confirmed) |
-| 2 | **User action scope** — `profile.*`, `session.*`, `account.*`; `requireAction` without active org | **Resolved** (user confirmed) |
-| 3 | **Organizations module** — list + `[slug]` hub sections, sidebar nav, settings org route migration | **Resolved** (user confirmed) |
-| 4 | **Global `/dashboard/timeline`** — redirect to active org or org hub timeline | **Resolved** (user confirmed) |
-| 5 | **Org `member` vs project MEMBER:** Should org-level `member` see any org timeline entries, or only after first team/project grant? | Open |
-| 6 | **MANAGER invite:** Can managers invite users to org or only to teams? (Matrix assumes no.) | Open |
-| 7 | **Variable reveal:** Always audit as `variable.reveal` even when failed — confirm retention period. | Open |
-| 8 | **Block list precedence (future):** When ADMIN exists, should platform block override ADMIN? (Recommended: yes for compliance.) | Open |
-| 9 | **0005 + 0006:** One prod migration PR or two sequential with single flag flip? | Open |
-| 10 | **`account.export`:** Sync JSON only in Phase 1, or require `user_data_export_job` table? | Open (sync OK per user; table optional §9.7) |
+| 1 | **Account settings scope** — `/dashboard/settings` is account-only; org UI moves to Organizations module | **Resolved** |
+| 2 | **User action scope** — `profile.*`, `session.*`, `account.*`; `requireAction` without active org | **Resolved** |
+| 3 | **Organizations module** — list + `[slug]` hub sections, sidebar nav, settings org route migration | **Resolved** |
+| 4 | **Global `/dashboard/timeline`** — redirect to active org or org hub timeline | **Resolved** |
+| 5 | **Org `member` with no team/project:** Org timeline and empty **Projects** for that user show nothing; empty copy *"Contact your manager to get assigned to a team or project"* | **Resolved** |
+| 6 | **MANAGER invite:** Managers **can** invite to org (`member.invite` = Y) and use `team.member.add`; owners retain `member.role.update` / `member.remove` | **Resolved** |
+| 7 | **Audit timeline retention:** `audit_event` retained **forever** (no automatic purge in Phase 1) | **Resolved** |
+| 8 | **Block list precedence (future):** When ADMIN exists, should platform block override ADMIN? (Recommended: yes for compliance.) | Open (future ADMIN phase) |
+| 9 | **0005 + 0006:** One prod migration train + feature flags + single user approval | **Resolved** — one combined prod migration bundle; flags off until approved |
+| 10 | **`account.export`:** Sync JSON only; no `user_data_export_job` table in Phase 1 | **Resolved** |
+| 11 | **Soft deletes app-wide** — `deleted_at` / `deleted_by`, restore actions, default query filter | **Resolved** (see §9.8, §6.2) |
 
 ---
 

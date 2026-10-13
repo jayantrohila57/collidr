@@ -10,6 +10,7 @@ import {
 } from "@/components/patterns/status-badge";
 import DashboardSection from "@/components/section-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CreateEnvironmentSheet } from "@/domain/environments/components/create-environment-sheet";
 import { useEnvironments } from "@/domain/environments/hooks/use-environments";
 import { EditProjectSheet } from "./edit-project-sheet";
 import { ProjectActions } from "./project-actions";
@@ -55,7 +56,14 @@ export default function ProjectDetailPage({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [editOpen, setEditOpen] = useState(false);
-  const { project, status, isLoading } = useEnvironments(slug);
+  const {
+    project,
+    status,
+    isLoading,
+    projectId,
+    createEnvironment,
+    isCreating,
+  } = useEnvironments(slug);
 
   useEffect(() => {
     if (searchParams.get("edit") === "1" && status === "success" && project) {
@@ -124,7 +132,21 @@ export default function ProjectDetailPage({
             status={project.status}
           />
         }
-        action={<ProjectActions project={project} />}
+        action={
+          <div className="flex shrink-0 items-center gap-1">
+            {projectId ? (
+              <CreateEnvironmentSheet
+                onConfirm={async (name) => {
+                  await createEnvironment({ projectId, name });
+                }}
+                isPending={isCreating}
+                triggerText="Add environment"
+                compactOnMobile
+              />
+            ) : null}
+            <ProjectActions project={project} />
+          </div>
+        }
         metadata={<ProjectMetadataRow project={project} />}
         stats={<ProjectDetailStats slug={slug} />}
       >
