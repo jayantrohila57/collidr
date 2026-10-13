@@ -1,10 +1,12 @@
 "use client";
 
+import { AlertTriangle } from "lucide-react";
 import { useEffect } from "react";
-import { ErrorState } from "@/components/patterns/error-state";
+import { PageStatusEmpty } from "@/components/layout/page-state";
+import { Button } from "@/components/ui/button";
 import { getClientErrorMessage } from "@/lib/errors/client-errors";
 
-export default function DashboardSegmentError({
+export default function DashboardRouteError({
   error,
   reset,
 }: {
@@ -16,12 +18,15 @@ export default function DashboardSegmentError({
   }, [error]);
 
   return (
-    <div className="p-4">
-      <ErrorState
-        title="Could not load dashboard"
-        description={getClientErrorMessage(error)}
-        onRetry={reset}
-      />
-    </div>
+    <PageStatusEmpty
+      icon={AlertTriangle}
+      title="Dashboard error"
+      description={getClientErrorMessage(error)}
+      action={
+        <Button type="button" size="sm" onClick={reset}>
+          Try again
+        </Button>
+      }
+    />
   );
 }

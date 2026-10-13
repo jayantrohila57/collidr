@@ -7,7 +7,11 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/lib/toast";
 import { signInWithGithub } from "../lib/auth-actions";
 
-export function GitHubLoginButton() {
+export function GitHubLoginButton({
+  size = "lg",
+}: {
+  size?: "default" | "sm" | "lg";
+}) {
   const [isLoading, startTransition] = useTransition();
 
   const handleSignIn = () => {
@@ -32,8 +36,8 @@ export function GitHubLoginButton() {
     <Button
       onClick={handleSignIn}
       disabled={isLoading}
-      size="lg"
-      className="w-80 gap-2 bg-primary hover:bg-primary/90"
+      size={size}
+      className="gap-2"
     >
       {isLoading ? <Spinner /> : <Github className="h-4 w-4" />}
       Sign in with GitHub

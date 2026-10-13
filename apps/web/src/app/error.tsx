@@ -1,7 +1,9 @@
 "use client";
 
+import { AlertTriangle } from "lucide-react";
 import { useEffect } from "react";
-import { ErrorState } from "@/components/patterns/error-state";
+import { PageStatusEmpty } from "@/components/layout/page-state";
+import { Button } from "@/components/ui/button";
 import { getClientErrorMessage } from "@/lib/errors/client-errors";
 
 export default function RootError({
@@ -16,12 +18,15 @@ export default function RootError({
   }, [error]);
 
   return (
-    <div className="flex min-h-svh items-center justify-center p-6">
-      <ErrorState
-        title="Unexpected error"
-        description={getClientErrorMessage(error)}
-        onRetry={reset}
-      />
-    </div>
+    <PageStatusEmpty
+      icon={AlertTriangle}
+      title="Unexpected error"
+      description={getClientErrorMessage(error)}
+      action={
+        <Button type="button" size="sm" onClick={reset}>
+          Try again
+        </Button>
+      }
+    />
   );
 }

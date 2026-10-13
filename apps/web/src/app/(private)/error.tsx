@@ -1,7 +1,9 @@
 "use client";
 
+import { AlertTriangle } from "lucide-react";
 import { useEffect } from "react";
-import { ErrorState } from "@/components/patterns/error-state";
+import { PageStatusEmpty } from "@/components/layout/page-state";
+import { Button } from "@/components/ui/button";
 import { getClientErrorMessage } from "@/lib/errors/client-errors";
 
 export default function DashboardError({
@@ -16,12 +18,15 @@ export default function DashboardError({
   }, [error]);
 
   return (
-    <div className="p-4">
-      <ErrorState
-        title="Dashboard error"
-        description={getClientErrorMessage(error)}
-        onRetry={reset}
-      />
-    </div>
+    <PageStatusEmpty
+      icon={AlertTriangle}
+      title="Something went wrong"
+      description={getClientErrorMessage(error)}
+      action={
+        <Button type="button" size="sm" onClick={reset}>
+          Try again
+        </Button>
+      }
+    />
   );
 }

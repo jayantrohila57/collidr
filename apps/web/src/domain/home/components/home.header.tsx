@@ -6,7 +6,7 @@ import { siteConfig } from "@/lib/siteConfig";
 
 export default function Header() {
   return (
-    <div className="container mx-auto flex h-12 w-full flex-row items-center justify-between p-2">
+    <div className="mx-auto flex h-12 w-full max-w-6xl flex-row items-center justify-between p-2">
       <div className="w-full flex-1">
         <Link href="/" className="flex items-center space-x-2">
           <Avatar className="border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50">
@@ -17,7 +17,7 @@ export default function Header() {
                 : "NA"}
             </AvatarFallback>
           </Avatar>
-          <span className="font-semibold text-xl">{siteConfig.name}</span>
+          <span className="font-semibold text-sm">{siteConfig.name}</span>
         </Link>
       </div>
       <div className="flex items-center space-x-2">

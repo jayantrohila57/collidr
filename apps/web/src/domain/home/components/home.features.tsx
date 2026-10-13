@@ -21,6 +21,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FramePanel } from "@/components/ui/frame";
+import { GitHubLoginButton } from "@/domain/auth/components/github-login";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import SectionHeading from "./section-heading";
 
@@ -141,10 +142,7 @@ export default function Features() {
                 <ArrowRight className="h-4 w-4" />
               </Button>
             ) : (
-              <Button size="lg" className="gap-2">
-                Get Started Now
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+              <GitHubLoginButton size="default" />
             )}
           </CardPanel>
         </Card>
