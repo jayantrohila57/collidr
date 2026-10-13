@@ -15,6 +15,14 @@ import { AppIcon } from "@/components/patterns/app-icon";
 import { ErrorState } from "@/components/patterns/error-state";
 import { FormField } from "@/components/patterns/form-field";
 import {
+  FormSheet,
+  FormSheetBody,
+  FormSheetFooter,
+  FormSheetForm,
+  FormSheetHeader,
+  FormSheetPopup,
+} from "@/components/patterns/form-sheet";
+import {
   SettingsPanel,
   SettingsRow,
   SettingsSectionHeader,
@@ -47,22 +55,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Sheet,
-  SheetClose,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetPanel,
-  SheetPopup,
-} from "@/components/ui/sheet";
+import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { authClient } from "@/lib/auth-client";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
-import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import {
   formatOrganizationCreateError,
@@ -556,18 +555,18 @@ export function OrganizationSettingsForm({
         </TabsPanel>
       </Tabs>
 
-      <Sheet open={editOrgOpen} onOpenChange={setEditOrgOpen}>
-        <SheetPopup variant="inset">
-          <SheetHeader>
+      <FormSheet open={editOrgOpen} onOpenChange={setEditOrgOpen}>
+        <FormSheetPopup>
+          <FormSheetHeader>
             <SheetTitleWithIcon icon="organization">
               Edit organization
             </SheetTitleWithIcon>
             <SheetDescription>
               Update the name and URL slug for this workspace.
             </SheetDescription>
-          </SheetHeader>
-          <form className="contents" onSubmit={handleSaveProfile}>
-            <SheetPanel className={layoutSheetPanelClass}>
+          </FormSheetHeader>
+          <FormSheetForm onSubmit={handleSaveProfile}>
+            <FormSheetBody>
               <FormField id="org-name-edit" label="Name" required>
                 <Input
                   id="org-name-edit"
@@ -591,8 +590,8 @@ export function OrganizationSettingsForm({
                   }}
                 />
               </FormField>
-            </SheetPanel>
-            <SheetFooter>
+            </FormSheetBody>
+            <FormSheetFooter>
               <SheetClose
                 render={
                   <Button
@@ -607,21 +606,21 @@ export function OrganizationSettingsForm({
               <SubmitButton isLoading={savePending} loadingLabel="Saving…">
                 Save changes
               </SubmitButton>
-            </SheetFooter>
-          </form>
-        </SheetPopup>
-      </Sheet>
+            </FormSheetFooter>
+          </FormSheetForm>
+        </FormSheetPopup>
+      </FormSheet>
 
-      <Sheet open={inviteOpen} onOpenChange={setInviteOpen}>
-        <SheetPopup variant="inset">
-          <SheetHeader>
+      <FormSheet open={inviteOpen} onOpenChange={setInviteOpen}>
+        <FormSheetPopup>
+          <FormSheetHeader>
             <SheetTitleWithIcon icon="invite">Invite member</SheetTitleWithIcon>
             <SheetDescription>
               Send an email invitation with a role for this organization.
             </SheetDescription>
-          </SheetHeader>
-          <form className="contents" onSubmit={handleInvite}>
-            <SheetPanel className={layoutSheetPanelClass}>
+          </FormSheetHeader>
+          <FormSheetForm onSubmit={handleInvite}>
+            <FormSheetBody>
               <FormField id="invite-email" label="Email" required>
                 <Input
                   id="invite-email"
@@ -656,8 +655,8 @@ export function OrganizationSettingsForm({
                   </SelectContent>
                 </Select>
               </FormField>
-            </SheetPanel>
-            <SheetFooter>
+            </FormSheetBody>
+            <FormSheetFooter>
               <SheetClose
                 render={
                   <Button
@@ -676,10 +675,10 @@ export function OrganizationSettingsForm({
               >
                 Send invitation
               </SubmitButton>
-            </SheetFooter>
-          </form>
-        </SheetPopup>
-      </Sheet>
+            </FormSheetFooter>
+          </FormSheetForm>
+        </FormSheetPopup>
+      </FormSheet>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogPopup>

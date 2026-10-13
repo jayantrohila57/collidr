@@ -10,6 +10,14 @@ import { useActiveOrganization } from "@/components/org/active-organization-cont
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";
+import {
+  FormSheet,
+  FormSheetBody,
+  FormSheetFooter,
+  FormSheetForm,
+  FormSheetHeader,
+  FormSheetPopup,
+} from "@/components/patterns/form-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import {
@@ -21,16 +29,8 @@ import {
 } from "@/components/ui/empty";
 import { Frame } from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
-import {
-  Sheet,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetPanel,
-  SheetPopup,
-} from "@/components/ui/sheet";
+import { SheetDescription } from "@/components/ui/sheet";
 import { authClient } from "@/lib/auth-client";
-import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 import {
   formatOrganizationCreateError,
   slugifyOrganizationName,
@@ -122,18 +122,18 @@ export default function OnboardingClient() {
           </EmptyHeader>
         </Empty>
       </Frame>
-      <Sheet open onOpenChange={() => {}}>
-        <SheetPopup variant="inset" showCloseButton={false}>
-          <SheetHeader>
+      <FormSheet open onOpenChange={() => {}}>
+        <FormSheetPopup showCloseButton={false}>
+          <FormSheetHeader>
             <SheetTitleWithIcon icon="organization">
               Create your organization
             </SheetTitleWithIcon>
             <SheetDescription>
               This name appears in the sidebar team switcher.
             </SheetDescription>
-          </SheetHeader>
-          <form className="contents" onSubmit={form.handleSubmit(onSubmit)}>
-            <SheetPanel className={layoutSheetPanelClass}>
+          </FormSheetHeader>
+          <FormSheetForm onSubmit={form.handleSubmit(onSubmit)}>
+            <FormSheetBody>
               <Controller
                 name="name"
                 control={form.control}
@@ -172,8 +172,8 @@ export default function OnboardingClient() {
                   </FormField>
                 )}
               />
-            </SheetPanel>
-            <SheetFooter>
+            </FormSheetBody>
+            <FormSheetFooter>
               <SubmitButton
                 isLoading={isBusy}
                 loadingLabel="Creating…"
@@ -181,10 +181,10 @@ export default function OnboardingClient() {
               >
                 Continue
               </SubmitButton>
-            </SheetFooter>
-          </form>
-        </SheetPopup>
-      </Sheet>
+            </FormSheetFooter>
+          </FormSheetForm>
+        </FormSheetPopup>
+      </FormSheet>
     </PageStack>
   );
 }

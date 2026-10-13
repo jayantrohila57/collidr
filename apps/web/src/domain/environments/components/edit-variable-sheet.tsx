@@ -3,22 +3,20 @@
 import { variableKeySchema } from "@env-manager/api/validation";
 import { useEffect, useState } from "react";
 import { FormField } from "@/components/patterns/form-field";
+import {
+  FormSheetBody,
+  FormSheetFooter,
+  FormSheetForm,
+  FormSheetHeader,
+  FormSheetPopup,
+} from "@/components/patterns/form-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Sheet,
-  SheetClose,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetPanel,
-  SheetPopup,
-} from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 
 interface EditVariableSheetProps {
   open: boolean;
@@ -83,16 +81,16 @@ export function EditVariableSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetPopup variant="inset">
-        <SheetHeader>
+      <FormSheetPopup>
+        <FormSheetHeader>
           <SheetTitleWithIcon icon="variable">Edit Variable</SheetTitleWithIcon>
           <SheetDescription>
             Update the key and value. The current value loads when you open this
             sheet.
           </SheetDescription>
-        </SheetHeader>
-        <form className="contents" onSubmit={handleSubmit}>
-          <SheetPanel className={layoutSheetPanelClass}>
+        </FormSheetHeader>
+        <FormSheetForm onSubmit={handleSubmit}>
+          <FormSheetBody>
             <FormField
               id="edit-key"
               label="Key"
@@ -133,8 +131,8 @@ export function EditVariableSheet({
                 />
               </div>
             </FormField>
-          </SheetPanel>
-          <SheetFooter>
+          </FormSheetBody>
+          <FormSheetFooter>
             <SheetClose render={<Button variant="ghost" type="button" />}>
               Cancel
             </SheetClose>
@@ -145,9 +143,9 @@ export function EditVariableSheet({
             >
               Update
             </SubmitButton>
-          </SheetFooter>
-        </form>
-      </SheetPopup>
+          </FormSheetFooter>
+        </FormSheetForm>
+      </FormSheetPopup>
     </Sheet>
   );
 }

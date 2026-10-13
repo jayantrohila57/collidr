@@ -64,7 +64,7 @@ All app layout spacing is derived from the coss **Sidebar** source (`apps/web/sr
 | `PageHeaderBar` / `PageHeaderRow` | same | Sticky inset header; **same `p-2` + `h-12` row as `SidebarHeader` + team switcher** |
 | `PageTitleRow` | same | In-page title + action (`text-sm` title) |
 | `PageToolbar` | same | Filters / search above tables |
-| `layoutSheetPanelClass` | `layout-spacing.ts` | Sheet bodies (`SheetPanel` `className`) |
+| `FormSheet*` | `components/patterns/form-sheet.tsx` | Full-height inset sheets; header/footer/body share coss `px-6` |
 | `DashboardSection` | `components/section-dashboard.tsx` | Wraps `PageStack` + `PageTitleRow` |
 | `FormSection` | `components/layout/form-section.tsx` | Form blocks (`gap-2`) |
 
@@ -94,9 +94,22 @@ Product concepts map to a single Lucide glyph in `apps/web/src/lib/icons.ts` (`a
 | Status | `StatusBadge` + status keys in the map; visibility uses `lock` / `globe` (`VisibilityBadge`) |
 | Links | `github`, `externalLink` with tooltips on outline buttons |
 | Settings | `SettingsSectionHeader` / `SettingsRow` optional `icon` prop; danger sections use `danger` |
-| Sheets | `SheetTitleWithIcon` for create/edit flows |
+| Sheets | `FormSheet` + `SheetTitleWithIcon`; full viewport height, scrollable body |
 
 When an icon sits on a filled button, pass `className="text-current"` on `AppIcon` so it inherits button foreground color.
+
+## Sheets (FormSheet)
+
+Use `FormSheet` / `FormSheetPopup` / `FormSheetHeader` / `FormSheetForm` / `FormSheetBody` / `FormSheetFooter` from `components/patterns/form-sheet.tsx` for every inset sheet (create/edit flows, org settings, onboarding, mobile sidebar shell).
+
+| Requirement | Implementation |
+|-------------|----------------|
+| Horizontal padding | Coss defaults only — `SheetHeader` / `SheetFooter` / body use matching `px-6` via `formSheetPanelPaddingClass` (do not add `layoutGutterClass` on panels) |
+| Full viewport height | `formSheetPopupClassName` (`h-full` inset panel) |
+| Scroll | `FormSheetBody` → `ScrollArea` with `flex-1 min-h-0`; fields in `grid gap-2` inside |
+| Footer | `FormSheetFooter` with `shrink-0` |
+
+Avoid `form className="contents"` on sheets — it breaks the flex column layout.
 
 ## Charts
 

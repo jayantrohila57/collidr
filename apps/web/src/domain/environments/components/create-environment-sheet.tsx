@@ -7,6 +7,13 @@ import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";
+import {
+  FormSheetBody,
+  FormSheetFooter,
+  FormSheetForm,
+  FormSheetHeader,
+  FormSheetPopup,
+} from "@/components/patterns/form-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
@@ -15,13 +22,8 @@ import {
   Sheet,
   SheetClose,
   SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetPanel,
-  SheetPopup,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 
 const environmentNameSchema = createEnvironmentInput.pick({ name: true });
 
@@ -76,17 +78,17 @@ export function CreateEnvironmentSheet({
           {triggerText}
         </span>
       </SheetTrigger>
-      <SheetPopup variant="inset">
-        <SheetHeader>
+      <FormSheetPopup>
+        <FormSheetHeader>
           <SheetTitleWithIcon icon="environment">
             Create Environment
           </SheetTitleWithIcon>
           <SheetDescription>
             Add a new environment (e.g., development, staging, production).
           </SheetDescription>
-        </SheetHeader>
-        <form className="contents" onSubmit={form.handleSubmit(onSubmit)}>
-          <SheetPanel className={layoutSheetPanelClass}>
+        </FormSheetHeader>
+        <FormSheetForm onSubmit={form.handleSubmit(onSubmit)}>
+          <FormSheetBody>
             <Controller
               name="name"
               control={form.control}
@@ -107,8 +109,8 @@ export function CreateEnvironmentSheet({
                 </FormField>
               )}
             />
-          </SheetPanel>
-          <SheetFooter>
+          </FormSheetBody>
+          <FormSheetFooter>
             <SheetClose
               render={
                 <Button variant="ghost" type="button" disabled={isPending} />
@@ -119,9 +121,9 @@ export function CreateEnvironmentSheet({
             <SubmitButton isLoading={isPending} loadingLabel="Creating…">
               Create
             </SubmitButton>
-          </SheetFooter>
-        </form>
-      </SheetPopup>
+          </FormSheetFooter>
+        </FormSheetForm>
+      </FormSheetPopup>
     </Sheet>
   );
 }

@@ -54,9 +54,6 @@ export const layoutTitleRowClass = layoutChromeRowClass;
 /** Form / sheet field stacks */
 export const layoutFormStackClass = `grid ${layoutGapClass}`;
 
-/** Sheet panel body — sidebar gutter + form gap (overrides default padding via cn merge) */
-export const layoutSheetPanelClass = `${layoutFormStackClass} ${layoutGutterClass} in-[[data-slot=sheet-popup]:has([data-slot=sheet-header])]:pt-1 in-[[data-slot=sheet-popup]:has([data-slot=sheet-footer]:not(.border-t))]:pb-1`;
-
 /** Toolbar row above tables / filters */
 export const layoutToolbarClass = `flex flex-col sm:flex-row ${layoutGapClass}`;
 

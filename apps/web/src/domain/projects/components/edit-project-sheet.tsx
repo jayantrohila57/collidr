@@ -6,23 +6,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
+import {
+  FormSheet,
+  FormSheetBody,
+  FormSheetFooter,
+  FormSheetForm,
+  FormSheetHeader,
+  FormSheetPopup,
+} from "@/components/patterns/form-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Sheet,
-  SheetClose,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetPanel,
-  SheetPopup,
-} from "@/components/ui/sheet";
+import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 import { useProjects } from "../hooks/use-projects";
 
 interface EditProjectSheetProps {
@@ -86,22 +85,17 @@ export function EditProjectSheet({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetPopup
-        variant="inset"
-        className="flex max-h-[min(90vh,720px)] flex-col"
-      >
-        <SheetHeader>
+    <FormSheet open={open} onOpenChange={onOpenChange}>
+      <FormSheetPopup>
+        <FormSheetHeader>
           <SheetTitleWithIcon icon="edit">Edit Project</SheetTitleWithIcon>
           <SheetDescription>
             Update details for &quot;{project.name}&quot;. Changes are saved
             when you submit.
           </SheetDescription>
-        </SheetHeader>
-        <form className="contents" onSubmit={form.handleSubmit(onSubmit)}>
-          <SheetPanel
-            className={`${layoutSheetPanelClass} min-h-0 flex-1 overflow-y-auto`}
-          >
+        </FormSheetHeader>
+        <FormSheetForm onSubmit={form.handleSubmit(onSubmit)}>
+          <FormSheetBody>
             <Controller
               name="name"
               control={form.control}
@@ -239,8 +233,8 @@ export function EditProjectSheet({
                 </div>
               )}
             />
-          </SheetPanel>
-          <SheetFooter>
+          </FormSheetBody>
+          <FormSheetFooter>
             <SheetClose
               render={
                 <Button variant="ghost" type="button" disabled={isUpdating} />
@@ -255,9 +249,9 @@ export function EditProjectSheet({
             >
               Update Project
             </SubmitButton>
-          </SheetFooter>
-        </form>
-      </SheetPopup>
-    </Sheet>
+          </FormSheetFooter>
+        </FormSheetForm>
+      </FormSheetPopup>
+    </FormSheet>
   );
 }

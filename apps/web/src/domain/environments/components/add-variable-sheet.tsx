@@ -4,6 +4,13 @@ import { variableKeySchema } from "@env-manager/api/validation";
 import { useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";
+import {
+  FormSheetBody,
+  FormSheetFooter,
+  FormSheetForm,
+  FormSheetHeader,
+  FormSheetPopup,
+} from "@/components/patterns/form-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
@@ -12,14 +19,9 @@ import {
   Sheet,
   SheetClose,
   SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetPanel,
-  SheetPopup,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
-import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 
 interface AddVariableSheetProps {
   onConfirm: (data: { key: string; value: string }) => Promise<void>;
@@ -76,13 +78,13 @@ export function AddVariableSheet({
         <AppIcon name="plus" className="text-current" />
         Add Variable
       </SheetTrigger>
-      <SheetPopup variant="inset">
-        <SheetHeader>
+      <FormSheetPopup>
+        <FormSheetHeader>
           <SheetTitleWithIcon icon="variable">Add Variable</SheetTitleWithIcon>
           <SheetDescription>Add a new environment variable.</SheetDescription>
-        </SheetHeader>
-        <form className="contents" onSubmit={handleSubmit}>
-          <SheetPanel className={layoutSheetPanelClass}>
+        </FormSheetHeader>
+        <FormSheetForm onSubmit={handleSubmit}>
+          <FormSheetBody>
             <FormField
               id="var-key"
               label="Key"
@@ -111,17 +113,17 @@ export function AddVariableSheet({
                 className="wrap-anywhere max-h-72 min-h-24 overflow-y-auto font-mono"
               />
             </FormField>
-          </SheetPanel>
-          <SheetFooter>
+          </FormSheetBody>
+          <FormSheetFooter>
             <SheetClose render={<Button variant="ghost" type="button" />}>
               Cancel
             </SheetClose>
             <SubmitButton isLoading={isPending} loadingLabel="Adding…">
               Add
             </SubmitButton>
-          </SheetFooter>
-        </form>
-      </SheetPopup>
+          </FormSheetFooter>
+        </FormSheetForm>
+      </FormSheetPopup>
     </Sheet>
   );
 }

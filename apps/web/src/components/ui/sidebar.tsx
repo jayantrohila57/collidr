@@ -5,6 +5,7 @@ import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
 import * as React from "react";
+import { formSheetPopupClassName } from "@/components/patterns/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -206,7 +207,10 @@ export function Sidebar({
     return (
       <Sheet onOpenChange={setOpenMobile} open={openMobile} {...props}>
         <SheetPopup
-          className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+          className={cn(
+            formSheetPopupClassName,
+            "w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden",
+          )}
           data-mobile="true"
           data-sidebar="sidebar"
           data-slot="sidebar"
@@ -218,11 +222,13 @@ export function Sidebar({
             } as React.CSSProperties
           }
         >
-          <SheetHeader className="sr-only">
+          <SheetHeader className="sr-only shrink-0">
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            {children}
+          </div>
         </SheetPopup>
       </Sheet>
     );

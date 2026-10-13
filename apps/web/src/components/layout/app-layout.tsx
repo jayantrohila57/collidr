@@ -99,7 +99,4 @@ export function PageToolbar({
   return <div className={cn(layoutToolbarClass, className)}>{children}</div>;
 }
 
-export {
-  layoutFormStackClass,
-  layoutSheetPanelClass,
-} from "@/lib/layout-spacing";
+export { layoutFormStackClass } from "@/lib/layout-spacing";

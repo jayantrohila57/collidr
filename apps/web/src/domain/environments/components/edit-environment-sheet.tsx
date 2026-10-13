@@ -3,25 +3,23 @@
 import { useEffect, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";
+import {
+  FormSheetBody,
+  FormSheetFooter,
+  FormSheetForm,
+  FormSheetHeader,
+  FormSheetPopup,
+} from "@/components/patterns/form-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Sheet,
-  SheetClose,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetPanel,
-  SheetPopup,
-} from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetDescription } from "@/components/ui/sheet";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 
 interface Environment {
   id: string;
@@ -115,8 +113,8 @@ export function EditEnvironmentSheet({
         </Tooltip>
       ) : null}
       <Sheet open={open} onOpenChange={handleOpenChange}>
-        <SheetPopup variant="inset">
-          <SheetHeader>
+        <FormSheetPopup>
+          <FormSheetHeader>
             <SheetTitleWithIcon icon="environment">
               Edit Environment
             </SheetTitleWithIcon>
@@ -124,13 +122,9 @@ export function EditEnvironmentSheet({
               Update the environment name. This will change how it appears in
               the tabs.
             </SheetDescription>
-          </SheetHeader>
-          <form
-            key={environment.id}
-            className="contents"
-            onSubmit={handleSubmit}
-          >
-            <SheetPanel className={layoutSheetPanelClass}>
+          </FormSheetHeader>
+          <FormSheetForm key={environment.id} onSubmit={handleSubmit}>
+            <FormSheetBody>
               <FormField
                 id={`env-name-${environment.id}`}
                 label="Name"
@@ -148,17 +142,17 @@ export function EditEnvironmentSheet({
                   aria-invalid={Boolean(error)}
                 />
               </FormField>
-            </SheetPanel>
-            <SheetFooter>
+            </FormSheetBody>
+            <FormSheetFooter>
               <SheetClose render={<Button variant="ghost" type="button" />}>
                 Cancel
               </SheetClose>
               <SubmitButton isLoading={isPending} loadingLabel="Updating…">
                 Update
               </SubmitButton>
-            </SheetFooter>
-          </form>
-        </SheetPopup>
+            </FormSheetFooter>
+          </FormSheetForm>
+        </FormSheetPopup>
       </Sheet>
     </>
   );
