@@ -39,7 +39,7 @@ export function NotificationBell() {
   const router = useRouter();
   const enabled = isNotificationsEnabledOnClient();
   const unreadQuery = useNotificationsUnreadCount();
-  const listQuery = useNotificationsList({ limit: 8 });
+  const listQuery = useNotificationsList({ limit: 10, poll: true });
   const { markRead, markAllRead } = useNotificationMutations();
 
   if (!enabled) {

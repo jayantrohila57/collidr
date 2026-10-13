@@ -9,6 +9,7 @@ export function isRecognizedDashboardPath(
   const staticPaths = new Set([
     "/dashboard",
     "/dashboard/activity",
+    "/dashboard/notifications",
     "/dashboard/onboarding",
     "/dashboard/projects",
     "/dashboard/projects/new",

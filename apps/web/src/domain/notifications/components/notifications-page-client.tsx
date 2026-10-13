@@ -17,7 +17,11 @@ export function NotificationsPageClient() {
   const router = useRouter();
   const [tab, setTab] = useState<"all" | "unread">("all");
   const unreadOnly = tab === "unread";
-  const listQuery = useNotificationsList({ unreadOnly, limit: 40 });
+  const listQuery = useNotificationsList({
+    unreadOnly,
+    limit: 40,
+    poll: true,
+  });
   const unreadQuery = useNotificationsUnreadCount();
   const { markRead, markAllRead } = useNotificationMutations();
 
@@ -35,10 +39,12 @@ export function NotificationsPageClient() {
             type="button"
             variant="outline"
             size="sm"
+            className="max-sm:px-2.5"
             disabled={markAllRead.isPending}
             onClick={() => void markAllRead.mutateAsync()}
           >
-            Mark all read
+            <span className="sm:hidden">Read all</span>
+            <span className="hidden sm:inline">Mark all read</span>
           </Button>
         ) : null
       }

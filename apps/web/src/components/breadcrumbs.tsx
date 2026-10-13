@@ -21,6 +21,7 @@ import { cn, deSlug } from "@/lib/utils";
 const STATIC_LABELS: Record<string, string> = {
   dashboard: "Dashboard",
   projects: "Projects",
+  notifications: "Notifications",
   new: "New Project",
   edit: "Edit",
   environments: "Environments",

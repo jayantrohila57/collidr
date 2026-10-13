@@ -61,8 +61,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { useSession } from "@/domain/auth/lib/auth-actions";
+import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
 import { authClient } from "@/lib/auth-client";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
+import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import {
   formatOrganizationCreateError,
@@ -112,6 +114,7 @@ export function OrganizationSettingsForm({
   };
   const queryClient = useQueryClient();
   const { data: session } = useSession();
+  const { syncInvitationReceived } = useNotificationMutations();
   const { refreshOrganizations, orgs, setActiveOrganization } =
     useActiveOrganization();
 
@@ -212,6 +215,12 @@ export function OrganizationSettingsForm({
       setInviteEmail("");
       setInviteOpen(false);
       await loadOrganization(organizationId);
+      if (isNotificationsEnabledOnClient() && currentUserId) {
+        void syncInvitationReceived.mutate({
+          organizationId,
+          email,
+        });
+      }
     } catch {
       // Toast handled by toast.promise
     } finally {

@@ -5,8 +5,8 @@ import { useEffect, useRef } from "react";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";
+import { NOTIFICATIONS_POLL_MS } from "../constants";
 
-const POLL_MS = 20_000;
 const MAX_TOASTS = 3;
 
 export function NotificationPoller() {
@@ -21,7 +21,7 @@ export function NotificationPoller() {
       if (typeof document !== "undefined" && document.hidden) {
         return false;
       }
-      return POLL_MS;
+      return NOTIFICATIONS_POLL_MS;
     },
     refetchOnWindowFocus: true,
   });
@@ -41,13 +41,22 @@ export function NotificationPoller() {
       (item) => !seenIdsRef.current?.has(item.id) && !item.readAt,
     );
 
+    if (newcomers.length > 0) {
+      void queryClient.invalidateQueries({
+        queryKey: trpc.notifications.unreadCount.queryKey(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: trpc.notifications.list.queryKey(),
+      });
+    }
+
     for (const item of newcomers.slice(0, MAX_TOASTS)) {
       toast(item.title, {
         description: item.body,
         action: {
           label: "View",
           onClick: () => {
-            window.location.href = item.href;
+            window.location.assign(item.href);
           },
         },
       });
@@ -59,7 +68,7 @@ export function NotificationPoller() {
         action: {
           label: "View all",
           onClick: () => {
-            window.location.href = "/dashboard/notifications";
+            window.location.assign("/dashboard/notifications");
           },
         },
       });
@@ -68,7 +77,7 @@ export function NotificationPoller() {
     for (const item of items) {
       seenIdsRef.current.add(item.id);
     }
-  }, [enabled, listQuery.data]);
+  }, [enabled, listQuery.data, queryClient]);
 
   useEffect(() => {
     if (!enabled) {

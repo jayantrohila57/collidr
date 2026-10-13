@@ -3,20 +3,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { trpc } from "@/utils/trpc";
+import { NOTIFICATIONS_POLL_MS } from "../constants";
 
-const POLL_MS = 20_000;
+function pollIntervalWhenVisible(queryStatus: string) {
+  if (typeof document !== "undefined" && document.hidden) {
+    return false;
+  }
+  return queryStatus === "error" ? false : NOTIFICATIONS_POLL_MS;
+}
 
 export function useNotificationsUnreadCount() {
   const enabled = isNotificationsEnabledOnClient();
   return useQuery({
     ...trpc.notifications.unreadCount.queryOptions(),
     enabled,
-    refetchInterval: (query) => {
-      if (typeof document !== "undefined" && document.hidden) {
-        return false;
-      }
-      return query.state.status === "error" ? false : POLL_MS;
-    },
+    refetchInterval: (query) => pollIntervalWhenVisible(query.state.status),
     refetchOnWindowFocus: true,
   });
 }
@@ -24,14 +25,19 @@ export function useNotificationsUnreadCount() {
 export function useNotificationsList(options?: {
   unreadOnly?: boolean;
   limit?: number;
+  poll?: boolean;
 }) {
   const enabled = isNotificationsEnabledOnClient();
+  const poll = options?.poll ?? false;
   return useQuery({
     ...trpc.notifications.list.queryOptions({
       limit: options?.limit ?? 15,
       unreadOnly: options?.unreadOnly,
     }),
     enabled,
+    refetchInterval: poll
+      ? (query) => pollIntervalWhenVisible(query.state.status)
+      : false,
     refetchOnWindowFocus: true,
   });
 }
