@@ -1,9 +1,9 @@
 "use client";
 
-import type { OrgListItem } from "@/components/org/active-organization-context";
 import type { ReactNode } from "react";
 import { DataTableClearFiltersButton } from "@/components/data-table/data-table-clear-filters-button";
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
+import type { OrgListItem } from "@/components/org/active-organization-context";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { layoutGapClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
@@ -68,8 +68,7 @@ export function OrganizationsListFiltersBar({
   const typeApplied: OrgTypeFacet[] =
     type === "all" ? [] : ([type] as OrgTypeFacet[]);
 
-  const sortApplied: OrganizationsSort[] =
-    sort === "name-asc" ? [] : [sort];
+  const sortApplied: OrganizationsSort[] = sort === "name-asc" ? [] : [sort];
 
   return (
     <div className={cn("flex flex-wrap items-center", layoutGapClass)}>
