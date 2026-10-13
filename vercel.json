@@ -5,11 +5,7 @@
       "root": "apps/web",
       "framework": "nextjs",
       "installCommand": "cd ../.. && pnpm install",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=web",
-      "env": {
-        "VERCEL_SERVICES": "1",
-        "NEXT_BASE_PATH": "/app"
-      },
+      "buildCommand": "cd ../.. && NEXT_BASE_PATH=/app VERCEL_SERVICES=1 pnpm turbo run build --filter=web",
       "bindings": [
         {
           "type": "service",
@@ -23,51 +19,31 @@
       "root": "apps/www",
       "framework": "nextjs",
       "installCommand": "cd ../.. && pnpm install",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=www",
-      "env": {
-        "VERCEL_SERVICES": "1"
-      }
+      "buildCommand": "cd ../.. && VERCEL_SERVICES=1 pnpm turbo run build --filter=www"
     },
     "docs": {
       "root": "apps/docs",
       "framework": "nextjs",
       "installCommand": "cd ../.. && pnpm install",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=docs",
-      "env": {
-        "VERCEL_SERVICES": "1",
-        "NEXT_BASE_PATH": "/docs"
-      }
+      "buildCommand": "cd ../.. && NEXT_BASE_PATH=/docs VERCEL_SERVICES=1 pnpm turbo run build --filter=docs"
     },
     "auth": {
       "root": "apps/auth",
       "framework": "nextjs",
       "installCommand": "cd ../.. && pnpm install",
-      "buildCommand": "cd ../.. && PLATFORM_AUTH_ENABLE_MCP=1 pnpm turbo run build --filter=auth",
-      "env": {
-        "VERCEL_SERVICES": "1",
-        "NEXT_BASE_PATH": "/auth",
-        "PLATFORM_AUTH_ENABLE_MCP": "1"
-      }
+      "buildCommand": "cd ../.. && NEXT_BASE_PATH=/auth VERCEL_SERVICES=1 PLATFORM_AUTH_ENABLE_MCP=1 pnpm turbo run build --filter=auth"
     },
     "account": {
       "root": "apps/account",
       "framework": "nextjs",
       "installCommand": "cd ../.. && pnpm install",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=account",
-      "env": {
-        "VERCEL_SERVICES": "1",
-        "NEXT_BASE_PATH": "/account"
-      }
+      "buildCommand": "cd ../.. && NEXT_BASE_PATH=/account VERCEL_SERVICES=1 pnpm turbo run build --filter=account"
     },
     "studio": {
       "root": "apps/studio",
       "framework": "nextjs",
       "installCommand": "cd ../.. && pnpm install",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=studio",
-      "env": {
-        "VERCEL_SERVICES": "1",
-        "NEXT_BASE_PATH": "/studio"
-      },
+      "buildCommand": "cd ../.. && NEXT_BASE_PATH=/studio VERCEL_SERVICES=1 pnpm turbo run build --filter=studio",
       "bindings": [
         {
           "type": "service",
@@ -81,20 +57,13 @@
       "root": "apps/console",
       "framework": "nextjs",
       "installCommand": "cd ../.. && pnpm install",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=console",
-      "env": {
-        "VERCEL_SERVICES": "1",
-        "NEXT_BASE_PATH": "/console"
-      }
+      "buildCommand": "cd ../.. && NEXT_BASE_PATH=/console VERCEL_SERVICES=1 pnpm turbo run build --filter=console"
     },
     "mcp": {
       "root": "apps/mcp",
       "framework": "nextjs",
       "installCommand": "cd ../.. && pnpm install",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=mcp",
-      "env": {
-        "VERCEL_SERVICES": "1"
-      },
+      "buildCommand": "cd ../.. && VERCEL_SERVICES=1 pnpm turbo run build --filter=mcp",
       "bindings": [
         {
           "type": "service",
@@ -108,11 +77,7 @@
       "root": "apps/support",
       "framework": "nextjs",
       "installCommand": "cd ../.. && pnpm install",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=support",
-      "env": {
-        "VERCEL_SERVICES": "1",
-        "NEXT_BASE_PATH": "/support"
-      }
+      "buildCommand": "cd ../.. && NEXT_BASE_PATH=/support VERCEL_SERVICES=1 pnpm turbo run build --filter=support"
     }
   },
   "rewrites": [
