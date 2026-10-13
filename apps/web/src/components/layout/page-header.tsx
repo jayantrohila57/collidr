@@ -3,11 +3,17 @@
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { PageBackButton } from "@/components/layout/page-back-button";
+import { Separator } from "@/components/ui/separator";
 import {
   layoutPageHeaderRowClass,
   layoutPageTitleClass,
 } from "@/lib/layout-spacing";
-import { getPageBackHref, type PageBackHref } from "@/lib/page-back";
+import {
+  getPageBackFallback,
+  getPageBackHref,
+  isDashboardRootPath,
+  type PageBackHref,
+} from "@/lib/page-back";
 import { cn } from "@/lib/utils";
 
 export type PageHeaderBackProp =
@@ -16,24 +22,59 @@ export type PageHeaderBackProp =
   | PageBackHref
   | { href?: PageBackHref | null; useHistory?: boolean };
 
+type ResolvedBack = {
+  href?: PageBackHref | null;
+  fallbackHref: PageBackHref;
+  useHistory: boolean;
+};
+
 function resolveBack(
   back: PageHeaderBackProp | undefined,
   pathname: string,
-): { href?: PageBackHref | null; useHistory: boolean } | null {
+): ResolvedBack | null {
   if (back === false) return null;
+
   if (back === "auto" || back === undefined) {
+    if (isDashboardRootPath(pathname)) {
+      return {
+        fallbackHref: getPageBackFallback(pathname),
+        useHistory: true,
+      };
+    }
     const href = getPageBackHref(pathname);
-    return href ? { href, useHistory: false } : null;
+    if (href) {
+      return { href, fallbackHref: href, useHistory: false };
+    }
+    return {
+      fallbackHref: getPageBackFallback(pathname),
+      useHistory: true,
+    };
   }
+
   if (typeof back === "string") {
-    return { href: back, useHistory: false };
+    return { href: back, fallbackHref: back, useHistory: false };
   }
+
   if (back.useHistory) {
-    return { href: back.href ?? null, useHistory: true };
+    const fallback =
+      back.href ??
+      getPageBackFallback(pathname) ??
+      ("/dashboard" as PageBackHref);
+    return {
+      href: back.href ?? null,
+      fallbackHref: fallback,
+      useHistory: true,
+    };
   }
-  return back.href
-    ? { href: back.href, useHistory: false }
-    : { useHistory: true };
+
+  if (back.href) {
+    return { href: back.href, fallbackHref: back.href, useHistory: false };
+  }
+
+  return {
+    fallbackHref: getPageBackFallback(pathname),
+    useHistory: true,
+  };
 }
 
 export function PageHeader({
@@ -54,12 +95,19 @@ export function PageHeader({
 
   return (
     <div className={layoutPageHeaderRowClass}>
-      <div className="flex min-w-0 flex-1 items-start gap-2">
+      <div className="flex min-w-0 flex-1 items-center gap-2">
         {resolved ? (
-          <PageBackButton
-            href={resolved.useHistory && !resolved.href ? null : resolved.href}
-            className="mt-0.5"
-          />
+          <>
+            <PageBackButton
+              href={resolved.href}
+              fallbackHref={resolved.fallbackHref}
+              useHistory={resolved.useHistory}
+            />
+            <Separator
+              orientation="vertical"
+              className="my-auto h-8 shrink-0"
+            />
+          </>
         ) : null}
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -73,7 +121,7 @@ export function PageHeader({
           ) : null}
         </div>
       </div>
-      {action ? <div className="mt-0.5 shrink-0">{action}</div> : null}
+      {action ? <div className="shrink-0">{action}</div> : null}
     </div>
   );
 }

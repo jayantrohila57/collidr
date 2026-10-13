@@ -53,7 +53,7 @@ export const layoutChromeRowClass = `flex w-full min-w-0 items-center justify-be
 
 /** In-page title row — grows with title, badges, and clamped description */
 export const layoutPageHeaderRowClass =
-  "flex w-full min-w-0 items-start justify-between gap-2 min-h-12 py-0.5";
+  "flex w-full min-w-0 items-center justify-between gap-2 min-h-12 py-0.5";
 
 /** In-page title row (DashboardSection, page heroes) */
 export const layoutTitleRowClass = layoutPageHeaderRowClass;

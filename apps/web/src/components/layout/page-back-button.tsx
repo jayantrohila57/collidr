@@ -12,16 +12,30 @@ import {
 import type { PageBackHref } from "@/lib/page-back";
 import { cn } from "@/lib/utils";
 
+const backButtonClassName = "size-8 shrink-0";
+
 export function PageBackButton({
   href,
+  fallbackHref = "/dashboard",
+  useHistory = false,
   className,
 }: {
   href?: PageBackHref | null;
+  fallbackHref?: PageBackHref;
+  useHistory?: boolean;
   className?: string;
 }) {
   const router = useRouter();
 
-  if (href) {
+  const goBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+    router.push(fallbackHref);
+  };
+
+  if (!useHistory && href) {
     return (
       <Tooltip>
         <TooltipTrigger
@@ -29,8 +43,8 @@ export function PageBackButton({
             <Button
               type="button"
               variant="ghost"
-              size="icon-sm"
-              className={cn("shrink-0", className)}
+              size="icon"
+              className={cn(backButtonClassName, className)}
               aria-label="Back"
               render={<Link href={href} />}
             />
@@ -50,10 +64,10 @@ export function PageBackButton({
           <Button
             type="button"
             variant="ghost"
-            size="icon-sm"
-            className={cn("shrink-0", className)}
+            size="icon"
+            className={cn(backButtonClassName, className)}
             aria-label="Back"
-            onClick={() => router.back()}
+            onClick={goBack}
           />
         }
       >

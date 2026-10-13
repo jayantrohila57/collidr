@@ -2,15 +2,19 @@ import type { Route } from "next";
 
 export type PageBackHref = Route;
 
-/** Top-level dashboard routes — no in-page back control. */
-const ROOT_PATHS = new Set<PageBackHref>(["/dashboard", "/dashboard/projects"]);
+/** Top-level dashboard routes that use browser history back with a fallback parent. */
+const HISTORY_ROOT_PATHS = new Set<PageBackHref>([
+  "/dashboard",
+  "/dashboard/projects",
+]);
 
 export function isDashboardRootPath(pathname: string): boolean {
-  return ROOT_PATHS.has(pathname as PageBackHref);
+  return HISTORY_ROOT_PATHS.has(pathname as PageBackHref);
 }
 
 /**
- * Logical parent for the in-page back button. Returns `null` on root pages.
+ * Logical parent for the in-page back button (direct navigation).
+ * Root history routes return `null` — use {@link getPageBackFallback} instead.
  */
 export function getPageBackHref(pathname: string): PageBackHref | null {
   if (isDashboardRootPath(pathname)) {
@@ -52,4 +56,13 @@ export function getPageBackHref(pathname: string): PageBackHref | null {
   }
 
   return null;
+}
+
+/** Fallback when `router.back()` has no prior history entry. */
+export function getPageBackFallback(pathname: string): PageBackHref {
+  if (pathname === "/dashboard") {
+    return "/";
+  }
+  const parent = getPageBackHref(pathname);
+  return parent ?? "/dashboard";
 }

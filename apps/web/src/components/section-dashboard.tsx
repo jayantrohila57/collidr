@@ -22,7 +22,7 @@ interface SectionProps {
   children: React.ReactNode;
   /** Rendered directly under the page header (e.g. stat cards). */
   stats?: ReactNode;
-  /** `auto` shows back on non-root routes; `false` hides; string sets parent href */
+  /** `auto` shows back everywhere; `false` hides; string sets parent href */
   back?: PageHeaderBackProp;
 }
 
