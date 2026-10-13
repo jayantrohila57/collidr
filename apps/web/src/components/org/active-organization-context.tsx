@@ -33,7 +33,9 @@ type ActiveOrganizationContextValue = {
   loading: boolean;
   isSwitching: boolean;
   initialLoadDone: boolean;
-  refreshOrganizations: () => Promise<void>;
+  refreshOrganizations: (options?: {
+    activeOrganizationId?: string | null;
+  }) => Promise<void>;
   setActiveOrganization: (organizationId: string) => Promise<void>;
   afterOrganizationCreated: (organizationId: string) => Promise<void>;
 };
@@ -59,7 +61,11 @@ export function ActiveOrganizationProvider({
   const queryClient = useQueryClient();
   const router = useRouter();
   const pathname = usePathname() ?? "";
-  const { data: session, isPending: sessionPending } = useSession();
+  const {
+    data: session,
+    isPending: sessionPending,
+    refetch: refetchSession,
+  } = useSession();
   const sessionActiveOrganizationId = readSessionActiveOrganizationId(session);
 
   const [orgs, setOrgs] = useState<OrgListItem[]>([]);
@@ -72,22 +78,29 @@ export function ActiveOrganizationProvider({
   const initialLoadStarted = useRef(false);
 
   useEffect(() => {
-    if (!enabled || sessionPending) {
+    if (!enabled || sessionPending || isSwitching) {
       return;
     }
     if (sessionActiveOrganizationId) {
       setActiveOrganizationId(sessionActiveOrganizationId);
     }
-  }, [enabled, sessionActiveOrganizationId, sessionPending]);
+  }, [enabled, isSwitching, sessionActiveOrganizationId, sessionPending]);
 
-  const refreshOrganizations = useCallback(async () => {
-    if (!enabled) return;
-    const list = await authClient.organization.list();
-    const data = (list.data ?? []) as OrgListItem[];
-    setOrgs(data);
-    const active = sessionActiveOrganizationId ?? data[0]?.id ?? null;
-    setActiveOrganizationId(active);
-  }, [enabled, sessionActiveOrganizationId]);
+  const refreshOrganizations = useCallback(
+    async (options?: { activeOrganizationId?: string | null }) => {
+      if (!enabled) return;
+      const list = await authClient.organization.list();
+      const data = (list.data ?? []) as OrgListItem[];
+      setOrgs(data);
+      const active =
+        options?.activeOrganizationId ??
+        sessionActiveOrganizationId ??
+        data[0]?.id ??
+        null;
+      setActiveOrganizationId(active);
+    },
+    [enabled, sessionActiveOrganizationId],
+  );
 
   useEffect(() => {
     if (!enabled) {
@@ -131,6 +144,7 @@ export function ActiveOrganizationProvider({
       setIsSwitching(true);
       try {
         await authClient.organization.setActive({ organizationId });
+        await refetchSession();
 
         await invalidateAfterOrganizationChange(queryClient);
         void router.refresh();
@@ -138,7 +152,7 @@ export function ActiveOrganizationProvider({
         const [listResult] = await Promise.all([
           queryClient.fetchQuery(trpc.projects.list.queryOptions()),
           queryClient.fetchQuery(trpc.dashboard.getOverview.queryOptions()),
-          refreshOrganizations(),
+          refreshOrganizations({ activeOrganizationId: organizationId }),
         ]);
 
         const orgList = await authClient.organization.list();
@@ -162,7 +176,7 @@ export function ActiveOrganizationProvider({
         setIsSwitching(false);
       }
     },
-    [pathname, queryClient, refreshOrganizations, router],
+    [pathname, queryClient, refetchSession, refreshOrganizations, router],
   );
 
   const setActiveOrganization = useCallback(
