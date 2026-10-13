@@ -66,6 +66,15 @@ export function NotificationsPageClient() {
         <TabsPanel value={tab} className="mt-4">
           {listQuery.isLoading ? (
             <p className="text-muted-foreground text-sm">Loading…</p>
+          ) : listQuery.isError ? (
+            <div className="rounded-lg border border-dashed px-4 py-12 text-center">
+              <p className="font-medium text-sm">
+                Could not load notifications
+              </p>
+              <p className="mt-1 text-muted-foreground text-sm">
+                Refresh the page or try again in a moment.
+              </p>
+            </div>
           ) : items.length === 0 ? (
             <div className="rounded-lg border border-dashed px-4 py-12 text-center">
               <p className="font-medium text-sm">

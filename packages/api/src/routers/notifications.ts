@@ -1,10 +1,9 @@
-import { activeNotificationWhere, activeUserWhere, db } from "@env-manager/db";
+import { activeNotificationWhere, db } from "@env-manager/db";
 import { user } from "@env-manager/db/schema/auth";
 import { notification } from "@env-manager/db/schema/notifications";
 import {
   isNotificationsEnabled,
-  type NotificationType,
-  notificationRenderers,
+  resolveNotificationPresentation,
   syncInvitationAcceptedByEmail,
   syncInvitationReceivedByEmail,
 } from "@env-manager/notifications";
@@ -28,18 +27,32 @@ function assertNotificationsEnabled() {
   }
 }
 
-function renderHref(type: string, data: unknown) {
-  if (!(type in notificationRenderers)) {
-    return "/dashboard/notifications";
+function recipientNotificationConditions(
+  userId: string,
+  options?: {
+    unreadOnly?: boolean;
+    cursor?: { createdAt: Date; id: string };
+  },
+) {
+  const conditions = [
+    activeNotificationWhere(eq(notification.recipientUserId, userId)),
+  ];
+  if (options?.unreadOnly) {
+    conditions.push(isNull(notification.readAt));
   }
-  return notificationRenderers[type as NotificationType](data, {}).href;
-}
-
-function renderIcon(type: string, data: unknown) {
-  if (!(type in notificationRenderers)) {
-    return "organization" as const;
+  if (options?.cursor) {
+    const cursorCondition = or(
+      lt(notification.createdAt, options.cursor.createdAt),
+      and(
+        eq(notification.createdAt, options.cursor.createdAt),
+        lt(notification.id, options.cursor.id),
+      ),
+    );
+    if (cursorCondition) {
+      conditions.push(cursorCondition);
+    }
   }
-  return notificationRenderers[type as NotificationType](data, {}).icon;
+  return and(...conditions.filter(Boolean));
 }
 
 export const notificationsRouter = router({
@@ -55,12 +68,9 @@ export const notificationsRouter = router({
         .select({ total: sql<number>`count(*)::int` })
         .from(notification)
         .where(
-          activeNotificationWhere(
-            and(
-              eq(notification.recipientUserId, ctx.session.user.id),
-              isNull(notification.readAt),
-            ),
-          ),
+          recipientNotificationConditions(ctx.session.user.id, {
+            unreadOnly: true,
+          }),
         );
 
       return respond({ message: "Count fetched", data: row?.total ?? 0 });
@@ -102,23 +112,6 @@ export const notificationsRouter = router({
       }
 
       const userId = ctx.session.user.id;
-      const conditions = [
-        activeNotificationWhere(eq(notification.recipientUserId, userId)),
-      ];
-      if (input.unreadOnly) {
-        conditions.push(isNull(notification.readAt));
-      }
-      if (input.cursor) {
-        conditions.push(
-          or(
-            lt(notification.createdAt, input.cursor.createdAt),
-            and(
-              eq(notification.createdAt, input.cursor.createdAt),
-              lt(notification.id, input.cursor.id),
-            ),
-          )!,
-        );
-      }
 
       const rows = await db
         .select({
@@ -135,7 +128,12 @@ export const notificationsRouter = router({
         })
         .from(notification)
         .leftJoin(user, eq(notification.actorUserId, user.id))
-        .where(and(...conditions.filter(Boolean)))
+        .where(
+          recipientNotificationConditions(userId, {
+            unreadOnly: input.unreadOnly,
+            cursor: input.cursor,
+          }),
+        )
         .orderBy(desc(notification.createdAt), desc(notification.id))
         .limit(input.limit + 1);
 
@@ -143,23 +141,30 @@ export const notificationsRouter = router({
       const page = hasMore ? rows.slice(0, input.limit) : rows;
       const last = page[page.length - 1];
 
-      const items = page.map((row) => ({
-        id: row.id,
-        type: row.type,
-        title: row.title ?? "Notification",
-        body: row.body ?? "",
-        readAt: row.readAt,
-        createdAt: row.createdAt,
-        href: renderHref(row.type, row.data),
-        icon: renderIcon(row.type, row.data),
-        actorUser: row.actorUserId
-          ? {
-              id: row.actorUserId,
-              name: row.actorName ?? "Someone",
-              image: row.actorImage,
-            }
-          : null,
-      }));
+      const items = page.map((row) => {
+        const presentation = resolveNotificationPresentation(
+          row.type,
+          row.data,
+          { title: row.title, body: row.body },
+        );
+        return {
+          id: row.id,
+          type: row.type,
+          title: presentation.title,
+          body: presentation.body,
+          readAt: row.readAt,
+          createdAt: row.createdAt,
+          href: presentation.href,
+          icon: presentation.icon,
+          actorUser: row.actorUserId
+            ? {
+                id: row.actorUserId,
+                name: row.actorName ?? "Someone",
+                image: row.actorImage,
+              }
+            : null,
+        };
+      });
 
       return respond({
         message: "Notifications fetched",

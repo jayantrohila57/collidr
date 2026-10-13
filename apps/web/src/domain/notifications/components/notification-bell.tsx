@@ -91,9 +91,19 @@ export function NotificationBell() {
           ) : null}
         </div>
         <div className="max-h-80 space-y-0.5 overflow-y-auto">
-          {items.length === 0 ? (
+          {listQuery.isError ? (
             <p className="px-2 py-6 text-center text-muted-foreground text-sm">
-              No notifications yet.
+              Could not load notifications. Try again shortly.
+            </p>
+          ) : listQuery.isLoading ? (
+            <p className="px-2 py-6 text-center text-muted-foreground text-sm">
+              Loading…
+            </p>
+          ) : items.length === 0 ? (
+            <p className="px-2 py-6 text-center text-muted-foreground text-sm">
+              {unread > 0
+                ? "Unread notifications could not be displayed."
+                : "No notifications yet."}
             </p>
           ) : (
             items.map((item) => (

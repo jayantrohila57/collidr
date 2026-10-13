@@ -8,6 +8,10 @@ export {
   notificationTypes,
 } from "./registry";
 export {
+  type NotificationListPresentation,
+  resolveNotificationPresentation,
+} from "./render-list-item";
+export {
   notifyInvitationAccepted,
   notifyInvitationReceived,
   syncInvitationAcceptedByEmail,
