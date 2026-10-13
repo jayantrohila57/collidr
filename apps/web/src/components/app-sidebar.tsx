@@ -111,9 +111,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupContent>
             <SidebarMenu className="flex min-w-0 flex-col gap-1">
               {projectsLoading &&
-                ["a", "b", "c", "d"].map((id) => (
-                  <SidebarMenuItem key={`project-skeleton-${id}`}>
-                    <SidebarMenuSkeleton showIcon />
+                [62, 68, 74, 80].map((textWidthPercent) => (
+                  <SidebarMenuItem key={`project-skeleton-${textWidthPercent}`}>
+                    <SidebarMenuSkeleton
+                      showIcon
+                      textWidthPercent={textWidthPercent}
+                    />
                   </SidebarMenuItem>
                 ))}
               {!projectsLoading && status === "error" && (

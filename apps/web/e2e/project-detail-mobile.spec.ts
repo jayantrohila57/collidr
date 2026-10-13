@@ -13,6 +13,17 @@ const VIEWPORTS = [
 ] as const;
 
 const PROJECT_DETAIL_PATH = "/dashboard/projects/e2e-demo-project";
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000";
+const e2eSecret = process.env.E2E_TEST_SECRET ?? "local-e2e-secret";
+
+async function seedE2eDemoVariable(
+  request: import("@playwright/test").APIRequestContext,
+) {
+  const login = await request.post(`${baseURL}/api/e2e/login`, {
+    headers: { "x-e2e-secret": e2eSecret },
+  });
+  expect(login.ok()).toBeTruthy();
+}
 
 test.describe("project detail layout", () => {
   test.describe.configure({ mode: "serial" });
@@ -41,12 +52,19 @@ test.describe("project detail layout", () => {
     });
   }
 
-  test("project detail @ 390px with seeded variable row", async ({ page }) => {
+  test("project detail @ 390px with seeded variable row", async ({
+    page,
+    request,
+  }) => {
+    await seedE2eDemoVariable(request);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(PROJECT_DETAIL_PATH);
-    await page.waitForLoadState("domcontentloaded");
+    await page.waitForLoadState("networkidle");
     await expect(
       page.getByText("E2E_DEMO_KEY", { exact: true }).filter({ visible: true }),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-slot="input-group"] svg').first(),
     ).toBeVisible();
     await assertNoHorizontalOverflow(page);
     await page.screenshot({
@@ -58,7 +76,7 @@ test.describe("project detail layout", () => {
   test("project detail @ 390px empty variables table", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(PROJECT_DETAIL_PATH);
-    await page.waitForLoadState("domcontentloaded");
+    await page.waitForLoadState("networkidle");
 
     const demoKey = page
       .getByText("E2E_DEMO_KEY", { exact: true })
@@ -67,12 +85,15 @@ test.describe("project detail layout", () => {
       await page.getByRole("button", { name: "Variable actions" }).click();
       await page.getByRole("menuitem", { name: "Delete" }).click();
       await page.getByRole("button", { name: "Delete" }).click();
-      await expect(demoKey).toHaveCount(0);
+      await expect(page.getByText("No variables yet")).toBeVisible({
+        timeout: 15_000,
+      });
     }
 
     await expect(
       page.getByRole("button", { name: "Add variable" }),
     ).toBeVisible();
+    await expect(demoKey).toHaveCount(0);
     await assertNoHorizontalOverflow(page);
     await page.screenshot({
       path: `${ARTIFACT_DIR}/project-detail-390-empty.png`,

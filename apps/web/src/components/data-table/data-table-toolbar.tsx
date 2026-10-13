@@ -2,7 +2,12 @@
 
 import { Search } from "lucide-react";
 import type { ReactNode } from "react";
-import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 import { layoutGapClass, layoutToolbarClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 
@@ -39,20 +44,21 @@ export function DataTableToolbar({
     >
       <div className="flex min-w-0 flex-1 flex-row items-center gap-2">
         {showSearch ? (
-          <div className="relative min-w-0 flex-1">
-            <Search
-              className="pointer-events-none absolute start-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden
-            />
-            <Input
+          <InputGroup className="h-8 min-w-0 flex-1" data-size="sm">
+            <InputGroupAddon>
+              <InputGroupText>
+                <Search className="size-4 shrink-0" aria-hidden />
+              </InputGroupText>
+            </InputGroupAddon>
+            <InputGroupInput
               size="sm"
               value={searchValue ?? ""}
               onChange={(event) => onSearchChange(event.target.value)}
               placeholder={searchPlaceholder}
-              className="h-8 [&_[data-slot=input]]:ps-8"
+              className="h-8"
               aria-label={searchPlaceholder}
             />
-          </div>
+          </InputGroup>
         ) : null}
         {primaryAction ? (
           <div className="flex shrink-0 items-center justify-end">
