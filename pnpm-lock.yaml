@@ -208,6 +208,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.10
         version: 4.1.18
+      tsx:
+        specifier: ^4.19.4
+        version: 4.23.15
       typescript:
         specifier: 'catalog:'
         version: 5.9.3

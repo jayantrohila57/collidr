@@ -4,13 +4,8 @@ import { env } from "@env-manager/env/server";
 import { prepareE2eInvitationNotifications } from "@env-manager/notifications/e2e/prepare-invitation";
 import { NextResponse } from "next/server";
 import { isE2eAuthRouteAllowed } from "@/lib/e2e-auth-allowed";
+import { isValidE2eSecret } from "@/lib/e2e-secret";
 import { e2ePersonaCredentials } from "@/lib/e2e-users";
-
-function assertE2eSecret(request: Request) {
-  const expected = process.env.E2E_TEST_SECRET ?? "local-e2e-secret";
-  const provided = request.headers.get("x-e2e-secret");
-  return provided === expected;
-}
 
 async function ensureE2eUsers() {
   for (const persona of ["primary", "invitee"] as const) {
@@ -27,7 +22,7 @@ export async function POST(request: Request) {
   if (!isE2eAuthRouteAllowed()) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  if (!assertE2eSecret(request)) {
+  if (!isValidE2eSecret(request)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   if (env.NOTIFICATIONS_ENABLED !== "true") {
