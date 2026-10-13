@@ -1,13 +1,21 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const DESCRIPTION_MAX_WIDTH = "max-w-[65ch]";
+const DESCRIPTION_LINES = 2;
 
-function measureSingleLineTruncated(el: HTMLElement) {
-  return el.scrollWidth > el.clientWidth + 1;
+const expandToggleClassName =
+  "inline cursor-pointer border-0 bg-transparent p-0 font-normal text-muted-foreground text-xs underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background";
+
+function measureLineClampTruncated(el: HTMLElement, lines: number) {
+  const style = getComputedStyle(el);
+  const lineHeight = Number.parseFloat(style.lineHeight);
+  if (Number.isFinite(lineHeight) && lineHeight > 0 && lines > 0) {
+    return el.scrollHeight > lineHeight * lines + 1;
+  }
+  return el.scrollHeight > el.clientHeight + 1;
 }
 
 export function PageHeaderDescription({
@@ -19,7 +27,7 @@ export function PageHeaderDescription({
 }) {
   const [expanded, setExpanded] = useState(false);
   const [isTruncated, setIsTruncated] = useState(false);
-  const measureRef = useRef<HTMLSpanElement>(null);
+  const measureRef = useRef<HTMLParagraphElement>(null);
 
   useLayoutEffect(() => {
     if (expanded) {
@@ -29,7 +37,7 @@ export function PageHeaderDescription({
     if (!el) return;
 
     const measure = () => {
-      setIsTruncated(measureSingleLineTruncated(el));
+      setIsTruncated(measureLineClampTruncated(el, DESCRIPTION_LINES));
     };
 
     measure();
@@ -40,6 +48,9 @@ export function PageHeaderDescription({
 
     const observer = new ResizeObserver(measure);
     observer.observe(el);
+    if (el.parentElement) {
+      observer.observe(el.parentElement);
+    }
 
     return () => {
       cancelAnimationFrame(raf);
@@ -61,15 +72,14 @@ export function PageHeaderDescription({
         data-expanded="true"
       >
         <p className="wrap-anywhere">
-          {text}
-          <Button
+          {text}{" "}
+          <button
             type="button"
-            variant="link"
-            className="inline h-auto p-0 ps-1 align-baseline text-xs"
+            className={expandToggleClassName}
             onClick={() => setExpanded(false)}
           >
             less
-          </Button>
+          </button>
         </p>
       </div>
     );
@@ -81,19 +91,27 @@ export function PageHeaderDescription({
       data-slot="page-header-description"
       data-expanded="false"
     >
-      <div className="flex min-w-0 max-w-full items-baseline">
-        <span ref={measureRef} className="min-w-0 flex-1 truncate">
+      <div className="relative min-w-0">
+        <p
+          ref={measureRef}
+          className={cn(
+            "wrap-anywhere line-clamp-2 min-w-0",
+            isTruncated && "pe-[3.25rem]",
+          )}
+        >
           {text}
-        </span>
+        </p>
         {isTruncated ? (
-          <Button
+          <button
             type="button"
-            variant="link"
-            className="inline h-auto shrink-0 p-0 ps-0.5 align-baseline text-xs"
+            className={cn(
+              expandToggleClassName,
+              "absolute right-0 bottom-0 bg-background ps-0.5",
+            )}
             onClick={() => setExpanded(true)}
           >
             … more
-          </Button>
+          </button>
         ) : null}
       </div>
     </div>

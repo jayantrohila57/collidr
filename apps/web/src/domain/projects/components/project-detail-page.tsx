@@ -22,7 +22,7 @@ import {
 } from "./project-overview-sections";
 
 const E2E_LONG_DESCRIPTION =
-  "Taskflow-style workspace for coordinating work across teams. This description is intentionally long so the page header keeps a single truncated line with an inline more control hugging the ellipsis, while metadata stays compact beside the title with repository and website links on one row without duplicate labels.";
+  "Taskflow-style workspace for coordinating work across teams. This description is intentionally long so the page header clamps to two lines with an inline more control at the end of the second line, while metadata stays compact beside the title with repository and website links aligned on one row without duplicate labels.";
 
 interface ProjectDetailPageProps {
   slug: string;

@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { PageBackButton } from "@/components/layout/page-back-button";
 import { PageHeaderDescription } from "@/components/layout/page-header-description";
 import { Separator } from "@/components/ui/separator";
-import { layoutGapClass, layoutPageTitleClass } from "@/lib/layout-spacing";
+import { layoutPageTitleClass } from "@/lib/layout-spacing";
 import {
   getPageBackFallback,
   getPageBackHref,
@@ -87,7 +87,7 @@ function TitleBlock({
   className?: string;
 }) {
   return (
-    <div className={cn("flex min-w-0 flex-col gap-0.5", className)}>
+    <div className={cn("flex min-w-0 flex-col gap-1.5", className)}>
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <h1 className={cn(layoutPageTitleClass, "truncate")}>{title}</h1>
         {titleAccessory}
@@ -113,8 +113,7 @@ function PageHeaderSimple({
   return (
     <div
       className={cn(
-        "flex w-full min-w-0 items-center justify-between gap-2 py-0.5",
-        "min-h-12",
+        "flex w-full min-w-0 items-center justify-between gap-2 py-4 md:py-5",
       )}
     >
       <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -127,7 +126,7 @@ function PageHeaderSimple({
             />
             <Separator
               orientation="vertical"
-              className="my-auto h-8 shrink-0"
+              className="my-auto h-8 shrink-0 px-px"
             />
           </>
         ) : null}
@@ -195,8 +194,7 @@ function PageHeaderWithMetadata({
   return (
     <div
       className={cn(
-        "grid w-full min-w-0 gap-2 py-0.5",
-        layoutGapClass,
+        "grid w-full min-w-0 gap-x-6 gap-y-2 py-4 md:py-5",
         mobileCols,
         mobileAreas,
         desktopCols,
@@ -222,7 +220,7 @@ function PageHeaderWithMetadata({
         <Separator
           orientation="vertical"
           className={cn(
-            "h-8 shrink-0 self-center [grid-area:leading-sep]",
+            "h-8 shrink-0 self-center px-px [grid-area:leading-sep]",
             description && "md:mt-1 md:self-start",
           )}
         />
@@ -249,7 +247,7 @@ function PageHeaderWithMetadata({
       <Separator
         orientation="vertical"
         className={cn(
-          "hidden h-8 shrink-0 [grid-area:meta-sep] md:block",
+          "hidden h-8 shrink-0 px-px [grid-area:meta-sep] md:block",
           description ? "md:mt-1 md:self-start" : "md:self-center",
         )}
       />

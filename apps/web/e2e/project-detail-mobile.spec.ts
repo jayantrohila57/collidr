@@ -4,7 +4,10 @@ import { assertNoHorizontalOverflow } from "./helpers/layout";
 
 const OVERVIEW_ARTIFACT_DIR =
   process.env.PROJECT_OVERVIEW_SCREENSHOT_DIR ??
-  "/opt/cursor/artifacts/screenshots/project-overview";
+  "/opt/cursor/artifacts/screenshots";
+
+const HEADER_DESC_ARTIFACT_DIR =
+  process.env.PROJECT_HEADER_DESC_SCREENSHOT_DIR ?? OVERVIEW_ARTIFACT_DIR;
 
 const ENVIRONMENTS_ARTIFACT_DIR =
   process.env.PROJECT_ENVIRONMENTS_SCREENSHOT_DIR ??
@@ -250,30 +253,32 @@ test.describe("project overview layout", () => {
     });
   }
 
-  test("page header description collapsed and expanded @ 1280", async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto(PROJECT_OVERVIEW_LONG_DESC_PATH);
-    await page.waitForLoadState("networkidle");
-    await setColorScheme(page, "dark");
-    const description = page.locator('[data-slot="page-header-description"]');
-    await expect(description).toHaveAttribute("data-expanded", "false");
-    await expect(
-      description.getByRole("button", { name: "… more" }),
-    ).toBeVisible();
-    await page.screenshot({
-      path: `${OVERVIEW_ARTIFACT_DIR}/project-overview-header-desc-collapsed.png`,
-      fullPage: false,
+  for (const width of [1280, 390] as const) {
+    test(`page header description collapsed and expanded @ ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(PROJECT_OVERVIEW_LONG_DESC_PATH);
+      await page.waitForLoadState("networkidle");
+      await setColorScheme(page, "dark");
+      const description = page.locator('[data-slot="page-header-description"]');
+      await expect(description).toHaveAttribute("data-expanded", "false");
+      await expect(
+        description.getByRole("button", { name: "… more" }),
+      ).toBeVisible();
+      await page.screenshot({
+        path: `${HEADER_DESC_ARTIFACT_DIR}/project-header-desc-collapsed-${width}.png`,
+        fullPage: false,
+      });
+      await description.getByRole("button", { name: "… more" }).click();
+      await expect(description).toHaveAttribute("data-expanded", "true");
+      await expect(
+        description.getByRole("button", { name: "less" }),
+      ).toBeVisible();
+      await page.screenshot({
+        path: `${HEADER_DESC_ARTIFACT_DIR}/project-header-desc-expanded-${width}.png`,
+        fullPage: false,
+      });
     });
-    await description.getByRole("button", { name: "… more" }).click();
-    await expect(description).toHaveAttribute("data-expanded", "true");
-    await expect(
-      description.getByRole("button", { name: "less" }),
-    ).toBeVisible();
-    await page.screenshot({
-      path: `${OVERVIEW_ARTIFACT_DIR}/project-overview-header-desc-expanded.png`,
-      fullPage: false,
-    });
-  });
+  }
 });
