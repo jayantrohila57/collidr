@@ -1,5 +1,14 @@
 import { toastManager } from "@/components/ui/toast";
 
+function isBenignPromiseRejection(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const name = (error as { name?: string }).name ?? "";
+  if (name === "AbortError" || name === "CancelledError") return true;
+  const message =
+    error instanceof Error ? error.message : String((error as Error).message);
+  return /cancel/i.test(message);
+}
+
 type ToastType = "error" | "info" | "loading" | "success" | "warning";
 
 export type ToastOptions = {
@@ -68,6 +77,10 @@ toastFn.promise = <T>(
       return result;
     })
     .catch((error: unknown) => {
+      if (isBenignPromiseRejection(error)) {
+        toastManager.update(id, { title: "", open: false });
+        throw error;
+      }
       const description =
         error instanceof Error
           ? error.message

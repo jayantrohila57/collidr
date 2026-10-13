@@ -27,10 +27,10 @@ import {
   protectedProcedure,
   router,
 } from "../index";
-import { projectListFilter } from "../org-access";
+import { projectReadWhere } from "../project-list";
 
-function projectScope(userId: string, organizationId: string | null) {
-  return projectListFilter(userId, organizationId);
+async function projectScope(userId: string, organizationId: string | null) {
+  return projectReadWhere(userId, organizationId);
 }
 
 type OrgCtx = Context & {
@@ -40,7 +40,7 @@ type OrgCtx = Context & {
 
 async function fetchDashboardStats(ctx: OrgCtx) {
   const userId = ctx.session.user.id;
-  const scope = projectScope(userId, ctx.activeOrganizationId);
+  const scope = await projectScope(userId, ctx.activeOrganizationId);
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -179,7 +179,7 @@ async function fetchDashboardStats(ctx: OrgCtx) {
 
 async function fetchRecentActivity(ctx: OrgCtx) {
   const userId = ctx.session.user.id;
-  const scope = projectScope(userId, ctx.activeOrganizationId);
+  const scope = await projectScope(userId, ctx.activeOrganizationId);
 
   const [recentProjects, recentAuditLogs] = await Promise.all([
     db
@@ -228,7 +228,7 @@ async function fetchRecentActivity(ctx: OrgCtx) {
 }
 
 async function fetchProjectDetailStats(ctx: OrgCtx, slug: string) {
-  const scope = projectListFilter(
+  const scope = await projectReadWhere(
     ctx.session.user.id,
     ctx.activeOrganizationId,
   );
@@ -245,7 +245,17 @@ async function fetchProjectDetailStats(ctx: OrgCtx, slug: string) {
     .limit(1);
 
   if (!projectRow) {
-    throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
+    return {
+      environmentCount: 0,
+      variableCount: 0,
+      secretCount: 0,
+      configCount: 0,
+      lastVariableUpdatedAt: null,
+      updatedAt: null,
+      isPublic: false,
+      isArchived: false,
+      status: "active" as const,
+    };
   }
 
   const variableScope = activeEnvironmentVariableWhere(
@@ -321,7 +331,7 @@ async function fetchOrgSettingsStats(ctx: OrgCtx) {
 
   const organizationId = ctx.activeOrganizationId;
   const userId = ctx.session.user.id;
-  const scope = projectListFilter(userId, organizationId);
+  const scope = await projectReadWhere(userId, organizationId);
 
   const [memberCountRow, pendingRow, projectCountRow, roleRow] =
     await Promise.all([
@@ -397,7 +407,7 @@ async function fetchUserAccountStats(userId: string) {
 
 async function fetchActivitySummary(ctx: OrgCtx) {
   const userId = ctx.session.user.id;
-  const scope = projectListFilter(userId, ctx.activeOrganizationId);
+  const scope = await projectReadWhere(userId, ctx.activeOrganizationId);
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const thirtyDaysAgo = new Date();
@@ -459,7 +469,10 @@ export const dashboardRouter = router({
     .use(actionGuard("organization.list"))
     .query(async ({ ctx }) => {
       const stats = await fetchDashboardStats(ctx);
-      const scope = projectScope(ctx.session.user.id, ctx.activeOrganizationId);
+      const scope = await projectScope(
+        ctx.session.user.id,
+        ctx.activeOrganizationId,
+      );
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const [publicProjectsResult, recentlyUpdatedResult] = await Promise.all([

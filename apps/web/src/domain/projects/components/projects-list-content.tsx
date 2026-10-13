@@ -65,9 +65,7 @@ export function ProjectsListContent({
     <EmptyState
       icon={appIcons.searchEmpty}
       title="No matching projects"
-      description="Try adjusting search or filters."
-      actionLabel="Clear filters"
-      onAction={params.clearFilters}
+      description="Try adjusting search or filters, or clear filters from the toolbar above."
     />
   );
 
@@ -110,7 +108,12 @@ export function ProjectsListContent({
           emptyNoResults
         ) : null
       ) : params.view === "grid" ? (
-        <ProjectsGridView projects={filtered} />
+        <div className={cn(layoutSectionStackClass)}>
+          <ProjectsGridView projects={filtered} />
+          {newProjectButton ? (
+            <div className="flex justify-end">{newProjectButton}</div>
+          ) : null}
+        </div>
       ) : (
         <ProjectsTableView
           projects={filtered}

@@ -22,6 +22,7 @@ export function isRecognizedDashboardPath(
     "/dashboard/settings/timeline",
     "/dashboard/settings/organization",
     "/dashboard/organizations",
+    "/dashboard/timeline",
   ]);
 
   if (staticPaths.has(pathname)) return true;

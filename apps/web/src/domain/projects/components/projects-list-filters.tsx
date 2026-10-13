@@ -133,6 +133,7 @@ export function ProjectsListFiltersBar({
         filterIcon="calendar"
         ariaLabel="Sort projects"
         multiple={false}
+        searchable={false}
         value={sortApplied}
         onValueChange={async (next) => {
           await onSortChange(next[0] ?? "updated-desc");

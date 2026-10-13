@@ -14,7 +14,6 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSwitcher } from "@/components/org/org-switcher";
 import { SidebarProjectsGroup } from "@/components/sidebar-projects-group";
@@ -52,8 +51,7 @@ const navIcons: Record<string, LucideIcon> = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-  const { isSwitching } = useActiveOrganization();
+  const { isSwitching, initialLoadDone } = useActiveOrganization();
   const { projects, status, refetch } = useProjects();
   const projectsLoading = isSwitching || status === "loading";
   const showOrgSwitcher = isOrganizationsEnabledOnClient();
@@ -62,10 +60,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const notificationCount = notificationsEnabled
     ? (unreadNotifications.data?.data ?? 0)
     : 0;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const actionsAudit = isActionsAuditEnabledOnClient();
   const permissions = useCan("organization.list");
@@ -154,8 +148,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   const isActive = (href: string) => {
-    if (!mounted) return false;
-
     const sortedItems = [...menuItems, { href: "/dashboard/settings" }].sort(
       (a, b) => b.href.length - a.href.length,
     );
@@ -179,7 +171,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="flex min-w-0 flex-col gap-1">
-              {menuItems.map((item) => {
+              {actionsAudit && !initialLoadDone
+                ? (
+                    [
+                      "nav-skeleton-a",
+                      "nav-skeleton-b",
+                      "nav-skeleton-c",
+                      "nav-skeleton-d",
+                    ] as const
+                  ).map((skeletonKey) => (
+                    <SidebarMenuItem key={skeletonKey}>
+                      <SidebarMenuButton disabled className="opacity-60">
+                        <span className="size-4 rounded bg-muted" />
+                        <span className="h-4 w-24 rounded bg-muted" />
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))
+                : menuItems.map((item) => {
                 const Icon = item.icon;
                 const badge =
                   "badge" in item && typeof item.badge === "number"

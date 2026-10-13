@@ -1,8 +1,9 @@
 import { isActionsAuditEnabled } from "@env-manager/actions";
 import { db } from "@env-manager/db";
+import { user } from "@env-manager/db/schema/auth";
 import { auditEvent } from "@env-manager/db/schema/audit-event";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, lte, type SQL } from "drizzle-orm";
+import { and, desc, eq, lte, not, or, sql, type SQL } from "drizzle-orm";
 import { z } from "zod/v3";
 import { requireAction } from "../actions/require-action";
 import { orgAwareProcedure, router } from "../index";
@@ -14,9 +15,20 @@ const listInput = z.object({
   projectId: z.string().optional(),
   action: z.string().optional(),
   result: z.enum(["success", "failure", "denied"]).optional(),
+  excludePassive: z.boolean().optional(),
   cursor: z.string().optional(),
   limit: z.number().min(1).max(100).default(50),
 });
+
+function passiveActionFilter() {
+  return not(
+    or(
+      sql`${auditEvent.action} like '%.read'`,
+      sql`${auditEvent.action} like '%.view.%'`,
+      sql`${auditEvent.action} like '%.view'`,
+    ),
+  );
+}
 
 export const auditEventsRouter = router({
   list: orgAwareProcedure.input(listInput).query(async ({ ctx, input }) => {
@@ -67,13 +79,38 @@ export const auditEventsRouter = router({
     if (input.result) {
       conditions.push(eq(auditEvent.result, input.result));
     }
+    if (input.excludePassive ?? true) {
+      conditions.push(passiveActionFilter());
+    }
     if (input.cursor) {
       conditions.push(lte(auditEvent.createdAt, new Date(input.cursor)));
     }
 
     const rows = await db
-      .select()
+      .select({
+        id: auditEvent.id,
+        action: auditEvent.action,
+        result: auditEvent.result,
+        actorUserId: auditEvent.actorUserId,
+        actorName: user.name,
+        actorEmail: user.email,
+        organizationId: auditEvent.organizationId,
+        projectId: auditEvent.projectId,
+        environmentId: auditEvent.environmentId,
+        entityType: auditEvent.entityType,
+        entityId: auditEvent.entityId,
+        entitySlug: auditEvent.entitySlug,
+        targetUserId: auditEvent.targetUserId,
+        denialReason: auditEvent.denialReason,
+        errorCode: auditEvent.errorCode,
+        payload: auditEvent.payload,
+        ipAddress: auditEvent.ipAddress,
+        userAgent: auditEvent.userAgent,
+        durationMs: auditEvent.durationMs,
+        createdAt: auditEvent.createdAt,
+      })
       .from(auditEvent)
+      .leftJoin(user, eq(auditEvent.actorUserId, user.id))
       .where(conditions.length ? and(...conditions) : undefined)
       .orderBy(desc(auditEvent.createdAt))
       .limit(input.limit + 1);

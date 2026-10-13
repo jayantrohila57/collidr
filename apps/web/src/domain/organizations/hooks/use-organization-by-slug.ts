@@ -48,7 +48,11 @@ export function useOrganizationBySlug(slug: string) {
       }
       const data = result.data;
       const members = (data as { members?: unknown[] }).members;
-      const invitations = (data as { invitations?: unknown[] }).invitations;
+      const invitations = (data as { invitations?: { status?: string }[] })
+        .invitations;
+      const pendingInvites = Array.isArray(invitations)
+        ? invitations.filter((invite) => invite.status === "pending").length
+        : undefined;
       setOrganization({
         id: data.id,
         name: data.name,
@@ -56,9 +60,7 @@ export function useOrganizationBySlug(slug: string) {
         metadata: data.metadata ?? null,
         createdAt: data.createdAt,
         memberCount: Array.isArray(members) ? members.length : undefined,
-        invitationCount: Array.isArray(invitations)
-          ? invitations.length
-          : undefined,
+        invitationCount: pendingInvites,
       });
       setStatus("success");
     } catch (err) {

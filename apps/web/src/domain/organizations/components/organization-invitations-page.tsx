@@ -25,6 +25,7 @@ import {
 import { Can } from "@/domain/permissions/components/can";
 import { authClient } from "@/lib/auth-client";
 import { formatDateTime } from "@/lib/format";
+import { toast } from "@/lib/toast";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { InviteMemberSheet } from "./invite-member-sheet";
 import { OrganizationSectionPage } from "./organization-section-page";
@@ -42,6 +43,7 @@ export function OrganizationInvitationsPage({ slug }: { slug: string }) {
   const [invitations, setInvitations] = useState<InvitationRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [revokingId, setRevokingId] = useState<string | null>(null);
 
   const loadInvitations = useCallback(async (organizationId: string) => {
     setLoading(true);
@@ -62,7 +64,39 @@ export function OrganizationInvitationsPage({ slug }: { slug: string }) {
     void loadInvitations(organization.id);
   }, [organization?.id, loadInvitations]);
 
-  const pending = invitations.filter((i) => i.status === "pending");
+  const revokeInvitation = async (invitationId: string) => {
+    if (!organization?.id) return;
+    setRevokingId(invitationId);
+    try {
+      const client = authClient.organization as {
+        cancelInvitation?: (input: {
+          invitationId: string;
+        }) => Promise<unknown>;
+      };
+      if (!client.cancelInvitation) {
+        toast.error("Revoke is not available for this workspace.");
+        return;
+      }
+      await toast.promise(
+        client.cancelInvitation({ invitationId }),
+        {
+          loading: "Revoking invitation…",
+          success: "Invitation revoked",
+          error: "Could not revoke invitation",
+        },
+      );
+      await loadInvitations(organization.id);
+    } finally {
+      setRevokingId(null);
+    }
+  };
+
+  const sorted = [...invitations].sort((a, b) => {
+    if (a.status === b.status) return 0;
+    if (a.status === "pending") return -1;
+    if (b.status === "pending") return 1;
+    return 0;
+  });
 
   return (
     <OrganizationSectionPage
@@ -87,7 +121,7 @@ export function OrganizationInvitationsPage({ slug }: { slug: string }) {
         <Skeleton className="h-48 w-full rounded-xl" />
       ) : loading ? (
         <Skeleton className="h-32 w-full rounded-xl" />
-      ) : pending.length === 0 ? (
+      ) : sorted.length === 0 ? (
         <Empty className="border border-dashed py-10">
           <EmptyHeader>
             <EmptyMedia variant="icon">
@@ -115,20 +149,42 @@ export function OrganizationInvitationsPage({ slug }: { slug: string }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Expires</TableHead>
+                <TableHead className="px-4">Email</TableHead>
+                <TableHead className="px-4">Role</TableHead>
+                <TableHead className="px-4">Status</TableHead>
+                <TableHead className="px-4">Expires</TableHead>
+                <TableHead className="px-4 text-end">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pending.map((invite) => (
+              {sorted.map((invite) => (
                 <TableRow key={invite.id}>
-                  <TableCell className="font-medium">{invite.email}</TableCell>
-                  <TableCell>
+                  <TableCell className="px-4 font-medium">
+                    {invite.email}
+                  </TableCell>
+                  <TableCell className="px-4">
                     <RoleBadge role={invite.role} />
                   </TableCell>
-                  <TableCell className="text-muted-foreground text-xs">
+                  <TableCell className="px-4 capitalize">
+                    {invite.status}
+                  </TableCell>
+                  <TableCell className="px-4 text-muted-foreground text-xs">
                     {formatDateTime(String(invite.expiresAt))}
+                  </TableCell>
+                  <TableCell className="px-4 text-end">
+                    {invite.status === "pending" ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={revokingId === invite.id}
+                        onClick={() => void revokeInvitation(invite.id)}
+                      >
+                        Revoke
+                      </Button>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">—</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

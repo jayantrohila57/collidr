@@ -39,8 +39,6 @@ export function OrganizationsListContent({
       icon={appIcons.searchEmpty}
       title="No matching organizations"
       description="Try adjusting search or filters."
-      actionLabel="Clear filters"
-      onAction={params.clearFilters}
     />
   );
 

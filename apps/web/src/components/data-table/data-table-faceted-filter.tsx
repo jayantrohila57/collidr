@@ -48,6 +48,8 @@ export type DataTableFacetedFilterProps<T extends string = string> = {
   ariaLabel?: string;
   /** Override trigger badge count (defaults to applied selection length) */
   badgeCount?: number;
+  /** Show combobox search field (default true). */
+  searchable?: boolean;
 } & UseDataTableFacetedFilterOptions<T>;
 
 function FilterTriggerIcon({
@@ -84,6 +86,7 @@ export function DataTableFacetedFilter<T extends string = string>({
   className,
   ariaLabel,
   badgeCount,
+  searchable = true,
   refetch,
   getResultCount,
   onApplyingChange,
@@ -135,13 +138,15 @@ export function DataTableFacetedFilter<T extends string = string>({
       <ComboboxTrigger
         className={cn(
           selectTriggerVariants({ size: "sm" }),
-          "h-8 w-full min-w-[8.5rem] gap-2 sm:w-auto",
+          "h-8 w-full min-w-[8.5rem] justify-start gap-1.5 sm:w-auto",
           className,
         )}
         aria-label={ariaLabel ?? title}
       >
-        <FilterTriggerIcon filterIcon={filterIcon} />
-        <span className="truncate">{title}</span>
+        <span className="flex min-w-0 items-center gap-1.5">
+          <FilterTriggerIcon filterIcon={filterIcon} />
+          <span className="truncate">{title}</span>
+        </span>
         {selectedCount > 0 ? (
           <Badge variant="secondary" size="sm" className="ms-0.5">
             {selectedCount}
@@ -150,14 +155,16 @@ export function DataTableFacetedFilter<T extends string = string>({
       </ComboboxTrigger>
       <ComboboxPopup align="start" className="w-64 p-0">
         <div className="flex flex-col gap-0">
-          <div className="border-b p-2">
-            <ComboboxInput
-              size="sm"
-              showTrigger={false}
-              placeholder={`Search ${title.toLowerCase()}…`}
-              aria-label={`Search ${title}`}
-            />
-          </div>
+          {searchable ? (
+            <div className="border-b p-2">
+              <ComboboxInput
+                size="sm"
+                showTrigger={false}
+                placeholder={`Search ${title.toLowerCase()}…`}
+                aria-label={`Search ${title}`}
+              />
+            </div>
+          ) : null}
           <ScrollArea
             overscrollContain
             scrollbarGutter

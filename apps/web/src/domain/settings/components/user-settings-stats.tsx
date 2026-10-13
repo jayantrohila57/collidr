@@ -6,6 +6,7 @@ import {
   StatCardRow,
   StatCardRowSkeleton,
 } from "@/components/patterns/stat-card";
+import { formatDate } from "@/lib/format";
 import { formatRelativeShort } from "@/lib/format-relative-short";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { trpc } from "@/utils/trpc";
@@ -45,7 +46,7 @@ export function UserSettingsStats() {
       label: "Account age",
       value: accountAge,
       hint: data.accountCreatedAt
-        ? `Joined ${new Date(data.accountCreatedAt).toLocaleDateString()}`
+        ? `Joined ${formatDate(data.accountCreatedAt)}`
         : "Member since sign-up",
       icon: "user",
     },

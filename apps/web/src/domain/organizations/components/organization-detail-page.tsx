@@ -36,10 +36,11 @@ export default function OrganizationDetailPage({ slug }: { slug: string }) {
   const meta = listItem ?? organization;
   const personal = meta ? isPersonalOrganization(meta) : false;
   const settingsHref = `/dashboard/organizations/${slug}/settings` as Route;
+  const displayName = listItem?.name ?? organization?.name ?? slug;
 
   return (
     <DashboardSection
-      title={organization?.name ?? slug}
+      title={displayName}
       description={
         personal
           ? "Personal workspace overview and administration."

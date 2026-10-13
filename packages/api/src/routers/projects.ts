@@ -7,9 +7,10 @@ import { environment, project } from "@env-manager/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod/v3";
-import { actionGuard } from "../actions/action-guard";
 import { createAuditLog } from "../audit";
 import { throwFriendlyError } from "../errors";
+import { actionGuard } from "../actions/action-guard";
+import { projectIdFromInput } from "../actions/guard-resolve";
 import { orgProcedure, router } from "../index";
 import { formatEnvironmentRows } from "../variable-format";
 import { isVariablesV2Enabled } from "../variables-v2";
@@ -50,13 +51,12 @@ async function listProjectEnvironments(projectId: string) {
     .orderBy(environment.name);
 }
 
+import { attachProjectToOrganization, projectListFilter } from "../org-access";
 import {
-  assertProjectAccess,
-  attachProjectToOrganization,
-  projectListFilter,
-  resolveProjectScopeWhere,
-} from "../org-access";
-import { listAccessibleProjectIds, projectIdsFilter } from "../project-list";
+  listAccessibleProjectIds,
+  projectIdsFilter,
+  projectReadWhere,
+} from "../project-list";
 import { assertUniqueProjectName } from "../project-name";
 import {
   buildProjectSlugFromName,
@@ -78,6 +78,7 @@ import {
 export const projectsRouter = router({
   // List all projects for the authenticated user
   list: orgProcedure
+    .use(actionGuard("organization.list"))
     .output(makeResponseSchema(z.array(projectOutput)))
     .query(async ({ ctx }) => {
       const accessibleIds = await listAccessibleProjectIds(
@@ -103,6 +104,7 @@ export const projectsRouter = router({
 
   // Get a single project with its environments by ID
   get: orgProcedure
+    .use(actionGuard("project.read", projectIdFromInput))
     .input(getProjectInput)
     .output(
       makeResponseSchema(
@@ -112,23 +114,11 @@ export const projectsRouter = router({
         }),
       ),
     )
-    .use(
-      actionGuard("project.read", (input) => ({
-        projectId: (input as { id: string }).id,
-      })),
-    )
     .query(async ({ ctx, input }) => {
-      await assertProjectAccess(
-        ctx.session.user.id,
-        input.id,
-        ctx.activeOrganizationId,
-      );
-
-      const scope = await resolveProjectScopeWhere(
+      const readScope = await projectReadWhere(
         ctx.session.user.id,
         ctx.activeOrganizationId,
       );
-
       const projectData = await db
         .select({
           id: project.id,
@@ -145,7 +135,7 @@ export const projectsRouter = router({
           updatedAt: project.updatedAt,
         })
         .from(project)
-        .where(and(eq(project.id, input.id), scope))
+        .where(and(eq(project.id, input.id), readScope))
         .limit(1);
 
       const environmentsList = await listProjectEnvironments(input.id);
@@ -166,6 +156,26 @@ export const projectsRouter = router({
 
   // Get a single project with its environments by slug
   getBySlug: orgProcedure
+    .use(
+      actionGuard("project.read", async (input, ctx) => {
+        const slug =
+          input && typeof input === "object" && "slug" in input
+            ? String((input as { slug: string }).slug)
+            : null;
+        if (!slug) return {};
+        const orgId = ctx.activeOrganizationId ?? null;
+        const row = await db
+          .select({ id: project.id })
+          .from(project)
+          .where(
+            orgId
+              ? and(eq(project.slug, slug), eq(project.organizationId, orgId))
+              : eq(project.slug, slug),
+          )
+          .limit(1);
+        return { projectId: row[0]?.id ?? null };
+      }),
+    )
     .input(getProjectBySlugInput)
     .output(
       makeResponseSchema(
@@ -176,11 +186,10 @@ export const projectsRouter = router({
       ),
     )
     .query(async ({ ctx, input }) => {
-      const scope = await resolveProjectScopeWhere(
+      const readScope = await projectReadWhere(
         ctx.session.user.id,
         ctx.activeOrganizationId,
       );
-
       const projectData = await db
         .select({
           id: project.id,
@@ -197,16 +206,8 @@ export const projectsRouter = router({
           updatedAt: project.updatedAt,
         })
         .from(project)
-        .where(and(eq(project.slug, input.slug), scope))
+        .where(and(eq(project.slug, input.slug), readScope))
         .limit(1);
-
-      if (projectData[0]) {
-        await assertProjectAccess(
-          ctx.session.user.id,
-          projectData[0].id,
-          ctx.activeOrganizationId,
-        );
-      }
 
       if (projectData.length === 0) {
         return respond({
@@ -300,29 +301,22 @@ export const projectsRouter = router({
 
   // Update a project
   update: orgProcedure
-    .use(
-      actionGuard("project.update", (input) => ({
-        projectId: (input as { id: string }).id,
-      })),
-    )
+    .use(actionGuard("project.update", projectIdFromInput))
     .input(updateProjectInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
-      await assertProjectAccess(
-        ctx.session.user.id,
-        input.id,
-        ctx.activeOrganizationId,
-      );
-
-      const scope = await resolveProjectScopeWhere(
-        ctx.session.user.id,
-        ctx.activeOrganizationId,
-      );
-
       const existingProject = await db
         .select()
         .from(project)
-        .where(and(eq(project.id, input.id), scope))
+        .where(
+          and(
+            eq(project.id, input.id),
+            await projectReadWhere(
+              ctx.session.user.id,
+              ctx.activeOrganizationId,
+            ),
+          ),
+        )
         .limit(1);
 
       if (existingProject.length === 0) {
@@ -387,29 +381,22 @@ export const projectsRouter = router({
 
   // Delete a project (and all its environments and variables)
   delete: orgProcedure
-    .use(
-      actionGuard("project.delete", (input) => ({
-        projectId: (input as { id: string }).id,
-      })),
-    )
+    .use(actionGuard("project.delete", projectIdFromInput))
     .input(getProjectInput)
     .output(makeResponseSchema(z.object({ success: z.boolean() })))
     .mutation(async ({ ctx, input }) => {
-      await assertProjectAccess(
-        ctx.session.user.id,
-        input.id,
-        ctx.activeOrganizationId,
-      );
-
-      const scope = await resolveProjectScopeWhere(
-        ctx.session.user.id,
-        ctx.activeOrganizationId,
-      );
-
       const existingProject = await db
         .select()
         .from(project)
-        .where(and(eq(project.id, input.id), scope))
+        .where(
+          and(
+            eq(project.id, input.id),
+            await projectReadWhere(
+              ctx.session.user.id,
+              ctx.activeOrganizationId,
+            ),
+          ),
+        )
         .limit(1);
 
       if (existingProject.length === 0) {
@@ -434,29 +421,22 @@ export const projectsRouter = router({
 
   // Archive a project
   archive: orgProcedure
-    .use(
-      actionGuard("project.archive", (input) => ({
-        projectId: (input as { id: string }).id,
-      })),
-    )
+    .use(actionGuard("project.archive", projectIdFromInput))
     .input(getProjectInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
-      await assertProjectAccess(
-        ctx.session.user.id,
-        input.id,
-        ctx.activeOrganizationId,
-      );
-
-      const scope = await resolveProjectScopeWhere(
-        ctx.session.user.id,
-        ctx.activeOrganizationId,
-      );
-
       const existingProject = await db
         .select()
         .from(project)
-        .where(and(eq(project.id, input.id), scope))
+        .where(
+          and(
+            eq(project.id, input.id),
+            await projectReadWhere(
+              ctx.session.user.id,
+              ctx.activeOrganizationId,
+            ),
+          ),
+        )
         .limit(1);
 
       if (existingProject.length === 0) {
@@ -481,29 +461,22 @@ export const projectsRouter = router({
 
   // Unarchive a project
   unarchive: orgProcedure
-    .use(
-      actionGuard("project.restore", (input) => ({
-        projectId: (input as { id: string }).id,
-      })),
-    )
+    .use(actionGuard("project.restore", projectIdFromInput))
     .input(getProjectInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
-      await assertProjectAccess(
-        ctx.session.user.id,
-        input.id,
-        ctx.activeOrganizationId,
-      );
-
-      const scope = await resolveProjectScopeWhere(
-        ctx.session.user.id,
-        ctx.activeOrganizationId,
-      );
-
       const existingProject = await db
         .select()
         .from(project)
-        .where(and(eq(project.id, input.id), scope))
+        .where(
+          and(
+            eq(project.id, input.id),
+            await projectReadWhere(
+              ctx.session.user.id,
+              ctx.activeOrganizationId,
+            ),
+          ),
+        )
         .limit(1);
 
       if (existingProject.length === 0) {
@@ -531,29 +504,22 @@ export const projectsRouter = router({
 
   // Change project status
   changeStatus: orgProcedure
-    .use(
-      actionGuard("project.status.change", (input) => ({
-        projectId: (input as { id: string }).id,
-      })),
-    )
+    .use(actionGuard("project.status.change", projectIdFromInput))
     .input(changeProjectStatusInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
-      await assertProjectAccess(
-        ctx.session.user.id,
-        input.id,
-        ctx.activeOrganizationId,
-      );
-
-      const scope = await resolveProjectScopeWhere(
-        ctx.session.user.id,
-        ctx.activeOrganizationId,
-      );
-
       const existingProject = await db
         .select()
         .from(project)
-        .where(and(eq(project.id, input.id), scope))
+        .where(
+          and(
+            eq(project.id, input.id),
+            await projectReadWhere(
+              ctx.session.user.id,
+              ctx.activeOrganizationId,
+            ),
+          ),
+        )
         .limit(1);
 
       if (existingProject.length === 0) {
@@ -581,29 +547,22 @@ export const projectsRouter = router({
 
   // Toggle project public/private visibility
   togglePublic: orgProcedure
-    .use(
-      actionGuard("project.public.toggle", (input) => ({
-        projectId: (input as { id: string }).id,
-      })),
-    )
+    .use(actionGuard("project.public.toggle", projectIdFromInput))
     .input(toggleProjectPublicInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
-      await assertProjectAccess(
-        ctx.session.user.id,
-        input.id,
-        ctx.activeOrganizationId,
-      );
-
-      const scope = await resolveProjectScopeWhere(
-        ctx.session.user.id,
-        ctx.activeOrganizationId,
-      );
-
       const existingProject = await db
         .select()
         .from(project)
-        .where(and(eq(project.id, input.id), scope))
+        .where(
+          and(
+            eq(project.id, input.id),
+            await projectReadWhere(
+              ctx.session.user.id,
+              ctx.activeOrganizationId,
+            ),
+          ),
+        )
         .limit(1);
 
       if (existingProject.length === 0) {

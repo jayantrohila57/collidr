@@ -17,7 +17,7 @@ export function ProjectsGridView({
     <Frame className="w-full min-w-0 max-w-full overflow-hidden rounded-xl">
       <div
         className={cn(
-          "grid auto-rows-fr grid-cols-1 items-stretch sm:grid-cols-2 xl:grid-cols-3",
+          "grid auto-rows-fr grid-cols-1 items-stretch sm:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0",
           layoutGapClass,
           className,
         )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -14,6 +14,7 @@ import {
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { authClient } from "@/lib/auth-client";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
+import { pathAfterOrganizationSwitch } from "@/lib/org-switch-redirect";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";
@@ -57,6 +58,7 @@ export function ActiveOrganizationProvider({
   const enabled = isOrganizationsEnabledOnClient();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const pathname = usePathname() ?? "";
   const { data: session, isPending: sessionPending } = useSession();
   const sessionActiveOrganizationId = readSessionActiveOrganizationId(session);
 
@@ -124,7 +126,7 @@ export function ActiveOrganizationProvider({
   }, [enabled, queryClient, refreshOrganizations, sessionPending]);
 
   const applyActiveOrganization = useCallback(
-    async (organizationId: string, options?: { awaitRefresh?: boolean }) => {
+    async (organizationId: string, _options?: { awaitRefresh?: boolean }) => {
       setActiveOrganizationId(organizationId);
       setIsSwitching(true);
       try {
@@ -133,22 +135,34 @@ export function ActiveOrganizationProvider({
         await invalidateAfterOrganizationChange(queryClient);
         void router.refresh();
 
-        const refreshOrgs = refreshOrganizations();
-        await Promise.all([
+        const [listResult] = await Promise.all([
           queryClient.fetchQuery(trpc.projects.list.queryOptions()),
           queryClient.fetchQuery(trpc.dashboard.getOverview.queryOptions()),
+          refreshOrganizations(),
         ]);
 
-        if (options?.awaitRefresh) {
-          await refreshOrgs;
-        } else {
-          void refreshOrgs;
+        const orgList = await authClient.organization.list();
+        const nextOrg = ((orgList.data ?? []) as OrgListItem[]).find(
+          (org) => org.id === organizationId,
+        );
+        const projectSlugs = new Set(
+          (listResult?.data ?? [])
+            .map((row) => row.slug)
+            .filter((slug): slug is string => Boolean(slug?.trim())),
+        );
+        const redirectTo = pathAfterOrganizationSwitch(
+          pathname,
+          nextOrg,
+          projectSlugs,
+        );
+        if (redirectTo) {
+          router.replace(redirectTo);
         }
       } finally {
         setIsSwitching(false);
       }
     },
-    [queryClient, refreshOrganizations, router],
+    [pathname, queryClient, refreshOrganizations, router],
   );
 
   const setActiveOrganization = useCallback(

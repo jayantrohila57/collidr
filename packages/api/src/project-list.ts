@@ -1,5 +1,5 @@
 import { normalizeOrgRole } from "@env-manager/actions";
-import { db } from "@env-manager/db";
+import { activeProjectWhere, db } from "@env-manager/db";
 import { member } from "@env-manager/db/schema/organization";
 import {
   projectManager,
@@ -9,7 +9,8 @@ import {
 import { project } from "@env-manager/db/schema/projects";
 import { teamMember } from "@env-manager/db/schema/team";
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
-import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql, type SQL } from "drizzle-orm";
+import { projectListFilter } from "./org-access";
 
 export async function listAccessibleProjectIds(
   userId: string,
@@ -106,4 +107,25 @@ export function projectIdsFilter(projectIds: string[] | null) {
     return sql`false`;
   }
   return inArray(project.id, projectIds);
+}
+
+/** Shared read scope for project rows (list, getBySlug, stats, mutations). */
+export async function projectReadWhere(
+  userId: string,
+  organizationId: string | null,
+): Promise<SQL | undefined> {
+  const accessibleIds = await listAccessibleProjectIds(userId, organizationId);
+  if (accessibleIds === null) {
+    return projectListFilter(userId, organizationId);
+  }
+
+  const orgScope =
+    isOrganizationsEnabled() && organizationId
+      ? eq(project.organizationId, organizationId)
+      : undefined;
+  const idFilter = projectIdsFilter(accessibleIds);
+  if (!orgScope) {
+    return activeProjectWhere(idFilter);
+  }
+  return activeProjectWhere(and(orgScope, idFilter));
 }

@@ -6,7 +6,10 @@ function isOrgScopedQuery(queryKey: unknown): boolean {
     serialized.includes("dashboard") ||
     serialized.includes("projects") ||
     serialized.includes("environments") ||
-    serialized.includes("audit")
+    serialized.includes("audit") ||
+    serialized.includes("notifications") ||
+    serialized.includes("permissions") ||
+    serialized.includes("organizations")
   );
 }
 

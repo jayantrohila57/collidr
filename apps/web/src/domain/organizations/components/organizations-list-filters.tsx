@@ -91,6 +91,7 @@ export function OrganizationsListFiltersBar({
         filterIcon="listView"
         ariaLabel="Sort organizations"
         multiple={false}
+        searchable={false}
         value={sortApplied}
         onValueChange={async (next) => {
           await onSortChange(next[0] ?? "name-asc");

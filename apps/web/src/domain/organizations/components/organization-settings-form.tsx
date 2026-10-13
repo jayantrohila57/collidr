@@ -12,6 +12,7 @@ import { useActiveOrganization } from "@/components/org/active-organization-cont
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { OrganizationMembersTable } from "@/components/org/organization-members-table";
 import { AppIcon } from "@/components/patterns/app-icon";
+import { RoleBadge } from "@/components/patterns/status-badge";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { ErrorState } from "@/components/patterns/error-state";
 import { FormField } from "@/components/patterns/form-field";
@@ -75,12 +76,29 @@ import {
   formatOrganizationCreateError,
   resolveOrgSlugForSave,
 } from "@/lib/org-slug";
+import { formatDateTime } from "@/lib/format";
 import { toast } from "@/lib/toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type MemberRow = {
   id: string;
   role: string;
   user: { name: string; email: string; id?: string };
+};
+
+type InvitationRow = {
+  id: string;
+  email: string;
+  role: string;
+  status: string;
+  expiresAt: Date | string;
 };
 
 const ROLES = ["member", "manager", "owner"] as const;
@@ -143,6 +161,8 @@ export function OrganizationSettingsForm({
     useActiveOrganization();
 
   const [members, setMembers] = useState<MemberRow[]>([]);
+  const [invitations, setInvitations] = useState<InvitationRow[]>([]);
+  const [editSnapshot, setEditSnapshot] = useState({ name: "", slug: "" });
   const [orgName, setOrgName] = useState("");
   const [orgSlug, setOrgSlug] = useState("");
   const [orgMetadata, setOrgMetadata] = useState<
@@ -193,6 +213,10 @@ export function OrganizationSettingsForm({
       query: { organizationId: targetOrgId },
     });
     setMembers((list.data?.members ?? []) as MemberRow[]);
+    const inviteList = await authClient.organization.listInvitations({
+      query: { organizationId: targetOrgId },
+    });
+    setInvitations((inviteList.data ?? []) as InvitationRow[]);
   }, []);
 
   useEffect(() => {
@@ -472,7 +496,10 @@ export function OrganizationSettingsForm({
                   type="button"
                   size="sm"
                   className="w-fit gap-2"
-                  onClick={() => setEditOrgOpen(true)}
+                  onClick={() => {
+                    setEditSnapshot({ name: orgName, slug: orgSlug });
+                    setEditOrgOpen(true);
+                  }}
                 >
                   <AppIcon name="edit" className="text-current" />
                   Edit organization
@@ -563,29 +590,65 @@ export function OrganizationSettingsForm({
                 description="Pending email invites."
                 icon="mail"
               />
-              <div className="px-4 py-6">
-                <Empty className="border border-dashed py-8">
-                  <EmptyHeader>
-                    <EmptyMedia variant="icon">
-                      <AppIcon name="mail" className="size-5" />
-                    </EmptyMedia>
-                    <EmptyTitle>{invitationsEmpty().empty.title}</EmptyTitle>
-                    <EmptyDescription>
-                      {invitationsEmpty().empty.description}
-                    </EmptyDescription>
-                  </EmptyHeader>
-                  <EmptyContent>
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="gap-2"
-                      onClick={() => setInviteOpen(true)}
-                    >
-                      <AppIcon name="invite" className="text-current" />
-                      Invite member
-                    </Button>
-                  </EmptyContent>
-                </Empty>
+              <div className="px-4 py-4">
+                {invitations.filter((invite) => invite.status === "pending")
+                  .length === 0 ? (
+                  <Empty className="border border-dashed py-8">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <AppIcon name="mail" className="size-5" />
+                      </EmptyMedia>
+                      <EmptyTitle>{invitationsEmpty().empty.title}</EmptyTitle>
+                      <EmptyDescription>
+                        {invitationsEmpty().empty.description}
+                      </EmptyDescription>
+                    </EmptyHeader>
+                    <EmptyContent>
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => setInviteOpen(true)}
+                      >
+                        <AppIcon name="invite" className="text-current" />
+                        Invite member
+                      </Button>
+                    </EmptyContent>
+                  </Empty>
+                ) : (
+                  <div className="min-w-0 overflow-x-auto rounded-xl border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="px-4">Email</TableHead>
+                          <TableHead className="px-4">Role</TableHead>
+                          <TableHead className="px-4">Status</TableHead>
+                          <TableHead className="px-4">Expires</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {invitations
+                          .filter((invite) => invite.status === "pending")
+                          .map((invite) => (
+                            <TableRow key={invite.id}>
+                              <TableCell className="px-4 font-medium">
+                                {invite.email}
+                              </TableCell>
+                              <TableCell className="px-4">
+                                <RoleBadge role={invite.role} />
+                              </TableCell>
+                              <TableCell className="px-4 capitalize">
+                                {invite.status}
+                              </TableCell>
+                              <TableCell className="px-4 text-muted-foreground text-xs">
+                                {formatDateTime(String(invite.expiresAt))}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </div>
             </SettingsPanel>
           </SettingsTabsPanel>
@@ -665,7 +728,18 @@ export function OrganizationSettingsForm({
         )}
       </SettingsTabs>
 
-      <FormSheet open={editOrgOpen} onOpenChange={setEditOrgOpen}>
+      <FormSheet
+        open={editOrgOpen}
+        onOpenChange={setEditOrgOpen}
+        isDirty={
+          editOrgOpen &&
+          (orgName !== editSnapshot.name || orgSlug !== editSnapshot.slug)
+        }
+        onDiscard={() => {
+          setOrgName(editSnapshot.name);
+          setOrgSlug(editSnapshot.slug);
+        }}
+      >
         <FormSheetPopup>
           <FormSheetHeader>
             <SheetTitleWithIcon icon="organization">

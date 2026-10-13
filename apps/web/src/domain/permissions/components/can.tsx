@@ -1,6 +1,7 @@
 "use client";
 
 import type { ActionName } from "@env-manager/actions";
+import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { useCan } from "../hooks/use-permissions";
 
 type CanProps = {
@@ -17,7 +18,19 @@ export function Can({
   children,
 }: CanProps) {
   const { allowed, isLoading } = useCan(action, { projectId });
-  if (isLoading) return null;
-  if (!allowed) return <>{fallback}</>;
+  if (isLoading) {
+    return <SettingsPanelSkeleton rows={2} />;
+  }
+  if (!allowed) {
+    return (
+      <>
+        {fallback ?? (
+          <p className="text-muted-foreground text-sm">
+            You do not have permission to view this section.
+          </p>
+        )}
+      </>
+    );
+  }
   return <>{children}</>;
 }

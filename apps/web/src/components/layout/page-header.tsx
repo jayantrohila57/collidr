@@ -139,6 +139,26 @@ function PageHeaderSimple({
   const hasBack = Boolean(resolved);
   const hasAction = Boolean(action);
 
+  if (description && !hasBack) {
+    return (
+      <div
+        className={cn(
+          "flex w-full min-w-0 flex-col gap-2 py-0.5",
+          layoutGapClass,
+        )}
+      >
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <TitleBlock
+            title={title}
+            titleAccessory={titleAccessory}
+            description={description}
+          />
+          {action ? <div className="shrink-0">{action}</div> : null}
+        </div>
+      </div>
+    );
+  }
+
   if (description) {
     const mobileCols = hasBack
       ? hasAction

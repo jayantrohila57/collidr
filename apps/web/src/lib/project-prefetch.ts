@@ -28,10 +28,9 @@ export async function hydrateProjectDetailQueries(
   const measure = async <T>(name: string, fn: () => Promise<T>) =>
     timing ? timing.measure(name, fn) : fn();
 
-  const [projectRes, statsRes] = await Promise.all([
-    measure("project", () => caller.projects.getBySlug({ slug })),
-    measure("stats", () => caller.dashboard.getProjectDetailStats({ slug })),
-  ]);
+  const projectRes = await measure("project", () =>
+    caller.projects.getBySlug({ slug }),
+  );
 
   const serializedProject = {
     ...projectRes,
@@ -53,7 +52,17 @@ export async function hydrateProjectDetailQueries(
   };
 
   queryClient.setQueryData(projectBySlugQueryKey(slug), serializedProject);
-  queryClient.setQueryData(projectDetailStatsQueryKey(slug), statsRes);
+
+  if (serializedProject.data.project) {
+    try {
+      const statsRes = await measure("stats", () =>
+        caller.dashboard.getProjectDetailStats({ slug }),
+      );
+      queryClient.setQueryData(projectDetailStatsQueryKey(slug), statsRes);
+    } catch {
+      // Stats are optional for first paint; client will refetch.
+    }
+  }
 
   const firstEnvironmentId = serializedProject.data.environments[0]?.id;
   if (firstEnvironmentId) {
