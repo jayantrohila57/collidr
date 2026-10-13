@@ -99,25 +99,6 @@ export function OrgSwitcher() {
     </>
   );
 
-  if (isMobile) {
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            size="lg"
-            className="min-w-0"
-            disabled={showInitialLoading}
-            aria-label="Organization settings"
-            tooltip={triggerLabel}
-            render={<Link href={"/dashboard/settings/organization" as Route} />}
-          >
-            {switcherBody}
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    );
-  }
-
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -136,9 +117,9 @@ export function OrgSwitcher() {
             {switcherBody}
           </MenuTrigger>
           <MenuPopup
-            side={menuOnRight ? "right" : "bottom"}
+            side={isMobile ? "top" : menuOnRight ? "right" : "bottom"}
             align="start"
-            sideOffset={menuOnRight ? 8 : 4}
+            sideOffset={isMobile ? 8 : menuOnRight ? 8 : 4}
             className="min-w-56"
           >
             <MenuGroup>
