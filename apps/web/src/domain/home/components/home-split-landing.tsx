@@ -167,9 +167,8 @@ export default function HomeSplitLanding() {
 
         <div
           className={cn(
-            "flex flex-1 flex-col items-center justify-center",
+            "flex flex-1 flex-col items-center justify-center pb-6",
             layoutInsetXClass,
-            "px-4 pb-6 md:px-6",
           )}
         >
           <Card className="w-full max-w-sm">

@@ -1,5 +1,8 @@
 export const SIGN_IN_PATH = "/sign-in";
 
+/** Public marketing + sign-in landing (split screen at `/`). */
+export const PUBLIC_HOME_PATH = "/";
+
 /** Accept only same-origin relative paths for post-login redirects. */
 export function safeRedirectPath(
   path: string | null | undefined,

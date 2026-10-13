@@ -55,7 +55,7 @@ test.describe("auth sign-in and sign-out — local e2e", () => {
     test.skip(PROD, "Use local dev for email sign-in and sign-out");
   });
 
-  test("e2e login reaches dashboard; sign-out shows toast and returns to sign-in", async ({
+  test("e2e login reaches dashboard; sign-out shows toast and returns to home", async ({
     page,
   }) => {
     await page.goto("/dashboard");
@@ -70,7 +70,8 @@ test.describe("auth sign-in and sign-out — local e2e", () => {
     await page.getByRole("button", { name: "Open account menu" }).click();
     await page.getByRole("menuitem", { name: /log out/i }).click();
     await expect(page.getByText("Signed out")).toBeVisible({ timeout: 10_000 });
-    await expect(page).toHaveURL(/\/sign-in/);
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByTestId("marketing-sign-in")).toBeVisible();
 
     await page.goto("/dashboard");
     await page.waitForLoadState("domcontentloaded");

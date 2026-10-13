@@ -3,7 +3,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { authClient } from "@/lib/auth-client";
-import { resolvePostAuthPath, SIGN_IN_PATH } from "@/lib/auth-routes";
+import { PUBLIC_HOME_PATH, resolvePostAuthPath } from "@/lib/auth-routes";
 
 /**
  * Get current session with loading state
@@ -39,7 +39,7 @@ export async function signInWithGithub(options?: {
 }
 
 /**
- * Sign out, clear client caches, and navigate to sign-in.
+ * Sign out, clear client caches, and return to the public home landing.
  */
 export async function performSignOut(options: {
   queryClient: QueryClient;
@@ -51,7 +51,7 @@ export async function performSignOut(options: {
     fetchOptions: {
       onSuccess: () => {
         queryClient.clear();
-        router.replace(SIGN_IN_PATH);
+        router.replace(PUBLIC_HOME_PATH);
         router.refresh();
       },
     },
