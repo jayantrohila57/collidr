@@ -9,6 +9,7 @@
       "outputs": ["dist/**", ".next/**"],
       "env": [
         "DATABASE_URL",
+        "DATABASE_URL_POOLED",
         "BETTER_AUTH_SECRET",
         "BETTER_AUTH_URL",
         "CORS_ORIGIN",

@@ -5,6 +5,8 @@ import { z } from "zod/v3";
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().min(1),
+    /** Neon pooler URL; when set, used instead of DATABASE_URL for the pg pool. */
+    DATABASE_URL_POOLED: z.string().min(1).optional(),
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.string().url(),
     CORS_ORIGIN: z.string().url(),

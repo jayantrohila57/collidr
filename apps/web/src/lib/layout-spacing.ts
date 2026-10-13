@@ -49,7 +49,7 @@ export const layoutDashboardScrollClass = `flex min-h-0 flex-1 min-w-0 flex-col 
 export const layoutDashboardPageStackClass = "flex min-w-0 flex-col gap-4";
 
 /** Fixed inset header shell — matches SidebarHeader vertical rhythm */
-export const layoutChromeClass = `flex shrink-0 flex-col ${layoutGapClass} py-2 ${layoutInsetXClass}`;
+export const layoutChromeClass = `flex shrink-0 flex-col ${layoutGapClass} py-2 [scrollbar-gutter:stable] ${layoutInsetXClass}`;
 
 /** Inner row aligned to sidebar team switcher */
 export const layoutChromeRowClass = `flex w-full min-w-0 items-center justify-between ${layoutRowLgClass} ${layoutGapClass}`;

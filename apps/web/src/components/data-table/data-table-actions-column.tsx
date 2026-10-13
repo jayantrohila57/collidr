@@ -19,10 +19,7 @@ export function isDataTableActionsColumn(columnDef: {
 }
 
 export function dataTableActionsHeaderClassName(): string {
-  return cn(
-    "w-12 text-end",
-    "in-data-[variant=card]:rounded-se-xl in-data-[variant=card]:border-border in-data-[variant=card]:border-e in-data-[variant=card]:border-t in-data-[variant=card]:bg-card",
-  );
+  return cn("w-12 text-end");
 }
 
 /** Body cell — sticky only when the table scrolls horizontally. */

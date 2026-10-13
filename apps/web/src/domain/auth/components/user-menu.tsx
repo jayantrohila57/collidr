@@ -69,12 +69,12 @@ export function UserMenu() {
             type="button"
             variant="ghost"
             size="icon"
-            className="size-8 shrink-0 rounded-full p-0"
+            className="size-8 shrink-0 overflow-hidden rounded-full p-0"
             aria-label="Open account menu"
           />
         }
       >
-        <Avatar className="size-7 border bg-background shadow-xs">
+        <Avatar className="size-8 bg-background">
           <AvatarImage src={user.image || undefined} alt={user.name} />
           <AvatarFallback>
             {user.name?.charAt(0) || user.email?.charAt(0)}

@@ -39,16 +39,29 @@ export class ServerTiming {
         (sum, span) => sum + span.durationMs,
         0,
       );
+      const spans = this.spans.map((span) => ({
+        name: span.name,
+        dur: Math.round(span.durationMs),
+      }));
+      const authMs = spans.find((s) => s.name === "auth")?.dur ?? 0;
+      const projectMs = spans.find((s) => s.name === "project")?.dur ?? 0;
       console.info(
         JSON.stringify({
           type: "Server-Timing",
           route: this.route,
           totalMs: Math.round(totalMs),
           header: this.toHeaderValue(),
-          spans: this.spans.map((span) => ({
-            name: span.name,
-            dur: Math.round(span.durationMs),
-          })),
+          spans,
+          hints:
+            totalMs > 4000 && projectMs > 2000
+              ? [
+                  "High project/stats duration often indicates Neon compute cold start; use DATABASE_URL_POOLED or raise autosuspend.",
+                ]
+              : authMs > 1500
+                ? [
+                    "High auth duration; session cookie cache should reduce repeat lookups.",
+                  ]
+                : undefined,
         }),
       );
     });
