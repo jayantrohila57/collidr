@@ -1,5 +1,12 @@
 import { isActionsAuditEnabled } from "@env-manager/actions";
-import { db, deletedAccountUserUpdate } from "@env-manager/db";
+import {
+  activeEnvironmentVariableWhere,
+  activeEnvironmentWhere,
+  activeNotificationWhere,
+  activeProjectWhere,
+  db,
+  deletedAccountUserUpdate,
+} from "@env-manager/db";
 import { auditLog } from "@env-manager/db/schema/audit";
 import { auditEvent } from "@env-manager/db/schema/audit-event";
 import { account, session, user } from "@env-manager/db/schema/auth";
@@ -16,6 +23,7 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
 import { requireAction } from "../actions/require-action";
+import { requireUserAction } from "../actions/require-user-action";
 import { protectedProcedure, router } from "../index";
 import {
   accountConnectedOutput,
@@ -111,10 +119,9 @@ export const accountRouter = router({
       });
     }),
 
-  exportData: protectedProcedure
-    .use(actionGuard("account.export"))
-    .mutation(async ({ ctx }) => {
+  exportData: protectedProcedure.mutation(async ({ ctx }) => {
     const userId = ctx.session.user.id;
+    await requireUserAction("account.export", userId);
 
     const [
       profileRow,
@@ -147,12 +154,17 @@ export const accountRouter = router({
         })
         .from(account)
         .where(eq(account.userId, userId)),
-      db.select().from(project).where(eq(project.userId, userId)),
+      db
+        .select()
+        .from(project)
+        .where(activeProjectWhere(eq(project.userId, userId))),
       db.select().from(member).where(eq(member.userId, userId)),
       db
         .select()
         .from(notification)
-        .where(eq(notification.recipientUserId, userId)),
+        .where(
+          activeNotificationWhere(eq(notification.recipientUserId, userId)),
+        ),
       db
         .select({
           id: auditLog.id,
@@ -207,7 +219,11 @@ export const accountRouter = router({
               updatedAt: environment.updatedAt,
             })
             .from(environment)
-            .where(inArray(environment.projectId, projectIds))
+            .where(
+              activeEnvironmentWhere(
+                inArray(environment.projectId, projectIds),
+              ),
+            )
         : [];
 
     const environmentIds = environments.map((e) => e.id);
@@ -222,7 +238,11 @@ export const accountRouter = router({
               updatedAt: environmentVariable.updatedAt,
             })
             .from(environmentVariable)
-            .where(inArray(environmentVariable.environmentId, environmentIds))
+            .where(
+              activeEnvironmentVariableWhere(
+                inArray(environmentVariable.environmentId, environmentIds),
+              ),
+            )
         : [];
 
     const profile = profileRow[0];
