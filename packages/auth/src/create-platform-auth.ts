@@ -10,6 +10,7 @@ import { deviceAuthorization, jwt, oneTimeToken } from "better-auth/plugins";
 import {
   basePlugins,
   platformDatabaseConfig,
+  sharedAuthAdvanced,
   sharedDatabaseHooks,
   sharedE2eEmailPassword,
   sharedSessionConfig,
@@ -71,6 +72,7 @@ export function createPlatformAuth() {
     baseURL,
     secret:
       env.BETTER_AUTH_SECRET ?? "local-build-placeholder-secret-min-32-chars",
+    advanced: sharedAuthAdvanced(),
     databaseHooks: sharedDatabaseHooks(),
     session: sharedSessionConfig(),
     ...sharedE2eEmailPassword(),

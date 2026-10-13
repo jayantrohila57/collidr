@@ -2,6 +2,7 @@ import { env } from "@collidr/env/server";
 import { betterAuth } from "better-auth";
 import {
   basePlugins,
+  sharedAuthAdvanced,
   sharedDatabaseConfig,
   sharedDatabaseHooks,
   sharedE2eEmailPassword,
@@ -10,6 +11,7 @@ import {
 
 /** Legacy `apps/web` auth — unchanged behavior until P3 cutover (#97). */
 export const auth = betterAuth({
+  advanced: sharedAuthAdvanced(),
   databaseHooks: sharedDatabaseHooks(),
   session: sharedSessionConfig(),
   ...sharedE2eEmailPassword(),

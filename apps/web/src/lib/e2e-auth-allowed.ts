@@ -1,10 +1,10 @@
 import "server-only";
 
-/** True only for local / CI E2E — never on Vercel or Node production runtime. */
+/**
+ * True only for local / CI E2E (`E2E_TEST_MODE=1`).
+ * Allowed for `next start` locally; blocked on Vercel production.
+ */
 export function isE2eAuthRouteAllowed(): boolean {
-  if (process.env.NODE_ENV === "production") {
-    return false;
-  }
   if (process.env.VERCEL_ENV === "production") {
     return false;
   }

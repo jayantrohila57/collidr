@@ -22,6 +22,8 @@ import { admin } from "better-auth/plugins/admin";
 import { eq } from "drizzle-orm";
 import { writeAuthAuditEvent } from "./audit-event";
 import { resolveDefaultActiveOrganizationId } from "./bootstrap-active-organization";
+import { sessionCookieMigrationPlugin } from "./session-cookie-migration-plugin";
+import { COLLIDR_COOKIE_PREFIX } from "./session-cookies";
 
 const e2eTestMode = process.env.E2E_TEST_MODE === "1";
 
@@ -93,6 +95,14 @@ export function sharedSessionConfig(): BetterAuthOptions["session"] {
       enabled: true,
       maxAge: 5 * 60,
     },
+  };
+}
+
+export function sharedAuthAdvanced(): NonNullable<
+  BetterAuthOptions["advanced"]
+> {
+  return {
+    cookiePrefix: COLLIDR_COOKIE_PREFIX,
   };
 }
 
@@ -256,6 +266,7 @@ export function sharedE2eEmailPassword(): Pick<
 
 export function basePlugins() {
   return [
+    sessionCookieMigrationPlugin(),
     nextCookies(),
     admin({
       defaultRole: "user",

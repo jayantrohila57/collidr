@@ -1,9 +1,9 @@
 import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
-import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 import { readOttFromSearchParams, stripOttFromPath } from "./cross-app-session";
 import { DEFAULT_AUTH_URL, trimTrailingSlash } from "./platform-urls";
 import { validateReturnTo } from "./return-to";
+import { hasSessionCookieFromAnyPrefix } from "./session-cookies";
 
 export type PlatformMiddlewareOptions = {
   /** Paths that require a session (prefix match). */
@@ -28,7 +28,7 @@ export function platformSessionMiddleware(
   options: PlatformMiddlewareOptions,
 ): NextResponse | undefined {
   const { pathname, search } = request.nextUrl;
-  const signedIn = Boolean(getSessionCookie(request.headers));
+  const signedIn = hasSessionCookieFromAnyPrefix(request.headers);
   const ott = readOttFromSearchParams(request.nextUrl.searchParams);
 
   if (ott && !pathname.startsWith("/api/auth/establish-session")) {

@@ -3,6 +3,7 @@ import { betterAuth } from "better-auth";
 import { oneTimeToken } from "better-auth/plugins";
 import {
   basePlugins,
+  sharedAuthAdvanced,
   sharedDatabaseConfig,
   sharedDatabaseHooks,
   sharedE2eEmailPassword,
@@ -31,6 +32,7 @@ export function createSiblingAuth(options: CreateSiblingAuthOptions) {
     baseURL: options.baseURL || env.BETTER_AUTH_URL || DEFAULT_AUTH_URL,
     secret:
       env.BETTER_AUTH_SECRET ?? "local-build-placeholder-secret-min-32-chars",
+    advanced: sharedAuthAdvanced(),
     databaseHooks: sharedDatabaseHooks(),
     session: sharedSessionConfig(),
     ...sharedE2eEmailPassword(),
