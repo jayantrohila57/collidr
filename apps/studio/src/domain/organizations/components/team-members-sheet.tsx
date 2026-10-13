@@ -1,0 +1,309 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
+import { EmptyState } from "@/components/patterns/empty-state";
+import { FormField } from "@/components/patterns/form-field";
+import {
+  FormSheet,
+  FormSheetBody,
+  FormSheetHeader,
+  FormSheetPopup,
+} from "@/components/patterns/form-sheet";
+import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
+import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { SheetDescription } from "@/components/ui/sheet";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useCan } from "@/domain/permissions/hooks/use-permissions";
+import { authClient } from "@/lib/auth-client";
+import { appIcons } from "@/lib/icons";
+import { toast } from "@/lib/toast";
+
+type OrgMemberRow = {
+  id: string;
+  user: { id?: string; name: string; email: string };
+};
+
+type TeamMemberRow = {
+  id: string;
+  userId: string;
+  teamId: string;
+};
+
+type OrganizationTeamsClient = {
+  listTeamMembers?: (input: {
+    query: { teamId: string };
+  }) => Promise<{ data?: TeamMemberRow[] } | TeamMemberRow[]>;
+  addTeamMember?: (input: {
+    teamId: string;
+    userId: string;
+  }) => Promise<unknown>;
+  removeTeamMember?: (input: {
+    teamId: string;
+    userId: string;
+  }) => Promise<unknown>;
+};
+
+function unwrapTeamMembers(
+  result: { data?: TeamMemberRow[] } | TeamMemberRow[] | undefined,
+): TeamMemberRow[] {
+  if (!result) return [];
+  if (Array.isArray(result)) return result;
+  return result.data ?? [];
+}
+
+type TeamMembersSheetProps = {
+  organizationId: string;
+  team: { id: string; name: string };
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
+
+export function TeamMembersSheet({
+  organizationId,
+  team,
+  open,
+  onOpenChange,
+}: TeamMembersSheetProps) {
+  const teamsClient = authClient.organization as OrganizationTeamsClient;
+  const { allowed: canAdd } = useCan("team.member.add");
+  const { allowed: canRemove } = useCan("team.member.remove");
+
+  const [loading, setLoading] = useState(false);
+  const [orgMembers, setOrgMembers] = useState<OrgMemberRow[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMemberRow[]>([]);
+  const [listBlocked, setListBlocked] = useState(false);
+  const [addUserId, setAddUserId] = useState("");
+  const [addPending, setAddPending] = useState(false);
+  const [removingUserId, setRemovingUserId] = useState<string | null>(null);
+
+  const loadMembers = useCallback(async () => {
+    if (!teamsClient.listTeamMembers) {
+      setListBlocked(true);
+      setTeamMembers([]);
+      return;
+    }
+    try {
+      const result = await teamsClient.listTeamMembers({
+        query: { teamId: team.id },
+      });
+      setTeamMembers(unwrapTeamMembers(result));
+      setListBlocked(false);
+    } catch {
+      setListBlocked(true);
+      setTeamMembers([]);
+    }
+  }, [team.id, teamsClient.listTeamMembers]);
+
+  const loadOrgMembers = useCallback(async () => {
+    const list = await authClient.organization.listMembers({
+      query: { organizationId },
+    });
+    setOrgMembers((list.data?.members ?? []) as OrgMemberRow[]);
+  }, [organizationId]);
+
+  useEffect(() => {
+    if (!open) {
+      setAddUserId("");
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    void (async () => {
+      try {
+        await Promise.all([loadOrgMembers(), loadMembers()]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, loadMembers, loadOrgMembers]);
+
+  const memberByUserId = new Map(
+    orgMembers
+      .map((row) => {
+        const userId = row.user.id ?? row.id;
+        return [userId, row.user] as const;
+      })
+      .filter(([userId]) => Boolean(userId)),
+  );
+
+  const teamUserIds = new Set(teamMembers.map((m) => m.userId));
+  const addableMembers = orgMembers.filter((row) => {
+    const userId = row.user.id ?? row.id;
+    return userId && !teamUserIds.has(userId);
+  });
+
+  const handleAdd = async () => {
+    if (!addUserId || !teamsClient.addTeamMember) return;
+    setAddPending(true);
+    try {
+      await toast.promise(
+        teamsClient.addTeamMember({ teamId: team.id, userId: addUserId }),
+        {
+          loading: "Adding member…",
+          success: "Member added to team",
+          error: "Could not add team member",
+        },
+      );
+      setAddUserId("");
+      await loadMembers();
+    } finally {
+      setAddPending(false);
+    }
+  };
+
+  const handleRemove = async (userId: string) => {
+    if (!teamsClient.removeTeamMember) return;
+    setRemovingUserId(userId);
+    try {
+      await toast.promise(
+        teamsClient.removeTeamMember({ teamId: team.id, userId }),
+        {
+          loading: "Removing member…",
+          success: "Member removed from team",
+          error: "Could not remove team member",
+        },
+      );
+      await loadMembers();
+    } finally {
+      setRemovingUserId(null);
+    }
+  };
+
+  return (
+    <FormSheet open={open} onOpenChange={onOpenChange}>
+      <FormSheetPopup>
+        <FormSheetHeader>
+          <SheetTitleWithIcon icon="member">
+            {team.name} members
+          </SheetTitleWithIcon>
+          <SheetDescription>
+            Add or remove organization members on this team.
+          </SheetDescription>
+        </FormSheetHeader>
+        <FormSheetBody>
+          {loading ? (
+            <SettingsPanelSkeleton rows={3} />
+          ) : (
+            <div className="flex flex-col gap-6">
+              {listBlocked && teamMembers.length === 0 ? (
+                <EmptyState
+                  icon={appIcons.member}
+                  title="Members hidden"
+                  description={
+                    canAdd
+                      ? "Add a member below to view the team roster, or join this team from another account."
+                      : "You must belong to this team to view its members."
+                  }
+                />
+              ) : teamMembers.length === 0 ? (
+                <EmptyState
+                  icon={appIcons.member}
+                  title="No members yet"
+                  description="Add organization members to this team."
+                />
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      {canRemove ? (
+                        <TableHead className="w-[100px] text-right">
+                          Actions
+                        </TableHead>
+                      ) : null}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {teamMembers.map((member) => {
+                      const user = memberByUserId.get(member.userId);
+                      return (
+                        <TableRow key={member.id}>
+                          <TableCell className="font-medium">
+                            {user?.name ?? "Member"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {user?.email ?? member.userId}
+                          </TableCell>
+                          {canRemove ? (
+                            <TableCell className="text-right">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                disabled={removingUserId === member.userId}
+                                onClick={() => void handleRemove(member.userId)}
+                              >
+                                Remove
+                              </Button>
+                            </TableCell>
+                          ) : null}
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              )}
+
+              {canAdd && addableMembers.length > 0 ? (
+                <div className="flex flex-col gap-3">
+                  <FormField id="team-add-member" label="Add member">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <Select
+                        value={addUserId}
+                        onValueChange={(value) => setAddUserId(value ?? "")}
+                      >
+                        <SelectTrigger id="team-add-member" className="flex-1">
+                          <SelectValue placeholder="Select a member" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {addableMembers.map((row) => {
+                            const userId = row.user.id ?? row.id;
+                            return (
+                              <SelectItem key={userId} value={userId}>
+                                {row.user.name} ({row.user.email})
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="shrink-0 gap-2"
+                        disabled={addPending || !addUserId}
+                        onClick={() => void handleAdd()}
+                      >
+                        <AppIcon name="plus" className="text-current" />
+                        Add
+                      </Button>
+                    </div>
+                  </FormField>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </FormSheetBody>
+      </FormSheetPopup>
+    </FormSheet>
+  );
+}
