@@ -1,0 +1,25 @@
+{
+  "name": "@env-manager/auth-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@env-manager/actions": "workspace:*",
+    "better-auth": "catalog:"
+  },
+  "devDependencies": {
+    "@env-manager/config": "workspace:*",
+    "@types/react": "^19.2.7",
+    "react": "^19.2.3",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  }
+}

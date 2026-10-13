@@ -1,5 +1,6 @@
 "use client";
 
+import { ImpersonationBanner } from "@env-manager/ui/patterns/impersonation-banner";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState } from "react";
@@ -49,6 +50,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           >
             <ToastProvider position="bottom-left">
               <SkipLink />
+              <ImpersonationBanner />
               <OfflineBanner />
               {children}
               <ReactQueryDevtools />

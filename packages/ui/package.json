@@ -16,7 +16,10 @@
     },
     "./button": {
       "default": "./src/components/ui/button.tsx"
-    }
+    },
+    "./layout-spacing": "./src/lib/layout-spacing.ts",
+    "./page-header-grid-classes": "./src/lib/page-header-grid-classes.ts",
+    "./patterns/impersonation-banner": "./src/patterns/impersonation-banner.tsx"
   },
   "scripts": {
     "check-types": "tsc --noEmit",
