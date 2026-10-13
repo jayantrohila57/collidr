@@ -23,6 +23,7 @@ const STATIC_LABELS: Record<string, string> = {
   projects: "Projects",
   new: "New Project",
   edit: "Edit",
+  environments: "Environments",
 };
 
 function formatSegmentLabel(segment: string, projectName?: string) {

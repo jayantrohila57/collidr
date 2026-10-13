@@ -10,13 +10,15 @@ import {
 } from "@/components/patterns/status-badge";
 import DashboardSection from "@/components/section-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
 import { useEnvironments } from "@/domain/environments/hooks/use-environments";
 import { EditProjectSheet } from "./edit-project-sheet";
 import { ProjectActions } from "./project-actions";
-import ProjectDetail from "./project-detail";
 import { ProjectDetailStats } from "./project-detail-stats";
 import { ProjectMetadataRow } from "./project-metadata-row";
+import {
+  ProjectOverviewSections,
+  ProjectOverviewSectionsSkeleton,
+} from "./project-overview-sections";
 
 const E2E_LONG_DESCRIPTION =
   "Seeded for Playwright local verification. This paragraph is intentionally long so the page header clamps the project description to three lines on desktop and mobile while metadata stays aligned in the header grid without shifting surrounding chrome.";
@@ -93,7 +95,7 @@ export default function ProjectDetailPage({
         metadata={<PageHeaderMetadataSkeleton />}
         stats={<ProjectDetailStats slug={slug} />}
       >
-        <ProjectDetailSkeleton />
+        <ProjectOverviewSectionsSkeleton />
       </DashboardSection>
     );
   }
@@ -126,7 +128,7 @@ export default function ProjectDetailPage({
         metadata={<ProjectMetadataRow project={project} />}
         stats={<ProjectDetailStats slug={slug} />}
       >
-        <ProjectDetail projectSlug={slug} project={project} />
+        <ProjectOverviewSections slug={slug} />
       </DashboardSection>
       <EditProjectSheet
         project={project}

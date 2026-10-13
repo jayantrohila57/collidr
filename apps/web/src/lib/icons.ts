@@ -7,6 +7,7 @@ import {
   Building2,
   Calendar,
   ChevronLeft,
+  ChevronRight,
   Circle,
   Copy,
   ExternalLink,
@@ -82,6 +83,7 @@ export const appIcons = {
   power: Power,
   archiveRestore: ArchiveRestore,
   back: ChevronLeft,
+  chevronRight: ChevronRight,
   arrowLeft: ArrowLeft,
   logOut: LogOut,
 } as const satisfies Record<string, LucideIcon>;

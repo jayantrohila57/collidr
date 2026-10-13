@@ -1,6 +1,6 @@
 import DashboardSection from "@/components/section-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
+import { ProjectOverviewSectionsSkeleton } from "@/domain/projects/components/project-overview-sections";
 
 export default function ProjectDetailLoading() {
   return (
@@ -15,7 +15,7 @@ export default function ProjectDetailLoading() {
       }
       action={<Skeleton className="h-9 w-9 rounded-md" />}
     >
-      <ProjectDetailSkeleton />
+      <ProjectOverviewSectionsSkeleton />
     </DashboardSection>
   );
 }

@@ -48,7 +48,7 @@ export class AppNavigation {
     options?: RedirectOptions,
   ) {
     const path =
-      `/dashboard/projects/${projectSlug}/environments/${environmentId}` as Route;
+      `/dashboard/projects/${projectSlug}/environments?env=${encodeURIComponent(environmentId)}` as Route;
     this.navigate(path, options);
   }
 

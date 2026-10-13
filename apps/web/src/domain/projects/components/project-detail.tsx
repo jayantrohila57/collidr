@@ -32,14 +32,8 @@ export default function ProjectDetail({
   return (
     <PageStack className="w-full min-w-0 gap-4">
       <section className="flex min-w-0 flex-col gap-2">
-        <div className="flex min-w-0 items-start justify-between gap-2">
-          <div className="min-w-0">
-            <h2 className="font-medium text-sm">Environments</h2>
-            <p className="text-muted-foreground text-xs">
-              Variables and secrets per deployment target.
-            </p>
-          </div>
-          {environments.length > 0 ? (
+        {environments.length > 0 ? (
+          <div className="flex min-w-0 justify-end">
             <CreateEnvironmentSheet
               onConfirm={async (name) => {
                 if (!projectId) return;
@@ -49,8 +43,8 @@ export default function ProjectDetail({
               triggerText="Add environment"
               compactOnMobile
             />
-          ) : null}
-        </div>
+          </div>
+        ) : null}
 
         <EnvironmentsTabsView
           environments={environments}

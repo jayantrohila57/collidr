@@ -32,5 +32,14 @@ export function isRecognizedDashboardPath(
     return projectSlugs.has(projectEdit[1]);
   }
 
+  const projectEnvironments =
+    /^\/dashboard\/projects\/([^/]+)\/environments$/.exec(pathname);
+  if (projectEnvironments) {
+    const slug = projectEnvironments[1];
+    if (slug === "new" || slug === "edit") return true;
+    if (!projectsLoaded) return true;
+    return projectSlugs.has(slug);
+  }
+
   return false;
 }
