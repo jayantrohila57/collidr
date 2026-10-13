@@ -1,9 +1,8 @@
-import { auth } from "@env-manager/auth";
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
 import { OrgSettingsStats } from "@/domain/settings/components/org-settings-stats";
+import { getServerSession } from "@/lib/server-auth";
 import OrganizationSettingsGate from "./organization-settings-gate";
 
 export const metadata: Metadata = {
@@ -12,9 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function OrganizationSettingsPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
 
   if (!session?.user) {
     redirect("/");

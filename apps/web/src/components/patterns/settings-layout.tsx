@@ -66,7 +66,7 @@ export function SettingsRow({
   return (
     <div
       className={cn(
-        "grid gap-3 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-8",
+        "grid gap-4 px-4 py-4 md:grid-cols-[minmax(12rem,0.32fr)_minmax(0,1fr)] md:items-start md:gap-10",
         className,
       )}
     >
@@ -81,7 +81,7 @@ export function SettingsRow({
           ) : null}
         </div>
       </div>
-      <div className="flex min-w-0 flex-wrap items-center justify-start gap-2 sm:justify-end">
+      <div className="flex min-w-0 flex-wrap items-center justify-start gap-2 md:justify-end">
         {children}
       </div>
     </div>
@@ -107,7 +107,7 @@ export function SettingsField({
   return (
     <div
       className={cn(
-        "grid gap-2 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,16rem)] sm:items-start sm:gap-8",
+        "grid gap-4 px-4 py-4 md:grid-cols-[minmax(12rem,0.32fr)_minmax(0,1fr)] md:items-start md:gap-10",
         className,
       )}
     >
@@ -122,9 +122,7 @@ export function SettingsField({
           ) : null}
         </div>
       </div>
-      <div className={cn("min-w-0 sm:justify-self-end", controlClassName)}>
-        {children}
-      </div>
+      <div className={cn("w-full min-w-0", controlClassName)}>{children}</div>
     </div>
   );
 }

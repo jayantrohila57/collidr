@@ -1,10 +1,9 @@
-import { auth } from "@env-manager/auth";
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
 import { ActivitySummaryStats } from "@/domain/audit/components/activity-summary-stats";
 import AuditLogs from "@/domain/audit/components/audit-logs";
+import { getServerSession } from "@/lib/server-auth";
 
 export const metadata: Metadata = {
   title: "Activity",
@@ -12,9 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ActivityPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
 
   if (!session?.user) {
     redirect("/");

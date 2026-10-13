@@ -2,6 +2,7 @@
 
 import { Building2, ChevronsUpDown, Plus, Settings } from "lucide-react";
 import type { Route } from "next";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { OrgListItem } from "@/components/org/active-organization-context";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
@@ -66,10 +67,61 @@ export function OrgSwitcher() {
     ? "Loading organization"
     : (active?.name ?? "Select organization");
 
+  const switcherBody = showInitialLoading ? (
+    <>
+      <Skeleton className="size-8 shrink-0 rounded-lg" />
+      <div className="grid min-w-0 flex-1 gap-0.5 text-start text-sm leading-tight group-data-[collapsible=icon]:hidden">
+        <Skeleton className="h-4 w-28" />
+        <Skeleton className="h-3 w-16" />
+      </div>
+    </>
+  ) : (
+    <>
+      <Avatar className="size-8 shrink-0 rounded-lg">
+        <AvatarFallback className="rounded-lg text-xs">
+          {active?.name ? initialsFromLabel(active.name, "OR") : "OR"}
+        </AvatarFallback>
+      </Avatar>
+      <div className="grid min-w-0 flex-1 gap-0.5 text-start text-sm leading-tight group-data-[collapsible=icon]:hidden">
+        <span className="truncate font-medium">
+          {active?.name ?? "Select organization"}
+        </span>
+        <span className="truncate text-muted-foreground text-xs">
+          {orgSubtitle(active)}
+        </span>
+      </div>
+      {!isMobile ? (
+        <ChevronsUpDown
+          className="ms-auto size-4 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden"
+          aria-hidden
+        />
+      ) : null}
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            size="lg"
+            className="min-w-0"
+            disabled={showInitialLoading}
+            aria-label="Organization settings"
+            tooltip={triggerLabel}
+            render={<Link href={"/dashboard/settings/organization" as Route} />}
+          >
+            {switcherBody}
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <Menu>
+        <Menu modal>
           <MenuTrigger
             render={
               <SidebarMenuButton
@@ -81,35 +133,7 @@ export function OrgSwitcher() {
               />
             }
           >
-            {showInitialLoading ? (
-              <>
-                <Skeleton className="size-8 shrink-0 rounded-lg" />
-                <div className="grid min-w-0 flex-1 gap-0.5 text-start text-sm leading-tight group-data-[collapsible=icon]:hidden">
-                  <Skeleton className="h-4 w-28" />
-                  <Skeleton className="h-3 w-16" />
-                </div>
-              </>
-            ) : (
-              <>
-                <Avatar className="size-8 shrink-0 rounded-lg">
-                  <AvatarFallback className="rounded-lg text-xs">
-                    {active?.name ? initialsFromLabel(active.name, "OR") : "OR"}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid min-w-0 flex-1 gap-0.5 text-start text-sm leading-tight group-data-[collapsible=icon]:hidden">
-                  <span className="truncate font-medium">
-                    {active?.name ?? "Select organization"}
-                  </span>
-                  <span className="truncate text-muted-foreground text-xs">
-                    {orgSubtitle(active)}
-                  </span>
-                </div>
-                <ChevronsUpDown
-                  className="ms-auto size-4 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden"
-                  aria-hidden
-                />
-              </>
-            )}
+            {switcherBody}
           </MenuTrigger>
           <MenuPopup
             side={menuOnRight ? "right" : "bottom"}

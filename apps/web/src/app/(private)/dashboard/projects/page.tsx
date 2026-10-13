@@ -1,10 +1,9 @@
-import { auth } from "@env-manager/auth";
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { ProjectsPageClient } from "@/domain/projects/components/projects-page-client";
 import { ProjectsSkeleton } from "@/domain/projects/components/skeletons";
+import { getServerSession } from "@/lib/server-auth";
 import { siteConfig } from "@/lib/siteConfig";
 
 export const metadata: Metadata = {
@@ -13,9 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ProjectsPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
 
   if (!session?.user) {
     redirect("/");

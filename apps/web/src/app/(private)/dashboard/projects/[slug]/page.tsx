@@ -1,11 +1,9 @@
-import { auth } from "@env-manager/auth";
-import { getOwnedProjectBySlug } from "@env-manager/db";
 import { HydrationBoundary } from "@tanstack/react-query";
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import ProjectDetailPage from "@/domain/projects/components/project-detail-page";
-import { dehydrateProjectDetail } from "@/lib/project-prefetch";
+import { loadProjectPageData } from "@/lib/project-page-loader";
+import { getServerSession } from "@/lib/server-auth";
 
 interface ProjectPageProps {
   params: Promise<{
@@ -17,59 +15,40 @@ export async function generateMetadata({
   params,
 }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const data = await loadProjectPageData(slug);
 
-  if (!session?.user) {
+  if (!data) {
     return {
       title: "Project",
       description: "Manage project environments and variables.",
     };
   }
 
-  const projectRecord = await getOwnedProjectBySlug(session.user.id, slug);
-
-  if (!projectRecord) {
-    return {
-      title: "Project not found",
-    };
-  }
-
   return {
-    title: projectRecord.name,
+    title: data.name,
     description:
-      projectRecord.description ??
-      `Manage environments and variables for ${projectRecord.name}.`,
+      data.description ?? `Manage environments and variables for ${data.name}.`,
   };
 }
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
 
-  const headerList = await headers();
-  const session = await auth.api.getSession({
-    headers: headerList,
-  });
-
-  if (!session?.user) {
-    redirect("/");
-  }
-
-  const projectRecord = await getOwnedProjectBySlug(session.user.id, slug);
-
-  if (!projectRecord) {
+  const data = await loadProjectPageData(slug);
+  if (!data) {
+    const session = await getServerSession();
+    if (!session?.user) {
+      redirect("/");
+    }
     notFound();
   }
 
-  const dehydratedState = await dehydrateProjectDetail(headerList, slug);
-
   return (
-    <HydrationBoundary state={dehydratedState}>
+    <HydrationBoundary state={data.dehydratedState}>
       <ProjectDetailPage
         slug={slug}
-        initialName={projectRecord.name}
-        initialDescription={projectRecord.description?.trim() || undefined}
+        initialName={data.name}
+        initialDescription={data.description}
       />
     </HydrationBoundary>
   );

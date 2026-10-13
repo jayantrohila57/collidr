@@ -84,7 +84,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="flex flex-col gap-1">
+            <SidebarMenu className="flex min-w-0 flex-col gap-1">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -109,7 +109,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="flex flex-col gap-1">
+            <SidebarMenu className="flex min-w-0 flex-col gap-1">
               {projectsLoading &&
                 ["a", "b", "c", "d"].map((id) => (
                   <SidebarMenuItem key={`project-skeleton-${id}`}>

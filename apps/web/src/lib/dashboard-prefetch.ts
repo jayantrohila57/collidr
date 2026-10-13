@@ -1,8 +1,10 @@
 import "server-only";
 
 import { appRouter } from "@env-manager/api/routers/index";
-import { auth } from "@env-manager/auth";
+import type { auth } from "@env-manager/auth";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
+import { getServerSession } from "@/lib/server-auth";
+import { ServerTiming } from "@/lib/server-timing";
 
 /** Matches @trpc/tanstack-react-query key shape for `dashboard.getOverview`. */
 const dashboardOverviewQueryKey = [
@@ -11,13 +13,9 @@ const dashboardOverviewQueryKey = [
 ] as const;
 
 export async function dehydrateDashboardOverview(
-  headers: Awaited<ReturnType<typeof import("next/headers").headers>>,
+  session: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>,
 ) {
   const queryClient = new QueryClient();
-  const session = await auth.api.getSession({ headers });
-  if (!session) {
-    return dehydrate(queryClient);
-  }
 
   try {
     const caller = appRouter.createCaller({ session });
@@ -28,4 +26,24 @@ export async function dehydrateDashboardOverview(
   }
 
   return dehydrate(queryClient);
+}
+
+export async function loadDashboardPage() {
+  const timing = new ServerTiming("/dashboard");
+  timing.logInAfter();
+
+  const session = await timing.measure("auth", () => getServerSession());
+  if (!session?.user) {
+    return { session: null, dehydratedState: dehydrate(new QueryClient()) };
+  }
+
+  const dehydratedState = await timing.measure("data", () =>
+    dehydrateDashboardOverview(session),
+  );
+
+  return {
+    session,
+    dehydratedState,
+    timingHeader: timing.toHeaderValue(),
+  };
 }

@@ -134,20 +134,6 @@ export function SidebarProvider({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleSidebar]);
 
-  React.useEffect(() => {
-    if (!isMobile || !openMobile) return;
-
-    const handleEscape = (event: KeyboardEvent): void => {
-      if (event.key !== "Escape") return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      setOpenMobile(false);
-    };
-
-    window.addEventListener("keydown", handleEscape, true);
-    return () => window.removeEventListener("keydown", handleEscape, true);
-  }, [isMobile, openMobile]);
-
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? "expanded" : "collapsed";
@@ -388,7 +374,10 @@ export function SidebarHeader({
 }: React.ComponentProps<"div">): React.ReactElement {
   return (
     <div
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn(
+        "flex min-w-0 flex-col gap-2 overflow-x-hidden p-2",
+        className,
+      )}
       data-sidebar="header"
       data-slot="sidebar-header"
       {...props}
@@ -432,7 +421,7 @@ export function SidebarContent({
     <ScrollArea className="min-h-0 flex-1" fill overscrollContain scrollFade>
       <div
         className={cn(
-          "flex h-full flex-col gap-2 group-data-[collapsible=icon]:overflow-hidden",
+          "flex h-full min-w-0 flex-col gap-2 overflow-x-hidden group-data-[collapsible=icon]:overflow-hidden",
           className,
         )}
         data-sidebar="content"

@@ -18,7 +18,7 @@ export const layoutGutterClass = "p-2";
 export const layoutInsetXClass = "px-4 md:px-6";
 
 /** Centered content columns inside the dashboard inset (header + main share this width) */
-export const layoutInsetContainerWideClass = "mx-auto w-full max-w-3xl";
+export const layoutInsetContainerWideClass = "mx-auto w-full max-w-6xl";
 export const layoutInsetContainerNarrowClass = layoutInsetContainerWideClass;
 
 /** Default flex gap between blocks — SidebarContent */

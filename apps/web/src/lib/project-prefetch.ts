@@ -1,8 +1,9 @@
 import "server-only";
 
 import { appRouter } from "@env-manager/api/routers/index";
-import { auth } from "@env-manager/auth";
+import type { auth } from "@env-manager/auth";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
+import { getServerSession } from "@/lib/server-auth";
 import {
   projectBySlugQueryKey,
   projectDetailStatsQueryKey,
@@ -43,12 +44,9 @@ export async function hydrateProjectDetailQueries(
   queryClient.setQueryData(projectDetailStatsQueryKey(slug), statsRes);
 }
 
-export async function dehydrateProjectDetail(
-  headers: Awaited<ReturnType<typeof import("next/headers").headers>>,
-  slug: string,
-) {
+export async function dehydrateProjectDetail(slug: string) {
   const queryClient = new QueryClient();
-  const session = await auth.api.getSession({ headers });
+  const session = await getServerSession();
   if (!session) {
     return dehydrate(queryClient);
   }
