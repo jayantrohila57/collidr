@@ -56,7 +56,10 @@ export default function OrganizationLayout({
         <TooltipProvider delay={0}>
           <ActiveOrganizationProvider>
             <AppSidebar />
-            <SidebarInset className="flex min-h-svh min-w-0 flex-col overflow-x-hidden">
+            <SidebarInset
+              id="main-content"
+              className="min-h-svh min-w-0 overflow-x-hidden"
+            >
               <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4 lg:px-4">
                 <div className="flex w-full min-w-0 items-center justify-between gap-2">
                   <div className="flex min-w-0 flex-1 flex-row items-center justify-start gap-2">

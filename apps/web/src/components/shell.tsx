@@ -139,12 +139,11 @@ interface MainTypes {
 }
 
 const Main = React.forwardRef<
-  HTMLElement,
+  HTMLDivElement,
   MainTypes & VariantProps<typeof MainVariants>
 >(({ className, variant, scale, padding, ...props }, ref) => {
   return (
-    <main
-      id="main-content"
+    <div
       ref={ref}
       className={cn(
         MainVariants({ className, variant, scale, padding }),

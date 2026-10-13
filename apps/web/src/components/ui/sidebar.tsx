@@ -211,6 +211,7 @@ export function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           side={side}
+          variant="inset"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -333,9 +334,9 @@ export function SidebarRail({
 export function SidebarInset({
   className,
   ...props
-}: React.ComponentProps<"div">): React.ReactElement {
+}: React.ComponentProps<"main">): React.ReactElement {
   return (
-    <div
+    <main
       className={cn(
         "relative flex w-full flex-1 flex-col bg-background",
         "md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ms-2 md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ms-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm/5",
