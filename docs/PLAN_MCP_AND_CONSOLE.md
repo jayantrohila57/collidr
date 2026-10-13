@@ -2,7 +2,7 @@
 
 This document has been **superseded** by the platform-wide plan:
 
-**[`docs/PLAN_PLATFORM_APPS.md`](./PLAN_PLATFORM_APPS.md)** — see **§14** (e.g. Decision **20** Better Auth 1.7 before `apps/auth` → #93) and **§8** migration checklist.
+**[`docs/PLAN_PLATFORM_APPS.md`](./PLAN_PLATFORM_APPS.md)** — **§14 resolved** (decisions 1–20); execution **§12** issues [#94](https://github.com/jayantrohila57/env-manager/issues/94)–[#102](https://github.com/jayantrohila57/env-manager/issues/102); umbrella [#89](https://github.com/jayantrohila57/env-manager/issues/89), [#87](https://github.com/jayantrohila57/env-manager/issues/87), [#88](https://github.com/jayantrohila57/env-manager/issues/88).
 
 That plan covers `apps/auth`, `apps/account`, `apps/studio`, `apps/console`, `apps/mcp`, and `apps/docs`, including SSO, domains, migration from `apps/web`, and the full MCP/console design from v1.
 

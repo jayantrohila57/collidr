@@ -1,6 +1,6 @@
 # Plan: Platform apps (auth, account, studio, console, mcp, docs)
 
-**Status:** Planning only (no implementation).  
+**Status:** **Implementation** — §14 decisions **resolved** (20/20); work tracked via `[Platform]` GitHub issues (§12).  
 **Supersedes:** [`docs/PLAN_MCP_AND_CONSOLE.md`](./PLAN_MCP_AND_CONSOLE.md) (MCP + console scope is folded in here).  
 **Baseline:** Monorepo today with product app **`apps/web`** (orgs/projects/envs/variables, account settings under `/dashboard/settings`, sign-in at `/sign-in`, auth at `/api/auth/*` on the same host).  
 **Related:** [`docs/ACTIONS_PERMISSIONS_AUDIT.md`](./ACTIONS_PERMISSIONS_AUDIT.md), [`docs/DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md), [`AGENTS.md`](../AGENTS.md) (issue workflow, **main-only** deploy).
@@ -17,6 +17,7 @@
 | **`apps/console`** | **Platform admin** (`user.role = admin` + Better Auth admin plugin): users, orgs, projects, sessions, global audit, impersonation/ban, MCP OAuth clients/tokens, feature flags, health. | coss ui | Session cookie (SSO) + **Admin role** + **production IP allowlist** (Decision 11) |
 | **`apps/mcp`** | **API-only** remote MCP server (stateless HTTP `POST`, MCP 2026-07-28). | none | OAuth access token (+ optional DPoP) |
 | **`apps/docs`** | Product + MCP documentation (**Fumadocs** + built-in search, Decision 9) with **our** chrome (`@env-manager/ui`). **Fully public** (Decision 10). | coss ui shell + Fumadocs primitives | Public read; optional “edit on GitHub”; optional sign-in link to studio |
+| **`apps/www`** | **Marketing landing** at apex / `www` (Decision 4) — product positioning, CTAs to auth/studio; not the signed-in app. | coss ui | Public; links to auth `sign-in` with `return_to` |
 
 **Invariant:** One Postgres database, one `@env-manager/auth` server config instantiated **only** on `apps/auth` (other apps use `@env-manager/auth-client` + session validation / tRPC context).
 
@@ -38,6 +39,7 @@ Until custom DNS is approved, use **separate Vercel default hostnames**. Browser
 | console | `https://env-manager-console.vercel.app` | auth URL |
 | mcp | `https://env-manager-mcp.vercel.app` | JWKS/issuer → auth |
 | docs | `https://env-manager-docs.vercel.app` | auth URL (nav only) |
+| www | `https://env-manager-www.vercel.app` (until apex) | links to auth |
 
 **GitHub OAuth callback (phase 1):** `https://env-manager-auth.vercel.app/api/auth/callback/github` after auth app cutover.
 
@@ -53,8 +55,9 @@ Example apex: **`env-manager.com`**.
 | console | `https://console.env-manager.com` | Platform admin |
 | mcp | `https://mcp.env-manager.com` | MCP `POST /api/mcp` |
 | docs | `https://docs.env-manager.com` | Documentation |
+| www | `https://env-manager.com` / `https://www.env-manager.com` | Marketing (Decision 4) |
 
-**Marketing / www:** optional `https://env-manager.com` → docs or studio (open decision in §15).
+**Marketing / www:** served by **`apps/www`** (Decision 4), not studio or docs.
 
 **GitHub OAuth callback (apex):** `https://auth.env-manager.com/api/auth/callback/github` (single callback after cutover).
 
@@ -68,6 +71,7 @@ Example apex: **`env-manager.com`**.
 | console | 3003 | `console.localhost` |
 | mcp | 3004 | `mcp.localhost` |
 | docs | 3005 | `docs.localhost` |
+| www | 3006 | `www.localhost` |
 
 Cross-port cookie SSO is unreliable; prefer **shared parent** `*.localhost` + `crossSubDomainCookies` or auth proxy rewrites per app (see §5).
 
@@ -312,7 +316,7 @@ Each app’s tRPC context / middleware:
 
 - Keep: `/dashboard/**` orgs, projects, envs, variables, notifications, onboarding.
 - Remove: `/sign-in` (redirect to auth), `/dashboard/settings/*` (link to account app).
-- Marketing `(public)/(site)` — keep on studio or move to docs (open decision).
+- Remove public marketing `(public)/(site)` — lives on **`apps/www`** (Decision 4, [#103](https://github.com/jayantrohila57/env-manager/issues/103)).
 - tRPC: full `appRouter` minus account-only procedures (or thin re-export).
 - Middleware: same pattern as today (`apps/web/src/middleware.ts`) with auth URL for redirects.
 
@@ -450,6 +454,7 @@ Target rollback decision time: **< 1 hour** from go/no-go.
 | `env-manager-console` | `apps/console` | `console.env-manager.com` |
 | `env-manager-mcp` | `apps/mcp` | `mcp.env-manager.com` |
 | `env-manager-docs` | `apps/docs` | `docs.env-manager.com` |
+| `env-manager-www` | `apps/www` | `env-manager.com` / `www` (Decision 4) |
 
 **Build:** `turbo build --filter=studio` (etc.). **Env:** duplicate DB secrets; per-app `NEXT_PUBLIC_*_URL` link graph; console **`CONSOLE_IP_ALLOWLIST`** (Decision 11). **Previews:** disabled — production **`main` only** (Decision 12); `trustedOrigins` / `allowedReturnOrigins` are explicit production URLs, no preview wildcard.
 
@@ -484,17 +489,18 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 ## 12. Phased milestones (platform-wide)
 
-| Phase | Deliverable | Acceptance |
-|-------|-------------|------------|
-| **P0** | This plan approved | Open decisions closed |
-| **P1** | **Better Auth 1.7 upgrade** (Decision 20, [#93](https://github.com/jayantrohila57/env-manager/issues/93)) — **before `apps/auth`**; then `@env-manager/ui`, `@env-manager/auth-client` | `packages/auth` + catalog on 1.7.x; existing `apps/web` auth flows still pass |
-| **P2** | `apps/auth` + account + studio ready on staging / Neon branch | §8.2 verification complete |
-| **P3** | **Big-bang cutover** (Decision 5) — auth + account + studio prod; decommission `apps/web` | §8.3 smoke tests pass; no `/api/auth` on studio |
-| **P4** | Custom apex DNS (optional, later) | §2.1 hostnames when approved |
-| **P5** | `apps/docs` MVP | Fumadocs content + coss shell; MCP scope page |
-| **P6** | `apps/mcp` + OAuth consent on auth | MCP client auth E2E |
-| **P7** | `apps/console` | Admin + `CONSOLE_IP_ALLOWLIST` enforced in prod |
-| **P8** | MCP tool parity + hardening | See Appendix A |
+| Phase | Issue | Deliverable | Acceptance |
+|-------|-------|-------------|------------|
+| **P0** | [#94](https://github.com/jayantrohila57/env-manager/issues/94) | Plan baseline | §14 decisions 1–20 resolved; §15 empty |
+| **P1** | [#95](https://github.com/jayantrohila57/env-manager/issues/95) | Better Auth 1.7 ([#93](https://github.com/jayantrohila57/env-manager/issues/93)), `@env-manager/ui`, `@env-manager/auth-client` | D20; `apps/web` auth passes on 1.7 |
+| **P2** | [#96](https://github.com/jayantrohila57/env-manager/issues/96) | `apps/auth`, `apps/account`, `apps/studio` on staging / Neon | §8.2 complete ([#89](https://github.com/jayantrohila57/env-manager/issues/89)) |
+| **P3** | [#97](https://github.com/jayantrohila57/env-manager/issues/97) | Big-bang prod cutover (D5–D6) | §8.3 C7 smoke tests |
+| **P4** | [#98](https://github.com/jayantrohila57/env-manager/issues/98) | Custom apex DNS (D2) | §2.1 + `apps/www` apex ([#103](https://github.com/jayantrohila57/env-manager/issues/103)) |
+| **P5** | [#99](https://github.com/jayantrohila57/env-manager/issues/99) | `apps/docs` MVP (D9–D10) | Fumadocs + public docs |
+| **P6** | [#100](https://github.com/jayantrohila57/env-manager/issues/100) | `apps/mcp` OAuth E2E (D7–D8, D14–D15) | MCP client auth ([#87](https://github.com/jayantrohila57/env-manager/issues/87)) |
+| **P7** | [#101](https://github.com/jayantrohila57/env-manager/issues/101) | `apps/console` (D11, D19) | Admin + IP allowlist ([#88](https://github.com/jayantrohila57/env-manager/issues/88)) |
+| **P8** | [#102](https://github.com/jayantrohila57/env-manager/issues/102) | MCP tool parity | Appendix A inventory |
+| **www** | [#103](https://github.com/jayantrohila57/env-manager/issues/103) | `apps/www` marketing (D4) | Apex landing; CTAs → auth |
 
 ---
 
@@ -512,7 +518,32 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 ---
 
-## 14. Recorded decisions
+## 14. Recorded decisions (resolved)
+
+All **20** decisions below are **accepted** and closed. §15 has no remaining open items.
+
+| # | Summary |
+|---|---------|
+| 1 | `*.vercel.app` per app; auth-app OIDC (no shared apex cookies in phase 1) |
+| 2 | Custom apex: `.env-manager.com` cookie domain if cookie SSO approved (P4) |
+| 3 | OIDC-first; no per-app auth rewrites at v1 (ITP fallback only later) |
+| 4 | Separate marketing app **`apps/www`** for apex / www |
+| 5 | Big-bang cutover auth + account + studio |
+| 6 | One-time re-login; no dual-cookie window |
+| 7 | MCP client identity: CIMD + DCR |
+| 8 | Device authorization on auth v1 |
+| 9 | Fumadocs built-in search |
+| 10 | All docs public |
+| 11 | Console `CONSOLE_IP_ALLOWLIST` + Admin |
+| 12 | Prod-only deploys; no preview `trustedOrigins` wildcard |
+| 13 | `project.unarchive` action ([#92](https://github.com/jayantrohila57/env-manager/issues/92)) |
+| 14 | MCP rate limits in Postgres |
+| 15 | MCP transport: `mcp-handler` + Better Auth MCP auth |
+| 16 | Per-app `/api/trpc`, shared `@env-manager/api` |
+| 17 | Enterprise SSO plugin deferred |
+| 18 | Transactional email links via auth app |
+| 19 | Impersonation banner in all UI apps |
+| 20 | Better Auth 1.7 before `apps/auth` ([#93](https://github.com/jayantrohila57/env-manager/issues/93)) |
 
 ### Decision 1 — Hosting & SSO (accepted)
 
@@ -525,6 +556,37 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 | **MCP / machines** | Bearer tokens from auth issuer; no cross-subdomain browser cookies. |
 
 **Implication:** Do not plan “sign in once, cookie works on every `*.vercel.app` app.” Implement auth-app redirects and registered callback URLs per app.
+
+### Decision 2 — Custom apex cookie domain (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **When** | Applies only after **P4** custom apex DNS is live and a security review approves optional cookie SSO (§5.1). |
+| **Domain** | Use **`domain: ".env-manager.com"`** (leading dot) for `crossSubDomainCookies` when enabled. |
+| **Until P4** | Not applicable — phase 1 uses per-origin sessions + OIDC (Decision 1). |
+
+**Implication:** Do not configure apex cookie domain on `*.vercel.app` hostnames.
+
+### Decision 3 — Auth proxy vs cookie SSO (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **v1 / phase 1** | **OIDC redirects only** (Decisions 1, 6, 18) — sibling apps do **not** mount `/api/auth` rewrites. |
+| **Custom apex** | Prefer **Decision 2** `crossSubDomainCookies` when approved; per-app **reverse-proxy rewrites** (§5.2) only as a **Safari ITP fallback**, not the default for every app. |
+
+**Implication:** Avoid maintaining six identical auth rewrite configs unless ITP forces it.
+
+### Decision 4 — Marketing landing app (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **App** | Dedicated **`apps/www`** — marketing landing at **apex** / **`www`** (`env-manager.com`, `www.env-manager.com` when P4 DNS exists). |
+| **Excluded** | Studio product UI, Fumadocs docs site, and signed-in dashboard are **not** the marketing homepage. |
+| **Content** | Public marketing pages (hero, features, pricing if any, CTAs); primary CTA → auth `sign-in` with `return_to` studio. |
+| **Chrome** | `@env-manager/ui` / coss ui consistent with Decision 9–10 visual language. |
+| **Phase 1** | May ship on `env-manager-www.vercel.app` until apex (§2.0); alias apex to www project at P4. |
+
+**Implication:** Remove marketing `(public)/(site)` from studio during split; track build-out in a dedicated feature issue.
 
 ### Decision 5 — App split cutover (accepted)
 
@@ -699,11 +761,9 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 ---
 
-## 15. Open decisions (numbered)
+## 15. Open decisions
 
-1. **Cookie domain** (custom apex) — `env-manager.com` vs `.env-manager.com` vs per-subdomain only?
-2. **Auth proxy vs cookie-only** (custom apex) — rewrites on every sibling app or only `crossSubDomainCookies`?
-3. **Marketing site** — `www` → docs, studio landing, or separate?
+**None.** All platform choices are recorded in **§14** (decisions 1–20).
 
 ---
 
