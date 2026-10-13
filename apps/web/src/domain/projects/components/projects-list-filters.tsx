@@ -1,12 +1,6 @@
 "use client";
 
 import type { ProjectOutput } from "@env-manager/api/types";
-import {
-  ArrowDownAZ,
-  ArrowUpAZ,
-  CalendarArrowDown,
-  CalendarArrowUp,
-} from "lucide-react";
 import type { ReactNode } from "react";
 import { DataTableClearFiltersButton } from "@/components/data-table/data-table-clear-filters-button";
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
@@ -71,22 +65,22 @@ const SORT_OPTIONS: {
   {
     value: "updated-desc",
     label: "Updated (newest)",
-    icon: <CalendarArrowDown className="size-4 opacity-80" aria-hidden />,
+    icon: <AppIcon name="calendar" className="size-4" />,
   },
   {
     value: "updated-asc",
     label: "Updated (oldest)",
-    icon: <CalendarArrowUp className="size-4 opacity-80" aria-hidden />,
+    icon: <AppIcon name="calendar" className="size-4" />,
   },
   {
     value: "name-asc",
     label: "Name (A–Z)",
-    icon: <ArrowDownAZ className="size-4 opacity-80" aria-hidden />,
+    icon: <AppIcon name="listView" className="size-4" />,
   },
   {
     value: "name-desc",
     label: "Name (Z–A)",
-    icon: <ArrowUpAZ className="size-4 opacity-80" aria-hidden />,
+    icon: <AppIcon name="listView" className="size-4" />,
   },
 ];
 
@@ -106,7 +100,9 @@ export function ProjectsListFiltersBar({
   const visibilityCounts = countProjectsByVisibility(projects);
 
   const sortApplied =
-    sort !== "updated-desc" ? ([sort] as ProjectsSort[]) : ([] as ProjectsSort[]);
+    sort !== "updated-desc"
+      ? ([sort] as ProjectsSort[])
+      : ([] as ProjectsSort[]);
 
   return (
     <div className={cn("flex flex-wrap items-center", layoutGapClass)}>
@@ -134,7 +130,7 @@ export function ProjectsListFiltersBar({
       />
       <DataTableFacetedFilter<ProjectsSort>
         title="Sort"
-        filterIcon={CalendarArrowDown}
+        filterIcon="calendar"
         ariaLabel="Sort projects"
         multiple={false}
         value={sortApplied}
