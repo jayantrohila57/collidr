@@ -1,7 +1,6 @@
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { OrganizationTimelinePage } from "@/domain/organizations/components/organization-timeline-page";
 import { OrganizationSectionPage } from "@/domain/organizations/components/organization-section-page";
 import { OrganizationsFeatureGate } from "@/domain/organizations/components/organizations-feature-gate";
 import { TimelinePageClient } from "@/domain/timeline/components/timeline-page-client";
