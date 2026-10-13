@@ -31,7 +31,11 @@ interface CreateEnvironmentSheetProps {
   onConfirm: (name: string) => Promise<void>;
   isPending: boolean;
   triggerText?: string;
+  /** Icon-only trigger below `sm` with accessible label. */
   compactOnMobile?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 }
 
 export function CreateEnvironmentSheet({
@@ -39,8 +43,14 @@ export function CreateEnvironmentSheet({
   isPending,
   triggerText = "Create Environment",
   compactOnMobile = false,
+  open: openProp,
+  onOpenChange: onOpenChangeProp,
+  hideTrigger = false,
 }: CreateEnvironmentSheetProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = openProp ?? internalOpen;
+  const setOpen = onOpenChangeProp ?? setInternalOpen;
+  const isAddAction = triggerText.toLowerCase().startsWith("add");
 
   const form = useForm({
     resolver: zodResolver(environmentNameSchema),
@@ -56,28 +66,29 @@ export function CreateEnvironmentSheet({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger
-        render={
-          <Button
-            variant={triggerText === "Add Environment" ? "outline" : "default"}
-            size={triggerText === "Add Environment" ? "sm" : "default"}
-            className={
-              compactOnMobile
-                ? "max-sm:size-11 max-sm:shrink-0 max-sm:gap-0 max-sm:px-0"
-                : "gap-2"
-            }
-            aria-label={compactOnMobile ? "Add environment" : undefined}
-          />
-        }
-      >
-        <AppIcon
-          name="plus"
-          className={compactOnMobile ? "text-current" : "text-current"}
-        />
-        <span className={compactOnMobile ? "hidden sm:inline" : undefined}>
-          {triggerText}
-        </span>
-      </SheetTrigger>
+      {hideTrigger ? null : (
+        <SheetTrigger
+          render={
+            <Button
+              variant={isAddAction ? "outline" : "default"}
+              size="sm"
+              className={
+                compactOnMobile
+                  ? "max-sm:size-8 max-sm:shrink-0 max-sm:gap-0 max-sm:px-0"
+                  : "gap-1.5"
+              }
+              aria-label={compactOnMobile ? triggerText : undefined}
+            />
+          }
+        >
+          <AppIcon name="plus" className="text-current" />
+          <span
+            className={compactOnMobile ? "sr-only sm:not-sr-only" : undefined}
+          >
+            {triggerText}
+          </span>
+        </SheetTrigger>
+      )}
       <FormSheetPopup>
         <FormSheetHeader>
           <SheetTitleWithIcon icon="environment">

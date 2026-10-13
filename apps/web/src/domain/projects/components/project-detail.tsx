@@ -2,7 +2,6 @@
 
 import type { ProjectOutput } from "@env-manager/api/types";
 import { PageStack } from "@/components/layout/app-layout";
-import { layoutGapClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 import { CreateEnvironmentSheet } from "../../environments/components/create-environment-sheet";
 import { EnvironmentPanel } from "../../environments/components/environment-panel";
@@ -33,31 +32,27 @@ export default function ProjectDetail({
   } = useEnvironments(projectSlug);
 
   return (
-    <PageStack className="w-full min-w-0">
+    <PageStack className="w-full min-w-0 gap-4">
       <ProjectMetadataRow project={project} />
 
-      <section className={cn("flex min-w-0 flex-col", layoutGapClass)}>
-        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 shrink-0">
-            <h2 className="whitespace-nowrap font-medium text-sm">
-              Environments
-            </h2>
+      <section className="flex min-w-0 flex-col gap-2">
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h2 className="font-medium text-sm">Environments</h2>
             <p className="text-muted-foreground text-xs">
               Variables and secrets per deployment target.
             </p>
           </div>
           {environments.length > 0 ? (
-            <div className="flex shrink-0 items-center justify-end gap-2 sm:pt-0.5">
-              <CreateEnvironmentSheet
-                onConfirm={async (name) => {
-                  if (!projectId) return;
-                  await createEnvironment({ projectId, name });
-                }}
-                isPending={isCreating}
-                triggerText="Add environment"
-                compactOnMobile={false}
-              />
-            </div>
+            <CreateEnvironmentSheet
+              onConfirm={async (name) => {
+                if (!projectId) return;
+                await createEnvironment({ projectId, name });
+              }}
+              isPending={isCreating}
+              triggerText="Add environment"
+              compactOnMobile
+            />
           ) : null}
         </div>
 

@@ -14,12 +14,16 @@ import { cn } from "@/lib/utils";
 interface HorizontalScrollRailProps {
   children: ReactNode;
   className?: string;
+  /** Use `size-8` scroll controls (tab strips) instead of touch-sized `size-11`. */
+  compactControls?: boolean;
 }
 
 export function HorizontalScrollRail({
   children,
   className,
+  compactControls = false,
 }: HorizontalScrollRailProps) {
+  const controlSizeClass = compactControls ? "size-8" : "size-11";
   const ref = useRef<HTMLDivElement>(null);
   const [hasOverflow, setHasOverflow] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -66,7 +70,8 @@ export function HorizontalScrollRail({
           variant="outline"
           size="icon"
           className={cn(
-            "size-11 shrink-0",
+            controlSizeClass,
+            "shrink-0",
             !canScrollLeft && "pointer-events-none opacity-0",
           )}
           aria-label="Scroll tabs left"
@@ -104,7 +109,8 @@ export function HorizontalScrollRail({
           variant="outline"
           size="icon"
           className={cn(
-            "size-11 shrink-0",
+            controlSizeClass,
+            "shrink-0",
             !canScrollRight && "pointer-events-none opacity-0",
           )}
           aria-label="Scroll tabs right"

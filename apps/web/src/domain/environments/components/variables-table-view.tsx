@@ -120,7 +120,8 @@ export function VariablesTableView({
     () => [
       columnHelper.accessor("key", {
         meta: {
-          className: "w-[38%] max-w-[9rem] min-w-0 sm:max-w-[12rem]",
+          className:
+            "min-w-0 max-w-none w-auto py-2 ps-2 pe-1 sm:max-w-[12rem] sm:py-2.5 sm:ps-2.5 sm:pe-2.5",
         },
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Key" />
@@ -129,31 +130,25 @@ export function VariablesTableView({
           const variable = row.original;
           const isRevealed = revealedIds.has(variable.id);
           return (
-            <TableLeadingCell leading={<AppIcon name="variable" />}>
-              <span className="block truncate font-medium font-mono text-xs sm:text-sm">
-                {variable.key}
-              </span>
-              <div className="mt-1 flex min-w-0 items-center gap-2 sm:hidden">
+            <div className="min-w-0">
+              <div className="hidden min-w-0 sm:block">
+                <TableLeadingCell leading={<AppIcon name="variable" />}>
+                  <span className="block truncate font-medium font-mono text-sm">
+                    {variable.key}
+                  </span>
+                </TableLeadingCell>
+              </div>
+              <div className="min-w-0 sm:hidden">
+                <span className="block truncate font-medium font-mono text-xs">
+                  {variable.key}
+                </span>
                 <SecretValue
                   revealed={isRevealed}
                   value={variable.value}
-                  className="min-w-0 flex-1 text-xs"
+                  className="mt-0.5 text-muted-foreground text-xs"
                 />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={isRevealed ? "Hide value" : "Reveal value"}
-                  disabled={revealingIds?.has(variable.id)}
-                  onClick={() => onReveal(variable.id)}
-                >
-                  <AppIcon
-                    name={isRevealed ? "hide" : "reveal"}
-                    className="text-foreground"
-                  />
-                </Button>
               </div>
-            </TableLeadingCell>
+            </div>
           );
         },
       }),
@@ -161,7 +156,7 @@ export function VariablesTableView({
         id: "value",
         meta: {
           className:
-            "hidden min-w-0 max-w-[10rem] sm:table-cell md:max-w-[14rem]",
+            "hidden min-w-0 max-w-[10rem] py-2.5 sm:table-cell md:max-w-[14rem]",
         },
         header: "Value",
         enableSorting: false,
@@ -194,6 +189,9 @@ export function VariablesTableView({
       }),
       columnHelper.display({
         id: "actions",
+        meta: {
+          className: "w-10 py-2 pe-2 ps-0 sm:py-2.5 sm:pe-2.5",
+        },
         header: () => <DataTableActionsColumnHeader />,
         enableSorting: false,
         cell: ({ row }) => {

@@ -59,6 +59,7 @@ export function EnvironmentsTabsView({
 }: EnvironmentsTabsViewProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const resolvedActive =
     activeTab && environments.some((e) => e.id === activeTab)
@@ -87,7 +88,11 @@ export function EnvironmentsTabsView({
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <CreateEnvironmentSheet onConfirm={onCreate} isPending={isCreating} />
+          <CreateEnvironmentSheet
+            onConfirm={onCreate}
+            isPending={isCreating}
+            triggerText="Add environment"
+          />
         </EmptyContent>
       </Empty>
     );
@@ -100,18 +105,21 @@ export function EnvironmentsTabsView({
         onValueChange={onTabChange}
         className="min-w-0 gap-2"
       >
-        <div className="flex min-w-0 items-center justify-between gap-2">
-          <HorizontalScrollRail className="min-w-0 flex-1">
-            <TabsList size="sm" className="h-auto w-fit justify-start">
+        <HorizontalScrollRail compactControls className="min-w-0">
+          <div className="flex w-max min-w-full items-center gap-1">
+            <TabsList size="sm" className="h-8 w-fit shrink-0 justify-start">
               {environments.map((env) => {
                 const count = variableCounts[env.id];
                 return (
                   <TabsTab
                     key={env.id}
                     value={env.id}
-                    className="shrink-0 grow-0 gap-1.5 whitespace-nowrap"
+                    size="sm"
+                    className="shrink-0 grow-0 gap-1 whitespace-nowrap"
                   >
-                    <span>{env.name}</span>
+                    <span className="max-w-[7.5rem] truncate sm:max-w-none">
+                      {env.name}
+                    </span>
                     {count !== undefined ? (
                       <Badge
                         variant="secondary"
@@ -125,9 +133,7 @@ export function EnvironmentsTabsView({
                 );
               })}
             </TabsList>
-          </HorizontalScrollRail>
-          {activeEnvironment ? (
-            <div className="ms-auto flex shrink-0">
+            {activeEnvironment ? (
               <Menu>
                 <Tooltip>
                   <TooltipTrigger
@@ -137,7 +143,8 @@ export function EnvironmentsTabsView({
                           <Button
                             type="button"
                             variant="outline"
-                            size="sm"
+                            size="icon-sm"
+                            className="size-8 shrink-0"
                             aria-label="Environment actions"
                           />
                         }
@@ -149,6 +156,10 @@ export function EnvironmentsTabsView({
                   <TooltipContent>Environment actions</TooltipContent>
                 </Tooltip>
                 <MenuPopup align="end">
+                  <MenuItem onClick={() => setCreateOpen(true)}>
+                    <AppIcon name="plus" className="me-2 text-foreground" />
+                    Add environment
+                  </MenuItem>
                   <MenuItem onClick={() => setEditOpen(true)}>
                     <AppIcon name="edit" className="me-2 text-foreground" />
                     Rename
@@ -162,9 +173,9 @@ export function EnvironmentsTabsView({
                   </MenuItem>
                 </MenuPopup>
               </Menu>
-            </div>
-          ) : null}
-        </div>
+            ) : null}
+          </div>
+        </HorizontalScrollRail>
 
         <div className="min-w-0">
           {environments.map((env) => (
@@ -179,6 +190,15 @@ export function EnvironmentsTabsView({
           ))}
         </div>
       </Tabs>
+
+      <CreateEnvironmentSheet
+        onConfirm={onCreate}
+        isPending={isCreating}
+        triggerText="Add environment"
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        hideTrigger
+      />
 
       {activeEnvironment ? (
         <>

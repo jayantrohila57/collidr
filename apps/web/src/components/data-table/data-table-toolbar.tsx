@@ -33,7 +33,7 @@ export function DataTableToolbar({
     <div
       className={cn(
         "flex min-w-0 flex-col gap-2",
-        filter ? layoutToolbarClass : "sm:flex-row sm:items-center",
+        filter ? layoutToolbarClass : "flex-row items-center",
         className,
       )}
     >

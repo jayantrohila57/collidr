@@ -70,5 +70,5 @@ export function ProjectDetailStats({ slug }: { slug: string }) {
     },
   ];
 
-  return <StatCardRow items={items} />;
+  return <StatCardRow items={items} compact />;
 }

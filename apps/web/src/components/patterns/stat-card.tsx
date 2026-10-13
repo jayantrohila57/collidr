@@ -22,20 +22,48 @@ export type StatCardItem = {
   href?: Route;
 };
 
-function StatCardInner({ item }: { item: StatCardItem }) {
+function StatCardInner({
+  item,
+  compact,
+}: {
+  item: StatCardItem;
+  compact?: boolean;
+}) {
   return (
     <Card className="h-full">
-      <CardHeader className="gap-1 p-3 pb-1 sm:p-4 sm:pb-1">
+      <CardHeader
+        className={cn(
+          "gap-0.5 pb-0",
+          compact
+            ? "p-2 sm:gap-1 sm:p-4 sm:pb-1"
+            : "gap-1 p-3 pb-1 sm:p-4 sm:pb-1",
+        )}
+      >
         <div className="flex items-start justify-between gap-2">
           <CardDescription className="text-xs">{item.label}</CardDescription>
-          <AppIcon name={item.icon} className="size-4" />
+          <AppIcon
+            name={item.icon}
+            className={cn(compact ? "size-3.5 sm:size-4" : "size-4")}
+          />
         </div>
-        <CardTitle className="truncate text-nowrap text-xl tabular-nums sm:text-2xl">
+        <CardTitle
+          className={cn(
+            "truncate text-nowrap tabular-nums",
+            compact ? "text-base sm:text-2xl" : "text-xl sm:text-2xl",
+          )}
+        >
           {item.value}
         </CardTitle>
       </CardHeader>
       {item.hint ? (
-        <CardPanel className="truncate text-nowrap px-3 pt-0 pb-3 text-muted-foreground text-xs sm:px-4 sm:pb-4">
+        <CardPanel
+          className={cn(
+            "truncate text-nowrap pt-0 text-muted-foreground text-xs",
+            compact
+              ? "hidden px-2 pb-2 sm:block sm:px-4 sm:pb-4"
+              : "px-3 pb-3 sm:px-4 sm:pb-4",
+          )}
+        >
           {item.hint}
         </CardPanel>
       ) : null}
@@ -46,13 +74,15 @@ function StatCardInner({ item }: { item: StatCardItem }) {
 export function StatCard({
   item,
   className,
+  compact,
 }: {
   item: StatCardItem;
   className?: string;
+  compact?: boolean;
 }) {
   const card = (
     <div className={cn("min-w-0", className)}>
-      <StatCardInner item={item} />
+      <StatCardInner item={item} compact={compact} />
     </div>
   );
 
@@ -90,9 +120,11 @@ export function StatCard({
 export function StatCardRow({
   items,
   className,
+  compact,
 }: {
   items: StatCardItem[];
   className?: string;
+  compact?: boolean;
 }) {
   return (
     <div
@@ -103,7 +135,7 @@ export function StatCardRow({
       )}
     >
       {items.map((item) => (
-        <StatCard key={item.label} item={item} />
+        <StatCard key={item.label} item={item} compact={compact} />
       ))}
     </div>
   );
