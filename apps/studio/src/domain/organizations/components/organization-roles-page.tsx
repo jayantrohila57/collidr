@@ -13,9 +13,10 @@ import { RoleBadge } from "@/components/patterns/status-badge";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { orgSectionAction } from "@/domain/permissions/org-section-actions";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
+import { OrganizationPermissionsMatrix } from "./organization-permissions-matrix";
 import { OrganizationSectionPage } from "./organization-section-page";
 
-const DEFAULT_ROLES = ["owner", "manager", "member"] as const;
+const DEFAULT_ROLES = ["owner", "manager", "member", "admin"] as const;
 
 export function OrganizationRolesPage({ slug }: { slug: string }) {
   const { organization, status, error } = useOrganizationBySlug(slug);
@@ -48,28 +49,33 @@ export function OrganizationRolesPage({ slug }: { slug: string }) {
     );
   } else {
     body = (
-      <SettingsPanel>
-        <SettingsSectionHeader
-          title="Built-in roles"
-          description="Default Better Auth organization roles. Custom roles and fine-grained permissions are wired by the permissions module."
-          icon="lock"
-        />
-        {DEFAULT_ROLES.map((role) => (
-          <SettingsRow
-            key={role}
-            label={role}
-            description={
-              role === "owner"
-                ? "Full control including deletion."
-                : role === "manager"
-                  ? "Manage members, invites, and settings."
-                  : "Access organization resources."
-            }
-          >
-            <RoleBadge role={role} />
-          </SettingsRow>
-        ))}
-      </SettingsPanel>
+      <div className="flex flex-col gap-4">
+        <SettingsPanel>
+          <SettingsSectionHeader
+            title="Built-in roles"
+            description="Organization roles used for access control and MCP scope checks."
+            icon="lock"
+          />
+          {DEFAULT_ROLES.map((role) => (
+            <SettingsRow
+              key={role}
+              label={role}
+              description={
+                role === "owner"
+                  ? "Full control including deletion."
+                  : role === "manager"
+                    ? "Manage members, invites, teams, and project grants."
+                    : role === "admin"
+                      ? "Reserved for future platform console (not enabled)."
+                      : "Project access via teams and explicit grants."
+              }
+            >
+              <RoleBadge role={role === "admin" ? "manager" : role} />
+            </SettingsRow>
+          ))}
+        </SettingsPanel>
+        <OrganizationPermissionsMatrix />
+      </div>
     );
   }
 

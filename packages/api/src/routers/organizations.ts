@@ -4,8 +4,15 @@ import { member, organization } from "@env-manager/db/schema/organization";
 import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod/v3";
+import { actionGuard } from "../actions/action-guard";
 import { requireAction } from "../actions/require-action";
-import { orgAwareProcedure, protectedProcedure, router } from "../index";
+import {
+  orgAwareProcedure,
+  orgProcedure,
+  protectedProcedure,
+  router,
+} from "../index";
+import { mcpMembersList } from "../mcp/organization-ops";
 
 export const organizationsRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
@@ -74,5 +81,15 @@ export const organizationsRouter = router({
       }
 
       return row;
+    }),
+
+  listMembers: orgProcedure
+    .use(actionGuard("member.list"))
+    .query(async ({ ctx }) => {
+      const organizationId = ctx.activeOrganizationId;
+      if (!organizationId) {
+        return { items: [] };
+      }
+      return mcpMembersList(ctx.session.user.id, organizationId);
     }),
 });

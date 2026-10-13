@@ -16,6 +16,7 @@ import {
 } from "@/components/patterns/status-badge";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import { useProjectActions } from "../hooks/use-project-actions";
+import { ProjectAccessSection } from "./project-access-section";
 import { ProjectDangerZone } from "./project-danger-zone";
 
 interface ProjectSettingsSectionProps {
@@ -119,6 +120,7 @@ export function ProjectSettingsSection({
           </div>
         </SettingsRow>
       </SettingsPanel>
+      <ProjectAccessSection project={project} />
       <ProjectDangerZone project={project} />
 
       <ConfirmDialog

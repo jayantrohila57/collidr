@@ -9,6 +9,7 @@ import { organizationsRouter } from "./organizations";
 import { permissionsRouter } from "./permissions";
 import { projectAccessRouter } from "./project-access-router";
 import { projectsRouter } from "./projects";
+import { teamsRouter } from "./teams";
 import { environmentVariablesRouter } from "./variables";
 
 export const appRouter = router({
@@ -26,5 +27,6 @@ export const appRouter = router({
   account: accountRouter,
   organizations: organizationsRouter,
   projectAccess: projectAccessRouter,
+  teams: teamsRouter,
 });
 export type AppRouter = typeof appRouter;

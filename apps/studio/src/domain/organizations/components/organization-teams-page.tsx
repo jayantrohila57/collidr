@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { FormField } from "@/components/patterns/form-field";
@@ -8,109 +9,94 @@ import { GuardedDialog } from "@/components/patterns/guarded-dialog";
 import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardPanel,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth-client";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Can } from "@/domain/permissions/components/can";
 import { isTeamCreateFormDirty } from "@/lib/form-dirty";
 import { appIcons } from "@/lib/icons";
 import { toast } from "@/lib/toast";
+import { trpc } from "@/utils/trpc";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { OrganizationSectionPage } from "./organization-section-page";
 import { TeamMembersSheet } from "./team-members-sheet";
 
 type TeamRow = { id: string; name: string };
 
-type OrganizationTeamsClient = {
-  listOrganizationTeams?: (input: {
-    query: { organizationId: string };
-  }) => Promise<{ data?: TeamRow[] }>;
-  createTeam?: (input: {
-    organizationId: string;
-    name: string;
-  }) => Promise<{ data?: TeamRow }>;
-};
-
 export function OrganizationTeamsPage({ slug }: { slug: string }) {
   const { organization, status: orgStatus } = useOrganizationBySlug(slug);
-  const [teams, setTeams] = useState<TeamRow[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [teamsEnabled, setTeamsEnabled] = useState(true);
+  const queryClient = useQueryClient();
   const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [teamName, setTeamName] = useState("");
-  const [createPending, setCreatePending] = useState(false);
   const [membersTeam, setMembersTeam] = useState<TeamRow | null>(null);
+  const [renameTeam, setRenameTeam] = useState<TeamRow | null>(null);
+  const [renameValue, setRenameValue] = useState("");
 
-  const resetCreateForm = () => {
-    setTeamName("");
+  const teamsQuery = useQuery({
+    ...trpc.teams.list.queryOptions(),
+    enabled: Boolean(organization?.id),
+  });
+
+  const invalidateTeams = () => {
+    void queryClient.invalidateQueries({
+      queryKey: trpc.teams.list.queryKey(),
+    });
   };
 
-  useEffect(() => {
-    if (!createOpen) resetCreateForm();
-  }, [createOpen]);
-
-  const teamsClient = authClient.organization as OrganizationTeamsClient;
-
-  const loadTeams = useCallback(
-    async (organizationId: string) => {
-      setLoading(true);
-      try {
-        if (!teamsClient.listOrganizationTeams) {
-          setTeamsEnabled(false);
-          setTeams([]);
-          return;
-        }
-        const result = await teamsClient.listOrganizationTeams({
-          query: { organizationId },
-        });
-        setTeams(result.data ?? []);
-        setTeamsEnabled(true);
-      } catch {
-        setTeamsEnabled(false);
-        setTeams([]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [teamsClient.listOrganizationTeams],
+  const createMutation = useMutation(
+    trpc.teams.create.mutationOptions({
+      onSuccess: () => {
+        toast.success("Team created");
+        setTeamName("");
+        closeWithoutPromptRef.current?.();
+        setCreateOpen(false);
+        invalidateTeams();
+      },
+      onError: () => toast.error("Could not create team"),
+    }),
   );
 
-  useEffect(() => {
-    if (!organization?.id) return;
-    void loadTeams(organization.id);
-  }, [organization?.id, loadTeams]);
+  const updateMutation = useMutation(
+    trpc.teams.update.mutationOptions({
+      onSuccess: () => {
+        toast.success("Team renamed");
+        setRenameTeam(null);
+        invalidateTeams();
+      },
+      onError: () => toast.error("Could not rename team"),
+    }),
+  );
 
-  const handleCreateTeam = async () => {
-    if (!organization?.id || !teamName.trim()) return;
-    if (!teamsClient.createTeam) {
-      toast.error("Team creation is not available for this workspace.");
-      return;
-    }
-    setCreatePending(true);
-    try {
-      await toast.promise(
-        teamsClient.createTeam({
-          organizationId: organization.id,
-          name: teamName.trim(),
-        }),
-        {
-          loading: "Creating team…",
-          success: "Team created",
-          error: "Could not create team",
-        },
-      );
-      resetCreateForm();
-      closeWithoutPromptRef.current?.();
-      setCreateOpen(false);
-      await loadTeams(organization.id);
-    } finally {
-      setCreatePending(false);
-    }
-  };
+  const deleteMutation = useMutation(
+    trpc.teams.delete.mutationOptions({
+      onSuccess: () => {
+        toast.success("Team deleted");
+        invalidateTeams();
+      },
+      onError: () => toast.error("Could not delete team"),
+    }),
+  );
+
+  const teams = teamsQuery.data?.items ?? [];
 
   return (
     <OrganizationSectionPage
@@ -118,51 +104,90 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
       title="Teams"
       description="Group members into teams within this organization."
       action={
-        teamsEnabled && organization ? (
-          <Button
-            type="button"
-            size="sm"
-            className="gap-2"
-            onClick={() => setCreateOpen(true)}
-          >
-            <AppIcon name="plus" className="text-current" />
-            New team
-          </Button>
+        organization ? (
+          <Can action="team.create">
+            <Button
+              type="button"
+              size="sm"
+              className="gap-2"
+              onClick={() => setCreateOpen(true)}
+            >
+              <AppIcon name="plus" className="text-current" />
+              New team
+            </Button>
+          </Can>
         ) : undefined
       }
     >
       {orgStatus === "loading" || !organization ? (
         <SettingsPanelSkeleton rows={3} />
-      ) : loading ? (
+      ) : teamsQuery.isLoading ? (
         <SettingsPanelSkeleton rows={2} />
-      ) : !teamsEnabled ? (
-        <EmptyState
-          icon={appIcons.member}
-          title="Teams not enabled yet"
-          description="Organization teams will appear here once the platform enables the Better Auth teams plugin for this workspace."
-        />
-      ) : teams && teams.length > 0 ? (
-        <ul className="divide-y rounded-xl border">
-          {teams.map((team) => (
-            <li
-              key={team.id}
-              className="flex items-center justify-between gap-3 px-4 py-3 text-sm"
-            >
-              <span className="flex min-w-0 items-center gap-2">
-                <AppIcon name="member" className="text-muted-foreground" />
-                <span className="truncate font-medium">{team.name}</span>
-              </span>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setMembersTeam(team)}
-              >
-                Members
-              </Button>
-            </li>
-          ))}
-        </ul>
+      ) : teams.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Teams</CardTitle>
+            <CardDescription>
+              Rename teams, manage members, and link teams to projects for
+              access.
+            </CardDescription>
+          </CardHeader>
+          <CardPanel className="px-0 pb-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {teams.map((team) => (
+                  <TableRow key={team.id}>
+                    <TableCell className="font-medium">{team.name}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setMembersTeam(team)}
+                        >
+                          Members
+                        </Button>
+                        <Can action="team.update">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setRenameTeam(team);
+                              setRenameValue(team.name);
+                            }}
+                          >
+                            Rename
+                          </Button>
+                        </Can>
+                        <Can action="team.delete">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            disabled={deleteMutation.isPending}
+                            onClick={() =>
+                              deleteMutation.mutate({ teamId: team.id })
+                            }
+                          >
+                            Delete
+                          </Button>
+                        </Can>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardPanel>
+        </Card>
       ) : (
         <EmptyState
           icon={appIcons.member}
@@ -177,7 +202,7 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
         open={createOpen}
         onOpenChange={setCreateOpen}
         isDirty={isTeamCreateFormDirty(teamName)}
-        onDiscard={resetCreateForm}
+        onDiscard={() => setTeamName("")}
         closeWithoutPromptRef={closeWithoutPromptRef}
       >
         <DialogContent>
@@ -202,10 +227,56 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
             </Button>
             <Button
               type="button"
-              disabled={createPending || !teamName.trim()}
-              onClick={() => void handleCreateTeam()}
+              disabled={createMutation.isPending || !teamName.trim()}
+              onClick={() => createMutation.mutate({ name: teamName.trim() })}
             >
               Create team
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </GuardedDialog>
+
+      <GuardedDialog
+        open={Boolean(renameTeam)}
+        onOpenChange={(open) => {
+          if (!open) setRenameTeam(null);
+        }}
+        isDirty={Boolean(renameTeam && renameValue !== renameTeam.name)}
+        onDiscard={() => setRenameValue(renameTeam?.name ?? "")}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename team</DialogTitle>
+          </DialogHeader>
+          <FormField id="team-rename" label="Team name" required>
+            <Input
+              id="team-rename"
+              value={renameValue}
+              onChange={(event) => setRenameValue(event.target.value)}
+            />
+          </FormField>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setRenameTeam(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              disabled={
+                !renameTeam || updateMutation.isPending || !renameValue.trim()
+              }
+              onClick={() => {
+                if (!renameTeam) return;
+                updateMutation.mutate({
+                  teamId: renameTeam.id,
+                  name: renameValue.trim(),
+                });
+              }}
+            >
+              Save
             </Button>
           </DialogFooter>
         </DialogContent>

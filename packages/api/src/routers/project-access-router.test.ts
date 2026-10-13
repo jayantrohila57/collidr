@@ -26,12 +26,12 @@ describe("projectAccessRouter assignManager", () => {
     );
   });
 
-  it("calls assertProjectAccess before inserting a manager row", () => {
+  it("calls assertProjectAccess before upserting a manager row", () => {
     const block = assignManagerBlock();
     const assertIdx = block.indexOf("assertProjectAccess(");
-    const insertIdx = block.indexOf("db.insert(projectManager)");
+    const upsertIdx = block.indexOf("upsertProjectManagerRow(");
     assert.notEqual(assertIdx, -1);
-    assert.notEqual(insertIdx, -1);
-    assert.ok(assertIdx < insertIdx);
+    assert.notEqual(upsertIdx, -1);
+    assert.ok(assertIdx < upsertIdx);
   });
 });

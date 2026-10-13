@@ -1,18 +1,28 @@
-import { db } from "@env-manager/db";
 import {
-  projectManager,
-  projectMemberGrant,
-  projectTeam,
-} from "@env-manager/db/schema/project-access";
+  isProjectMemberGrantKey,
+  PROJECT_MEMBER_GRANT_KEYS,
+} from "@env-manager/actions";
+import { db } from "@env-manager/db";
+import { projectMemberGrant } from "@env-manager/db/schema/project-access";
 import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
 import { orgProcedure, router } from "../index";
 import { assertProjectAccess } from "../org-access";
+import {
+  loadProjectAccessSummary,
+  softDeleteProjectManager,
+  softDeleteProjectTeamLink,
+  upsertProjectManagerRow,
+  upsertProjectTeamLink,
+} from "../project-access/service";
+
+const projectIdInput = z.object({ projectId: z.string() });
+
 export const projectAccessRouter = router({
-  listManagers: orgProcedure
-    .input(z.object({ projectId: z.string() }))
+  getSummary: orgProcedure
+    .input(projectIdInput)
     .use(
       actionGuard("project.read", (input) => ({
         projectId: (input as { projectId: string }).projectId,
@@ -24,16 +34,28 @@ export const projectAccessRouter = router({
         input.projectId,
         ctx.activeOrganizationId,
       );
-      const rows = await db
-        .select()
-        .from(projectManager)
-        .where(
-          and(
-            eq(projectManager.projectId, input.projectId),
-            isNull(projectManager.deletedAt),
-          ),
-        );
-      return { items: rows };
+      return loadProjectAccessSummary(input.projectId);
+    }),
+
+  grantTemplate: orgProcedure.query(() => ({
+    keys: [...PROJECT_MEMBER_GRANT_KEYS],
+  })),
+
+  listManagers: orgProcedure
+    .input(projectIdInput)
+    .use(
+      actionGuard("project.read", (input) => ({
+        projectId: (input as { projectId: string }).projectId,
+      })),
+    )
+    .query(async ({ ctx, input }) => {
+      await assertProjectAccess(
+        ctx.session.user.id,
+        input.projectId,
+        ctx.activeOrganizationId,
+      );
+      const summary = await loadProjectAccessSummary(input.projectId);
+      return { items: summary.managers };
     }),
 
   assignManager: orgProcedure
@@ -54,15 +76,36 @@ export const projectAccessRouter = router({
         organizationId,
       );
 
-      await db.insert(projectManager).values({
-        id: crypto.randomUUID(),
+      return upsertProjectManagerRow({
         organizationId,
         projectId: input.projectId,
         userId: input.userId,
         createdBy: ctx.session.user.id,
       });
+    }),
 
-      return { ok: true };
+  removeManager: orgProcedure
+    .input(z.object({ projectId: z.string(), userId: z.string() }))
+    .use(
+      actionGuard("project.assign_manager", (input) => ({
+        projectId: (input as { projectId: string }).projectId,
+      })),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const organizationId = ctx.activeOrganizationId;
+      if (!organizationId) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "No active org" });
+      }
+      await assertProjectAccess(
+        ctx.session.user.id,
+        input.projectId,
+        organizationId,
+      );
+      return softDeleteProjectManager({
+        projectId: input.projectId,
+        userId: input.userId,
+        actorUserId: ctx.session.user.id,
+      });
     }),
 
   setMemberGrants: orgProcedure
@@ -84,6 +127,8 @@ export const projectAccessRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "No active org" });
       }
 
+      const grants = input.grants.filter(isProjectMemberGrantKey);
+
       const [existing] = await db
         .select({ id: projectMemberGrant.id })
         .from(projectMemberGrant)
@@ -100,7 +145,7 @@ export const projectAccessRouter = router({
         await db
           .update(projectMemberGrant)
           .set({
-            grants: input.grants,
+            grants,
             updatedBy: ctx.session.user.id,
             updatedAt: new Date(),
           })
@@ -111,7 +156,7 @@ export const projectAccessRouter = router({
           organizationId,
           projectId: input.projectId,
           userId: input.userId,
-          grants: input.grants,
+          grants,
           updatedBy: ctx.session.user.id,
         });
       }
@@ -132,14 +177,30 @@ export const projectAccessRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "No active org" });
       }
 
-      await db.insert(projectTeam).values({
-        id: crypto.randomUUID(),
+      return upsertProjectTeamLink({
         organizationId,
         projectId: input.projectId,
         teamId: input.teamId,
         createdBy: ctx.session.user.id,
       });
+    }),
 
-      return { ok: true };
+  removeTeam: orgProcedure
+    .input(z.object({ projectId: z.string(), teamId: z.string() }))
+    .use(
+      actionGuard("project.assign_team", (input) => ({
+        projectId: (input as { projectId: string }).projectId,
+      })),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const organizationId = ctx.activeOrganizationId;
+      if (!organizationId) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "No active org" });
+      }
+      return softDeleteProjectTeamLink({
+        projectId: input.projectId,
+        teamId: input.teamId,
+        actorUserId: ctx.session.user.id,
+      });
     }),
 });

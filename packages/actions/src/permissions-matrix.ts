@@ -1,0 +1,88 @@
+import type { ActionName } from "./types";
+
+export type MatrixCell = "Y" | "G" | "—";
+
+export type PermissionMatrixRow = {
+  action: ActionName;
+  label: string;
+  owner: MatrixCell;
+  manager: MatrixCell;
+  member: MatrixCell;
+  admin: MatrixCell;
+};
+
+/** Curated org/project matrix for the Roles & access UI (spec §6 summary). */
+export const PERMISSION_MATRIX_ROWS: PermissionMatrixRow[] = [
+  {
+    action: "organization.settings.update",
+    label: "Organization settings",
+    owner: "Y",
+    manager: "—",
+    member: "—",
+    admin: "—",
+  },
+  {
+    action: "member.invite",
+    label: "Invite members",
+    owner: "Y",
+    manager: "Y",
+    member: "—",
+    admin: "—",
+  },
+  {
+    action: "member.role.update",
+    label: "Change member roles",
+    owner: "Y",
+    manager: "—",
+    member: "—",
+    admin: "—",
+  },
+  {
+    action: "team.create",
+    label: "Manage teams",
+    owner: "Y",
+    manager: "Y",
+    member: "—",
+    admin: "—",
+  },
+  {
+    action: "project.create",
+    label: "Create projects",
+    owner: "Y",
+    manager: "—",
+    member: "—",
+    admin: "—",
+  },
+  {
+    action: "project.read",
+    label: "View projects",
+    owner: "Y",
+    manager: "G",
+    member: "G",
+    admin: "—",
+  },
+  {
+    action: "project.permission.grant",
+    label: "Set member project grants",
+    owner: "Y",
+    manager: "G",
+    member: "—",
+    admin: "—",
+  },
+  {
+    action: "variable.reveal",
+    label: "Reveal secret values",
+    owner: "Y",
+    manager: "G",
+    member: "G",
+    admin: "—",
+  },
+  {
+    action: "audit.timeline.view.org",
+    label: "Organization timeline",
+    owner: "Y",
+    manager: "G",
+    member: "—",
+    admin: "—",
+  },
+];

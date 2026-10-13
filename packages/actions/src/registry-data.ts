@@ -23,7 +23,7 @@ const orgOwnerOnly: OrgRole[] = ["owner"];
 function orgRolesFromRow(row: MatrixRow): OrgRole[] | undefined {
   if (row.orgOnly) return row.orgOnly;
   if (row.scope === "user" || row.scope === "platform") return undefined;
-  if (row.member === true) return orgManagerMember;
+  if (row.member === true || row.member === "grant") return orgManagerMember;
   if (row.manager === true || row.manager === "grant") return orgOwnerManager;
   if (row.owner) return orgOwnerOnly;
   return orgOwnerOnly;

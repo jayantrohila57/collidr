@@ -50,4 +50,31 @@ describe("evaluatePermission", () => {
     });
     assert.equal(result.allowed, true);
   });
+
+  it("allows members with team link and grant", () => {
+    const result = evaluatePermission({
+      action: "variable.read",
+      orgRole: "member",
+      project: {
+        hasTeamLink: true,
+        memberGrants: ["variable.read"],
+      },
+    });
+    assert.equal(result.allowed, true);
+  });
+
+  it("denies members on project without team link", () => {
+    const result = evaluatePermission({
+      action: "variable.read",
+      orgRole: "member",
+      project: {
+        hasTeamLink: false,
+        memberGrants: ["variable.read"],
+      },
+    });
+    assert.equal(result.allowed, false);
+    if (!result.allowed) {
+      assert.equal(result.reason, "no_team_on_project");
+    }
+  });
 });

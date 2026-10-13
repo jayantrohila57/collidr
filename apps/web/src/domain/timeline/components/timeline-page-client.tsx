@@ -21,6 +21,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  CONTACT_MANAGER_DESCRIPTION,
+  CONTACT_MANAGER_TITLE,
+} from "@/domain/permissions/contact-manager";
+import { useUnassignedOrgMember } from "@/domain/permissions/hooks/use-permissions";
 import { formatDateTime } from "@/lib/format";
 import { formatActionLabel } from "@/lib/format-action-label";
 import { layoutSectionStackClass } from "@/lib/layout-spacing";
@@ -55,6 +60,7 @@ function formatProjectLabel(row: {
 }
 
 export function TimelinePageClient({ scope }: TimelinePageClientProps) {
+  const { unassigned, isLoading: unassignedLoading } = useUnassignedOrgMember();
   const [resultFilter, setResultFilter] = useState<
     ("success" | "failure" | "denied")[]
   >([]);
@@ -234,14 +240,18 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
         <Empty>
           <EmptyHeader>
             <EmptyTitle>
-              {scope === "org"
-                ? "No timeline events yet"
-                : "No activity on your account"}
+              {scope === "org" && !unassignedLoading && unassigned
+                ? CONTACT_MANAGER_TITLE
+                : scope === "org"
+                  ? "No timeline events yet"
+                  : "No activity on your account"}
             </EmptyTitle>
             <EmptyDescription>
-              {scope === "org"
-                ? "Try enabling views & reads or adjusting filters."
-                : "Actions you take in the app will appear here."}
+              {scope === "org" && !unassignedLoading && unassigned
+                ? CONTACT_MANAGER_DESCRIPTION
+                : scope === "org"
+                  ? "Try enabling views & reads or adjusting filters."
+                  : "Actions you take in the app will appear here."}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

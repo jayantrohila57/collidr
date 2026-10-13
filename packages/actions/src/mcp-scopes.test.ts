@@ -31,6 +31,9 @@ describe("MCP OAuth scopes", () => {
   it("parses scope claim strings", () => {
     const granted = parseGrantedScopes("mcp:tools projects:read");
     assert.equal(tokenHasScopes(granted, ["mcp:tools"]), true);
-    assert.equal(tokenHasScopes(granted, ["mcp:tools", "projects:write"]), false);
+    assert.equal(
+      tokenHasScopes(granted, ["mcp:tools", "projects:write"]),
+      false,
+    );
   });
 });

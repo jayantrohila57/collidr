@@ -2,6 +2,11 @@
 
 import { EmptyState } from "@/components/patterns/empty-state";
 import { ErrorState } from "@/components/patterns/error-state";
+import {
+  CONTACT_MANAGER_DESCRIPTION,
+  CONTACT_MANAGER_TITLE,
+} from "@/domain/permissions/contact-manager";
+import { useUnassignedOrgMember } from "@/domain/permissions/hooks/use-permissions";
 import { appIcons } from "@/lib/icons";
 import { useProjects } from "../hooks/use-projects";
 import { ProjectsListContent } from "./projects-list-content";
@@ -18,6 +23,7 @@ export default function ProjectList({
 }: ProjectListProps) {
   const internal = useProjects();
   const { projects, status, error, refetch } = list ?? internal;
+  const { unassigned, isLoading: unassignedLoading } = useUnassignedOrgMember();
 
   switch (status) {
     case "loading":
@@ -32,6 +38,15 @@ export default function ProjectList({
         />
       );
     case "empty":
+      if (!unassignedLoading && unassigned) {
+        return (
+          <EmptyState
+            icon={appIcons.project}
+            title={CONTACT_MANAGER_TITLE}
+            description={CONTACT_MANAGER_DESCRIPTION}
+          />
+        );
+      }
       return (
         <EmptyState
           icon={appIcons.project}

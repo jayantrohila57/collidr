@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { FormField } from "@/components/patterns/form-field";
 import {
@@ -28,6 +29,7 @@ import { authClient } from "@/lib/auth-client";
 import { isInviteMemberFormDirty } from "@/lib/form-dirty";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { toast } from "@/lib/toast";
+import { trpc } from "@/utils/trpc";
 
 const ROLES = ["member", "manager", "owner"] as const;
 
@@ -52,11 +54,19 @@ export function InviteMemberSheet({
   const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<string>("member");
+  const [inviteTeamId, setInviteTeamId] = useState<string>("");
   const [invitePending, setInvitePending] = useState(false);
+
+  const teamsQuery = useQuery({
+    ...trpc.teams.list.queryOptions(),
+    enabled: open && Boolean(organizationId),
+  });
+  const teams = teamsQuery.data?.items ?? [];
 
   const resetInviteForm = () => {
     setInviteEmail("");
     setInviteRole("member");
+    setInviteTeamId("");
   };
 
   useEffect(() => {
@@ -76,6 +86,7 @@ export function InviteMemberSheet({
           email,
           role: inviteRole as OrgInviteRole,
           organizationId,
+          ...(inviteTeamId ? { teamId: inviteTeamId } : {}),
         }),
         {
           loading: "Sending invitation…",
@@ -147,6 +158,33 @@ export function InviteMemberSheet({
                 </SelectContent>
               </Select>
             </FormField>
+            {teams.length > 0 ? (
+              <FormField id="invite-team-sheet" label="Team (optional)">
+                <Select
+                  value={inviteTeamId}
+                  items={[
+                    { value: "", label: "No team" },
+                    ...teams.map((team) => ({
+                      value: team.id,
+                      label: team.name,
+                    })),
+                  ]}
+                  onValueChange={(value) => setInviteTeamId(value ?? "")}
+                >
+                  <SelectTrigger id="invite-team-sheet" className="w-full">
+                    <SelectValue placeholder="No team" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">No team</SelectItem>
+                    {teams.map((team) => (
+                      <SelectItem key={team.id} value={team.id}>
+                        {team.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+            ) : null}
           </FormSheetBody>
           <FormSheetFooter>
             <SheetClose
