@@ -56,6 +56,20 @@
     },
     "db:generate": {
       "cache": false
+    },
+    "db:reset-seed": {
+      "cache": false,
+      "env": [
+        "DATABASE_URL",
+        "DATABASE_URL_POOLED",
+        "RESET_CONFIRM",
+        "KEEP_USER_EMAIL",
+        "SKIP_ENV_VALIDATION",
+        "ENCRYPTION_KEY",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "CORS_ORIGIN"
+      ]
     }
   }
 }

@@ -17,6 +17,7 @@
     "db:studio": "turbo -F @env-manager/db db:studio",
     "db:generate": "turbo -F @env-manager/db db:generate",
     "db:migrate": "turbo -F @env-manager/db db:migrate",
+    "db:reset-seed": "turbo -F @env-manager/db db:reset-seed",
     "check": "biome check --write .",
     "format": "biome format --write .",
     "lint": "biome lint .",
