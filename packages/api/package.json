@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 {
   "name": "@env-manager/api",
   "type": "module",
@@ -73,3 +74,41 @@
   }
 }
 >>>>>>> 587b2a6 (Fix sole-owner org lookup N+1 and soft-delete filter. Fixes #30)
+=======
+{
+  "name": "@env-manager/api",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "test": "SKIP_ENV_VALIDATION=1 node --import tsx --test src/variable-audit-payload.test.ts src/actions/evaluate-rbac.test.ts src/actions/require-action-membership.test.ts src/actions/require-user-action.test.ts src/routers/project-access-router.test.ts src/routers/notifications-action-guard.test.ts src/invitation-sync-auth.test.ts src/routers/projects-not-found.test.ts src/routers/index.test.ts src/routers/audit-stats-mappers.test.ts"
+  },
+  "dependencies": {
+    "@env-manager/actions": "workspace:*",
+    "@env-manager/auth": "workspace:*",
+    "@env-manager/crypto": "workspace:*",
+    "@env-manager/db": "workspace:*",
+    "@env-manager/env": "workspace:*",
+    "@env-manager/notifications": "workspace:*",
+    "@trpc/client": "catalog:",
+    "@trpc/server": "catalog:",
+    "@types/pg": "catalog:",
+    "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
+    "next": "catalog:",
+    "superjson": "^2.2.6",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@env-manager/config": "workspace:*",
+    "tsx": "^4.20.5",
+    "typescript": "catalog:"
+  }
+}
+>>>>>>> 9dfa464 (fix(api): use SQL aggregates for audit.stats)

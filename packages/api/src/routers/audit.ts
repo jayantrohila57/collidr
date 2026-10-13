@@ -1,6 +1,6 @@
 import { db } from "@env-manager/db";
 import { auditLog } from "@env-manager/db/schema/audit";
-import { and, desc, eq, ilike, or, type SQL } from "drizzle-orm";
+import { and, count, desc, eq, ilike, or, type SQL } from "drizzle-orm";
 import { z } from "zod/v3";
 
 import { actionGuard } from "../actions/action-guard";
@@ -11,6 +11,10 @@ import {
   makeResponseSchema,
   respond,
 } from "../validation";
+import {
+  actionCountsFromGroupAggregate,
+  totalFromCountAggregate,
+} from "./audit-stats-mappers";
 
 export const auditLogsRouter = router({
   list: protectedProcedure
@@ -98,13 +102,12 @@ export const auditLogsRouter = router({
         whereConditions.push(eq(auditLog.projectId, input.projectId));
       }
 
-      // Get total count
       const totalLogsResult = await db
-        .select({ count: auditLog.id })
+        .select({ count: count() })
         .from(auditLog)
         .where(and(...whereConditions));
 
-      const totalLogs = totalLogsResult.length;
+      const totalLogs = totalFromCountAggregate(totalLogsResult);
 
       // Get recent activity (last 10)
       const recentActivity = await db
@@ -133,19 +136,13 @@ export const auditLogsRouter = router({
       const actionCountsResult = await db
         .select({
           action: auditLog.action,
-          count: auditLog.id,
+          count: count(),
         })
         .from(auditLog)
         .where(and(...whereConditions))
         .groupBy(auditLog.action);
 
-      const actionCounts = actionCountsResult.reduce(
-        (acc, row) => {
-          acc[row.action] = Number.parseInt(row.count, 10);
-          return acc;
-        },
-        {} as Record<string, number>,
-      );
+      const actionCounts = actionCountsFromGroupAggregate(actionCountsResult);
 
       return respond({
         message: "Audit statistics fetched successfully",
