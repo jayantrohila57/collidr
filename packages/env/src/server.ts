@@ -19,6 +19,13 @@ export const env = createEnv({
       .enum(["true", "false"])
       .default("false")
       .optional(),
+    /** Enable after DB migration 0005 (see docs/PLATFORM_MIGRATION_0005.md) */
+    NOTIFICATIONS_ENABLED: z
+      .enum(["true", "false"])
+      .default("false")
+      .optional(),
+    /** Enable after DB migration 0005 variables section */
+    VARIABLES_V2_ENABLED: z.enum(["true", "false"]).default("false").optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

@@ -2,6 +2,7 @@
 
 import {
   ActivityIcon,
+  BellIcon,
   FolderClosedIcon,
   LayoutDashboardIcon,
   SettingsIcon,
@@ -22,12 +23,15 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { useNotificationsUnreadCount } from "@/domain/notifications/hooks/use-notifications";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
+import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -37,6 +41,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { projects, status, refetch } = useProjects();
   const projectsLoading = isSwitching || status === "loading";
   const showOrgSwitcher = isOrganizationsEnabledOnClient();
+  const notificationsEnabled = isNotificationsEnabledOnClient();
+  const unreadNotifications = useNotificationsUnreadCount();
+  const notificationCount = notificationsEnabled
+    ? (unreadNotifications.data?.data ?? 0)
+    : 0;
 
   useEffect(() => {
     setMounted(true);
@@ -46,7 +55,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboardIcon },
     { href: "/dashboard/projects", label: "Projects", icon: FolderClosedIcon },
     { href: "/dashboard/activity", label: "Activity", icon: ActivityIcon },
-  ];
+    ...(notificationsEnabled
+      ? [
+          {
+            href: "/dashboard/notifications",
+            label: "Notifications",
+            icon: BellIcon,
+            badge: notificationCount,
+          },
+        ]
+      : []),
+  ] as const;
 
   const pathMatchesNavItem = (href: string) => {
     if (pathname === href) return true;
@@ -82,8 +101,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenu className="flex min-w-0 flex-col gap-1">
               {menuItems.map((item) => {
                 const Icon = item.icon;
+                const badge =
+                  "badge" in item && typeof item.badge === "number"
+                    ? item.badge
+                    : 0;
                 return (
-                  <SidebarMenuItem key={item.href}>
+                  <SidebarMenuItem key={item.href} className="relative">
                     <SidebarMenuButton
                       isActive={isActive(item.href)}
                       tooltip={item.label}
@@ -92,6 +115,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       <Icon />
                       <span>{item.label}</span>
                     </SidebarMenuButton>
+                    {badge > 0 ? (
+                      <SidebarMenuBadge className="bg-destructive text-destructive-foreground">
+                        {badge > 99 ? "99+" : badge}
+                      </SidebarMenuBadge>
+                    ) : null}
                   </SidebarMenuItem>
                 );
               })}

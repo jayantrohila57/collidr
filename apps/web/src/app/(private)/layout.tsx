@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { UserMenu } from "@/domain/auth/components/user-menu";
+import { NotificationBell } from "@/domain/notifications/components/notification-bell";
+import { NotificationPoller } from "@/domain/notifications/components/notification-poller";
 import {
   layoutContentClass,
   layoutInsetContainerWideClass,
@@ -55,6 +57,7 @@ export default function OrganizationLayout({
       <SidebarProvider>
         <TooltipProvider delay={0}>
           <ActiveOrganizationProvider>
+            <NotificationPoller />
             <AppSidebar />
             <SidebarInset
               id="main-content"
@@ -77,6 +80,7 @@ export default function OrganizationLayout({
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
+                      <NotificationBell />
                       <ModeToggle compact />
                       <UserMenu />
                     </div>

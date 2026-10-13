@@ -13,6 +13,7 @@
   "dependencies": {
     "@env-manager/db": "workspace:*",
     "@env-manager/env": "workspace:*",
+    "@env-manager/notifications": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:"

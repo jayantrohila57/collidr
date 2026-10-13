@@ -2,10 +2,7 @@ import { auth } from "@env-manager/auth";
 import { ensureE2eDemoProject, ensureE2eDemoVariable } from "@env-manager/db";
 import { NextResponse } from "next/server";
 import { isE2eAuthRouteAllowed } from "@/lib/e2e-auth-allowed";
-
-const E2E_EMAIL = "e2e-playwright@env-manager.local";
-const E2E_PASSWORD = "e2e-local-only-not-for-production";
-const E2E_NAME = "Playwright E2E";
+import { type E2ePersona, e2ePersonaCredentials } from "@/lib/e2e-users";
 
 function assertE2eSecret(request: Request) {
   const expected = process.env.E2E_TEST_SECRET ?? "local-e2e-secret";
@@ -21,13 +18,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  let persona: E2ePersona = "primary";
+  try {
+    const body = (await request.json()) as { persona?: E2ePersona };
+    if (body.persona === "invitee" || body.persona === "primary") {
+      persona = body.persona;
+    }
+  } catch {
+    // Empty body defaults to primary.
+  }
+
+  const credentials = e2ePersonaCredentials(persona);
+
   try {
     await auth.api.signUpEmail({
-      body: {
-        email: E2E_EMAIL,
-        password: E2E_PASSWORD,
-        name: E2E_NAME,
-      },
+      body: credentials,
     });
   } catch {
     // User may already exist from a prior run.
@@ -35,14 +40,16 @@ export async function POST(request: Request) {
 
   const response = await auth.api.signInEmail({
     body: {
-      email: E2E_EMAIL,
-      password: E2E_PASSWORD,
+      email: credentials.email,
+      password: credentials.password,
     },
     asResponse: true,
   });
 
-  await ensureE2eDemoProject();
-  await ensureE2eDemoVariable();
+  if (persona === "primary") {
+    await ensureE2eDemoProject();
+    await ensureE2eDemoVariable();
+  }
 
   return response;
 }

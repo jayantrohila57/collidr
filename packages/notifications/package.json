@@ -1,0 +1,22 @@
+{
+  "name": "@env-manager/notifications",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "dependencies": {
+    "@env-manager/db": "workspace:*",
+    "@env-manager/env": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@env-manager/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

@@ -8,10 +8,22 @@ export const env = createEnv({
       .enum(["true", "false"])
       .default("false")
       .optional(),
+    NEXT_PUBLIC_NOTIFICATIONS_ENABLED: z
+      .enum(["true", "false"])
+      .default("false")
+      .optional(),
+    NEXT_PUBLIC_VARIABLES_V2_ENABLED: z
+      .enum(["true", "false"])
+      .default("false")
+      .optional(),
   },
   runtimeEnv: {
     NEXT_PUBLIC_ORGANIZATIONS_ENABLED:
       process.env.NEXT_PUBLIC_ORGANIZATIONS_ENABLED,
+    NEXT_PUBLIC_NOTIFICATIONS_ENABLED:
+      process.env.NEXT_PUBLIC_NOTIFICATIONS_ENABLED,
+    NEXT_PUBLIC_VARIABLES_V2_ENABLED:
+      process.env.NEXT_PUBLIC_VARIABLES_V2_ENABLED,
   },
   emptyStringAsUndefined: true,
   skipValidation: process.env.SKIP_ENV_VALIDATION === "1",
