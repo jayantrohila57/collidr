@@ -16,7 +16,7 @@
 | **`apps/studio`** | **Main product** — rename/migrate from `apps/web`: orgs, projects, environments, variables, org hub, notifications, onboarding. **No** account settings (link out to account). | coss ui | Session cookie (SSO) |
 | **`apps/console`** | **Platform admin** (`user.role = admin` + Better Auth admin plugin): users, orgs, projects, sessions, global audit, impersonation/ban, MCP OAuth clients/tokens, feature flags, health. | coss ui | Session cookie (SSO) + admin gate |
 | **`apps/mcp`** | **API-only** remote MCP server (stateless HTTP `POST`, MCP 2026-07-28). | none | OAuth access token (+ optional DPoP) |
-| **`apps/docs`** | Product + MCP documentation (**Fumadocs** content/MDX pipeline) with **our** chrome (`@env-manager/ui`), not Fumadocs default theme. | coss ui shell + Fumadocs primitives | Public read; optional “edit on GitHub”; sign-in links to auth |
+| **`apps/docs`** | Product + MCP documentation (**Fumadocs** + built-in search, Decision 9) with **our** chrome (`@env-manager/ui`). **Fully public** (Decision 10). | coss ui shell + Fumadocs primitives | Public read; optional “edit on GitHub”; optional sign-in link to studio |
 
 **Invariant:** One Postgres database, one `@env-manager/auth` server config instantiated **only** on `apps/auth` (other apps use `@env-manager/auth-client` + session validation / tRPC context).
 
@@ -155,11 +155,11 @@ Implement **`apps/auth`** strictly from current Better Auth docs (target **≥ 1
 | Browser client | [Client](https://www.better-auth.com/docs/concepts/client) | Re-exported from `@env-manager/auth-client` |
 | OAuth for MCP | [MCP plugin](https://www.better-auth.com/docs/plugins/mcp) | `mcp({ loginPage, consentPage, resource })` — **is** the OAuth 2.1 provider; do **not** add separate `oauthProvider()` |
 | OAuth 2.1 details | [OAuth 2.1 Provider](https://www.better-auth.com/docs/plugins/oauth-provider) | Schema: `oauthClient`, tokens, consent |
-| MCP client identity | [CIMD](https://www.better-auth.com/docs/plugins/cimd) | `cimd({ metadataProfile: "mcp-2026-07-28" })` |
+| MCP client identity | [CIMD](https://www.better-auth.com/docs/plugins/cimd), [MCP DCR](https://www.better-auth.com/docs/plugins/mcp#optional-dcr-fallback) | **Both** enabled (Decision 7): `cimd({ metadataProfile: "mcp-2026-07-28" })` + dynamic client registration where clients support it |
 | JWT / JWKS | [JWT plugin](https://www.better-auth.com/docs/plugins/jwt) | Required for MCP/OAuth tokens |
 | Orgs (product) | [Organization](https://www.better-auth.com/docs/plugins/organization) | Keep on shared auth config (studio uses org APIs via session) |
 | Platform admin | [Admin](https://www.better-auth.com/docs/plugins/admin) | Console only consumers; enabled on same auth instance |
-| Optional CLI | [Device Authorization](https://www.better-auth.com/docs/plugins/device-authorization) | First-party CLI → `/device` on auth |
+| Device authorization (auth v1) | [Device Authorization](https://www.better-auth.com/docs/plugins/device-authorization) | **Required** on `apps/auth` (Decision 8): `/device` for first-party CLI and headless flows |
 | Enterprise SSO (future) | [SSO plugin](https://www.better-auth.com/docs/plugins/sso) | SAML/OIDC **IdP** into auth — not required for v1 |
 | Legacy | Avoid deprecated in-repo `oidcProvider` / old `mcp` plugin — use **`@better-auth/mcp`** per [MCP plugin](https://www.better-auth.com/docs/plugins/mcp) |
 
@@ -294,8 +294,8 @@ Each app’s tRPC context / middleware:
 
 ### 6.1 `apps/auth`
 
-- Routes: `/api/auth/[...all]`, `/sign-in`, `/sign-up`, `/sign-out`, `/consent`, `/device` (optional).
-- Plugins: `jwt()`, `mcp()`, `cimd()`, `organization()`, `admin()` (when migration lands), `nextCookies()`, social providers.
+- Routes: `/api/auth/[...all]`, `/sign-in`, `/sign-up`, `/sign-out`, `/consent`, `/device` (**auth v1**, Decision 8).
+- Plugins: `jwt()`, `mcp()` (CIMD + DCR per Decision 7), `cimd()`, `organization()`, `admin()` (when migration lands), **device authorization**, `nextCookies()`, social providers.
 - **Does not** serve product or account settings UI beyond auth/consent.
 - Env: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `DATABASE_URL`, GitHub OAuth, `allowedReturnOrigins`, MCP `resource` URL.
 
@@ -326,11 +326,12 @@ Each app’s tRPC context / middleware:
 
 ### 6.6 `apps/docs` (Fumadocs + our UI)
 
-- **Content:** Fumadocs MDX (`fumadocs-mdx`, `fumadocs-core`) for docs structure, search index, sidebar tree.
+- **Content:** Fumadocs MDX (`fumadocs-mdx`, `fumadocs-core`) for docs structure, **built-in search** (Decision 9), sidebar tree.
 - **Chrome:** `@env-manager/ui` layout — app shell, header, footer, typography tokens from `apps/studio` / `DESIGN_SYSTEM.md`; **do not** ship Fumadocs default UI theme as-is.
 - **Approach:** Fumadocs headless patterns + custom `docs/layout.tsx` wrapping coss `Sidebar`, `Breadcrumb`, `Button`; map Fumadocs `pageTree` to our nav components.
 - Sections: product guides, API/tRPC overview, MCP tool reference (generated from registry), OAuth scopes, console (admin-only note).
-- Deploy: `docs.env-manager.com`; optional auth link in header (“Sign in” → auth with `return_to` docs).
+- **Access:** **All documentation is public** — no gated or enterprise-only sections (Decision 10). Optional header link to product sign-in is cosmetic only.
+- Deploy: `docs.env-manager.com` (phase 1: `env-manager-docs.vercel.app` per §2.0).
 
 ---
 
@@ -460,7 +461,7 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 | `return_to` | Allowlist only — prevent open redirects |
 | MCP | PKCE, CIMD, scope step-up, `requireAction` per tool |
 | Console | Admin role + optional IP allowlist |
-| Docs | Static public content; no secrets in MDX |
+| Docs | **Fully public** (Decision 10); Fumadocs built-in search (Decision 9); no secrets in MDX |
 | CSRF | Auth routes on auth origin; sibling apps use SameSite=Lax cross-subdomain |
 
 ---
@@ -533,6 +534,45 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 **Implication:** Cutover runbooks must not include “keep users logged in” via cookie duplication; optimize for a clean auth boundary instead.
 
+### Decision 7 — MCP client identity (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Mechanisms** | Support **both** [CIMD](https://www.better-auth.com/docs/plugins/cimd) (metadata profile `mcp-2026-07-28`) **and** [dynamic client registration (DCR)](https://www.better-auth.com/docs/plugins/mcp#optional-dcr-fallback) on `apps/auth`. |
+| **Rationale** | Cursor/agents and spec-compliant MCP clients may use CIMD; others register via DCR — auth must accept either path through the same MCP/OAuth plugin. |
+| **Implementation** | Configure `mcp()` + `cimd()`; enable DCR fallback per Better Auth MCP docs; document which flow each first-party client uses. |
+
+**Implication:** Do not ship MCP OAuth with CIMD-only unless DCR is also enabled and tested.
+
+### Decision 8 — Device authorization in auth v1 (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Scope** | Ship [Device Authorization](https://www.better-auth.com/docs/plugins/device-authorization) on **`apps/auth` in v1** (same release as auth/studio/account cutover or immediately after — not deferred to CLI v2). |
+| **Surface** | `/device` route + plugin enabled in shared `createAuth()` used only by auth app. |
+| **Consumers** | First-party CLI, scripts, and headless environments that cannot use browser redirect login. |
+
+**Implication:** Auth v1 acceptance criteria include a successful device-code flow end-to-end.
+
+### Decision 9 — Docs search (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Search** | Use **Fumadocs built-in search** (index from `fumadocs-core` / MDX pipeline). |
+| **Excluded** | No Algolia, no external search SaaS for `apps/docs` v1. |
+
+**Implication:** Docs MVP (P5) includes local/search API shipped with Fumadocs, styled to match `@env-manager/ui` chrome.
+
+### Decision 10 — Documentation access (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Access model** | **All docs public** — product guides, API reference, MCP tool catalog, and console notes readable without sign-in. |
+| **Excluded** | No gated sections, no “enterprise-only” doc routes, no auth middleware on doc content. |
+| **Sign-in link** | Optional nav link to auth/studio for product access only; does not unlock hidden doc content. |
+
+**Implication:** Do not design docs RBAC or `requireAction` on MDX pages for v1.
+
 ---
 
 ## 15. Open decisions (numbered)
@@ -540,20 +580,16 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 1. **Cookie domain** (custom apex) — `env-manager.com` vs `.env-manager.com` vs per-subdomain only?
 2. **Auth proxy vs cookie-only** (custom apex) — rewrites on every sibling app or only `crossSubDomainCookies`?
 3. **Marketing site** — `www` → docs, studio landing, or separate?
-4. **CIMD vs DCR** — [MCP optional DCR](https://www.better-auth.com/docs/plugins/mcp#optional-dcr-fallback)?
-5. **Device authorization** — ship on auth for CLI v1?
-6. **Fumadocs version / search** — built-in search vs external (Algolia)?
-7. **Docs auth** — public-only vs gated sections for enterprise?
-8. **Console IP allowlist** — required in prod?
-9. **Preview `trustedOrigins`** — policy for non-prod (prod: **no branch previews** per [AGENTS.md](../AGENTS.md))?
-10. **`project.unarchive` canonical action** — add to registry?
-11. **Rate limit store** for MCP — KV vs Postgres?
-12. **MCP transport** — `@modelcontextprotocol/server` + `requireMcpAuth` vs `@vercel/mcp-adapter`?
-13. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
-14. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
-15. **Account app URL in emails** — branding and link targets?
-16. **Impersonation banner** — show on studio, account, or all apps?
-17. **Better Auth upgrade** — before P2 or as part of P2?
+4. **Console IP allowlist** — required in prod?
+5. **Preview `trustedOrigins`** — policy for non-prod (prod: **no branch previews** per [AGENTS.md](../AGENTS.md))?
+6. **`project.unarchive` canonical action** — add to registry?
+7. **Rate limit store** for MCP — KV vs Postgres?
+8. **MCP transport** — `@modelcontextprotocol/server` + `requireMcpAuth` vs `@vercel/mcp-adapter`?
+9. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
+10. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
+11. **Account app URL in emails** — branding and link targets?
+12. **Impersonation banner** — show on studio, account, or all apps?
+13. **Better Auth upgrade** — before P2 or as part of P2?
 
 ---
 
