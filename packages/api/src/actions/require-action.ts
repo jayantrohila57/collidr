@@ -6,7 +6,7 @@ import {
   isPlatformAdmin,
   normalizeOrgRole,
 } from "@env-manager/actions";
-import { db } from "@env-manager/db";
+import { activeMemberWhere, db } from "@env-manager/db";
 import { member } from "@env-manager/db/schema/organization";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
@@ -74,9 +74,11 @@ export async function requireAction(
       .select({ role: member.role })
       .from(member)
       .where(
-        and(
-          eq(member.organizationId, ctx.organizationId),
-          eq(member.userId, ctx.userId),
+        activeMemberWhere(
+          and(
+            eq(member.organizationId, ctx.organizationId),
+            eq(member.userId, ctx.userId),
+          ),
         ),
       )
       .limit(1);
