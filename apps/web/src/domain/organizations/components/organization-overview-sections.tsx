@@ -37,6 +37,31 @@ export function OrganizationOverviewSectionsSkeleton() {
   );
 }
 
+function SectionCardGated({
+  sectionId,
+  slug,
+  summary,
+}: {
+  sectionId: OrgHubSection;
+  slug: string;
+  summary: string;
+}) {
+  const action = orgHubSectionActions[sectionId];
+  const { allowed, isLoading } = useCan(action);
+  const section = ORGANIZATION_SECTIONS.find((s) => s.id === sectionId);
+  if (isLoading || !allowed || !section) return null;
+
+  return (
+    <OrganizationSectionCard
+      href={section.href(slug)}
+      icon={section.icon}
+      title={section.title}
+      description={section.description}
+      summary={summary}
+    />
+  );
+}
+
 export function OrganizationOverviewSections({ slug }: { slug: string }) {
   const { organization, status } = useOrganizationBySlug(slug);
 
@@ -66,12 +91,10 @@ export function OrganizationOverviewSections({ slug }: { slug: string }) {
         }
 
         return (
-          <OrganizationSectionCard
+          <SectionCardGated
             key={section.id}
-            href={section.href(slug)}
-            icon={section.icon}
-            title={section.title}
-            description={section.description}
+            sectionId={section.id}
+            slug={slug}
             summary={summary}
           />
         );
