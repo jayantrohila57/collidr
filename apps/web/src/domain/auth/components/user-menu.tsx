@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Menu,
+  MenuGroup,
   MenuGroupLabel,
   MenuItem,
   MenuPopup,
@@ -81,16 +82,18 @@ export function UserMenu() {
         </Avatar>
       </MenuTrigger>
       <MenuPopup className="w-56" align="end">
-        <MenuGroupLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="font-medium text-sm leading-none">{user.name}</p>
-            {user.email && (
-              <p className="text-muted-foreground text-xs leading-none">
-                {user.email}
-              </p>
-            )}
-          </div>
-        </MenuGroupLabel>
+        <MenuGroup>
+          <MenuGroupLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="font-medium text-sm leading-none">{user.name}</p>
+              {user.email && (
+                <p className="text-muted-foreground text-xs leading-none">
+                  {user.email}
+                </p>
+              )}
+            </div>
+          </MenuGroupLabel>
+        </MenuGroup>
         <MenuSeparator />
         <MenuItem onClick={handleSignOut} disabled={isLoading}>
           <LogOut className="me-2 h-4 w-4" />

@@ -17,6 +17,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Menu,
+  MenuGroup,
   MenuGroupLabel,
   MenuItem,
   MenuLinkItem,
@@ -86,20 +87,20 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
           <span className="sr-only">Actions</span>
         </MenuTrigger>
         <MenuPopup align="end" className="w-80">
-          <MenuGroupLabel>Project Actions</MenuGroupLabel>
-          <MenuSeparator />
-
-          {editHref ? (
-            <MenuLinkItem href={editHref} onClick={() => setMenuOpen(false)}>
-              <Edit className="me-2 h-4 w-4" />
-              Edit Project
-            </MenuLinkItem>
-          ) : (
-            <MenuItem disabled>
-              <Edit className="me-2 h-4 w-4" />
-              Edit Project (unavailable)
-            </MenuItem>
-          )}
+          <MenuGroup>
+            <MenuGroupLabel>Project Actions</MenuGroupLabel>
+            {editHref ? (
+              <MenuLinkItem href={editHref} onClick={() => setMenuOpen(false)}>
+                <Edit className="me-2 h-4 w-4" />
+                Edit Project
+              </MenuLinkItem>
+            ) : (
+              <MenuItem disabled>
+                <Edit className="me-2 h-4 w-4" />
+                Edit Project (unavailable)
+              </MenuItem>
+            )}
+          </MenuGroup>
 
           <MenuSeparator />
 

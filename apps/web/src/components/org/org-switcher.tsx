@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Menu,
+  MenuGroup,
   MenuGroupLabel,
   MenuItem,
   MenuLinkItem,
@@ -112,16 +113,18 @@ export function OrgSwitcher() {
         sideOffset={collapsed ? 8 : 4}
         className={collapsed ? "w-60 min-w-60" : "w-full min-w-56"}
       >
-        <MenuGroupLabel>Organizations</MenuGroupLabel>
-        {orgs.map((org) => (
-          <MenuItem key={org.id} onClick={() => void onSelectOrg(org.id)}>
-            <Building2 className="me-2 h-4 w-4" />
-            <span className="truncate">{org.name}</span>
-            {org.id === activeOrganizationId && (
-              <span className="ms-auto text-muted-foreground text-xs">✓</span>
-            )}
-          </MenuItem>
-        ))}
+        <MenuGroup>
+          <MenuGroupLabel>Organizations</MenuGroupLabel>
+          {orgs.map((org) => (
+            <MenuItem key={org.id} onClick={() => void onSelectOrg(org.id)}>
+              <Building2 className="me-2 h-4 w-4" />
+              <span className="truncate">{org.name}</span>
+              {org.id === activeOrganizationId && (
+                <span className="ms-auto text-muted-foreground text-xs">✓</span>
+              )}
+            </MenuItem>
+          ))}
+        </MenuGroup>
         <MenuSeparator />
         <MenuLinkItem href={"/dashboard/settings/organization" as Route}>
           <Settings className="me-2 h-4 w-4" />

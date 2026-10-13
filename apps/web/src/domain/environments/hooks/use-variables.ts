@@ -91,9 +91,7 @@ export function useVariables(environmentId: string) {
         });
       },
       onSuccess: () => {
-        toast.success("Variable added", {
-          id: `variable-create-${environmentId}`,
-        });
+        toast.success("Variable added");
       },
     }),
   );
@@ -200,9 +198,7 @@ export function useVariables(environmentId: string) {
         });
       },
       onSuccess: () => {
-        toast.success("Variable deleted", {
-          id: `variable-delete-${environmentId}`,
-        });
+        toast.success("Variable deleted");
       },
     }),
   );

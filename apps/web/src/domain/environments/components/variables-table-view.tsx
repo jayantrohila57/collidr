@@ -62,7 +62,11 @@ export function VariablesTableView({
   isAddingVariable,
   isUpdating = false,
 }: VariablesTableViewProps) {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    key: string;
+  } | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editVariable, setEditVariable] = useState<Variable | null>(null);
   const [editLoadingValue, setEditLoadingValue] = useState(false);
@@ -80,13 +84,15 @@ export function VariablesTableView({
 
   const handleDelete = (variable: Variable) => {
     setOpenActionsMenuId(null);
-    setDeleteDialogOpen(variable.id);
+    setDeleteTarget({ id: variable.id, key: variable.key });
+    setDeleteDialogOpen(true);
   };
 
   const confirmDelete = async () => {
-    if (deleteDialogOpen) {
-      await onDelete(deleteDialogOpen);
-      setDeleteDialogOpen(null);
+    if (deleteTarget) {
+      await onDelete(deleteTarget.id);
+      setDeleteDialogOpen(false);
+      window.setTimeout(() => setDeleteTarget(null), 200);
     }
   };
 
@@ -274,13 +280,15 @@ export function VariablesTableView({
       )}
 
       <ConfirmDialog
-        open={Boolean(deleteDialogOpen)}
-        onOpenChange={(open) => !open && setDeleteDialogOpen(null)}
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open);
+          if (!open) {
+            window.setTimeout(() => setDeleteTarget(null), 200);
+          }
+        }}
         title="Delete variable"
-        description={`Delete "${
-          variables.find((v) => v.id === deleteDialogOpen)?.key ??
-          "this variable"
-        }"? This cannot be undone.`}
+        description={`Delete "${deleteTarget?.key ?? "this variable"}"? This cannot be undone.`}
         confirmLabel="Delete"
         variant="destructive"
         onConfirm={confirmDelete}

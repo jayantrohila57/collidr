@@ -97,7 +97,9 @@ export function EditEnvironmentDialog({
         >
           <Edit className="h-3.5 w-3.5" aria-hidden />
         </TooltipTrigger>
-        <TooltipContent>Edit environment</TooltipContent>
+        <TooltipContent side="bottom" align="end">
+          Edit environment
+        </TooltipContent>
       </Tooltip>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent>
