@@ -3,15 +3,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "@/lib/toast";
+import { isVariablesV2EnabledOnClient } from "@/lib/variables-v2";
 import { trpc } from "@/utils/trpc";
 
-type VariableOutput = {
+export type VariableOutput = {
   id: string;
   key: string;
   environmentId: string;
   createdAt: string;
   updatedAt: string;
   value?: string;
+  type?: "secret" | "config";
+  note?: string | null;
+  updatedByUser?: {
+    id: string;
+    name: string;
+    image?: string | null;
+  } | null;
 };
 
 interface VariablesQueryResponse {
@@ -30,6 +38,7 @@ function isPersistedEnvironmentId(environmentId: string) {
 
 export function useVariables(environmentId: string) {
   const queryClient = useQueryClient();
+  const v2 = isVariablesV2EnabledOnClient();
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
   const [revealingIds, setRevealingIds] = useState<Set<string>>(new Set());
   const canQuery = isPersistedEnvironmentId(environmentId);
@@ -182,6 +191,23 @@ export function useVariables(environmentId: string) {
     }),
   );
 
+  const batchCreateMutation = useMutation(
+    trpc.environmentVariables.batchCreate.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
+      onSuccess: async (_result, input) => {
+        await Promise.all(
+          input.environmentIds.map((envId) =>
+            queryClient.invalidateQueries({
+              queryKey: trpc.environmentVariables.list.queryKey({
+                environmentId: envId,
+              }),
+            }),
+          ),
+        );
+      },
+    }),
+  );
+
   const bulkImportMutation = useMutation(
     trpc.environmentVariables.bulkImport.mutationOptions({
       meta: { skipGlobalErrorToast: true },
@@ -229,7 +255,17 @@ export function useVariables(environmentId: string) {
     }),
   );
 
+  const isSecretVariable = (varId: string) => {
+    const row = variablesQuery.data?.data?.find((v) => v.id === varId);
+    return v2 && (row?.type ?? "secret") === "secret";
+  };
+
   const toggleReveal = async (varId: string) => {
+    if (isSecretVariable(varId)) {
+      toast.error("Secret values stay hidden after save. Edit to overwrite.");
+      return;
+    }
+
     if (revealedIds.has(varId)) {
       setRevealedIds((prev) => {
         const next = new Set(prev);
@@ -279,6 +315,10 @@ export function useVariables(environmentId: string) {
     varId: string,
     options?: { force?: boolean },
   ) => {
+    if (isSecretVariable(varId)) {
+      return "";
+    }
+
     if (!options?.force) {
       const cached = queryClient.getQueryData<string>(["revealedValue", varId]);
       if (cached !== undefined) {
@@ -337,6 +377,15 @@ export function useVariables(environmentId: string) {
         success: "Variables imported",
       }),
     isImporting: bulkImportMutation.isPending,
+    batchCreateVariables: (
+      input: Parameters<typeof batchCreateMutation.mutateAsync>[0],
+    ) =>
+      toast.promise(batchCreateMutation.mutateAsync(input), {
+        loading: "Saving variables…",
+        success: "Variables saved",
+      }),
+    isBatchCreating: batchCreateMutation.isPending,
+    variablesV2Enabled: v2,
     getRevealedValue,
     fetchVariableValue,
   };

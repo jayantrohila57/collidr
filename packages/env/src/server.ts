@@ -19,6 +19,8 @@ export const env = createEnv({
       .enum(["true", "false"])
       .default("false")
       .optional(),
+    /** Enable after DB migration 0005_variable_provenance_and_type (see docs/VARIABLES_V2_MIGRATION.md) */
+    VARIABLES_V2_ENABLED: z.enum(["true", "false"]).default("false").optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

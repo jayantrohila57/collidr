@@ -14,6 +14,8 @@ import {
   slugifyEnvironmentName,
 } from "../environment-name";
 import { protectedProcedure, router } from "../index";
+import { loadVariableActors } from "../lib/variable-actors";
+import { isVariablesV2Enabled } from "../lib/variables-v2";
 import {
   createEnvironmentInput,
   environmentOutput,
@@ -47,13 +49,62 @@ export const environmentsRouter = router({
         return respond({ message: "Project not found", data: [] });
       }
 
+      const v2 = isVariablesV2Enabled();
+
+      if (!v2) {
+        const environments = await db
+          .select({
+            id: environment.id,
+            name: environment.name,
+            slug: environment.slug,
+            branch: environment.branch,
+            deployedUrl: environment.deployedUrl,
+            status: environment.status,
+            isProduction: environment.isProduction,
+            description: environment.description,
+            projectId: environment.projectId,
+            createdAt: environment.createdAt,
+            updatedAt: environment.updatedAt,
+          })
+          .from(environment)
+          .where(eq(environment.projectId, input.projectId))
+          .orderBy(environment.name);
+
+        return respond({ message: "Environments fetched", data: environments });
+      }
+
       const environments = await db
-        .select()
+        .select({
+          id: environment.id,
+          name: environment.name,
+          slug: environment.slug,
+          branch: environment.branch,
+          deployedUrl: environment.deployedUrl,
+          status: environment.status,
+          isProduction: environment.isProduction,
+          description: environment.description,
+          projectId: environment.projectId,
+          createdAt: environment.createdAt,
+          updatedAt: environment.updatedAt,
+          createdBy: environment.createdBy,
+          updatedBy: environment.updatedBy,
+        })
         .from(environment)
         .where(eq(environment.projectId, input.projectId))
         .orderBy(environment.name);
 
-      return respond({ message: "Environments fetched", data: environments });
+      const actors = await loadVariableActors(
+        environments.flatMap((row) => [row.createdBy, row.updatedBy]),
+      );
+
+      const data = environments.map((row) => ({
+        ...row,
+        createdByUser: row.createdBy
+          ? (actors.get(row.createdBy) ?? null)
+          : null,
+      }));
+
+      return respond({ message: "Environments fetched", data });
     }),
 
   // Get a single environment with its variables
@@ -68,7 +119,60 @@ export const environmentsRouter = router({
       ),
     )
     .query(async ({ ctx, input }) => {
-      // Verify user owns the environment through project
+      const v2 = isVariablesV2Enabled();
+      const accessFilter = and(
+        eq(environment.id, input.id),
+        eq(project.userId, ctx.session.user.id),
+      );
+
+      if (!v2) {
+        const environmentData = await db
+          .select({
+            id: environment.id,
+            name: environment.name,
+            slug: environment.slug,
+            branch: environment.branch,
+            deployedUrl: environment.deployedUrl,
+            status: environment.status,
+            isProduction: environment.isProduction,
+            description: environment.description,
+            projectId: environment.projectId,
+            createdAt: environment.createdAt,
+            updatedAt: environment.updatedAt,
+          })
+          .from(environment)
+          .innerJoin(project, eq(environment.projectId, project.id))
+          .where(accessFilter)
+          .limit(1);
+
+        if (environmentData.length === 0) {
+          return respond({
+            message: "Environment not found",
+            data: { environment: null, variables: [] },
+          });
+        }
+
+        const variables = await db
+          .select({
+            id: environmentVariable.id,
+            key: environmentVariable.key,
+            environmentId: environmentVariable.environmentId,
+            createdAt: environmentVariable.createdAt,
+            updatedAt: environmentVariable.updatedAt,
+          })
+          .from(environmentVariable)
+          .where(eq(environmentVariable.environmentId, input.id))
+          .orderBy(environmentVariable.key);
+
+        return respond({
+          message: "Environment fetched",
+          data: {
+            environment: environmentData[0] ?? null,
+            variables,
+          },
+        });
+      }
+
       const environmentData = await db
         .select({
           id: environment.id,
@@ -82,15 +186,12 @@ export const environmentsRouter = router({
           projectId: environment.projectId,
           createdAt: environment.createdAt,
           updatedAt: environment.updatedAt,
+          createdBy: environment.createdBy,
+          updatedBy: environment.updatedBy,
         })
         .from(environment)
         .innerJoin(project, eq(environment.projectId, project.id))
-        .where(
-          and(
-            eq(environment.id, input.id),
-            eq(project.userId, ctx.session.user.id),
-          ),
-        )
+        .where(accessFilter)
         .limit(1);
 
       if (environmentData.length === 0) {
@@ -100,21 +201,7 @@ export const environmentsRouter = router({
         });
       }
 
-      // Get variables for this environment
-      const variables = await db
-        .select({
-          id: environmentVariable.id,
-          key: environmentVariable.key,
-          environmentId: environmentVariable.environmentId,
-          createdAt: environmentVariable.createdAt,
-          updatedAt: environmentVariable.updatedAt,
-        })
-        .from(environmentVariable)
-        .where(eq(environmentVariable.environmentId, input.id))
-        .orderBy(environmentVariable.key);
-
       const environmentRecord = environmentData[0];
-
       if (!environmentRecord) {
         return respond({
           message: "Environment not found",
@@ -122,9 +209,47 @@ export const environmentsRouter = router({
         });
       }
 
+      const variables = await db
+        .select({
+          id: environmentVariable.id,
+          key: environmentVariable.key,
+          environmentId: environmentVariable.environmentId,
+          createdAt: environmentVariable.createdAt,
+          updatedAt: environmentVariable.updatedAt,
+          type: environmentVariable.type,
+          note: environmentVariable.note,
+          createdBy: environmentVariable.createdBy,
+          updatedBy: environmentVariable.updatedBy,
+        })
+        .from(environmentVariable)
+        .where(eq(environmentVariable.environmentId, input.id))
+        .orderBy(environmentVariable.key);
+
+      const envActors = await loadVariableActors([
+        environmentRecord.createdBy,
+        environmentRecord.updatedBy,
+      ]);
+
+      const varActors = await loadVariableActors(
+        variables.map((row) => row.updatedBy),
+      );
+
       return respond({
         message: "Environment fetched",
-        data: { environment: environmentRecord, variables },
+        data: {
+          environment: {
+            ...environmentRecord,
+            createdByUser: environmentRecord.createdBy
+              ? (envActors.get(environmentRecord.createdBy) ?? null)
+              : null,
+          },
+          variables: variables.map((row) => ({
+            ...row,
+            updatedByUser: row.updatedBy
+              ? (varActors.get(row.updatedBy) ?? null)
+              : null,
+          })),
+        },
       });
     }),
 
@@ -170,10 +295,66 @@ export const environmentsRouter = router({
         });
       }
 
+      const v2 = isVariablesV2Enabled();
+      const userId = ctx.session.user.id;
+      const newId = crypto.randomUUID();
+
+      if (!v2) {
+        const newEnvironment = await db
+          .insert(environment)
+          .values({
+            id: newId,
+            name,
+            slug,
+            branch: input.branch || null,
+            deployedUrl: input.deployedUrl || null,
+            status: input.status,
+            isProduction: input.isProduction,
+            description: input.description || null,
+            projectId: input.projectId,
+          })
+          .returning({
+            id: environment.id,
+            name: environment.name,
+            slug: environment.slug,
+            branch: environment.branch,
+            deployedUrl: environment.deployedUrl,
+            status: environment.status,
+            isProduction: environment.isProduction,
+            description: environment.description,
+            projectId: environment.projectId,
+            createdAt: environment.createdAt,
+            updatedAt: environment.updatedAt,
+          });
+
+        const created = newEnvironment[0];
+        if (!created) {
+          return respond({
+            message: "Failed to create environment",
+            data: null,
+          });
+        }
+
+        await createAuditLog({
+          userId: ctx.session.user.id,
+          projectId: input.projectId,
+          environmentId: created.id,
+          action: "CREATE",
+          entityType: "ENVIRONMENT",
+          entitySlug: created.slug,
+          newValue: JSON.stringify({ name: created.name }),
+        });
+
+        return respond({
+          message: "Environment created",
+          data: created,
+        });
+      }
+
       const newEnvironment = await db
         .insert(environment)
         .values({
-          id: crypto.randomUUID(),
+          id: newId,
           name,
           slug,
           branch: input.branch || null,
@@ -182,10 +363,27 @@ export const environmentsRouter = router({
           isProduction: input.isProduction,
           description: input.description || null,
           projectId: input.projectId,
+          createdBy: userId,
+          updatedBy: userId,
         })
-        .returning();
+        .returning({
+          id: environment.id,
+          name: environment.name,
+          slug: environment.slug,
+          branch: environment.branch,
+          deployedUrl: environment.deployedUrl,
+          status: environment.status,
+          isProduction: environment.isProduction,
+          description: environment.description,
+          projectId: environment.projectId,
+          createdAt: environment.createdAt,
+          updatedAt: environment.updatedAt,
+          createdBy: environment.createdBy,
+          updatedBy: environment.updatedBy,
+        });
 
-      if (!newEnvironment[0]) {
+      const created = newEnvironment[0];
+      if (!created) {
         return respond({
           message: "Failed to create environment",
           data: null,
@@ -195,16 +393,22 @@ export const environmentsRouter = router({
       await createAuditLog({
         userId: ctx.session.user.id,
         projectId: input.projectId,
-        environmentId: newEnvironment[0].id,
+        environmentId: created.id,
         action: "CREATE",
         entityType: "ENVIRONMENT",
-        entitySlug: newEnvironment[0].slug,
-        newValue: JSON.stringify({ name: newEnvironment[0].name }),
+        entitySlug: created.slug,
+        newValue: JSON.stringify({ name: created.name }),
       });
 
+      const actors = await loadVariableActors([created.createdBy]);
       return respond({
         message: "Environment created",
-        data: newEnvironment[0],
+        data: {
+          ...created,
+          createdByUser: created.createdBy
+            ? (actors.get(created.createdBy) ?? null)
+            : null,
+        },
       });
     }),
 
@@ -215,7 +419,12 @@ export const environmentsRouter = router({
     .mutation(async ({ ctx, input }) => {
       // Verify ownership through project
       const existingEnvironment = await db
-        .select()
+        .select({
+          id: environment.id,
+          name: environment.name,
+          slug: environment.slug,
+          projectId: environment.projectId,
+        })
         .from(environment)
         .innerJoin(project, eq(environment.projectId, project.id))
         .where(
@@ -230,12 +439,21 @@ export const environmentsRouter = router({
         return respond({ message: "Environment not found", data: null });
       }
 
-      const existing = existingEnvironment[0]?.environment;
+      const existing = existingEnvironment[0];
       if (!existing) {
         return respond({ message: "Environment not found", data: null });
       }
 
-      const updateData: Record<string, unknown> = {};
+      const updateData: {
+        name?: string;
+        slug?: string;
+        branch?: string | null;
+        deployedUrl?: string | null;
+        status?: "active" | "inactive" | "building" | "failed";
+        isProduction?: boolean;
+        description?: string | null;
+        updatedBy?: string;
+      } = {};
       if (input.name !== undefined) {
         const name = assertValidEnvironmentName(input.name);
         const duplicateName = await db
@@ -272,29 +490,99 @@ export const environmentsRouter = router({
       if (input.description !== undefined)
         updateData.description = input.description || null;
 
+      if (isVariablesV2Enabled()) {
+        updateData.updatedBy = ctx.session.user.id;
+      }
+
+      const v2 = isVariablesV2Enabled();
+
+      if (!v2) {
+        const updatedEnvironment = await db
+          .update(environment)
+          .set(updateData)
+          .where(eq(environment.id, input.id))
+          .returning({
+            id: environment.id,
+            name: environment.name,
+            slug: environment.slug,
+            branch: environment.branch,
+            deployedUrl: environment.deployedUrl,
+            status: environment.status,
+            isProduction: environment.isProduction,
+            description: environment.description,
+            projectId: environment.projectId,
+            createdAt: environment.createdAt,
+            updatedAt: environment.updatedAt,
+          });
+
+        const updated = updatedEnvironment[0];
+        if (!updated) {
+          return respond({
+            message: "Failed to update environment",
+            data: null,
+          });
+        }
+
+        await createAuditLog({
+          userId: ctx.session.user.id,
+          projectId: existing.projectId,
+          environmentId: updated.id,
+          action: "UPDATE",
+          entityType: "ENVIRONMENT",
+          entitySlug: updated.slug,
+          newValue: JSON.stringify({ name: updated.name }),
+        });
+
+        return respond({
+          message: "Environment updated",
+          data: updated,
+        });
+      }
+
       const updatedEnvironment = await db
         .update(environment)
         .set(updateData)
         .where(eq(environment.id, input.id))
-        .returning();
+        .returning({
+          id: environment.id,
+          name: environment.name,
+          slug: environment.slug,
+          branch: environment.branch,
+          deployedUrl: environment.deployedUrl,
+          status: environment.status,
+          isProduction: environment.isProduction,
+          description: environment.description,
+          projectId: environment.projectId,
+          createdAt: environment.createdAt,
+          updatedAt: environment.updatedAt,
+          createdBy: environment.createdBy,
+          updatedBy: environment.updatedBy,
+        });
 
-      if (!updatedEnvironment[0]) {
+      const updated = updatedEnvironment[0];
+      if (!updated) {
         return respond({ message: "Failed to update environment", data: null });
       }
 
       await createAuditLog({
         userId: ctx.session.user.id,
         projectId: existing.projectId,
-        environmentId: updatedEnvironment[0].id,
+        environmentId: updated.id,
         action: "UPDATE",
         entityType: "ENVIRONMENT",
-        entitySlug: updatedEnvironment[0].slug,
-        newValue: JSON.stringify({ name: updatedEnvironment[0].name }),
+        entitySlug: updated.slug,
+        newValue: JSON.stringify({ name: updated.name }),
       });
 
+      const actors = await loadVariableActors([updated.createdBy]);
       return respond({
         message: "Environment updated",
-        data: updatedEnvironment[0],
+        data: {
+          ...updated,
+          createdByUser: updated.createdBy
+            ? (actors.get(updated.createdBy) ?? null)
+            : null,
+        },
       });
     }),
 
@@ -305,7 +593,12 @@ export const environmentsRouter = router({
     .mutation(async ({ ctx, input }) => {
       // Verify ownership through project
       const existingEnvironment = await db
-        .select()
+        .select({
+          envId: environment.id,
+          envName: environment.name,
+          envSlug: environment.slug,
+          projectId: project.id,
+        })
         .from(environment)
         .innerJoin(project, eq(environment.projectId, project.id))
         .where(
@@ -320,8 +613,11 @@ export const environmentsRouter = router({
         return { success: false };
       }
 
-      const envRecord = existingEnvironment[0]?.environment;
-      const projectRecord = existingEnvironment[0]?.project;
+      const row = existingEnvironment[0];
+      const envRecord = row
+        ? { id: row.envId, name: row.envName, slug: row.envSlug }
+        : undefined;
+      const projectRecord = row ? { id: row.projectId } : undefined;
 
       // Delete environment (cascade will handle variables)
       await db.delete(environment).where(eq(environment.id, input.id));

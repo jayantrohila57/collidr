@@ -25,12 +25,16 @@ interface EditVariableSheetProps {
     id: string;
     key: string;
     value?: string;
+    note?: string | null;
   };
   isLoadingValue?: boolean;
+  isSecret?: boolean;
+  showNoteField?: boolean;
   onConfirm: (data: {
     id: string;
     key: string;
     value: string;
+    note?: string | null;
   }) => Promise<void>;
   isPending: boolean;
 }
@@ -40,20 +44,24 @@ export function EditVariableSheet({
   onOpenChange,
   variable,
   isLoadingValue = false,
+  isSecret = false,
+  showNoteField = false,
   onConfirm,
   isPending,
 }: EditVariableSheetProps) {
   const [key, setKey] = useState(variable.key);
   const [value, setValue] = useState(variable.value || "");
+  const [note, setNote] = useState(variable.note ?? "");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setKey(variable.key);
       setValue(variable.value ?? "");
+      setNote(variable.note ?? "");
       setError(null);
     }
-  }, [open, variable.key, variable.value]);
+  }, [open, variable.key, variable.value, variable.note]);
 
   const validateKey = (rawKey: string) => {
     const result = variableKeySchema.safeParse(rawKey);
@@ -70,12 +78,17 @@ export function EditVariableSheet({
       setError(keyError);
       return;
     }
+    if (!isSecret && !value.trim()) {
+      setError("Value is required");
+      return;
+    }
     setError(null);
     try {
       await onConfirm({
         id: variable.id,
         key: key.trim().toUpperCase(),
         value,
+        note: note.trim() ? note : null,
       });
       onOpenChange(false);
     } catch {
@@ -89,8 +102,9 @@ export function EditVariableSheet({
         <FormSheetHeader>
           <SheetTitleWithIcon icon="variable">Edit Variable</SheetTitleWithIcon>
           <SheetDescription>
-            Update the key and value. The current value loads when you open this
-            sheet.
+            {isSecret
+              ? "The saved value stays hidden. Enter a new value to overwrite it."
+              : "Update the key and value. The current value loads when you open this sheet."}
           </SheetDescription>
         </FormSheetHeader>
         <FormSheetForm onSubmit={handleSubmit}>
@@ -113,7 +127,16 @@ export function EditVariableSheet({
                 aria-invalid={Boolean(error)}
               />
             </FormField>
-            <FormField id="edit-value" label="Value" required>
+            <FormField
+              id="edit-value"
+              label="Value"
+              required={!isSecret}
+              hint={
+                isSecret
+                  ? "Leave blank to keep the existing secret, or type a new value to replace it."
+                  : undefined
+              }
+            >
               <div className="relative min-h-24">
                 {isLoadingValue ? (
                   <>
@@ -128,13 +151,26 @@ export function EditVariableSheet({
                   id="edit-value"
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
-                  placeholder="your-value-here"
+                  placeholder={
+                    isSecret ? "New value (optional)" : "your-value-here"
+                  }
                   rows={3}
                   disabled={isLoadingValue}
                   className="wrap-anywhere max-h-72 min-h-24 overflow-y-auto font-mono"
                 />
               </div>
             </FormField>
+            {showNoteField ? (
+              <FormField id="edit-note" label="Note" hint="Optional">
+                <Textarea
+                  id="edit-note"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  rows={2}
+                  className="min-h-0 resize-none"
+                />
+              </FormField>
+            ) : null}
           </FormSheetBody>
           <FormSheetFooter>
             <SheetClose render={<Button variant="ghost" type="button" />}>

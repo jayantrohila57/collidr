@@ -27,10 +27,16 @@ import { CreateEnvironmentSheet } from "./create-environment-sheet";
 import { DeleteEnvironmentDialog } from "./delete-environment-dialog";
 import { EditEnvironmentSheet } from "./edit-environment-sheet";
 import { EnvironmentTabCountBadge } from "./environment-tab-count-badge";
+import { VariableActorLabel } from "./variable-actor-label";
 
 interface Environment {
   id: string;
   name: string;
+  createdByUser?: {
+    id: string;
+    name: string;
+    image?: string | null;
+  } | null;
 }
 
 interface EnvironmentsTabsViewProps {
@@ -157,6 +163,16 @@ export function EnvironmentsTabsView({
                   <TooltipContent>Environment actions</TooltipContent>
                 </Tooltip>
                 <MenuPopup align="end">
+                  {activeEnvironment.createdByUser ? (
+                    <div className="px-2 py-1.5 text-muted-foreground text-xs">
+                      Added by{" "}
+                      <VariableActorLabel
+                        actor={activeEnvironment.createdByUser}
+                        compact
+                        className="inline-flex"
+                      />
+                    </div>
+                  ) : null}
                   <MenuItem onClick={() => setCreateOpen(true)}>
                     <AppIcon name="plus" className="me-2 text-foreground" />
                     Add environment

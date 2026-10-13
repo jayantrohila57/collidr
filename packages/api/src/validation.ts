@@ -133,6 +133,14 @@ export const getEnvironmentInput = z.object({
   id: entityIdSchema,
 });
 
+export const variableTypeSchema = z.enum(["secret", "config"]);
+
+export const variableActorOutput = z.object({
+  id: z.string(),
+  name: z.string(),
+  image: z.string().nullable().optional(),
+});
+
 export const environmentOutput = z.object({
   id: z.string(),
   name: z.string(),
@@ -145,6 +153,9 @@ export const environmentOutput = z.object({
   projectId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  createdBy: z.string().nullable().optional(),
+  updatedBy: z.string().nullable().optional(),
+  createdByUser: variableActorOutput.nullable().optional(),
 });
 
 // Variable schemas
@@ -162,12 +173,37 @@ export const createVariableInput = z.object({
   environmentId: entityIdSchema,
   key: variableKeySchema,
   value: z.string().max(100_000, "Value is too long"),
+  type: variableTypeSchema.optional(),
+  note: z.string().max(2_000, "Note is too long").optional(),
+});
+
+export const batchCreateVariablesInput = z.object({
+  projectId: entityIdSchema,
+  environmentIds: z.array(entityIdSchema).min(1).max(32),
+  variables: z
+    .array(
+      z.object({
+        key: variableKeySchema,
+        value: z.string().max(100_000, "Value is too long"),
+        type: variableTypeSchema.default("secret"),
+        note: z.string().max(2_000).optional(),
+      }),
+    )
+    .min(1)
+    .max(25),
+});
+
+export const batchCreateVariablesResultOutput = z.object({
+  created: z.number(),
+  environments: z.number(),
 });
 
 export const updateVariableInput = z.object({
   id: entityIdSchema,
   key: variableKeySchema.optional(),
   value: z.string().max(100_000, "Value is too long").optional(),
+  note: z.string().max(2_000).optional().nullable(),
+  type: variableTypeSchema.optional(),
 });
 
 export const getVariableInput = z.object({
@@ -180,6 +216,11 @@ export const variableOutput = z.object({
   environmentId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  type: variableTypeSchema.optional(),
+  note: z.string().nullable().optional(),
+  createdBy: z.string().nullable().optional(),
+  updatedBy: z.string().nullable().optional(),
+  updatedByUser: variableActorOutput.nullable().optional(),
 });
 
 export const variableWithDecryptedValueOutput = variableOutput.extend({

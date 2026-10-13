@@ -6,6 +6,7 @@ import { z } from "zod/v3";
 import { createAuditLog } from "../audit";
 import { throwFriendlyError } from "../errors";
 import { orgProcedure, router } from "../index";
+import { listEnvironmentsForProject } from "../lib/project-environments-list";
 import { attachProjectToOrganization, projectListFilter } from "../org-access";
 import { assertUniqueProjectName } from "../project-name";
 import {
@@ -75,23 +76,7 @@ export const projectsRouter = router({
         )
         .limit(1);
 
-      const environmentsList = await db
-        .select({
-          id: environment.id,
-          name: environment.name,
-          slug: environment.slug,
-          branch: environment.branch,
-          deployedUrl: environment.deployedUrl,
-          status: environment.status,
-          isProduction: environment.isProduction,
-          description: environment.description,
-          projectId: environment.projectId,
-          createdAt: environment.createdAt,
-          updatedAt: environment.updatedAt,
-        })
-        .from(environment)
-        .where(eq(environment.projectId, input.id))
-        .orderBy(environment.name);
+      const environmentsList = await listEnvironmentsForProject(input.id);
 
       const projectRecord = projectData[0];
 
@@ -150,23 +135,9 @@ export const projectsRouter = router({
         });
       }
 
-      const environmentsList = await db
-        .select({
-          id: environment.id,
-          name: environment.name,
-          slug: environment.slug,
-          branch: environment.branch,
-          deployedUrl: environment.deployedUrl,
-          status: environment.status,
-          isProduction: environment.isProduction,
-          description: environment.description,
-          projectId: environment.projectId,
-          createdAt: environment.createdAt,
-          updatedAt: environment.updatedAt,
-        })
-        .from(environment)
-        .where(eq(environment.projectId, projectData[0]?.id || ""))
-        .orderBy(environment.name);
+      const environmentsList = await listEnvironmentsForProject(
+        projectData[0]?.id || "",
+      );
 
       return respond({
         message: "Project fetched",

@@ -64,7 +64,13 @@ export default function ProjectDetail({
           isUpdating={isUpdating}
           isDeleting={isDeleting}
         >
-          {(env) => <EnvironmentPanel environmentId={env.id} />}
+          {(env) => (
+            <EnvironmentPanel
+              environmentId={env.id}
+              projectId={projectId ?? ""}
+              environments={environments}
+            />
+          )}
         </EnvironmentsTabsView>
       </section>
     </PageStack>

@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/toast";
 import { AddVariableSheet } from "./add-variable-sheet";
 import { EditVariableSheet } from "./edit-variable-sheet";
+import { VariableActorLabel } from "./variable-actor-label";
 
 interface Variable {
   id: string;
@@ -22,6 +23,13 @@ interface Variable {
   environmentId: string;
   createdAt: string;
   updatedAt: string;
+  type?: "secret" | "config";
+  note?: string | null;
+  updatedByUser?: {
+    id: string;
+    name: string;
+    image?: string | null;
+  } | null;
 }
 
 interface VariablesTableViewProps {
@@ -36,6 +44,9 @@ interface VariablesTableViewProps {
   onFetchValue: (id: string, options?: { force?: boolean }) => Promise<string>;
   isAddingVariable: boolean;
   isUpdating?: boolean;
+  variablesV2Enabled?: boolean;
+  addSheetEmpty?: React.ReactNode;
+  addSheetToolbar?: React.ReactNode;
 }
 
 const columnHelper = legacyCreateColumnHelper<Variable>();
@@ -52,7 +63,28 @@ export function VariablesTableView({
   onFetchValue,
   isAddingVariable,
   isUpdating = false,
+  variablesV2Enabled = false,
+  addSheetEmpty,
+  addSheetToolbar,
 }: VariablesTableViewProps) {
+  const isSecret = (variable: Variable) =>
+    variablesV2Enabled && (variable.type ?? "secret") === "secret";
+
+  const defaultEmptyAdd = (
+    <AddVariableSheet
+      onConfirm={onAddVariable}
+      isPending={isAddingVariable}
+      triggerLayout="tableEmpty"
+    />
+  );
+
+  const defaultToolbarAdd = (
+    <AddVariableSheet
+      onConfirm={onAddVariable}
+      isPending={isAddingVariable}
+      triggerLayout="toolbar"
+    />
+  );
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     key: string;
@@ -88,6 +120,10 @@ export function VariablesTableView({
         void (async () => {
           setEditVariable(variable);
           setEditDialogOpen(true);
+          if (isSecret(variable)) {
+            setEditLoadingValue(false);
+            return;
+          }
           setEditLoadingValue(true);
           try {
             const value = await onFetchValue(variable.id, { force: true });
@@ -100,7 +136,7 @@ export function VariablesTableView({
         })();
       }, 0);
     },
-    [onFetchValue],
+    [onFetchValue, variablesV2Enabled],
   );
 
   const toggleValueExpanded = useCallback((id: string) => {
@@ -129,7 +165,8 @@ export function VariablesTableView({
         ),
         cell: ({ row }) => {
           const variable = row.original;
-          const isRevealed = revealedIds.has(variable.id);
+          const secret = isSecret(variable);
+          const isRevealed = secret ? false : revealedIds.has(variable.id);
           return (
             <div className="min-w-0">
               <div className="hidden min-w-0 sm:block">
@@ -143,16 +180,55 @@ export function VariablesTableView({
                 <span className="block truncate font-medium font-mono text-xs">
                   {variable.key}
                 </span>
-                <SecretValue
-                  revealed={isRevealed}
-                  value={variable.value}
-                  className="mt-0.5 text-muted-foreground text-xs"
-                />
+                {secret ? (
+                  <span className="mt-0.5 text-muted-foreground text-xs">
+                    Hidden
+                  </span>
+                ) : (
+                  <SecretValue
+                    revealed={isRevealed}
+                    value={variable.value}
+                    className="mt-0.5 text-muted-foreground text-xs"
+                  />
+                )}
+                {variablesV2Enabled && variable.updatedByUser ? (
+                  <VariableActorLabel
+                    actor={variable.updatedByUser}
+                    at={variable.updatedAt}
+                    compact
+                    className="mt-1"
+                  />
+                ) : null}
               </div>
             </div>
           );
         },
       }),
+      ...(variablesV2Enabled
+        ? [
+            columnHelper.display({
+              id: "updatedBy",
+              meta: {
+                className: "hidden min-w-0 py-2.5 md:table-cell",
+              },
+              header: () => (
+                <span className="font-medium text-muted-foreground text-xs">
+                  Last updated by
+                </span>
+              ),
+              enableSorting: false,
+              cell: ({ row }) => {
+                const variable = row.original;
+                return (
+                  <VariableActorLabel
+                    actor={variable.updatedByUser}
+                    at={variable.updatedAt}
+                  />
+                );
+              },
+            }),
+          ]
+        : []),
       columnHelper.display({
         id: "value",
         meta: {
@@ -163,6 +239,14 @@ export function VariablesTableView({
         enableSorting: false,
         cell: ({ row }) => {
           const variable = row.original;
+          const secret = isSecret(variable);
+          if (secret) {
+            return (
+              <span className="font-mono text-muted-foreground text-sm">
+                Hidden
+              </span>
+            );
+          }
           const isRevealed = revealedIds.has(variable.id);
           const isValueExpanded = expandedValueIds.has(variable.id);
           const showExpand =
@@ -197,35 +281,45 @@ export function VariablesTableView({
         enableSorting: false,
         cell: ({ row }) => {
           const variable = row.original;
-          const isRevealed = revealedIds.has(variable.id);
+          const secret = isSecret(variable);
+          const isRevealed = secret ? false : revealedIds.has(variable.id);
 
           return (
             <div className="flex justify-end">
               <DataTableRowActions
                 label="Variable actions"
                 actions={[
-                  {
-                    label: isRevealed ? "Hide value" : "Reveal value",
-                    icon: (
-                      <AppIcon
-                        name={isRevealed ? "hide" : "reveal"}
-                        className="me-2 text-foreground"
-                      />
-                    ),
-                    disabled: revealingIds?.has(variable.id),
-                    onSelect: () => onReveal(variable.id),
-                  },
-                  {
-                    label: "Copy value",
-                    icon: (
-                      <AppIcon name="copy" className="me-2 text-foreground" />
-                    ),
-                    disabled: !isRevealed || !variable.value,
-                    onSelect: () => {
-                      void navigator.clipboard.writeText(variable.value ?? "");
-                      toast.success("Copied to clipboard");
-                    },
-                  },
+                  ...(!secret
+                    ? [
+                        {
+                          label: isRevealed ? "Hide value" : "Reveal value",
+                          icon: (
+                            <AppIcon
+                              name={isRevealed ? "hide" : "reveal"}
+                              className="me-2 text-foreground"
+                            />
+                          ),
+                          disabled: revealingIds?.has(variable.id),
+                          onSelect: () => onReveal(variable.id),
+                        },
+                        {
+                          label: "Copy value",
+                          icon: (
+                            <AppIcon
+                              name="copy"
+                              className="me-2 text-foreground"
+                            />
+                          ),
+                          disabled: !isRevealed || !variable.value,
+                          onSelect: () => {
+                            void navigator.clipboard.writeText(
+                              variable.value ?? "",
+                            );
+                            toast.success("Copied to clipboard");
+                          },
+                        },
+                      ]
+                    : []),
                   {
                     label: "Edit",
                     icon: (
@@ -252,10 +346,12 @@ export function VariablesTableView({
       expandedValueIds,
       handleDelete,
       handleEdit,
+      isSecret,
       onReveal,
       revealedIds,
       revealingIds,
       toggleValueExpanded,
+      variablesV2Enabled,
     ],
   );
 
@@ -273,21 +369,9 @@ export function VariablesTableView({
         captionSrOnly
         framed
         compactLayout
-        empty={variablesTableEmpty(
-          <AddVariableSheet
-            onConfirm={onAddVariable}
-            isPending={isAddingVariable}
-            triggerLayout="tableEmpty"
-          />,
-        )}
+        empty={variablesTableEmpty(addSheetEmpty ?? defaultEmptyAdd)}
         primaryAction={
-          variables.length > 0 ? (
-            <AddVariableSheet
-              onConfirm={onAddVariable}
-              isPending={isAddingVariable}
-              triggerLayout="toolbar"
-            />
-          ) : null
+          variables.length > 0 ? (addSheetToolbar ?? defaultToolbarAdd) : null
         }
       />
 
@@ -304,11 +388,14 @@ export function VariablesTableView({
           }}
           variable={editVariable}
           isLoadingValue={editLoadingValue}
+          isSecret={editVariable ? isSecret(editVariable) : false}
+          showNoteField={variablesV2Enabled}
           onConfirm={async (data) => {
             const updatedVariable: Variable = {
               ...editVariable,
               key: data.key,
               value: data.value,
+              note: data.note,
             };
             await onEdit(updatedVariable);
           }}

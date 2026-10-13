@@ -1,19 +1,22 @@
 "use client";
 
+import type { EnvironmentOutput } from "@env-manager/api/types";
 import { ErrorState } from "@/components/patterns/error-state";
 import { useVariables } from "../hooks/use-variables";
+import { AddVariableSheetV2 } from "./add-variable-sheet-v2";
 import { VariablesTableView } from "./variables-table-view";
 
-interface Variable {
-  id: string;
-  key: string;
+interface EnvironmentPanelProps {
   environmentId: string;
-  createdAt: string;
-  updatedAt: string;
-  value?: string;
+  projectId: string;
+  environments: EnvironmentOutput[];
 }
 
-export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
+export function EnvironmentPanel({
+  environmentId,
+  projectId,
+  environments,
+}: EnvironmentPanelProps) {
   const {
     variables,
     status,
@@ -21,12 +24,15 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
     revealingIds,
     toggleReveal,
     createVariable,
+    batchCreateVariables,
     isCreating,
+    isBatchCreating,
     updateVariable,
     isUpdating,
     deleteVariable,
     getRevealedValue,
     fetchVariableValue,
+    variablesV2Enabled,
   } = useVariables(environmentId);
 
   const variablesWithValues = variables.map((variable) => ({
@@ -38,12 +44,45 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
     await createVariable({ environmentId, ...data });
   };
 
-  const handleEdit = async (variable: Variable) => {
-    await updateVariable({
+  const handleBatchCreate = async (data: {
+    environmentIds: string[];
+    variables: Array<{
+      key: string;
+      value: string;
+      note?: string;
+      type: "secret" | "config";
+    }>;
+  }) => {
+    await batchCreateVariables({
+      projectId,
+      environmentIds: data.environmentIds,
+      variables: data.variables,
+    });
+  };
+
+  const handleEdit = async (variable: {
+    id: string;
+    key: string;
+    value?: string;
+    note?: string | null;
+    type?: "secret" | "config";
+  }) => {
+    const payload: {
+      id: string;
+      key: string;
+      value?: string;
+      note?: string | null;
+      type?: "secret" | "config";
+    } = {
       id: variable.id,
       key: variable.key,
-      value: variable.value ?? "",
-    });
+      note: variable.note,
+      type: variable.type,
+    };
+    if (variable.value?.trim()) {
+      payload.value = variable.value;
+    }
+    await updateVariable(payload);
   };
 
   const handleDelete = async (id: string) => {
@@ -62,6 +101,34 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
 
   const isLoading = status === "loading" && variables.length === 0;
 
+  const addSheet = variablesV2Enabled ? (
+    <AddVariableSheetV2
+      projectId={projectId}
+      environments={environments.map((env) => ({
+        id: env.id,
+        name: env.name,
+      }))}
+      defaultEnvironmentId={environmentId}
+      onConfirm={handleBatchCreate}
+      isPending={isBatchCreating}
+      triggerLayout="tableEmpty"
+    />
+  ) : undefined;
+
+  const primaryAddSheet = variablesV2Enabled ? (
+    <AddVariableSheetV2
+      projectId={projectId}
+      environments={environments.map((env) => ({
+        id: env.id,
+        name: env.name,
+      }))}
+      defaultEnvironmentId={environmentId}
+      onConfirm={handleBatchCreate}
+      isPending={isBatchCreating}
+      triggerLayout="toolbar"
+    />
+  ) : undefined;
+
   return (
     <VariablesTableView
       variables={variablesWithValues}
@@ -75,6 +142,9 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
       onFetchValue={fetchVariableValue}
       isAddingVariable={isCreating}
       isUpdating={isUpdating}
+      variablesV2Enabled={variablesV2Enabled}
+      addSheetEmpty={addSheet}
+      addSheetToolbar={primaryAddSheet}
     />
   );
 }
