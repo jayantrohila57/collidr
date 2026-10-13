@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -44,9 +44,9 @@ import { AuditLogTableView } from "@/domain/audit/components/audit-log-table-vie
 import {
   linkGithubAccount,
   listAuthSessions,
+  performSignOut,
   revokeAuthSession,
   revokeOtherAuthSessions,
-  signOut,
   unlinkProviderAccount,
   updateProfile,
   useSession,
@@ -105,6 +105,7 @@ function downloadJson(filename: string, data: unknown) {
 
 export function AccountSettingsClient() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const { data: session, isPending, error, refetch } = useSession();
   const user = session?.user;
@@ -178,10 +179,7 @@ export function AccountSettingsClient() {
     trpc.account.softDelete.mutationOptions({
       onSuccess: async () => {
         toast.success("Account deleted");
-        signOut(
-          () => router.replace("/"),
-          () => router.replace("/"),
-        );
+        void performSignOut({ queryClient, router });
       },
       onError: (err) => {
         toast.error(err.message ?? "Could not delete account");
@@ -267,10 +265,7 @@ export function AccountSettingsClient() {
       setRevokeToken(null);
       await loadSessions();
       if (token === sessionToken) {
-        signOut(
-          () => router.replace("/"),
-          () => router.replace("/"),
-        );
+        void performSignOut({ queryClient, router });
       }
     } catch (err) {
       toast.error(

@@ -1,6 +1,9 @@
 "use client";
 
+import type { QueryClient } from "@tanstack/react-query";
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { authClient } from "@/lib/auth-client";
+import { resolvePostAuthPath, SIGN_IN_PATH } from "@/lib/auth-routes";
 
 /**
  * Get current session with loading state
@@ -9,31 +12,53 @@ export function useSession() {
   return authClient.useSession();
 }
 
-/**
- * Sign in with GitHub provider
- */
-export async function signInWithGithub(
-  onSuccess: () => void,
-  onError: (error: Error) => void,
-) {
-  try {
-    await authClient.signIn.social(
-      {
-        provider: "github",
-      },
-      {
-        onSuccess,
-        onError: () => {}, // Error handled in catch
-      },
-    );
-  } catch (error) {
-    onError(error as unknown as Error);
+function readRedirectSearchParam(): string | null {
+  if (typeof window === "undefined") {
+    return null;
   }
+  return new URLSearchParams(window.location.search).get("redirect");
 }
 
 /**
- * Sign out current user
+ * Sign in with GitHub (OAuth redirect).
  */
+export async function signInWithGithub(options?: {
+  redirectTo?: string;
+}): Promise<void> {
+  const redirectTo =
+    options?.redirectTo ?? resolvePostAuthPath(readRedirectSearchParam());
+  const callbackURL =
+    typeof window !== "undefined"
+      ? `${window.location.origin}${redirectTo}`
+      : redirectTo;
+
+  await authClient.signIn.social({
+    provider: "github",
+    callbackURL,
+  });
+}
+
+/**
+ * Sign out, clear client caches, and navigate to sign-in.
+ */
+export async function performSignOut(options: {
+  queryClient: QueryClient;
+  router: AppRouterInstance;
+}): Promise<void> {
+  const { queryClient, router } = options;
+
+  await authClient.signOut({
+    fetchOptions: {
+      onSuccess: () => {
+        queryClient.clear();
+        router.replace(SIGN_IN_PATH);
+        router.refresh();
+      },
+    },
+  });
+}
+
+/** @deprecated Use performSignOut with queryClient and router */
 export async function signOut(
   onSuccess: () => void,
   onError: (error: Error) => void,
@@ -43,7 +68,7 @@ export async function signOut(
       {},
       {
         onSuccess,
-        onError: () => {}, // Error handled in catch
+        onError: () => {},
       },
     );
   } catch (error) {

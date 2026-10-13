@@ -1,7 +1,9 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import type { User } from "better-auth";
-import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -16,10 +18,12 @@ import {
 } from "@/components/ui/menu";
 import { Spinner } from "@/components/ui/spinner";
 import { actionToast } from "@/lib/action-toast";
-import { signOut, useSession } from "../lib/auth-actions";
+import { performSignOut, useSession } from "../lib/auth-actions";
 
 export function UserMenu() {
-  const [isLoading, startTransition] = useTransition();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const { data: session, isPending } = useSession();
   const user = session?.user as User | undefined;
   const [mounted, setMounted] = useState(false);
@@ -29,24 +33,18 @@ export function UserMenu() {
   }, []);
 
   const handleSignOut = () => {
-    startTransition(async () => {
-      try {
-        await actionToast(
-          new Promise<void>((resolve, reject) => {
-            void signOut(
-              () => resolve(),
-              (error) => reject(error),
-            );
-          }),
-          {
-            loading: "Signing out…",
-            success: "Signed out successfully",
-            error: "Sign out failed",
-          },
-        );
-      } catch {
-        // Toast handled by actionToast
-      }
+    setIsSigningOut(true);
+    void actionToast(
+      performSignOut({ queryClient, router }).finally(() =>
+        setIsSigningOut(false),
+      ),
+      {
+        loading: "Signing out…",
+        success: "Signed out",
+        error: "Sign out failed",
+      },
+    ).catch(() => {
+      // Toast handled by actionToast
     });
   };
 
@@ -99,9 +97,9 @@ export function UserMenu() {
           </MenuGroupLabel>
         </MenuGroup>
         <MenuSeparator />
-        <MenuItem onClick={handleSignOut} disabled={isLoading}>
+        <MenuItem onClick={handleSignOut} disabled={isSigningOut}>
           <AppIcon name="logOut" className="me-2 size-4" />
-          <span>{isLoading ? "Signing out…" : "Log out"}</span>
+          <span>{isSigningOut ? "Signing out…" : "Log out"}</span>
         </MenuItem>
       </MenuPopup>
     </Menu>

@@ -1,11 +1,13 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import * as React from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { MenuItem } from "@/components/ui/menu";
 import { actionToast } from "@/lib/action-toast";
 import { cn } from "@/lib/utils";
-import { signOut } from "../lib/auth-actions";
+import { performSignOut } from "../lib/auth-actions";
 
 export const SignOutDropdownMenuItem = React.forwardRef<
   HTMLDivElement,
@@ -13,27 +15,23 @@ export const SignOutDropdownMenuItem = React.forwardRef<
     inset?: boolean;
   }
 >(({ className, inset, ...props }, ref) => {
-  const [isLoading, startTransition] = React.useTransition();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const handleSignOut = () => {
-    startTransition(async () => {
-      try {
-        await actionToast(
-          new Promise<void>((resolve, reject) => {
-            void signOut(
-              () => resolve(),
-              (error) => reject(error),
-            );
-          }),
-          {
-            loading: "Signing out…",
-            success: "Sign out successful",
-            error: "Sign out failed",
-          },
-        );
-      } catch {
-        // Toast handled by actionToast
-      }
+    setIsLoading(true);
+    void actionToast(
+      performSignOut({ queryClient, router }).finally(() =>
+        setIsLoading(false),
+      ),
+      {
+        loading: "Signing out…",
+        success: "Signed out",
+        error: "Sign out failed",
+      },
+    ).catch(() => {
+      // Toast handled by actionToast
     });
   };
 

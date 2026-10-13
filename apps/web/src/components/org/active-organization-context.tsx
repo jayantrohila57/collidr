@@ -11,6 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useSession } from "@/domain/auth/lib/auth-actions";
 import { authClient } from "@/lib/auth-client";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
@@ -39,10 +40,11 @@ type ActiveOrganizationContextValue = {
 const ActiveOrganizationContext =
   createContext<ActiveOrganizationContextValue | null>(null);
 
-async function readActiveOrganizationId(): Promise<string | null> {
-  const session = await authClient.getSession();
+function readSessionActiveOrganizationId(
+  session: ReturnType<typeof useSession>["data"],
+): string | null {
   return (
-    (session.data?.session as { activeOrganizationId?: string | null })
+    (session?.session as { activeOrganizationId?: string | null })
       ?.activeOrganizationId ?? null
   );
 }
@@ -55,6 +57,9 @@ export function ActiveOrganizationProvider({
   const enabled = isOrganizationsEnabledOnClient();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { data: session, isPending: sessionPending } = useSession();
+  const sessionActiveOrganizationId = readSessionActiveOrganizationId(session);
+
   const [orgs, setOrgs] = useState<OrgListItem[]>([]);
   const [activeOrganizationId, setActiveOrganizationId] = useState<
     string | null
@@ -64,30 +69,31 @@ export function ActiveOrganizationProvider({
   const [initialLoadDone, setInitialLoadDone] = useState(!enabled);
   const initialLoadStarted = useRef(false);
 
+  useEffect(() => {
+    if (!enabled || sessionPending) {
+      return;
+    }
+    if (sessionActiveOrganizationId) {
+      setActiveOrganizationId(sessionActiveOrganizationId);
+    }
+  }, [enabled, sessionActiveOrganizationId, sessionPending]);
+
   const refreshOrganizations = useCallback(async () => {
     if (!enabled) return;
     const list = await authClient.organization.list();
     const data = (list.data ?? []) as OrgListItem[];
     setOrgs(data);
-    const active = await readActiveOrganizationId();
-    if (active) {
-      setActiveOrganizationId(active);
-      return;
-    }
-    const firstId = data[0]?.id ?? null;
-    setActiveOrganizationId(firstId);
-    if (firstId) {
-      try {
-        await authClient.organization.setActive({ organizationId: firstId });
-      } catch {
-        // Session may not be ready yet; OrgOnboardingGate will retry.
-      }
-    }
-  }, [enabled]);
+    const active = sessionActiveOrganizationId ?? data[0]?.id ?? null;
+    setActiveOrganizationId(active);
+  }, [enabled, sessionActiveOrganizationId]);
 
   useEffect(() => {
     if (!enabled) {
       setLoading(false);
+      return;
+    }
+
+    if (sessionPending) {
       return;
     }
 
@@ -115,7 +121,7 @@ export function ActiveOrganizationProvider({
     return () => {
       cancelled = true;
     };
-  }, [enabled, refreshOrganizations]);
+  }, [enabled, queryClient, refreshOrganizations, sessionPending]);
 
   const applyActiveOrganization = useCallback(
     async (organizationId: string, options?: { awaitRefresh?: boolean }) => {

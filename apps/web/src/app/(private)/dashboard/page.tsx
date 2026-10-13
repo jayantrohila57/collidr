@@ -11,7 +11,7 @@ export default async function DashboardPage() {
   const { session, dehydratedState } = await loadDashboardPage();
 
   if (!session?.user) {
-    redirect("/");
+    redirect("/sign-in?redirect=%2Fdashboard");
   }
 
   return (

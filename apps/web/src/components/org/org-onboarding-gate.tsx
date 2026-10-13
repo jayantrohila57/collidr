@@ -1,11 +1,10 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
+import { useSession } from "@/domain/auth/lib/auth-actions";
 import { authClient } from "@/lib/auth-client";
-import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 
 const EXEMPT_PREFIXES = [
@@ -17,7 +16,7 @@ const EXEMPT_PREFIXES = [
 export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const queryClient = useQueryClient();
+  const { data: session, isPending: sessionPending } = useSession();
   const [ready, setReady] = useState(!isOrganizationsEnabledOnClient());
 
   useEffect(() => {
@@ -30,20 +29,23 @@ export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    if (sessionPending) {
+      return;
+    }
+
+    const activeId = (
+      session?.session as { activeOrganizationId?: string | null }
+    )?.activeOrganizationId;
+
+    if (activeId) {
+      setReady(true);
+      return;
+    }
+
     let cancelled = false;
 
     void (async () => {
       try {
-        const session = await authClient.getSession();
-        const activeId = (
-          session.data?.session as { activeOrganizationId?: string | null }
-        )?.activeOrganizationId;
-
-        if (activeId) {
-          if (!cancelled) setReady(true);
-          return;
-        }
-
         const list = await authClient.organization.list();
         const orgs = list.data ?? [];
 
@@ -52,16 +54,6 @@ export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        const firstOrg = orgs[0];
-        if (firstOrg?.id) {
-          await authClient.organization.setActive({
-            organizationId: firstOrg.id,
-          });
-          await invalidateAfterOrganizationChange(queryClient);
-          router.refresh();
-          if (!cancelled) setReady(true);
-          return;
-        }
         if (!cancelled) setReady(true);
       } catch {
         if (!cancelled) setReady(true);
@@ -71,7 +63,7 @@ export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [pathname, queryClient, router]);
+  }, [pathname, router, session, sessionPending]);
 
   if (!ready) {
     return (
