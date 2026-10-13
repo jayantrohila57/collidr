@@ -9,33 +9,34 @@ import type { z } from "zod/v3";
 import { FormField } from "@/components/patterns/form-field";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetClose,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetPanel,
+  SheetPopup,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const environmentNameSchema = createEnvironmentInput.pick({ name: true });
 
-interface CreateEnvironmentDialogProps {
+interface CreateEnvironmentSheetProps {
   onConfirm: (name: string) => Promise<void>;
   isPending: boolean;
   triggerText?: string;
-  /** Icon-only trigger on small screens when paired with compactOnMobile */
   compactOnMobile?: boolean;
 }
 
-export function CreateEnvironmentDialog({
+export function CreateEnvironmentSheet({
   onConfirm,
   isPending,
   triggerText = "Create Environment",
   compactOnMobile = false,
-}: CreateEnvironmentDialogProps) {
+}: CreateEnvironmentSheetProps) {
   const [open, setOpen] = useState(false);
 
   const form = useForm({
@@ -51,8 +52,8 @@ export function CreateEnvironmentDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger
         render={
           <Button
             variant={triggerText === "Add Environment" ? "outline" : "default"}
@@ -73,16 +74,16 @@ export function CreateEnvironmentDialog({
         <span className={compactOnMobile ? "hidden sm:inline" : undefined}>
           {triggerText}
         </span>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create Environment</DialogTitle>
-          <DialogDescription>
+      </SheetTrigger>
+      <SheetPopup variant="inset">
+        <SheetHeader>
+          <SheetTitle>Create Environment</SheetTitle>
+          <SheetDescription>
             Add a new environment (e.g., development, staging, production).
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="space-y-4 py-4">
+          </SheetDescription>
+        </SheetHeader>
+        <form className="contents" onSubmit={form.handleSubmit(onSubmit)}>
+          <SheetPanel className="grid gap-4">
             <Controller
               name="name"
               control={form.control}
@@ -103,22 +104,21 @@ export function CreateEnvironmentDialog({
                 </FormField>
               )}
             />
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={isPending}
+          </SheetPanel>
+          <SheetFooter>
+            <SheetClose
+              render={
+                <Button variant="ghost" type="button" disabled={isPending} />
+              }
             >
               Cancel
-            </Button>
+            </SheetClose>
             <SubmitButton isLoading={isPending} loadingLabel="Creating…">
               Create
             </SubmitButton>
-          </DialogFooter>
+          </SheetFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </SheetPopup>
+    </Sheet>
   );
 }

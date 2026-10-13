@@ -6,27 +6,29 @@ import { useState } from "react";
 import { FormField } from "@/components/patterns/form-field";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetClose,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetPanel,
+  SheetPopup,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 
-interface AddVariableDialogProps {
+interface AddVariableSheetProps {
   onConfirm: (data: { key: string; value: string }) => Promise<void>;
   isPending: boolean;
 }
 
-export function AddVariableDialog({
+export function AddVariableSheet({
   onConfirm,
   isPending,
-}: AddVariableDialogProps) {
+}: AddVariableSheetProps) {
   const [open, setOpen] = useState(false);
   const [key, setKey] = useState("");
   const [value, setValue] = useState("");
@@ -40,6 +42,12 @@ export function AddVariableDialog({
     return null;
   };
 
+  const reset = () => {
+    setError(null);
+    setKey("");
+    setValue("");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const keyError = validateKey(key);
@@ -50,33 +58,28 @@ export function AddVariableDialog({
     setError(null);
     await onConfirm({ key: key.trim().toUpperCase(), value });
     setOpen(false);
-    setKey("");
-    setValue("");
+    reset();
   };
 
   return (
-    <Dialog
+    <Sheet
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next) {
-          setError(null);
-          setKey("");
-          setValue("");
-        }
+        if (!next) reset();
       }}
     >
-      <DialogTrigger render={<Button size="sm" className="max-sm:min-h-11" />}>
+      <SheetTrigger render={<Button size="sm" className="max-sm:min-h-11" />}>
         <Plus className="me-2 h-4 w-4" />
         Add Variable
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add Variable</DialogTitle>
-          <DialogDescription>Add a new environment variable.</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
+      </SheetTrigger>
+      <SheetPopup variant="inset">
+        <SheetHeader>
+          <SheetTitle>Add Variable</SheetTitle>
+          <SheetDescription>Add a new environment variable.</SheetDescription>
+        </SheetHeader>
+        <form className="contents" onSubmit={handleSubmit}>
+          <SheetPanel className="grid gap-4">
             <FormField
               id="var-key"
               label="Key"
@@ -93,7 +96,6 @@ export function AddVariableDialog({
                 placeholder="DATABASE_URL"
                 className="font-mono"
                 aria-invalid={Boolean(error)}
-                aria-describedby={error ? "var-key-error" : undefined}
               />
             </FormField>
             <FormField id="var-value" label="Value" required>
@@ -106,21 +108,17 @@ export function AddVariableDialog({
                 className="wrap-anywhere max-h-72 min-h-24 overflow-y-auto font-mono"
               />
             </FormField>
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
+          </SheetPanel>
+          <SheetFooter>
+            <SheetClose render={<Button variant="ghost" type="button" />}>
               Cancel
-            </Button>
+            </SheetClose>
             <SubmitButton isLoading={isPending} loadingLabel="Adding…">
               Add
             </SubmitButton>
-          </DialogFooter>
+          </SheetFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </SheetPopup>
+    </Sheet>
   );
 }

@@ -35,6 +35,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetClose,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetPanel,
+  SheetPopup,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useSession } from "@/domain/auth/lib/auth-actions";
@@ -86,6 +96,8 @@ export function OrganizationSettingsForm({
   const [invitePending, setInvitePending] = useState(false);
   const [rolePendingId, setRolePendingId] = useState<string | null>(null);
   const [savePending, setSavePending] = useState(false);
+  const [editOrgOpen, setEditOrgOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirmName, setDeleteConfirmName] = useState("");
   const [deletePending, setDeletePending] = useState(false);
@@ -151,6 +163,7 @@ export function OrganizationSettingsForm({
       });
       toast.success("Invitation sent");
       setInviteEmail("");
+      setInviteOpen(false);
       await loadOrganization(organizationId);
     } catch {
       toast.error("Could not send invitation");
@@ -198,6 +211,7 @@ export function OrganizationSettingsForm({
         return;
       }
       toast.success("Organization updated");
+      setEditOrgOpen(false);
       await loadOrganization(organizationId);
       await refreshOrganizations();
     } catch {
@@ -295,88 +309,26 @@ export function OrganizationSettingsForm({
           <CardTitle>Organization</CardTitle>
           <CardDescription>Name and slug for this workspace.</CardDescription>
         </CardHeader>
-        <CardPanel>
-          <form onSubmit={handleSaveProfile} className="space-y-4">
-            <FormField id="org-name-edit" label="Name" required>
-              <Input
-                id="org-name-edit"
-                value={orgName}
-                onChange={(e) => setOrgName(e.target.value)}
-              />
-            </FormField>
-            <FormField
-              id="org-slug-edit"
-              label="Slug"
-              required
-              hint="Slugs use lowercase letters, numbers, and hyphens."
-              error={slugError}
-            >
-              <OrgSlugInput
-                id="org-slug-edit"
-                value={orgSlug}
-                onChange={(value) => {
-                  setSlugError(undefined);
-                  setOrgSlug(value);
-                }}
-              />
-            </FormField>
-            <SubmitButton isLoading={savePending} loadingLabel="Saving…">
-              Save changes
-            </SubmitButton>
-          </form>
+        <CardPanel className="flex flex-col gap-3">
+          <p className="font-medium">{orgName}</p>
+          <p className="text-muted-foreground text-sm">{orgSlug}</p>
+          <Button type="button" onClick={() => setEditOrgOpen(true)}>
+            Edit organization
+          </Button>
         </CardPanel>
       </Card>
 
       <Card>
         <CardHeader>
           <CardTitle>Invite member</CardTitle>
+          <CardDescription>
+            Send an invitation to join this workspace.
+          </CardDescription>
         </CardHeader>
         <CardPanel>
-          <form onSubmit={handleInvite} className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-end">
-              <FormField id="invite-email" label="Email" required>
-                <Input
-                  id="invite-email"
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="colleague@example.com"
-                  autoComplete="email"
-                />
-              </FormField>
-              <FormField id="invite-role" label="Role">
-                <Select
-                  value={inviteRole}
-                  items={ROLE_SELECT_ITEMS}
-                  onValueChange={(value) => {
-                    if (value) setInviteRole(value);
-                  }}
-                >
-                  <SelectTrigger id="invite-role" className="w-full sm:w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ROLES.map((role) => (
-                      <SelectItem
-                        key={role}
-                        value={role}
-                        className="capitalize"
-                      >
-                        {role}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormField>
-              <SubmitButton
-                isLoading={invitePending}
-                loadingLabel="Sending…"
-                disabled={!inviteEmail.trim()}
-              >
-                Invite
-              </SubmitButton>
-            </div>
-          </form>
+          <Button type="button" onClick={() => setInviteOpen(true)}>
+            Invite member
+          </Button>
         </CardPanel>
       </Card>
 
@@ -451,6 +403,129 @@ export function OrganizationSettingsForm({
           )}
         </CardPanel>
       </Card>
+
+      <Sheet open={editOrgOpen} onOpenChange={setEditOrgOpen}>
+        <SheetPopup variant="inset">
+          <SheetHeader>
+            <SheetTitle>Edit organization</SheetTitle>
+            <SheetDescription>
+              Update the name and URL slug for this workspace.
+            </SheetDescription>
+          </SheetHeader>
+          <form className="contents" onSubmit={handleSaveProfile}>
+            <SheetPanel className="grid gap-4">
+              <FormField id="org-name-edit" label="Name" required>
+                <Input
+                  id="org-name-edit"
+                  value={orgName}
+                  onChange={(e) => setOrgName(e.target.value)}
+                />
+              </FormField>
+              <FormField
+                id="org-slug-edit"
+                label="Slug"
+                required
+                hint="Slugs use lowercase letters, numbers, and hyphens."
+                error={slugError}
+              >
+                <OrgSlugInput
+                  id="org-slug-edit"
+                  value={orgSlug}
+                  onChange={(value) => {
+                    setSlugError(undefined);
+                    setOrgSlug(value);
+                  }}
+                />
+              </FormField>
+            </SheetPanel>
+            <SheetFooter>
+              <SheetClose
+                render={
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    disabled={savePending}
+                  />
+                }
+              >
+                Cancel
+              </SheetClose>
+              <SubmitButton isLoading={savePending} loadingLabel="Saving…">
+                Save changes
+              </SubmitButton>
+            </SheetFooter>
+          </form>
+        </SheetPopup>
+      </Sheet>
+
+      <Sheet open={inviteOpen} onOpenChange={setInviteOpen}>
+        <SheetPopup variant="inset">
+          <SheetHeader>
+            <SheetTitle>Invite member</SheetTitle>
+            <SheetDescription>
+              Send an email invitation with a role for this organization.
+            </SheetDescription>
+          </SheetHeader>
+          <form className="contents" onSubmit={handleInvite}>
+            <SheetPanel className="grid gap-4">
+              <FormField id="invite-email" label="Email" required>
+                <Input
+                  id="invite-email"
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="colleague@example.com"
+                  autoComplete="email"
+                />
+              </FormField>
+              <FormField id="invite-role" label="Role">
+                <Select
+                  value={inviteRole}
+                  items={ROLE_SELECT_ITEMS}
+                  onValueChange={(value) => {
+                    if (value) setInviteRole(value);
+                  }}
+                >
+                  <SelectTrigger id="invite-role" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLES.map((role) => (
+                      <SelectItem
+                        key={role}
+                        value={role}
+                        className="capitalize"
+                      >
+                        {role}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+            </SheetPanel>
+            <SheetFooter>
+              <SheetClose
+                render={
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    disabled={invitePending}
+                  />
+                }
+              >
+                Cancel
+              </SheetClose>
+              <SubmitButton
+                isLoading={invitePending}
+                loadingLabel="Sending…"
+                disabled={!inviteEmail.trim()}
+              >
+                Send invitation
+              </SubmitButton>
+            </SheetFooter>
+          </form>
+        </SheetPopup>
+      </Sheet>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogPopup>

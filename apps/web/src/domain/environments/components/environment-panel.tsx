@@ -8,7 +8,7 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import { useVariables } from "../hooks/use-variables";
-import { AddVariableDialog } from "./add-variable-dialog";
+import { AddVariableSheet } from "./add-variable-sheet";
 import { VariablesSkeleton } from "./skeletons";
 import { VariablesTableView } from "./variables-table-view";
 
@@ -85,7 +85,7 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
     <Frame>
       <FrameHeader>
         <FrameTitle>Variables</FrameTitle>
-        <AddVariableDialog onConfirm={handleCreate} isPending={isCreating} />
+        <AddVariableSheet onConfirm={handleCreate} isPending={isCreating} />
       </FrameHeader>
       <FramePanel>
         <VariablesTableView

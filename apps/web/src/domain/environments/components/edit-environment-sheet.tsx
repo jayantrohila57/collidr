@@ -5,15 +5,17 @@ import { useEffect, useState } from "react";
 import { FormField } from "@/components/patterns/form-field";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetClose,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetPanel,
+  SheetPopup,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   Tooltip,
   TooltipContent,
@@ -25,31 +27,31 @@ interface Environment {
   name: string;
 }
 
-interface EditEnvironmentDialogProps {
+interface EditEnvironmentSheetProps {
   environment: Environment;
   onConfirm: (id: string, name: string) => Promise<void>;
   isPending: boolean;
 }
 
-export function EditEnvironmentDialog({
+export function EditEnvironmentSheet({
   environment,
   onConfirm,
   isPending,
-}: EditEnvironmentDialogProps) {
+}: EditEnvironmentSheetProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(environment.name);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setName(environment.name);
-  }, [environment.id, environment.name]);
+  }, [environment.name]);
 
   useEffect(() => {
     if (open) {
       setName(environment.name);
       setError(null);
     }
-  }, [open, environment.id, environment.name]);
+  }, [open, environment.name]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,17 +103,21 @@ export function EditEnvironmentDialog({
           Edit environment
         </TooltipContent>
       </Tooltip>
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Environment</DialogTitle>
-            <DialogDescription>
+      <Sheet open={open} onOpenChange={handleOpenChange}>
+        <SheetPopup variant="inset">
+          <SheetHeader>
+            <SheetTitle>Edit Environment</SheetTitle>
+            <SheetDescription>
               Update the environment name. This will change how it appears in
               the tabs.
-            </DialogDescription>
-          </DialogHeader>
-          <form key={environment.id} onSubmit={handleSubmit}>
-            <div className="space-y-4 py-4">
+            </SheetDescription>
+          </SheetHeader>
+          <form
+            key={environment.id}
+            className="contents"
+            onSubmit={handleSubmit}
+          >
+            <SheetPanel className="grid gap-4">
               <FormField
                 id={`env-name-${environment.id}`}
                 label="Name"
@@ -129,22 +135,18 @@ export function EditEnvironmentDialog({
                   aria-invalid={Boolean(error)}
                 />
               </FormField>
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
-              >
+            </SheetPanel>
+            <SheetFooter>
+              <SheetClose render={<Button variant="ghost" type="button" />}>
                 Cancel
-              </Button>
+              </SheetClose>
               <SubmitButton isLoading={isPending} loadingLabel="Updating…">
                 Update
               </SubmitButton>
-            </DialogFooter>
+            </SheetFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </SheetPopup>
+      </Sheet>
     </>
   );
 }

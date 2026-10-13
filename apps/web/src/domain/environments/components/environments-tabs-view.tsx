@@ -19,9 +19,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CreateEnvironmentDialog } from "./create-environment-dialog";
+import { CreateEnvironmentSheet } from "./create-environment-sheet";
 import { DeleteEnvironmentDialog } from "./delete-environment-dialog";
-import { EditEnvironmentDialog } from "./edit-environment-dialog";
+import { EditEnvironmentSheet } from "./edit-environment-sheet";
 
 interface Environment {
   id: string;
@@ -76,10 +76,7 @@ export function EnvironmentsTabsView({
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <CreateEnvironmentDialog
-            onConfirm={onCreate}
-            isPending={isCreating}
-          />
+          <CreateEnvironmentSheet onConfirm={onCreate} isPending={isCreating} />
         </EmptyContent>
       </Empty>
     );
@@ -92,7 +89,7 @@ export function EnvironmentsTabsView({
           <FileKey className="size-5 shrink-0 text-muted-foreground" />
           <span className="truncate">Environments</span>
         </h2>
-        <CreateEnvironmentDialog
+        <CreateEnvironmentSheet
           onConfirm={onCreate}
           isPending={isCreating}
           triggerText="Add Environment"
@@ -129,7 +126,7 @@ export function EnvironmentsTabsView({
           </Select>
           {activeEnvironment && (
             <div className="flex items-center gap-1">
-              <EditEnvironmentDialog
+              <EditEnvironmentSheet
                 environment={activeEnvironment}
                 onConfirm={onUpdate}
                 isPending={isUpdating}
@@ -155,7 +152,7 @@ export function EnvironmentsTabsView({
                     {env.name}
                   </TabsTrigger>
                   <span className="flex shrink-0 items-center gap-0.5 pe-2">
-                    <EditEnvironmentDialog
+                    <EditEnvironmentSheet
                       environment={env}
                       onConfirm={onUpdate}
                       isPending={isUpdating}

@@ -1,29 +1,15 @@
 import { auth } from "@env-manager/auth";
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import DashboardSection from "@/components/section-dashboard";
+import { Suspense } from "react";
+import { ProjectsPageClient } from "@/domain/projects/components/projects-page-client";
 import { ProjectsSkeleton } from "@/domain/projects/components/skeletons";
 import { siteConfig } from "@/lib/siteConfig";
-
-const ProjectList = dynamic(
-  () => import("@/domain/projects/components/project-list"),
-  {
-    loading: () => <ProjectsSkeleton />,
-  },
-);
 
 export const metadata: Metadata = {
   title: "Projects",
   description: `Manage your projects and environment variables in ${siteConfig.name}.`,
-};
-
-const header = {
-  title: "Projects",
-  description: "Manage your projects and environment variables",
-  actionLabel: "New Project",
-  actionHref: "/dashboard/projects/new",
 };
 
 export default async function ProjectsPage() {
@@ -36,8 +22,8 @@ export default async function ProjectsPage() {
   }
 
   return (
-    <DashboardSection {...header}>
-      <ProjectList />
-    </DashboardSection>
+    <Suspense fallback={<ProjectsSkeleton />}>
+      <ProjectsPageClient />
+    </Suspense>
   );
 }

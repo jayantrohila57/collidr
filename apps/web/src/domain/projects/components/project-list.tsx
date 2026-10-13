@@ -24,7 +24,11 @@ interface ProjectCategory {
   defaultOpen?: boolean;
 }
 
-export default function ProjectList() {
+interface ProjectListProps {
+  onCreateProject?: () => void;
+}
+
+export default function ProjectList({ onCreateProject }: ProjectListProps) {
   const { projects, status, error, refetch } = useProjects();
 
   const categorizedProjects = useMemo(() => {
@@ -97,7 +101,7 @@ export default function ProjectList() {
           title="No projects yet"
           description="Create your first project to start managing environment variables."
           actionLabel="Create Project"
-          actionHref="/dashboard/projects/new"
+          onAction={onCreateProject}
         />
       );
     case "success":
@@ -139,7 +143,7 @@ export default function ProjectList() {
                     title={`No ${category.title.toLowerCase()}`}
                     description="There are no projects in this category."
                     actionLabel="Create Project"
-                    actionHref="/dashboard/projects/new"
+                    onAction={onCreateProject}
                   />
                 )}
               </CollapsibleContent>

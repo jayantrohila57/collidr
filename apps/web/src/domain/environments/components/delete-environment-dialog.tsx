@@ -2,16 +2,8 @@
 
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import { SubmitButton } from "@/components/patterns/submit-button";
+import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -58,36 +50,16 @@ export function DeleteEnvironmentDialog({
         </TooltipTrigger>
         <TooltipContent>Delete environment</TooltipContent>
       </Tooltip>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete environment</DialogTitle>
-            <DialogDescription>
-              Delete "{environmentName}" and all variables in it? This cannot be
-              undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={isPending}
-            >
-              Cancel
-            </Button>
-            <SubmitButton
-              type="button"
-              variant="destructive"
-              onClick={handleConfirm}
-              isLoading={isPending}
-              loadingLabel="Deleting…"
-            >
-              Delete
-            </SubmitButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={open}
+        onOpenChange={setOpen}
+        title="Delete environment"
+        description={`Delete "${environmentName}" and all variables in it? This cannot be undone.`}
+        confirmLabel="Delete"
+        variant="destructive"
+        isPending={isPending}
+        onConfirm={handleConfirm}
+      />
     </>
   );
 }

@@ -12,7 +12,6 @@ import {
   Power,
   RefreshCw,
 } from "lucide-react";
-import type { Route } from "next";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,13 +19,13 @@ import {
   MenuGroup,
   MenuGroupLabel,
   MenuItem,
-  MenuLinkItem,
   MenuPopup,
   MenuSeparator,
   MenuTrigger,
 } from "@/components/ui/menu";
 import { toast } from "@/lib/toast";
 import { useProjectActions } from "../hooks/use-project-actions";
+import { EditProjectSheet } from "./edit-project-sheet";
 import { ProjectActionDialog } from "./project-action-dialog";
 
 interface ProjectActionsProps {
@@ -34,19 +33,12 @@ interface ProjectActionsProps {
   onUpdate?: () => void;
 }
 
-function projectEditHref(slug: string | null | undefined): Route | null {
-  const trimmed = slug?.trim();
-  if (!trimmed) return null;
-  return `/dashboard/projects/${trimmed}/edit` as Route;
-}
-
 export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [unarchiveDialogOpen, setUnarchiveDialogOpen] = useState(false);
-
-  const editHref = projectEditHref(project.slug);
 
   const {
     archiveProject,
@@ -89,17 +81,15 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
         <MenuPopup align="end" className="w-80">
           <MenuGroup>
             <MenuGroupLabel>Project Actions</MenuGroupLabel>
-            {editHref ? (
-              <MenuLinkItem href={editHref} onClick={() => setMenuOpen(false)}>
-                <Edit className="me-2 h-4 w-4" />
-                Edit Project
-              </MenuLinkItem>
-            ) : (
-              <MenuItem disabled>
-                <Edit className="me-2 h-4 w-4" />
-                Edit Project (unavailable)
-              </MenuItem>
-            )}
+            <MenuItem
+              onClick={() => {
+                setMenuOpen(false);
+                setEditOpen(true);
+              }}
+            >
+              <Edit className="me-2 h-4 w-4" />
+              Edit Project
+            </MenuItem>
           </MenuGroup>
 
           <MenuSeparator />
@@ -189,6 +179,13 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
           </MenuItem>
         </MenuPopup>
       </Menu>
+
+      <EditProjectSheet
+        project={project}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        onSuccess={onUpdate}
+      />
 
       <ProjectActionDialog
         open={deleteDialogOpen}

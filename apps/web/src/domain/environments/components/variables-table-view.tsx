@@ -18,8 +18,8 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from "@/components/ui/menu";
-import { AddVariableDialog } from "./add-variable-dialog";
-import { EditVariableDialog } from "./edit-variable-dialog";
+import { AddVariableSheet } from "./add-variable-sheet";
+import { EditVariableSheet } from "./edit-variable-sheet";
 import { VariablesMobileList } from "./variables-mobile-list";
 
 interface Variable {
@@ -244,7 +244,7 @@ export function VariablesTableView({
           description="Add your first environment variable to get started."
         />
         <div className="flex justify-center">
-          <AddVariableDialog
+          <AddVariableSheet
             onConfirm={onAddVariable}
             isPending={isAddingVariable}
           />
@@ -272,7 +272,7 @@ export function VariablesTableView({
       </div>
 
       {editVariable && (
-        <EditVariableDialog
+        <EditVariableSheet
           open={editDialogOpen}
           onOpenChange={(open) => {
             setEditDialogOpen(open);

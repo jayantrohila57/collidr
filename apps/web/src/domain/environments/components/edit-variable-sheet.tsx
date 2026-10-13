@@ -5,19 +5,21 @@ import { useEffect, useState } from "react";
 import { FormField } from "@/components/patterns/form-field";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetClose,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetPanel,
+  SheetPopup,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 
-interface EditVariableDialogProps {
+interface EditVariableSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   variable: {
@@ -34,14 +36,14 @@ interface EditVariableDialogProps {
   isPending: boolean;
 }
 
-export function EditVariableDialog({
+export function EditVariableSheet({
   open,
   onOpenChange,
   variable,
   isLoadingValue = false,
   onConfirm,
   isPending,
-}: EditVariableDialogProps) {
+}: EditVariableSheetProps) {
   const [key, setKey] = useState(variable.key);
   const [value, setValue] = useState(variable.value || "");
   const [error, setError] = useState<string | null>(null);
@@ -79,17 +81,17 @@ export function EditVariableDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit Variable</DialogTitle>
-          <DialogDescription>
-            Update the key and value. The current value is loaded when you open
-            this dialog.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetPopup variant="inset">
+        <SheetHeader>
+          <SheetTitle>Edit Variable</SheetTitle>
+          <SheetDescription>
+            Update the key and value. The current value loads when you open this
+            sheet.
+          </SheetDescription>
+        </SheetHeader>
+        <form className="contents" onSubmit={handleSubmit}>
+          <SheetPanel className="grid gap-4">
             <FormField
               id="edit-key"
               label="Key"
@@ -130,15 +132,11 @@ export function EditVariableDialog({
                 />
               </div>
             </FormField>
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+          </SheetPanel>
+          <SheetFooter>
+            <SheetClose render={<Button variant="ghost" type="button" />}>
               Cancel
-            </Button>
+            </SheetClose>
             <SubmitButton
               isLoading={isPending}
               loadingLabel="Updating…"
@@ -146,9 +144,9 @@ export function EditVariableDialog({
             >
               Update
             </SubmitButton>
-          </DialogFooter>
+          </SheetFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </SheetPopup>
+    </Sheet>
   );
 }

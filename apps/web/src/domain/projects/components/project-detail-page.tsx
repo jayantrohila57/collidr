@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { ErrorState } from "@/components/patterns/error-state";
 import { StatusBadge } from "@/components/patterns/status-badge";
 import DashboardSection from "@/components/section-dashboard";
@@ -7,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
 import { useEnvironments } from "@/domain/environments/hooks/use-environments";
+import { EditProjectSheet } from "./edit-project-sheet";
 import { ProjectActions } from "./project-actions";
 import ProjectDetail from "./project-detail";
 
@@ -41,7 +44,23 @@ export default function ProjectDetailPage({
   slug,
   initialName,
 }: ProjectDetailPageProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [editOpen, setEditOpen] = useState(false);
   const { project, status } = useEnvironments(slug);
+
+  useEffect(() => {
+    if (searchParams.get("edit") === "1" && status === "success" && project) {
+      setEditOpen(true);
+    }
+  }, [searchParams, status, project]);
+
+  const handleEditOpenChange = (open: boolean) => {
+    setEditOpen(open);
+    if (!open && searchParams.get("edit") === "1") {
+      router.replace(`/dashboard/projects/${slug}`);
+    }
+  };
 
   if (status === "loading") {
     return (
@@ -74,18 +93,25 @@ export default function ProjectDetailPage({
   }
 
   return (
-    <DashboardSection
-      title={project.name}
-      titleAccessory={
-        <ProjectHeaderBadges
-          isPublic={project.isPublic}
-          isArchived={project.isArchived}
-          status={project.status}
-        />
-      }
-      action={<ProjectActions project={project} />}
-    >
-      <ProjectDetail projectSlug={slug} project={project} />
-    </DashboardSection>
+    <>
+      <DashboardSection
+        title={project.name}
+        titleAccessory={
+          <ProjectHeaderBadges
+            isPublic={project.isPublic}
+            isArchived={project.isArchived}
+            status={project.status}
+          />
+        }
+        action={<ProjectActions project={project} />}
+      >
+        <ProjectDetail projectSlug={slug} project={project} />
+      </DashboardSection>
+      <EditProjectSheet
+        project={project}
+        open={editOpen}
+        onOpenChange={handleEditOpenChange}
+      />
+    </>
   );
 }
