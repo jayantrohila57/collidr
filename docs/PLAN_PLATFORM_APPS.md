@@ -351,11 +351,20 @@ Each app’s tRPC context / middleware:
 | **`@env-manager/permissions`** | **new** | `requireAction`, `actionGuard`, MCP scope maps (from `packages/api/src/actions`) |
 | **`@env-manager/auth`** | extend | `createAuth()` — **only imported by `apps/auth`** |
 | **`@env-manager/auth-client`** | **new** | `createAuthClient({ baseURL })`, React hooks, org client plugin |
-| **`@env-manager/api`** | extend | `services/*` shared by tRPC + MCP; `studioRouter`, `accountRouter`, `consoleRouter` |
+| **`@env-manager/api`** | extend | Shared `appRouter` / sub-routers + `services/*` for tRPC and MCP; each app mounts a **subset** at `/api/trpc` (Decision 16) |
 | **`@env-manager/ui`** | **new** | coss components, toast, icons, patterns (`PageHeader`, data-table) from `apps/web` |
 | **`@env-manager/docs-config`** | optional | Shared MDX components for docs + studio help links |
 
 **Turbo:** `globalEnv` adds `NEXT_PUBLIC_AUTH_URL`, `NEXT_PUBLIC_STUDIO_URL`, etc.
+
+### 7.1 tRPC deployment (Decision 16)
+
+| Pattern | Detail |
+|---------|--------|
+| **Mount** | Each UI app (`studio`, `account`, `console`) exposes its own **`/api/trpc`** Next.js route. |
+| **Router** | Import composed routers from **`@env-manager/api`** — e.g. studio mounts full product router; account mounts `account` + self-scoped audit; console mounts operator procedures only. |
+| **Excluded** | **No** dedicated `apps/gateway` or shared API-only Vercel project for tRPC in v1. |
+| **MCP** | Same service layer as tRPC; MCP does not proxy through another app’s `/api/trpc`. |
 
 ---
 
@@ -632,6 +641,17 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 **Implication:** `apps/mcp` is a thin Vercel MCP surface; business logic stays in packages.
 
+### Decision 16 — tRPC mounting (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Topology** | **Per-app `/api/trpc`** on each Next.js deployable (`apps/studio`, `apps/account`, `apps/console`). |
+| **Code** | Single implementation in **`@env-manager/api`** — composed `appRouter` and/or `studioRouter`, `accountRouter`, `consoleRouter`; apps only wire context, auth session, and route handler. |
+| **Excluded** | No standalone **API gateway** app, no central `api.env-manager.com` tRPC proxy for v1. |
+| **Auth app** | `apps/auth` does **not** mount product tRPC — auth routes only (`/api/auth/*`). |
+
+**Implication:** Vercel project count stays one per UI app; API surface is duplicated at the HTTP edge but not in business logic.
+
 ---
 
 ## 15. Open decisions (numbered)
@@ -639,11 +659,10 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 1. **Cookie domain** (custom apex) — `env-manager.com` vs `.env-manager.com` vs per-subdomain only?
 2. **Auth proxy vs cookie-only** (custom apex) — rewrites on every sibling app or only `crossSubDomainCookies`?
 3. **Marketing site** — `www` → docs, studio landing, or separate?
-4. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
-5. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
-6. **Account app URL in emails** — branding and link targets?
-7. **Impersonation banner** — show on studio, account, or all apps?
-8. **Better Auth upgrade** — before P2 or as part of P2?
+4. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
+5. **Account app URL in emails** — branding and link targets?
+6. **Impersonation banner** — show on studio, account, or all apps?
+7. **Better Auth upgrade** — before P2 or as part of P2?
 
 ---
 
