@@ -179,27 +179,16 @@ export function SidebarProjectsGroup({
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     type="button"
+                    className="text-muted-foreground hover:text-sidebar-accent-foreground"
                     onClick={() => persistListExpanded(!listExpanded)}
                   >
-                    <AppIcon name="projectFolder" className="text-current" />
-                    <span className="text-xs">
-                      {listExpanded
-                        ? "Show less"
-                        : `Show more (${hiddenCount} more)`}
+                    <span className="size-5 shrink-0" aria-hidden />
+                    <span className="truncate text-sm">
+                      {listExpanded ? "Less" : "More"}
                     </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={pathname === "/dashboard/projects"}
-                  tooltip="View all projects"
-                  render={<Link href={"/dashboard/projects" as Route} />}
-                >
-                  <AppIcon name="project" className="text-current" />
-                  <span className="text-xs">View all projects</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </CollapsiblePanel>

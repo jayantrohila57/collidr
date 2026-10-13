@@ -17,7 +17,7 @@ test.describe("app sidebar", () => {
     await page.goto("/dashboard/projects");
     await page.waitForLoadState("networkidle");
     await expect(
-      page.getByRole("link", { name: "View all projects" }),
+      page.getByRole("link", { name: "Projects", exact: true }).first(),
     ).toBeVisible();
     await expect(
       page.getByText("Organizations", { exact: true }),
