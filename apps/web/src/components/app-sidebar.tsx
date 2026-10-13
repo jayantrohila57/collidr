@@ -6,7 +6,6 @@ import {
   FolderIcon,
   LayoutDashboardIcon,
   SettingsIcon,
-  X,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -14,7 +13,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSwitcher } from "@/components/org/org-switcher";
-import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -27,29 +25,10 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
   SidebarRail,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
-import { siteConfig } from "@/lib/siteConfig";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { Separator } from "./ui/separator";
-
-function MobileSidebarClose() {
-  const { isMobile, setOpenMobile } = useSidebar();
-  if (!isMobile) return null;
-  return (
-    <Button
-      type="button"
-      variant="outline"
-      size="icon"
-      className="size-11 shrink-0"
-      aria-label="Close sidebar"
-      onClick={() => setOpenMobile(false)}
-    >
-      <X className="size-5" aria-hidden />
-    </Button>
-  );
-}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
@@ -57,6 +36,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isSwitching } = useActiveOrganization();
   const { projects, status } = useProjects();
   const projectsLoading = isSwitching || status === "loading";
+  const showOrgSwitcher = isOrganizationsEnabledOnClient();
 
   useEffect(() => {
     setMounted(true);
@@ -73,12 +53,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     if (!mounted) return false;
     if (href === pathname) return true;
 
-    // Sort menu items by length (longest first) to find most specific match
     const sortedItems = [...menuItems].sort(
       (a, b) => b.href.length - a.href.length,
     );
 
-    // Find the first item that matches the current pathname
     const activeItem = sortedItems.find(
       (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
     );
@@ -88,31 +66,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
-      <SidebarHeader className="pe-2">
-        <SidebarMenu>
-          <SidebarMenuItem className="flex flex-row items-start gap-2">
-            <Avatar className="size-9 shrink-0">
-              <AvatarImage src="/favicon/favicon.ico" alt={siteConfig.name} />
-              <AvatarFallback>
-                {siteConfig.name
-                  ? siteConfig.name.slice(0, 2).toUpperCase()
-                  : "NA"}
-              </AvatarFallback>
-            </Avatar>
-            <div className="grid min-w-0 flex-1 text-start text-sm leading-tight">
-              <span className="truncate font-medium">{siteConfig.name}</span>
-              <span className="line-clamp-2 text-xs">
-                {siteConfig.description}
-              </span>
-            </div>
-            <MobileSidebarClose />
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent>
-        <div className="px-2">
+      {showOrgSwitcher ? (
+        <SidebarHeader>
           <OrgSwitcher />
-        </div>
+        </SidebarHeader>
+      ) : null}
+      <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <Separator className="my-2 group-data-[collapsible=icon]:hidden" />

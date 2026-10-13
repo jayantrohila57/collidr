@@ -3,9 +3,9 @@
 import { Building2, ChevronsUpDown, Plus, Settings } from "lucide-react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
+import type { OrgListItem } from "@/components/org/active-organization-context";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   Menu,
   MenuGroup,
@@ -16,16 +16,27 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from "@/components/ui/menu";
-import { useSidebar } from "@/components/ui/sidebar";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
+import { isPersonalOrganization } from "@/lib/org-personal";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { toast } from "@/lib/toast";
 
+function orgSubtitle(org: OrgListItem | undefined): string {
+  if (!org) return "Workspace";
+  if (isPersonalOrganization(org)) return "Personal";
+  return "Team";
+}
+
 export function OrgSwitcher() {
   const router = useRouter();
-  const { state: sidebarState } = useSidebar();
-  const collapsed = sidebarState === "collapsed";
+  const { state, isMobile } = useSidebar();
+  const menuOnRight = state === "collapsed" && !isMobile;
   const {
     orgs,
     activeOrganizationId,
@@ -54,87 +65,83 @@ export function OrgSwitcher() {
     ? "Loading organization"
     : (active?.name ?? "Select organization");
 
-  const menuTrigger = (
-    <MenuTrigger
-      render={
-        <Button
-          variant="outline"
-          className={
-            collapsed
-              ? "mb-0 size-8 justify-center p-0"
-              : "mb-2 w-full justify-between gap-2"
-          }
-          disabled={showInitialLoading}
-          aria-label="Switch organization"
-        />
-      }
-    >
-      <span
-        className={
-          collapsed
-            ? "flex items-center justify-center"
-            : "flex min-w-0 items-center gap-2"
-        }
-      >
-        {showInitialLoading ? (
-          <Skeleton className="h-6 w-6 shrink-0 rounded-full" />
-        ) : (
-          <Avatar className="h-6 w-6 shrink-0">
-            <AvatarFallback className="text-xs">
-              {active?.name?.slice(0, 2).toUpperCase() ?? ""}
-            </AvatarFallback>
-          </Avatar>
-        )}
-        {!collapsed && (
-          <span className="truncate text-sm">
-            {showInitialLoading
-              ? "Loading…"
-              : (active?.name ?? "Select organization")}
-          </span>
-        )}
-      </span>
-      {!collapsed && <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />}
-    </MenuTrigger>
-  );
-
   return (
-    <Menu>
-      {collapsed ? (
-        <Tooltip>
-          <TooltipTrigger render={menuTrigger} />
-          <TooltipPopup side="right">{triggerLabel}</TooltipPopup>
-        </Tooltip>
-      ) : (
-        menuTrigger
-      )}
-      <MenuPopup
-        side={collapsed ? "right" : "bottom"}
-        align="start"
-        sideOffset={collapsed ? 8 : 4}
-        className={collapsed ? "w-60 min-w-60" : "w-full min-w-56"}
-      >
-        <MenuGroup>
-          <MenuGroupLabel>Organizations</MenuGroupLabel>
-          {orgs.map((org) => (
-            <MenuItem key={org.id} onClick={() => void onSelectOrg(org.id)}>
-              <Building2 className="me-2 h-4 w-4" />
-              <span className="truncate">{org.name}</span>
-              {org.id === activeOrganizationId && (
-                <span className="ms-auto text-muted-foreground text-xs">✓</span>
-              )}
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <Menu>
+          <MenuTrigger
+            render={
+              <SidebarMenuButton
+                size="lg"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                disabled={showInitialLoading}
+                aria-label="Switch organization"
+                tooltip={triggerLabel}
+              />
+            }
+          >
+            {showInitialLoading ? (
+              <>
+                <Skeleton className="size-8 shrink-0 rounded-lg" />
+                <div className="grid min-w-0 flex-1 gap-0.5 text-start text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+              </>
+            ) : (
+              <>
+                <Avatar className="size-8 shrink-0 rounded-lg">
+                  <AvatarFallback className="rounded-lg text-xs">
+                    {active?.name?.slice(0, 2).toUpperCase() ?? "—"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid min-w-0 flex-1 gap-0.5 text-start text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                  <span className="truncate font-medium">
+                    {active?.name ?? "Select organization"}
+                  </span>
+                  <span className="truncate text-muted-foreground text-xs">
+                    {orgSubtitle(active)}
+                  </span>
+                </div>
+                <ChevronsUpDown
+                  className="ms-auto size-4 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden"
+                  aria-hidden
+                />
+              </>
+            )}
+          </MenuTrigger>
+          <MenuPopup
+            side={menuOnRight ? "right" : "bottom"}
+            align="start"
+            sideOffset={menuOnRight ? 8 : 4}
+            className="min-w-56"
+          >
+            <MenuGroup>
+              <MenuGroupLabel>Organizations</MenuGroupLabel>
+              {orgs.map((org) => (
+                <MenuItem key={org.id} onClick={() => void onSelectOrg(org.id)}>
+                  <Building2 className="me-2 size-4" aria-hidden />
+                  <span className="truncate">{org.name}</span>
+                  {org.id === activeOrganizationId ? (
+                    <span className="ms-auto text-muted-foreground text-xs">
+                      ✓
+                    </span>
+                  ) : null}
+                </MenuItem>
+              ))}
+            </MenuGroup>
+            <MenuSeparator />
+            <MenuLinkItem href={"/dashboard/settings/organization" as Route}>
+              <Settings className="me-2 size-4" aria-hidden />
+              Organization settings
+            </MenuLinkItem>
+            <MenuItem onClick={() => router.push("/dashboard/onboarding")}>
+              <Plus className="me-2 size-4" aria-hidden />
+              Create organization
             </MenuItem>
-          ))}
-        </MenuGroup>
-        <MenuSeparator />
-        <MenuLinkItem href={"/dashboard/settings/organization" as Route}>
-          <Settings className="me-2 h-4 w-4" />
-          Organization settings
-        </MenuLinkItem>
-        <MenuItem onClick={() => router.push("/dashboard/onboarding")}>
-          <Plus className="me-2 h-4 w-4" />
-          Create organization
-        </MenuItem>
-      </MenuPopup>
-    </Menu>
+          </MenuPopup>
+        </Menu>
+      </SidebarMenuItem>
+    </SidebarMenu>
   );
 }
