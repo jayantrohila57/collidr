@@ -89,21 +89,8 @@ export function ProjectDetailSkeleton() {
       </SectionCardSkeleton>
 
       <SectionCardSkeleton titleWidth="w-36" descriptionWidth="w-80">
-        <Skeleton className="h-9 w-full max-w-md rounded-lg" />
-        <Skeleton className="h-9 w-full max-w-2xl rounded-lg" />
-        <Card className="mt-2 shadow-none">
-          <CardHeader>
-            <CardTitle>
-              <Skeleton className="h-6 w-24" />
-            </CardTitle>
-            <CardDescription>
-              <Skeleton className="h-4 w-56" />
-            </CardDescription>
-          </CardHeader>
-          <CardPanel className="pt-0">
-            <VariablesSkeleton />
-          </CardPanel>
-        </Card>
+        <Skeleton className="h-8 w-full max-w-md rounded-lg" />
+        <VariablesSkeleton />
       </SectionCardSkeleton>
 
       <SectionCardSkeleton titleWidth="w-24" descriptionWidth="w-56">

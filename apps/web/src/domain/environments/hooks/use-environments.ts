@@ -2,7 +2,9 @@
 
 import type { EnvironmentOutput, ProjectOutput } from "@env-manager/api/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import type { Route } from "next";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo } from "react";
 import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";
 
@@ -18,14 +20,51 @@ interface ProjectQueryResponse {
   error: string | null;
 }
 
+function resolveEnvironmentId(
+  environments: EnvironmentOutput[],
+  param: string | null,
+) {
+  if (!param) return undefined;
+  const byId = environments.find((env) => env.id === param);
+  if (byId) return byId.id;
+  const bySlug = environments.find((env) => env.slug === param);
+  return bySlug?.id;
+}
+
 export function useEnvironments(projectSlug: string) {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<string | undefined>();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const envParam = searchParams.get("env");
 
   const projectQuery = useQuery({
     ...trpc.projects.getBySlug.queryOptions({ slug: projectSlug }),
     meta: { toastOnError: false },
   });
+
+  const projectData = projectQuery.data?.data ?? {
+    project: null,
+    environments: [],
+  };
+  const environments = projectData.environments;
+
+  const activeTab = useMemo(() => {
+    const resolved = resolveEnvironmentId(environments, envParam);
+    return resolved ?? environments[0]?.id;
+  }, [environments, envParam]);
+
+  const setActiveTab = useCallback(
+    (id: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      const env = environments.find((item) => item.id === id);
+      params.set("env", env?.slug ?? id);
+      const query = params.toString();
+      const href = (query ? `${pathname}?${query}` : pathname) as Route;
+      router.replace(href, { scroll: false });
+    },
+    [environments, pathname, router, searchParams],
+  );
 
   const createEnvMutation = useMutation(
     trpc.environments.create.mutationOptions({
@@ -170,9 +209,13 @@ export function useEnvironments(projectSlug: string) {
         queryClient.invalidateQueries({
           queryKey: trpc.dashboard.getOverview.queryKey(),
         });
-        setActiveTab((current) =>
-          current === variables.id ? undefined : current,
-        );
+        if (activeTab === variables.id) {
+          const params = new URLSearchParams(searchParams.toString());
+          params.delete("env");
+          const query = params.toString();
+          const href = (query ? `${pathname}?${query}` : pathname) as Route;
+          router.replace(href, { scroll: false });
+        }
         toast.success("Environment deleted");
       },
     }),
@@ -184,17 +227,11 @@ export function useEnvironments(projectSlug: string) {
       ? "error"
       : "success";
 
-  const projectData = projectQuery.data?.data ?? {
-    project: null,
-    environments: [],
-  };
-  const currentTab = activeTab ?? projectData.environments[0]?.id;
-
   return {
     project: projectData.project,
-    environments: projectData.environments,
+    environments,
     status,
-    activeTab: currentTab,
+    activeTab,
     setActiveTab,
     createEnvironment: createEnvMutation.mutateAsync,
     isCreating: createEnvMutation.isPending,

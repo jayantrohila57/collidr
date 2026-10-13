@@ -155,6 +155,10 @@ export function ProjectsTableView({
       emptyMessage={emptyMessage}
       caption={caption}
       framed
+      searchable
+      searchPlaceholder="Search projects…"
+      enablePagination
+      pageSize={10}
     />
   );
 }

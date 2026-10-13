@@ -3,6 +3,7 @@
 import { Plus } from "lucide-react";
 import { useMemo } from "react";
 import { HorizontalScrollRail } from "@/components/patterns/horizontal-scroll-rail";
+import { Badge } from "@/components/ui/badge";
 import {
   Empty,
   EmptyContent,
@@ -11,14 +12,10 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
+import { layoutGapClass, layoutToolbarClass } from "@/lib/layout-spacing";
+import { cn } from "@/lib/utils";
+import { useEnvironmentVariableCounts } from "../hooks/use-environment-variable-counts";
 import { CreateEnvironmentSheet } from "./create-environment-sheet";
 import { DeleteEnvironmentDialog } from "./delete-environment-dialog";
 import { EditEnvironmentSheet } from "./edit-environment-sheet";
@@ -63,6 +60,10 @@ export function EnvironmentsTabsView({
     [environments, resolvedActive],
   );
 
+  const variableCounts = useEnvironmentVariableCounts(
+    environments.map((env) => env.id),
+  );
+
   if (environments.length === 0) {
     return (
       <Empty className="h-full w-full border border-dashed">
@@ -83,84 +84,53 @@ export function EnvironmentsTabsView({
   }
 
   return (
-    <section className="flex min-w-0 flex-col gap-2">
+    <section className={cn("flex min-w-0 flex-col", layoutGapClass)}>
       <Tabs
         value={resolvedActive}
         onValueChange={onTabChange}
         className="min-w-0 gap-2"
       >
-        <div className="min-w-0 space-y-2 lg:hidden">
-          <Select
-            value={resolvedActive}
-            items={environments.map((env) => ({
-              value: env.id,
-              label: env.name,
-            }))}
-            onValueChange={(value) => {
-              if (value) onTabChange(value);
-            }}
-          >
-            <SelectTrigger className="w-full" aria-label="Select environment">
-              <SelectValue placeholder="Select environment" />
-            </SelectTrigger>
-            <SelectContent>
-              {environments.map((env) => (
-                <SelectItem key={env.id} value={env.id}>
-                  {env.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {activeEnvironment && (
-            <div className="flex items-center gap-1">
-              <EditEnvironmentSheet
-                environment={activeEnvironment}
-                onConfirm={onUpdate}
-                isPending={isUpdating}
-              />
-              <DeleteEnvironmentDialog
-                environmentName={activeEnvironment.name}
-                onConfirm={() => onDelete(activeEnvironment.id)}
-                isPending={isDeleting}
-              />
+        <HorizontalScrollRail>
+          <TabsList size="sm" className="h-auto w-max max-w-full justify-start">
+            {environments.map((env) => {
+              const count = variableCounts[env.id];
+              return (
+                <TabsTab key={env.id} value={env.id} className="gap-1.5">
+                  <span>{env.name}</span>
+                  {count !== undefined ? (
+                    <Badge
+                      variant="secondary"
+                      size="sm"
+                      className="tabular-nums"
+                    >
+                      {count}
+                    </Badge>
+                  ) : null}
+                </TabsTab>
+              );
+            })}
+          </TabsList>
+        </HorizontalScrollRail>
+
+        {activeEnvironment ? (
+          <TabsPanel value={activeEnvironment.id} className="min-w-0">
+            <div className={cn(layoutToolbarClass, "items-center pb-0")}>
+              <div className="flex flex-1 items-center gap-1">
+                <EditEnvironmentSheet
+                  environment={activeEnvironment}
+                  onConfirm={onUpdate}
+                  isPending={isUpdating}
+                />
+                <DeleteEnvironmentDialog
+                  environmentName={activeEnvironment.name}
+                  onConfirm={() => onDelete(activeEnvironment.id)}
+                  isPending={isDeleting}
+                />
+              </div>
             </div>
-          )}
-        </div>
-
-        <div className="hidden min-w-0 lg:block">
-          <HorizontalScrollRail>
-            <TabsList className="inline-flex h-auto w-max flex-nowrap justify-start">
-              {environments.map((env) => (
-                <div
-                  key={env.id}
-                  className="inline-flex shrink-0 items-center gap-0.5"
-                >
-                  <TabsTrigger className="shrink-0" value={env.id}>
-                    {env.name}
-                  </TabsTrigger>
-                  <span className="flex shrink-0 items-center gap-0.5 pe-2">
-                    <EditEnvironmentSheet
-                      environment={env}
-                      onConfirm={onUpdate}
-                      isPending={isUpdating}
-                    />
-                    <DeleteEnvironmentDialog
-                      environmentName={env.name}
-                      onConfirm={() => onDelete(env.id)}
-                      isPending={isDeleting}
-                    />
-                  </span>
-                </div>
-              ))}
-            </TabsList>
-          </HorizontalScrollRail>
-        </div>
-
-        {environments.map((env) => (
-          <TabsContent key={env.id} value={env.id} className="min-w-0 pt-2">
-            {children(env)}
-          </TabsContent>
-        ))}
+            {children(activeEnvironment)}
+          </TabsPanel>
+        ) : null}
       </Tabs>
     </section>
   );

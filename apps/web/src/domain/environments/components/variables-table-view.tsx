@@ -1,26 +1,19 @@
 "use client";
 
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
-import { Eye, EyeOff, MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Eye, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { DataTableEmpty } from "@/components/data-table/data-table-empty";
+import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { CopyButton } from "@/components/patterns/copy-button";
-import { EmptyState } from "@/components/patterns/empty-state";
 import { IconButton } from "@/components/patterns/icon-button";
 import { SecretValue } from "@/components/patterns/secret-value";
 import { Button } from "@/components/ui/button";
-import {
-  Menu,
-  MenuItem,
-  MenuPopup,
-  MenuSeparator,
-  MenuTrigger,
-} from "@/components/ui/menu";
 import { AddVariableSheet } from "./add-variable-sheet";
 import { EditVariableSheet } from "./edit-variable-sheet";
-import { VariablesMobileList } from "./variables-mobile-list";
 
 interface Variable {
   id: string;
@@ -33,10 +26,10 @@ interface Variable {
 
 interface VariablesTableViewProps {
   variables: Variable[];
+  isLoading?: boolean;
   revealedIds: Set<string>;
   revealingIds?: Set<string>;
   onReveal: (id: string) => void;
-  onCopy?: (id: string) => void;
   onEdit: (variable: Variable) => void;
   onDelete: (id: string) => void;
   onAddVariable: (data: { key: string; value: string }) => Promise<void>;
@@ -49,6 +42,7 @@ const columnHelper = legacyCreateColumnHelper<Variable>();
 
 export function VariablesTableView({
   variables,
+  isLoading = false,
   revealedIds,
   revealingIds,
   onReveal,
@@ -70,20 +64,16 @@ export function VariablesTableView({
   const [expandedValueIds, setExpandedValueIds] = useState<Set<string>>(
     () => new Set(),
   );
-  const [openActionsMenuId, setOpenActionsMenuId] = useState<string | null>(
-    null,
-  );
 
   const releaseOverlayPointerLock = () => {
     document.body.style.pointerEvents = "";
     document.documentElement.style.pointerEvents = "";
   };
 
-  const handleDelete = (variable: Variable) => {
-    setOpenActionsMenuId(null);
+  const handleDelete = useCallback((variable: Variable) => {
     setDeleteTarget({ id: variable.id, key: variable.key });
     setDeleteDialogOpen(true);
-  };
+  }, []);
 
   const confirmDelete = async () => {
     if (deleteTarget) {
@@ -92,26 +82,28 @@ export function VariablesTableView({
     }
   };
 
-  const handleEdit = (variable: Variable) => {
-    setOpenActionsMenuId(null);
-    window.setTimeout(() => {
-      void (async () => {
-        setEditVariable(variable);
-        setEditDialogOpen(true);
-        setEditLoadingValue(true);
-        try {
-          const value = await onFetchValue(variable.id, { force: true });
-          setEditVariable((current) =>
-            current?.id === variable.id ? { ...current, value } : current,
-          );
-        } finally {
-          setEditLoadingValue(false);
-        }
-      })();
-    }, 0);
-  };
+  const handleEdit = useCallback(
+    (variable: Variable) => {
+      window.setTimeout(() => {
+        void (async () => {
+          setEditVariable(variable);
+          setEditDialogOpen(true);
+          setEditLoadingValue(true);
+          try {
+            const value = await onFetchValue(variable.id, { force: true });
+            setEditVariable((current) =>
+              current?.id === variable.id ? { ...current, value } : current,
+            );
+          } finally {
+            setEditLoadingValue(false);
+          }
+        })();
+      }, 0);
+    },
+    [onFetchValue],
+  );
 
-  const toggleValueExpanded = (id: string) => {
+  const toggleValueExpanded = useCallback((id: string) => {
     setExpandedValueIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -121,7 +113,7 @@ export function VariablesTableView({
       }
       return next;
     });
-  };
+  }, []);
 
   const columns = useMemo(
     () => [
@@ -185,39 +177,22 @@ export function VariablesTableView({
                 label="Copy value"
                 disabled={!isRevealed || !variable.value}
               />
-              <Menu
-                open={openActionsMenuId === variable.id}
-                onOpenChange={(open) =>
-                  setOpenActionsMenuId(open ? variable.id : null)
-                }
-              >
-                <MenuTrigger
-                  render={
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Variable actions"
-                    />
-                  }
-                >
-                  <MoreVertical className="size-4" aria-hidden />
-                </MenuTrigger>
-                <MenuPopup align="end">
-                  <MenuItem onClick={() => void handleEdit(variable)}>
-                    <Pencil className="me-2 h-4 w-4" />
-                    Edit
-                  </MenuItem>
-                  <MenuSeparator />
-                  <MenuItem
-                    onClick={() => handleDelete(variable)}
-                    variant="destructive"
-                  >
-                    <Trash2 className="me-2 h-4 w-4" />
-                    Delete
-                  </MenuItem>
-                </MenuPopup>
-              </Menu>
+              <DataTableRowActions
+                label="Variable actions"
+                actions={[
+                  {
+                    label: "Edit",
+                    icon: <Pencil className="me-2 size-4" aria-hidden />,
+                    onSelect: () => handleEdit(variable),
+                  },
+                  {
+                    label: "Delete",
+                    icon: <Trash2 className="me-2 size-4" aria-hidden />,
+                    destructive: true,
+                    onSelect: () => handleDelete(variable),
+                  },
+                ]}
+              />
             </div>
           );
         },
@@ -225,52 +200,49 @@ export function VariablesTableView({
     ],
     [
       expandedValueIds,
-      openActionsMenuId,
+      handleDelete,
+      handleEdit,
       onReveal,
       revealedIds,
       revealingIds,
-      handleDelete,
-      handleEdit,
       toggleValueExpanded,
     ],
   );
 
-  if (variables.length === 0) {
-    return (
-      <div className="flex flex-col gap-3">
-        <EmptyState
-          icon={Plus}
-          title="No variables yet"
-          description="Add your first environment variable to get started."
-        />
-        <div className="flex justify-center">
-          <AddVariableSheet
-            onConfirm={onAddVariable}
-            isPending={isAddingVariable}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
-      <VariablesMobileList
-        variables={variables}
-        revealedIds={revealedIds}
-        revealingIds={revealingIds}
-        onReveal={onReveal}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+      <DataTable
+        columns={columns}
+        data={variables}
+        isLoading={isLoading}
+        searchable
+        searchPlaceholder="Search variables…"
+        enablePagination
+        pageSize={15}
+        caption="Environment variables"
+        framed
+        emptyState={
+          <DataTableEmpty
+            icon={Plus}
+            title="No variables yet"
+            description="Add your first environment variable to get started."
+            action={
+              <AddVariableSheet
+                onConfirm={onAddVariable}
+                isPending={isAddingVariable}
+              />
+            }
+          />
+        }
+        primaryAction={
+          variables.length > 0 ? (
+            <AddVariableSheet
+              onConfirm={onAddVariable}
+              isPending={isAddingVariable}
+            />
+          ) : null
+        }
       />
-      <div className="hidden min-w-0 md:block">
-        <DataTable
-          columns={columns}
-          data={variables}
-          caption="Environment variables"
-          framed
-        />
-      </div>
 
       {editVariable && (
         <EditVariableSheet
@@ -280,7 +252,6 @@ export function VariablesTableView({
             if (!open) {
               setEditVariable(null);
               setEditLoadingValue(false);
-              setOpenActionsMenuId(null);
               releaseOverlayPointerLock();
             }
           }}

@@ -1,17 +1,8 @@
 "use client";
 
 import { ErrorState } from "@/components/patterns/error-state";
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardHeader,
-  CardPanel,
-  CardTitle,
-} from "@/components/ui/card";
 import { useVariables } from "../hooks/use-variables";
 import { AddVariableSheet } from "./add-variable-sheet";
-import { VariablesSkeleton } from "./skeletons";
 import { VariablesTableView } from "./variables-table-view";
 
 interface Variable {
@@ -60,22 +51,6 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
     await deleteVariable({ id });
   };
 
-  if (status === "loading") {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Variables</CardTitle>
-          <CardDescription>
-            Secrets and configuration for this environment.
-          </CardDescription>
-        </CardHeader>
-        <CardPanel className="pt-0">
-          <VariablesSkeleton />
-        </CardPanel>
-      </Card>
-    );
-  }
-
   if (status === "error") {
     return (
       <ErrorState
@@ -86,31 +61,21 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
     );
   }
 
+  const isLoading = status === "loading" && variables.length === 0;
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Variables</CardTitle>
-        <CardDescription>
-          Secrets and configuration for this environment.
-        </CardDescription>
-        <CardAction>
-          <AddVariableSheet onConfirm={handleCreate} isPending={isCreating} />
-        </CardAction>
-      </CardHeader>
-      <CardPanel className="min-w-0 pt-0">
-        <VariablesTableView
-          variables={variablesWithValues}
-          revealedIds={revealedIds}
-          revealingIds={revealingIds}
-          onReveal={toggleReveal}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onAddVariable={handleCreate}
-          onFetchValue={fetchVariableValue}
-          isAddingVariable={isCreating}
-          isUpdating={isUpdating}
-        />
-      </CardPanel>
-    </Card>
+    <VariablesTableView
+      variables={variablesWithValues}
+      isLoading={isLoading}
+      revealedIds={revealedIds}
+      revealingIds={revealingIds}
+      onReveal={toggleReveal}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+      onAddVariable={handleCreate}
+      onFetchValue={fetchVariableValue}
+      isAddingVariable={isCreating}
+      isUpdating={isUpdating}
+    />
   );
 }

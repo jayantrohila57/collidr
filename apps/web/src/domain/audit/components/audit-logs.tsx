@@ -1,9 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
 import { useState } from "react";
-import { PageToolbar } from "@/components/layout/app-layout";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -23,51 +20,43 @@ export default function AuditLogs() {
     projectId: selectedProjectId === "ALL" ? undefined : selectedProjectId,
   });
 
-  return (
-    <div className="flex flex-col gap-2">
-      <PageToolbar>
-        <div className="relative flex-1">
-          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search logs..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="ps-10"
-          />
-        </div>
-        <Select
-          value={selectedProjectId}
-          items={[
-            { value: "ALL", label: "All Projects" },
-            ...projects.map((project) => ({
-              value: project.id,
-              label: project.name,
-            })),
-          ]}
-          onValueChange={(value) => {
-            if (value) setSelectedProjectId(value);
-          }}
-        >
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filter by Project" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">All Projects</SelectItem>
-            {projects.map((project) => (
-              <SelectItem key={project.id} value={project.id}>
-                {project.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </PageToolbar>
+  const projectFilter = (
+    <Select
+      value={selectedProjectId}
+      items={[
+        { value: "ALL", label: "All Projects" },
+        ...projects.map((project) => ({
+          value: project.id,
+          label: project.name,
+        })),
+      ]}
+      onValueChange={(value) => {
+        if (value) setSelectedProjectId(value);
+      }}
+    >
+      <SelectTrigger className="w-full sm:w-48" aria-label="Filter by project">
+        <SelectValue placeholder="Filter by Project" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="ALL">All Projects</SelectItem>
+        {projects.map((project) => (
+          <SelectItem key={project.id} value={project.id}>
+            {project.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
 
-      <AuditLogTableView
-        logs={logs}
-        status={status}
-        revealedIds={revealedIds}
-        onToggleReveal={toggleReveal}
-      />
-    </div>
+  return (
+    <AuditLogTableView
+      logs={logs}
+      isLoading={status === "loading"}
+      revealedIds={revealedIds}
+      onToggleReveal={toggleReveal}
+      searchValue={searchTerm}
+      onSearchChange={setSearchTerm}
+      filter={projectFilter}
+    />
   );
 }

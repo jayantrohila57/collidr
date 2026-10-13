@@ -3,11 +3,11 @@
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import { format } from "date-fns";
 import { Eye, EyeOff } from "lucide-react";
+import type { ReactNode } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AuditSkeleton } from "./skeletons";
 
 const actionVariants: Record<
   string,
@@ -41,9 +41,12 @@ interface AuditLog {
 
 interface AuditLogTableViewProps {
   logs: AuditLog[];
-  status: "loading" | "error" | "empty" | "success";
+  isLoading?: boolean;
   revealedIds: Set<string>;
   onToggleReveal: (id: string) => void;
+  searchValue: string;
+  onSearchChange: (value: string) => void;
+  filter?: ReactNode;
 }
 
 const getEntityDescription = (log: AuditLog) => {
@@ -58,9 +61,12 @@ const columnHelper = legacyCreateColumnHelper<AuditLog>();
 
 export function AuditLogTableView({
   logs,
-  status,
+  isLoading = false,
   revealedIds,
   onToggleReveal,
+  searchValue,
+  onSearchChange,
+  filter,
 }: AuditLogTableViewProps) {
   const columns: import("@/components/data-table/data-table").DataTableColumnDef<AuditLog>[] =
     [
@@ -124,25 +130,20 @@ export function AuditLogTableView({
       }),
     ];
 
-  if (status === "loading") return <AuditSkeleton />;
-  if (status === "error") {
-    return (
-      <DataTable
-        columns={columns}
-        data={[]}
-        emptyMessage="Failed to load logs."
-      />
-    );
-  }
-  if (status === "empty") {
-    return (
-      <DataTable
-        columns={columns}
-        data={[]}
-        emptyMessage="No audit logs found."
-      />
-    );
-  }
-
-  return <DataTable columns={columns} data={logs} caption="Audit log" framed />;
+  return (
+    <DataTable
+      columns={columns}
+      data={logs}
+      isLoading={isLoading}
+      caption="Audit log"
+      framed
+      searchPlaceholder="Search logs…"
+      searchValue={searchValue}
+      onSearchChange={onSearchChange}
+      filter={filter}
+      enablePagination
+      pageSize={20}
+      emptyMessage="No audit logs found."
+    />
+  );
 }

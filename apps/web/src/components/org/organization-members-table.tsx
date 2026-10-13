@@ -92,6 +92,10 @@ export function OrganizationMembersTable({
       caption="Organization members"
       emptyMessage="No members yet."
       framed
+      searchable
+      searchPlaceholder="Search members…"
+      enablePagination
+      pageSize={10}
     />
   );
 }
