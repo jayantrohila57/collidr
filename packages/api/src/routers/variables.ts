@@ -15,6 +15,10 @@ import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
 import { createAuditLog, getProjectEnvironmentIds } from "../audit";
 import {
+  executeBulkVariableImport,
+  planBulkVariableImport,
+} from "../bulk-import-variables";
+import {
   assertEnvironmentAccess,
   assertEnvironmentsAccess,
   lookupProjectIdByEnvironmentId,
@@ -770,33 +774,16 @@ export const environmentVariablesRouter = router({
 
       const existingKeyMap = new Map(existingVars.map((v) => [v.key, v.id]));
 
-      let created = 0;
-      let updated = 0;
-      let skipped = 0;
+      const plan = planBulkVariableImport(
+        input.variables,
+        existingKeyMap,
+        input.overwrite,
+        encrypt,
+      );
 
-      for (const variable of input.variables) {
-        const existingId = existingKeyMap.get(variable.key);
+      await executeBulkVariableImport(input.environmentId, plan);
 
-        if (existingId) {
-          if (input.overwrite) {
-            await db
-              .update(environmentVariable)
-              .set({ encryptedValue: encrypt(variable.value) })
-              .where(eq(environmentVariable.id, existingId));
-            updated++;
-          } else {
-            skipped++;
-          }
-        } else {
-          await db.insert(environmentVariable).values({
-            id: crypto.randomUUID(),
-            key: variable.key,
-            encryptedValue: encrypt(variable.value),
-            environmentId: input.environmentId,
-          });
-          created++;
-        }
-      }
+      const { created, updated, skipped } = plan;
 
       // Create audit log for bulk import
       const envDetails = await getProjectEnvironmentIds(input.environmentId);
