@@ -37,6 +37,15 @@ export function ConfirmDialog({
   onConfirm,
   isPending = false,
 }: ConfirmDialogProps) {
+  const handleConfirm = async () => {
+    try {
+      await onConfirm();
+      onOpenChange(false);
+    } catch {
+      // Keep dialog open; error surfaced via toast or inline handling.
+    }
+  };
+
   return (
     <AlertDialog
       open={open}
@@ -58,7 +67,7 @@ export function ConfirmDialog({
             type="button"
             variant={variant === "destructive" ? "destructive" : "default"}
             disabled={isPending}
-            onClick={() => void onConfirm()}
+            onClick={() => void handleConfirm()}
           >
             {isPending ? (
               <>

@@ -128,7 +128,6 @@ export function useProjects() {
   const createMutation = useMutation(
     trpc.projects.create.mutationOptions({
       onSuccess: (data) => {
-        // Optimistically update the cache with the new project
         queryClient.setQueryData(
           trpc.projects.list.queryKey(),
           (old: ProjectsQueryResponse | undefined) => {
@@ -139,8 +138,6 @@ export function useProjects() {
             };
           },
         );
-
-        toast.success("Project created successfully");
       },
       onError: () => {
         queryClient.invalidateQueries({
@@ -204,9 +201,6 @@ export function useProjects() {
           queryKey: trpc.dashboard.getOverview.queryKey(),
         });
       },
-      onSuccess: () => {
-        toast.success("Project updated successfully");
-      },
     }),
   );
 
@@ -254,9 +248,6 @@ export function useProjects() {
           queryKey: trpc.dashboard.getOverview.queryKey(),
         });
       },
-      onSuccess: () => {
-        toast.success("Project deleted successfully");
-      },
     }),
   );
 
@@ -301,9 +292,6 @@ export function useProjects() {
           queryKey: trpc.projects.list.queryKey(),
         });
       },
-      onSuccess: () => {
-        toast.success("Project archived successfully");
-      },
     }),
   );
 
@@ -347,9 +335,6 @@ export function useProjects() {
         queryClient.invalidateQueries({
           queryKey: trpc.projects.list.queryKey(),
         });
-      },
-      onSuccess: () => {
-        toast.success("Project unarchived successfully");
       },
     }),
   );
@@ -456,9 +441,6 @@ export function useProjects() {
         });
         invalidateGetBySlugQueries(queryClient);
       },
-      onSuccess: (data) => {
-        toast.success(data.message);
-      },
     }),
   );
 
@@ -484,19 +466,55 @@ export function useProjects() {
       ? new Error("Projects took too long to load. Please try again.")
       : projectsQuery.error,
     refetch: projectsQuery.refetch,
-    createProject: createMutation.mutateAsync,
+    createProject: (input: Parameters<typeof createMutation.mutateAsync>[0]) =>
+      toast.promise(createMutation.mutateAsync(input), {
+        loading: "Creating project…",
+        success: "Project created successfully",
+      }),
     isCreating: createMutation.isPending,
-    updateProject: updateMutation.mutateAsync,
+    updateProject: (input: Parameters<typeof updateMutation.mutateAsync>[0]) =>
+      toast.promise(updateMutation.mutateAsync(input), {
+        loading: "Saving project…",
+        success: "Project updated successfully",
+      }),
     isUpdating: updateMutation.isPending,
-    deleteProject: deleteMutation.mutateAsync,
+    deleteProject: (input: Parameters<typeof deleteMutation.mutateAsync>[0]) =>
+      toast.promise(deleteMutation.mutateAsync(input), {
+        loading: "Deleting project…",
+        success: "Project deleted successfully",
+      }),
     isDeleting: deleteMutation.isPending,
-    archiveProject: archiveMutation.mutateAsync,
+    archiveProject: (
+      input: Parameters<typeof archiveMutation.mutateAsync>[0],
+    ) =>
+      toast.promise(archiveMutation.mutateAsync(input), {
+        loading: "Archiving project…",
+        success: "Project archived successfully",
+      }),
     isArchiving: archiveMutation.isPending,
-    unarchiveProject: unarchiveMutation.mutateAsync,
+    unarchiveProject: (
+      input: Parameters<typeof unarchiveMutation.mutateAsync>[0],
+    ) =>
+      toast.promise(unarchiveMutation.mutateAsync(input), {
+        loading: "Unarchiving project…",
+        success: "Project unarchived successfully",
+      }),
     isUnarchiving: unarchiveMutation.isPending,
-    changeProjectStatus: changeStatusMutation.mutateAsync,
+    changeProjectStatus: (
+      input: Parameters<typeof changeStatusMutation.mutateAsync>[0],
+    ) =>
+      toast.promise(changeStatusMutation.mutateAsync(input), {
+        loading: "Updating status…",
+        success: "Project status updated",
+      }),
     isChangingStatus: changeStatusMutation.isPending,
-    toggleProjectPublic: togglePublicMutation.mutateAsync,
+    toggleProjectPublic: (
+      input: Parameters<typeof togglePublicMutation.mutateAsync>[0],
+    ) =>
+      toast.promise(togglePublicMutation.mutateAsync(input), {
+        loading: "Updating visibility…",
+        success: "Project visibility updated",
+      }),
     isTogglingPublic: togglePublicMutation.isPending,
   };
 }

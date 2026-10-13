@@ -18,6 +18,8 @@ import {
   Globe,
   KeyRound,
   Layers,
+  LayoutGrid,
+  List,
   Lock,
   LogOut,
   Mail,

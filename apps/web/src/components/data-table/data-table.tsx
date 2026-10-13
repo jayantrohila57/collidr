@@ -62,6 +62,7 @@ export type DataTableProps<TData extends RowData> = {
   searchValue?: string;
   onSearchChange?: (value: string) => void;
   filter?: ReactNode;
+  toolbarTrailing?: ReactNode;
   primaryAction?: ReactNode;
   enablePagination?: boolean;
   pageSize?: number;
@@ -128,6 +129,7 @@ export function DataTable<TData extends RowData>({
   searchValue: searchValueProp,
   onSearchChange: onSearchChangeProp,
   filter,
+  toolbarTrailing,
   primaryAction,
   enablePagination = false,
   pageSize = 10,
@@ -149,7 +151,10 @@ export function DataTable<TData extends RowData>({
     : undefined;
 
   const showToolbar =
-    searchEnabled || Boolean(filter) || Boolean(primaryAction);
+    searchEnabled ||
+    Boolean(filter) ||
+    Boolean(toolbarTrailing) ||
+    Boolean(primaryAction);
 
   const table = useLegacyTable({
     columns,
@@ -300,6 +305,7 @@ export function DataTable<TData extends RowData>({
           searchValue={onSearchChange ? searchValue : undefined}
           onSearchChange={onSearchChange}
           filter={filter}
+          trailing={toolbarTrailing}
           primaryAction={primaryAction}
         />
       ) : null}

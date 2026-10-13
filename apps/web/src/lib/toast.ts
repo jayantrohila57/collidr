@@ -49,8 +49,43 @@ toastFn.error = (title: string, options?: ToastOptions) =>
 toastFn.loading = (title: string, options?: ToastOptions) =>
   addToast(title, "loading", options);
 
+toastFn.promise = <T>(
+  promise: Promise<T>,
+  messages: {
+    loading: string;
+    success: string;
+    error?: string;
+  },
+): Promise<T> => {
+  const id = toast.loading(messages.loading);
+  return promise
+    .then((result) => {
+      toast.success(messages.success, { id });
+      return result;
+    })
+    .catch((error: unknown) => {
+      const description =
+        error instanceof Error
+          ? error.message
+          : (messages.error ?? "Request failed");
+      toast.error(messages.error ?? "Something went wrong", {
+        id,
+        description,
+      });
+      throw error;
+    });
+};
+
 export const toast = toastFn as typeof toastFn & {
   success: (title: string, options?: ToastOptions) => string;
   error: (title: string, options?: ToastOptions) => string;
   loading: (title: string, options?: ToastOptions) => string;
+  promise: <T>(
+    promise: Promise<T>,
+    messages: {
+      loading: string;
+      success: string;
+      error?: string;
+    },
+  ) => Promise<T>;
 };

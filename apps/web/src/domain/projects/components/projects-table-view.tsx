@@ -20,6 +20,7 @@ interface ProjectsTableViewProps {
   captionSrOnly?: boolean;
   empty?: DataTableEmptyConfig;
   onCreateProject?: () => void;
+  filterActive?: boolean;
 }
 
 export function ProjectsTableView({
@@ -33,6 +34,7 @@ export function ProjectsTableView({
   captionSrOnly,
   empty,
   onCreateProject,
+  filterActive = false,
 }: ProjectsTableViewProps) {
   const columns = useMemo(() => createProjectsTableColumns(), []);
   const data = limitRows ? projects.slice(0, limitRows) : projects;
@@ -64,6 +66,7 @@ export function ProjectsTableView({
       framed
       compactLayout
       searchable={searchable}
+      filterActive={filterActive}
       searchPlaceholder="Search projects…"
       enablePagination={enablePagination && !limitRows}
       pageSize={pageSize}

@@ -14,7 +14,7 @@ interface ProjectDetailProps {
 
 export default function ProjectDetail({
   projectSlug,
-  project,
+  project: _project,
 }: ProjectDetailProps) {
   const {
     environments,

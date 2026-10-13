@@ -18,7 +18,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { toast } from "@/lib/toast";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { EditProjectSheet } from "./edit-project-sheet";
 import { ProjectActionDialog } from "./project-action-dialog";
@@ -36,6 +35,11 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [unarchiveDialogOpen, setUnarchiveDialogOpen] = useState(false);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<
+    "active" | "inactive" | "maintenance" | null
+  >(null);
+  const [visibilityDialogOpen, setVisibilityDialogOpen] = useState(false);
 
   const {
     archiveProject,
@@ -50,23 +54,14 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
     isDeleting,
   } = useProjectActions({ projectId: project.id, onUpdate });
 
-  const handleStatusChange = async (
-    status: "active" | "inactive" | "maintenance",
-  ) => {
-    setMenuOpen(false);
-    try {
-      await changeProjectStatus(status);
-      const label =
-        status === "active"
-          ? "active"
-          : status === "inactive"
-            ? "inactive"
-            : "maintenance";
-      toast.success(`Project marked as ${label}`);
-    } catch {
-      // Error toast handled globally
-    }
-  };
+  const statusLabel =
+    pendingStatus === "active"
+      ? "active"
+      : pendingStatus === "inactive"
+        ? "inactive"
+        : pendingStatus === "maintenance"
+          ? "maintenance"
+          : "";
 
   return (
     <>
@@ -107,21 +102,33 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
           <MenuSeparator />
 
           <MenuItem
-            onClick={() => void handleStatusChange("active")}
+            onClick={() => {
+              setMenuOpen(false);
+              setPendingStatus("active");
+              setStatusDialogOpen(true);
+            }}
             disabled={isChangingStatus || project.status === "active"}
           >
             <AppIcon name="power" className={menuIconClass} />
             Set Active
           </MenuItem>
           <MenuItem
-            onClick={() => void handleStatusChange("inactive")}
+            onClick={() => {
+              setMenuOpen(false);
+              setPendingStatus("inactive");
+              setStatusDialogOpen(true);
+            }}
             disabled={isChangingStatus || project.status === "inactive"}
           >
             <AppIcon name="statusInactive" className={menuIconClass} />
             Set Inactive
           </MenuItem>
           <MenuItem
-            onClick={() => void handleStatusChange("maintenance")}
+            onClick={() => {
+              setMenuOpen(false);
+              setPendingStatus("maintenance");
+              setStatusDialogOpen(true);
+            }}
             disabled={isChangingStatus || project.status === "maintenance"}
           >
             <AppIcon name="statusMaintenance" className={menuIconClass} />
@@ -133,7 +140,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
           <MenuItem
             onClick={() => {
               setMenuOpen(false);
-              void toggleProjectPublic();
+              setVisibilityDialogOpen(true);
             }}
             disabled={isTogglingPublic}
           >
@@ -228,6 +235,38 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
         actionText="Unarchive Project"
         onConfirm={unarchiveProject}
         isPending={isUnarchiving}
+      />
+
+      <ProjectActionDialog
+        open={statusDialogOpen}
+        onOpenChange={(open) => {
+          setStatusDialogOpen(open);
+          if (!open) setPendingStatus(null);
+        }}
+        title="Change project status"
+        description={`Mark "${project.name}" as ${statusLabel}? This updates how the project appears across the workspace.`}
+        actionText={`Set ${statusLabel}`}
+        onConfirm={async () => {
+          if (!pendingStatus) return;
+          await changeProjectStatus(pendingStatus);
+        }}
+        isPending={isChangingStatus}
+      />
+
+      <ProjectActionDialog
+        open={visibilityDialogOpen}
+        onOpenChange={setVisibilityDialogOpen}
+        title={
+          project.isPublic ? "Make project private" : "Make project public"
+        }
+        description={
+          project.isPublic
+            ? `Make "${project.name}" private? Metadata will no longer be exposed publicly.`
+            : `Make "${project.name}" public? Project metadata may be visible to others.`
+        }
+        actionText={project.isPublic ? "Make private" : "Make public"}
+        onConfirm={toggleProjectPublic}
+        isPending={isTogglingPublic}
       />
     </>
   );

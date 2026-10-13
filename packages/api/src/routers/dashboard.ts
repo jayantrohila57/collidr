@@ -397,11 +397,28 @@ export const dashboardRouter = router({
 
   getProjectsListStats: orgProcedure.query(async ({ ctx }) => {
     const stats = await fetchDashboardStats(ctx);
+    const scope = projectScope(ctx.session.user.id, ctx.activeOrganizationId);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const [publicProjectsResult, recentlyUpdatedResult] = await Promise.all([
+      db
+        .select({ count: count() })
+        .from(project)
+        .where(and(scope, eq(project.isPublic, true))),
+      db
+        .select({ count: count() })
+        .from(project)
+        .where(and(scope, gte(project.updatedAt, sevenDaysAgo))),
+    ]);
     return {
       total: stats.totalProjects,
       active: stats.activeProjects,
       private: stats.privateProjects,
+      public: publicProjectsResult[0]?.count ?? 0,
       archivedOrMaintenance: stats.archivedOrMaintenance,
+      totalEnvironments: stats.totalEnvironments,
+      totalVariables: stats.totalVariables,
+      recentlyUpdated7d: recentlyUpdatedResult[0]?.count ?? 0,
     };
   }),
 

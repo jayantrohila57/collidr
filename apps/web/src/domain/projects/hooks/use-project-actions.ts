@@ -47,6 +47,7 @@ export function useProjectActions({
       router.push("/dashboard/projects");
     } catch (error) {
       console.error("Archive failed:", error);
+      throw error;
     }
   };
 
@@ -59,6 +60,7 @@ export function useProjectActions({
       router.push("/dashboard/projects");
     } catch (error) {
       console.error("Unarchive failed:", error);
+      throw error;
     }
   };
 
@@ -72,6 +74,7 @@ export function useProjectActions({
       // Stay on current page, just let the hook handle cache updates
     } catch (error) {
       console.error("Status change failed:", error);
+      throw error;
     }
   };
 
@@ -83,6 +86,7 @@ export function useProjectActions({
       // Stay on current page, just let the hook handle cache updates
     } catch (error) {
       console.error("Toggle public failed:", error);
+      throw error;
     }
   };
 
@@ -95,6 +99,7 @@ export function useProjectActions({
       router.push("/dashboard/projects");
     } catch (error) {
       console.error("Delete failed:", error);
+      throw error;
     }
   };
 

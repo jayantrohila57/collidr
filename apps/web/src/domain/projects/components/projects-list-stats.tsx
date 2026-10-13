@@ -17,7 +17,7 @@ export function ProjectsListStats() {
   });
 
   if (isPending || !queryEnabled) {
-    return <StatCardRowSkeleton count={4} />;
+    return <StatCardRowSkeleton count={8} />;
   }
 
   if (!data) {
@@ -44,12 +44,36 @@ export function ProjectsListStats() {
       icon: "lock",
     },
     {
+      label: "Public",
+      value: data.public,
+      hint: "Visible metadata",
+      icon: "globe",
+    },
+    {
       label: "Archived / maintenance",
       value: data.archivedOrMaintenance,
       hint: "Hidden or maintenance",
       icon: "statusArchived",
     },
+    {
+      label: "Environments",
+      value: data.totalEnvironments,
+      hint: "Across projects",
+      icon: "environment",
+    },
+    {
+      label: "Variables",
+      value: data.totalVariables,
+      hint: "Across environments",
+      icon: "variable",
+    },
+    {
+      label: "Updated (7d)",
+      value: data.recentlyUpdated7d,
+      hint: "Recently touched",
+      icon: "calendar",
+    },
   ];
 
-  return <StatCardRow items={items} />;
+  return <StatCardRow items={items} compact />;
 }

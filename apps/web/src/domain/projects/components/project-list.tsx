@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/patterns/empty-state";
 import { ErrorState } from "@/components/patterns/error-state";
 import { appIcons } from "@/lib/icons";
 import { useProjects } from "../hooks/use-projects";
-import { ProjectsTableView } from "./projects-table-view";
+import { ProjectsListContent } from "./projects-list-content";
 import { ProjectsSkeleton } from "./skeletons";
 
 interface ProjectListProps {
@@ -40,10 +40,8 @@ export default function ProjectList({ onCreateProject }: ProjectListProps) {
       );
     case "success":
       return (
-        <ProjectsTableView
+        <ProjectsListContent
           projects={projects}
-          caption="All projects"
-          captionSrOnly
           onCreateProject={onCreateProject}
         />
       );
