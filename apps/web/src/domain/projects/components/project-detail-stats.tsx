@@ -1,18 +1,14 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
 import {
   type StatCardItem,
   StatCardRow,
   StatCardRowSkeleton,
 } from "@/components/patterns/stat-card";
-import {
-  StatusBadge,
-  VisibilityBadge,
-} from "@/components/patterns/status-badge";
 import { useOrgQueryEnabled } from "@/hooks/use-org-query-enabled";
 import { useOrgScopedQueryPlaceholder } from "@/hooks/use-org-scoped-query-placeholder";
+import { formatRelativeShort } from "@/lib/format-relative-short";
 import { projectDetailQueryStaleTime } from "@/lib/prefetch-project-detail";
 import { trpc } from "@/utils/trpc";
 
@@ -47,33 +43,27 @@ export function ProjectDetailStats({ slug }: { slug: string }) {
       icon: "environment",
     },
     {
-      label: "Variables",
-      value: data.variableCount,
-      hint: "Across environments",
-      icon: "variable",
+      label: "Secrets",
+      value: data.secretCount ?? 0,
+      hint: "Encrypted values",
+      icon: "lock",
     },
     {
-      label: "Last updated",
-      value: <ClientRelativeTime value={data.updatedAt} />,
-      hint: "Project metadata",
-      icon: "calendar",
-    },
-    {
-      label: "Visibility & status",
-      value: (
-        <span className="flex flex-wrap items-center gap-1.5">
-          <VisibilityBadge isPublic={data.isPublic} />
-          {data.isArchived ? (
-            <StatusBadge status="archived" />
-          ) : (
-            <StatusBadge status={data.status} />
-          )}
-        </span>
-      ),
-      hint: "Project access",
-      icon: data.isPublic ? "globe" : "lock",
+      label: "Config",
+      value: data.configCount ?? 0,
+      hint: "Non-secret values",
+      icon: "settings",
     },
   ];
+
+  if (data.lastVariableUpdatedAt) {
+    items.push({
+      label: "Last variable change",
+      value: formatRelativeShort(data.lastVariableUpdatedAt),
+      hint: "Across environments",
+      icon: "variable",
+    });
+  }
 
   return <StatCardRow items={items} compact />;
 }

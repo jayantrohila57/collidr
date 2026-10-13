@@ -245,28 +245,57 @@ async function fetchProjectDetailStats(ctx: OrgCtx, slug: string) {
     throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
   }
 
-  const [envCount, varCount] = await Promise.all([
+  const variableScope = activeEnvironmentVariableWhere(
+    activeEnvironmentWhere(eq(environment.projectId, projectRow.id)),
+  );
+
+  const [envCount, variableCounts, lastVariableRow] = await Promise.all([
     db
       .select({ count: count() })
       .from(environment)
       .where(activeEnvironmentWhere(eq(environment.projectId, projectRow.id))),
     db
-      .select({ count: count() })
+      .select({
+        secretCount: count(
+          sql`case when ${environmentVariable.type} = 'secret' then 1 end`,
+        ),
+        configCount: count(
+          sql`case when ${environmentVariable.type} = 'config' then 1 end`,
+        ),
+        total: count(),
+      })
       .from(environmentVariable)
       .innerJoin(
         environment,
         eq(environmentVariable.environmentId, environment.id),
       )
-      .where(
-        activeEnvironmentVariableWhere(
-          activeEnvironmentWhere(eq(environment.projectId, projectRow.id)),
-        ),
-      ),
+      .where(variableScope),
+    db
+      .select({
+        lastVariableUpdatedAt: sql<Date | null>`max(${environmentVariable.updatedAt})`,
+      })
+      .from(environmentVariable)
+      .innerJoin(
+        environment,
+        eq(environmentVariable.environmentId, environment.id),
+      )
+      .where(variableScope),
   ]);
+
+  const counts = variableCounts[0];
+  const lastVariableUpdatedAt = lastVariableRow[0]?.lastVariableUpdatedAt;
 
   return {
     environmentCount: envCount[0]?.count ?? 0,
-    variableCount: varCount[0]?.count ?? 0,
+    variableCount: counts?.total ?? 0,
+    secretCount: counts?.secretCount ?? 0,
+    configCount: counts?.configCount ?? 0,
+    lastVariableUpdatedAt:
+      lastVariableUpdatedAt instanceof Date
+        ? lastVariableUpdatedAt.toISOString()
+        : lastVariableUpdatedAt
+          ? String(lastVariableUpdatedAt)
+          : null,
     updatedAt:
       projectRow.updatedAt instanceof Date
         ? projectRow.updatedAt.toISOString()

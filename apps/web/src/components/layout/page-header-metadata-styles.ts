@@ -1,19 +1,17 @@
 import { cn } from "@/lib/utils";
 
-/** Shared metadata block for page header (compact column beside title). */
+/** Shared metadata block for page header (mobile 2-col grid, desktop stacked column). */
 export const pageHeaderMetadataClassName = cn(
-  "flex min-w-0 flex-col gap-1.5 text-xs",
-  "md:w-auto md:max-w-[14rem]",
+  "min-w-0 text-xs",
+  "grid w-full grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 sm:gap-x-4",
+  "md:flex md:w-auto md:max-w-[14rem] md:flex-col md:gap-0.5",
 );
 
 export const pageHeaderMetadataFieldClassName =
-  "flex min-w-0 items-baseline justify-between gap-2";
+  "col-span-2 grid grid-cols-subgrid items-center md:flex md:w-full md:justify-between md:gap-3";
 
 export const pageHeaderMetadataLabelClassName =
   "shrink-0 text-muted-foreground";
 
 export const pageHeaderMetadataValueClassName =
-  "min-w-0 truncate text-end tabular-nums";
-
-export const pageHeaderMetadataLinksRowClassName =
-  "flex w-full min-w-0 flex-wrap items-center justify-end gap-1.5";
+  "min-w-0 truncate text-end md:max-w-[9rem]";

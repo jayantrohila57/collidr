@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { PageBackButton } from "@/components/layout/page-back-button";
 import { PageHeaderDescription } from "@/components/layout/page-header-description";
 import { Separator } from "@/components/ui/separator";
-import { layoutPageTitleClass } from "@/lib/layout-spacing";
+import { layoutGapClass, layoutPageTitleClass } from "@/lib/layout-spacing";
 import {
   getPageBackFallback,
   getPageBackHref,
@@ -87,7 +87,7 @@ function TitleBlock({
   className?: string;
 }) {
   return (
-    <div className={cn("flex min-w-0 flex-col gap-1.5", className)}>
+    <div className={cn("flex min-w-0 flex-col gap-0.5", className)}>
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <h1 className={cn(layoutPageTitleClass, "truncate")}>{title}</h1>
         {titleAccessory}
@@ -113,7 +113,8 @@ function PageHeaderSimple({
   return (
     <div
       className={cn(
-        "flex w-full min-w-0 items-center justify-between gap-2 py-4 md:py-5",
+        "flex w-full min-w-0 items-center justify-between gap-2 py-0.5",
+        "min-h-12",
       )}
     >
       <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -126,7 +127,7 @@ function PageHeaderSimple({
             />
             <Separator
               orientation="vertical"
-              className="my-auto h-8 shrink-0 px-px"
+              className="my-auto hidden h-8 shrink-0 md:block"
             />
           </>
         ) : null}
@@ -161,16 +162,16 @@ function PageHeaderWithMetadata({
 
   const mobileCols = hasBack
     ? hasAction
-      ? "grid-cols-[auto_auto_minmax(0,1fr)_auto]"
-      : "grid-cols-[auto_auto_minmax(0,1fr)]"
+      ? "grid-cols-[auto_minmax(0,1fr)_auto]"
+      : "grid-cols-[auto_minmax(0,1fr)]"
     : hasAction
       ? "grid-cols-[minmax(0,1fr)_auto]"
       : "grid-cols-1";
 
   const mobileAreas = hasBack
     ? hasAction
-      ? "[grid-template-areas:'leading_leading-sep_title_action'_'div_div_div_div'_'meta_meta_meta_meta']"
-      : "[grid-template-areas:'leading_leading-sep_title'_'div_div_div'_'meta_meta_meta']"
+      ? "[grid-template-areas:'leading_title_action'_'div_div_div'_'meta_meta_meta']"
+      : "[grid-template-areas:'leading_title'_'div_div'_'meta_meta']"
     : hasAction
       ? "[grid-template-areas:'title_action'_'div_div'_'meta_meta']"
       : "[grid-template-areas:'title'_'div'_'meta']";
@@ -194,7 +195,8 @@ function PageHeaderWithMetadata({
   return (
     <div
       className={cn(
-        "grid w-full min-w-0 gap-x-6 gap-y-2 py-4 md:py-5",
+        "grid w-full min-w-0 gap-2 py-0.5",
+        layoutGapClass,
         mobileCols,
         mobileAreas,
         desktopCols,
@@ -220,7 +222,7 @@ function PageHeaderWithMetadata({
         <Separator
           orientation="vertical"
           className={cn(
-            "h-8 shrink-0 self-center px-px [grid-area:leading-sep]",
+            "hidden h-8 shrink-0 self-center [grid-area:leading-sep] md:block",
             description && "md:mt-1 md:self-start",
           )}
         />
@@ -247,7 +249,7 @@ function PageHeaderWithMetadata({
       <Separator
         orientation="vertical"
         className={cn(
-          "hidden h-8 shrink-0 px-px [grid-area:meta-sep] md:block",
+          "hidden h-8 shrink-0 [grid-area:meta-sep] md:block",
           description ? "md:mt-1 md:self-start" : "md:self-center",
         )}
       />
@@ -255,8 +257,8 @@ function PageHeaderWithMetadata({
       {action ? (
         <div
           className={cn(
-            "shrink-0 self-center [grid-area:action]",
-            description && "md:mt-1 md:self-start",
+            "shrink-0 self-start [grid-area:action]",
+            description ? "md:mt-1 md:self-start" : "md:self-center",
           )}
         >
           {action}

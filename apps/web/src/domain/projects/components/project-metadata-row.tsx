@@ -8,7 +8,6 @@ import {
   pageHeaderMetadataClassName,
   pageHeaderMetadataFieldClassName,
   pageHeaderMetadataLabelClassName,
-  pageHeaderMetadataLinksRowClassName,
   pageHeaderMetadataValueClassName,
 } from "@/components/layout/page-header-metadata-styles";
 import { AppIcon } from "@/components/patterns/app-icon";
@@ -22,7 +21,15 @@ import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const ghostLinkClassName =
-  "h-6 gap-1 px-1.5 text-muted-foreground hover:text-foreground";
+  "h-6 max-w-full gap-1 px-1.5 text-muted-foreground hover:text-foreground";
+
+function formatExternalLinkLabel(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
 
 function MetadataField({
   label,
@@ -43,40 +50,48 @@ function MetadataField({
   );
 }
 
-function MetadataExternalLink({
+function MetadataLinkField({
+  label,
   href,
   icon,
-  label,
   tooltip,
 }: {
+  label: string;
   href: string;
   icon: "github" | "externalLink";
-  label: string;
   tooltip: string;
 }) {
+  const linkLabel = formatExternalLinkLabel(href);
+
   return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="sm"
-            className={ghostLinkClassName}
+    <div className={pageHeaderMetadataFieldClassName}>
+      <dt className={pageHeaderMetadataLabelClassName}>{label}</dt>
+      <dd className={pageHeaderMetadataValueClassName}>
+        <Tooltip>
+          <TooltipTrigger
             render={
-              <Link
-                href={href as Route}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(ghostLinkClassName, "ms-auto")}
+                render={
+                  <Link
+                    href={href as Route}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                  />
+                }
               />
             }
-          />
-        }
-      >
-        <AppIcon name={icon} className="size-3.5 shrink-0 text-current" />
-        <span className="truncate">{label}</span>
-      </TooltipTrigger>
-      <TooltipContent>{tooltip}</TooltipContent>
-    </Tooltip>
+          >
+            <AppIcon name={icon} className="size-3.5 shrink-0 text-current" />
+            <span className="truncate">{linkLabel}</span>
+          </TooltipTrigger>
+          <TooltipContent>{tooltip}</TooltipContent>
+        </Tooltip>
+      </dd>
+    </div>
   );
 }
 
@@ -87,8 +102,6 @@ export function ProjectMetadataRow({
   project: ProjectOutput;
   className?: string;
 }) {
-  const hasLinks = Boolean(project.repositoryUrl || project.websiteUrl);
-
   return (
     <dl
       data-slot="page-header-metadata"
@@ -97,27 +110,27 @@ export function ProjectMetadataRow({
       <MetadataField label="Slug" value={project.slug} mono />
       <MetadataField
         label="Updated"
-        value={formatDateTime(project.updatedAt)}
+        value={
+          <span className="tabular-nums">
+            {formatDateTime(project.updatedAt)}
+          </span>
+        }
       />
-      {hasLinks ? (
-        <div className={pageHeaderMetadataLinksRowClassName}>
-          {project.repositoryUrl ? (
-            <MetadataExternalLink
-              href={project.repositoryUrl}
-              icon="github"
-              label="Repository"
-              tooltip="Open repository"
-            />
-          ) : null}
-          {project.websiteUrl ? (
-            <MetadataExternalLink
-              href={project.websiteUrl}
-              icon="externalLink"
-              label="Website"
-              tooltip="Open website"
-            />
-          ) : null}
-        </div>
+      {project.repositoryUrl ? (
+        <MetadataLinkField
+          label="Repository"
+          href={project.repositoryUrl}
+          icon="github"
+          tooltip="Open repository"
+        />
+      ) : null}
+      {project.websiteUrl ? (
+        <MetadataLinkField
+          label="Website"
+          href={project.websiteUrl}
+          icon="externalLink"
+          tooltip="Open website"
+        />
       ) : null}
     </dl>
   );

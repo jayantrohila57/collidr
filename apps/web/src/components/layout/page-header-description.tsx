@@ -95,8 +95,8 @@ export function PageHeaderDescription({
         <p
           ref={measureRef}
           className={cn(
-            "wrap-anywhere line-clamp-2 min-w-0",
-            isTruncated && "pe-[3.25rem]",
+            "wrap-anywhere line-clamp-2 min-w-0 [overflow-wrap:anywhere]",
+            isTruncated && "pe-[2.75rem]",
           )}
         >
           {text}
@@ -106,11 +106,11 @@ export function PageHeaderDescription({
             type="button"
             className={cn(
               expandToggleClassName,
-              "absolute right-0 bottom-0 bg-background ps-0.5",
+              "absolute right-0 bottom-0 bg-background ps-0.5 leading-4",
             )}
             onClick={() => setExpanded(true)}
           >
-            … more
+            more
           </button>
         ) : null}
       </div>

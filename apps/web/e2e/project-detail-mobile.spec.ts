@@ -237,7 +237,7 @@ test.describe("project overview layout", () => {
       await expect(page.getByText("Website", { exact: true })).toHaveCount(1);
 
       const description = page.locator('[data-slot="page-header-description"]');
-      const more = description.getByRole("button", { name: "… more" });
+      const more = description.getByRole("button", { name: "more", exact: true });
       await expect(more).toBeVisible();
       const descBox = await description.boundingBox();
       const moreBox = await more.boundingBox();
@@ -264,13 +264,13 @@ test.describe("project overview layout", () => {
       const description = page.locator('[data-slot="page-header-description"]');
       await expect(description).toHaveAttribute("data-expanded", "false");
       await expect(
-        description.getByRole("button", { name: "… more" }),
+        description.getByRole("button", { name: "more", exact: true }),
       ).toBeVisible();
       await page.screenshot({
         path: `${HEADER_DESC_ARTIFACT_DIR}/project-header-desc-collapsed-${width}.png`,
         fullPage: false,
       });
-      await description.getByRole("button", { name: "… more" }).click();
+      await description.getByRole("button", { name: "more", exact: true }).click();
       await expect(description).toHaveAttribute("data-expanded", "true");
       await expect(
         description.getByRole("button", { name: "less" }),
