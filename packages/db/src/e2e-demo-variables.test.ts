@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { E2E_DEMO_VAR_KEY } from "./e2e-demo-project";
 import {
   E2E_DEMO_SEED_MARKER,
+  E2E_DEMO_VAR_KEY,
   E2E_DEMO_VARIABLE_DEFS,
 } from "./e2e-demo-variables";
 

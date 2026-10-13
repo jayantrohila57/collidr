@@ -6,7 +6,9 @@
       "default": "./src/index.ts"
     }
   },
-  "scripts": {},
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
   "dependencies": {
     "@env-manager/env": "workspace:*"
   },

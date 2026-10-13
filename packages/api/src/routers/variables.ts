@@ -272,6 +272,9 @@ export const environmentVariablesRouter = router({
           };
 
       const [formatted] = await formatVariableRows([formatRow]);
+      if (!formatted) {
+        return respond({ message: "Variable not found", data: null });
+      }
 
       return respond({
         message: "Variable fetched",
@@ -393,6 +396,10 @@ export const environmentVariablesRouter = router({
           updatedById: newVariable.updatedBy,
         },
       ]);
+
+      if (!formatted) {
+        return respond({ message: "Failed to create variable", data: null });
+      }
 
       return respond({ message: "Variable created", data: formatted });
     }),
@@ -642,6 +649,10 @@ export const environmentVariablesRouter = router({
           updatedById: updated.updatedBy,
         },
       ]);
+
+      if (!formatted) {
+        return respond({ message: "Failed to update variable", data: null });
+      }
 
       return respond({ message: "Variable updated", data: formatted });
     }),

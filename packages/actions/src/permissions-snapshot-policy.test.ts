@@ -26,7 +26,8 @@ describe("permissions snapshot policy", () => {
   it("treats missing snapshot entries as denied (fail-closed client default)", () => {
     const actions: Record<string, boolean> | undefined = undefined;
     assert.equal(actions?.["project.update"] === true, false);
-    assert.equal({}["project.update"] === true, false);
+    const emptyActions: Record<string, boolean> = {};
+    assert.equal(emptyActions["project.update"] === true, false);
     assert.equal({ "project.update": false }["project.update"] === true, false);
     assert.equal({ "project.update": true }["project.update"] === true, true);
   });

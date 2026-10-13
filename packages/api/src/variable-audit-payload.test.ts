@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import {
   variableAuditKeyPayload,
   variableBulkImportAuditPayload,
-} from "./variable-audit-payload.ts";
+} from "./variable-audit-payload";
 
 describe("variable audit payloads", () => {
   it("records only variable keys on update/delete style payloads", () => {

@@ -2,12 +2,13 @@ import { encrypt } from "@env-manager/crypto";
 import { and, eq, inArray } from "drizzle-orm";
 
 import { db } from "./client";
-import { E2E_DEMO_VAR_KEY } from "./e2e-demo-project";
 import { environmentVariable } from "./schema/projects";
 import { activeEnvironmentVariableWhere } from "./soft-delete";
 
 /** Marker in notes/values so seeded rows are obviously non-production. */
 export const E2E_DEMO_SEED_MARKER = "fake-dev-only";
+
+export const E2E_DEMO_VAR_KEY = "E2E_DEMO_KEY";
 
 const FAKE_SECRET_SAMPLE = "sample-fake-secret-not-real";
 const FAKE_CONFIG_SAMPLE = "sample-config-value";

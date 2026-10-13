@@ -60,6 +60,9 @@ export function resolveDatabaseConnectionString(raw: string): string {
     }
     const segments = url.hostname.split(".");
     const endpoint = segments[0];
+    if (!endpoint) {
+      return finalizeConnectionString(raw);
+    }
     if (endpoint.startsWith("ep-") && !endpoint.endsWith("-pooler")) {
       segments[0] = `${endpoint}-pooler`;
       url.hostname = segments.join(".");

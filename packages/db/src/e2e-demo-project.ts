@@ -1,7 +1,10 @@
 import { and, eq } from "drizzle-orm";
 
 import { db } from "./client";
-import { seedE2eDemoVariables } from "./e2e-demo-variables";
+import { E2E_DEMO_VAR_KEY, seedE2eDemoVariables } from "./e2e-demo-variables";
+
+export { E2E_DEMO_VAR_KEY };
+
 import { user } from "./schema/auth";
 import { environment, project } from "./schema/projects";
 import {
@@ -15,8 +18,6 @@ const E2E_PROJECT_NAME = "E2E Demo Project";
 const E2E_PROJECT_SLUG = "e2e-demo-project";
 const E2E_ENV_NAME = "Development";
 const E2E_ENV_SLUG = "development";
-
-export const E2E_DEMO_VAR_KEY = "E2E_DEMO_KEY";
 
 export async function ensureE2eDemoProject() {
   const [userRow] = await db

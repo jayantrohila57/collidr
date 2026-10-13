@@ -16,7 +16,6 @@ import {
   project,
 } from "@env-manager/db/schema/projects";
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
-import { TRPCError } from "@trpc/server";
 import { and, count, eq, gte, or, sql } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";

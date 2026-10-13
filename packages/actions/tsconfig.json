@@ -1,7 +1,7 @@
 {
   "extends": "@env-manager/config/tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist",
+    "noEmit": true,
     "rootDir": "src"
   },
   "include": ["src"]

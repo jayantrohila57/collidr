@@ -103,6 +103,7 @@ export function orgRoleSatisfiesAction(
   if (!orgRole) return false;
   if (orgRole === "owner") return true;
   if (def.scope === "user") return true;
-  if (!def.orgRoles?.length) return false;
-  return isOrgRoleAtLeast(orgRole, def.orgRoles[0]);
+  const requiredRole = def.orgRoles?.[0];
+  if (!requiredRole) return false;
+  return isOrgRoleAtLeast(orgRole, requiredRole);
 }

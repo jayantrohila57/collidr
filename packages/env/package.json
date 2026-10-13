@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "check-types": "tsc --noEmit",
     "test": "node --import tsx --test src/encryption-key-schema.test.ts src/server-github-oauth.test.ts"
   },
   "exports": {
