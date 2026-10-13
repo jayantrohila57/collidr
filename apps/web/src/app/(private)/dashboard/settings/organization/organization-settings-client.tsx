@@ -3,7 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   invitationsEmpty,
   membersTableEmpty,
@@ -133,7 +133,13 @@ export function OrganizationSettingsForm({
   const [invitePending, setInvitePending] = useState(false);
   const [rolePendingId, setRolePendingId] = useState<string | null>(null);
   const [savePending, setSavePending] = useState(false);
+  const editOrgCloseWithoutPromptRef = useRef<(() => void) | null>(null);
+  const inviteCloseWithoutPromptRef = useRef<(() => void) | null>(null);
   const [editOrgOpen, setEditOrgOpen] = useState(false);
+  const [editOrgBaseline, setEditOrgBaseline] = useState({
+    name: "",
+    slug: "",
+  });
   const [inviteOpen, setInviteOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirmName, setDeleteConfirmName] = useState("");
@@ -194,6 +200,40 @@ export function OrganizationSettingsForm({
     };
   }, [organizationId, loadOrganization]);
 
+  const editOrgDirty = useMemo(
+    () =>
+      editOrgOpen &&
+      (orgName.trim() !== editOrgBaseline.name.trim() ||
+        orgSlug.trim() !== editOrgBaseline.slug.trim()),
+    [editOrgBaseline.name, editOrgBaseline.slug, editOrgOpen, orgName, orgSlug],
+  );
+
+  const inviteDirty = useMemo(
+    () => inviteOpen && (inviteEmail.trim() !== "" || inviteRole !== "member"),
+    [inviteEmail, inviteOpen, inviteRole],
+  );
+
+  const revertEditOrgFields = () => {
+    setOrgName(editOrgBaseline.name);
+    setOrgSlug(editOrgBaseline.slug);
+    setSlugError(undefined);
+  };
+
+  const revertInviteFields = () => {
+    setInviteEmail("");
+    setInviteRole("member");
+  };
+
+  const openEditOrgSheet = () => {
+    setEditOrgBaseline({ name: orgName, slug: orgSlug });
+    setEditOrgOpen(true);
+  };
+
+  const openInviteSheet = () => {
+    revertInviteFields();
+    setInviteOpen(true);
+  };
+
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     const email = inviteEmail.trim();
@@ -212,7 +252,8 @@ export function OrganizationSettingsForm({
           error: "Could not send invitation",
         },
       );
-      setInviteEmail("");
+      revertInviteFields();
+      inviteCloseWithoutPromptRef.current?.();
       setInviteOpen(false);
       await loadOrganization(organizationId);
       if (isNotificationsEnabledOnClient() && currentUserId) {
@@ -289,6 +330,7 @@ export function OrganizationSettingsForm({
           error: "Could not update organization",
         },
       );
+      editOrgCloseWithoutPromptRef.current?.();
       setEditOrgOpen(false);
       await loadOrganization(organizationId);
       await refreshOrganizations();
@@ -438,7 +480,7 @@ export function OrganizationSettingsForm({
                 type="button"
                 size="sm"
                 className="w-fit gap-2"
-                onClick={() => setEditOrgOpen(true)}
+                onClick={openEditOrgSheet}
               >
                 <AppIcon name="edit" className="text-current" />
                 Edit organization
@@ -459,7 +501,7 @@ export function OrganizationSettingsForm({
                 type="button"
                 size="sm"
                 className="w-fit gap-2"
-                onClick={() => setInviteOpen(true)}
+                onClick={openInviteSheet}
               >
                 <AppIcon name="invite" className="text-current" />
                 Invite member
@@ -482,7 +524,7 @@ export function OrganizationSettingsForm({
                       type="button"
                       size="sm"
                       className="gap-2"
-                      onClick={() => setInviteOpen(true)}
+                      onClick={openInviteSheet}
                     >
                       <AppIcon name="invite" className="text-current" />
                       Invite member
@@ -510,7 +552,7 @@ export function OrganizationSettingsForm({
                       type="button"
                       size="sm"
                       className="gap-2"
-                      onClick={() => setInviteOpen(true)}
+                      onClick={openInviteSheet}
                     >
                       <AppIcon name="invite" className="text-current" />
                       Invite member
@@ -543,7 +585,7 @@ export function OrganizationSettingsForm({
                     type="button"
                     size="sm"
                     className="gap-2"
-                    onClick={() => setInviteOpen(true)}
+                    onClick={openInviteSheet}
                   >
                     <AppIcon name="invite" className="text-current" />
                     Invite member
@@ -618,7 +660,13 @@ export function OrganizationSettingsForm({
         </TabsPanel>
       </Tabs>
 
-      <FormSheet open={editOrgOpen} onOpenChange={setEditOrgOpen}>
+      <FormSheet
+        open={editOrgOpen}
+        onOpenChange={setEditOrgOpen}
+        isDirty={editOrgDirty}
+        onDiscard={revertEditOrgFields}
+        closeWithoutPromptRef={editOrgCloseWithoutPromptRef}
+      >
         <FormSheetPopup>
           <FormSheetHeader>
             <SheetTitleWithIcon icon="organization">
@@ -674,7 +722,13 @@ export function OrganizationSettingsForm({
         </FormSheetPopup>
       </FormSheet>
 
-      <FormSheet open={inviteOpen} onOpenChange={setInviteOpen}>
+      <FormSheet
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        isDirty={inviteDirty}
+        onDiscard={revertInviteFields}
+        closeWithoutPromptRef={inviteCloseWithoutPromptRef}
+      >
         <FormSheetPopup>
           <FormSheetHeader>
             <SheetTitleWithIcon icon="invite">Invite member</SheetTitleWithIcon>

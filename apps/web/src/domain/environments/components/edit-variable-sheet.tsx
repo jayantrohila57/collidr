@@ -1,7 +1,7 @@
 "use client";
 
 import { variableKeySchema } from "@env-manager/api/validation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FormField } from "@/components/patterns/form-field";
 import {
   FormSheetBody,
@@ -10,11 +10,12 @@ import {
   FormSheetHeader,
   FormSheetPopup,
 } from "@/components/patterns/form-sheet";
+import { GuardedSheet } from "@/components/patterns/guarded-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetClose, SheetDescription } from "@/components/ui/sheet";
+import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -43,17 +44,34 @@ export function EditVariableSheet({
   onConfirm,
   isPending,
 }: EditVariableSheetProps) {
+  const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const [key, setKey] = useState(variable.key);
   const [value, setValue] = useState(variable.value || "");
   const [error, setError] = useState<string | null>(null);
 
+  const baselineKey = variable.key;
+  const baselineValue = variable.value ?? "";
+
   useEffect(() => {
     if (open) {
-      setKey(variable.key);
-      setValue(variable.value ?? "");
+      setKey(baselineKey);
+      setValue(baselineValue);
       setError(null);
     }
-  }, [open, variable.key, variable.value]);
+  }, [open, baselineKey, baselineValue]);
+
+  const isDirty = useMemo(
+    () =>
+      key.trim().toUpperCase() !== baselineKey.trim().toUpperCase() ||
+      value !== baselineValue,
+    [baselineKey, baselineValue, key, value],
+  );
+
+  const revertFields = () => {
+    setKey(baselineKey);
+    setValue(baselineValue);
+    setError(null);
+  };
 
   const validateKey = (rawKey: string) => {
     const result = variableKeySchema.safeParse(rawKey);
@@ -77,6 +95,7 @@ export function EditVariableSheet({
         key: key.trim().toUpperCase(),
         value,
       });
+      closeWithoutPromptRef.current?.();
       onOpenChange(false);
     } catch {
       // Toast + sheet stay open on failure.
@@ -84,7 +103,13 @@ export function EditVariableSheet({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <GuardedSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      isDirty={isDirty}
+      onDiscard={revertFields}
+      closeWithoutPromptRef={closeWithoutPromptRef}
+    >
       <FormSheetPopup>
         <FormSheetHeader>
           <SheetTitleWithIcon icon="variable">Edit Variable</SheetTitleWithIcon>
@@ -150,6 +175,6 @@ export function EditVariableSheet({
           </FormSheetFooter>
         </FormSheetForm>
       </FormSheetPopup>
-    </Sheet>
+    </GuardedSheet>
   );
 }

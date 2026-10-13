@@ -2,7 +2,7 @@
 
 import { createEnvironmentInput } from "@env-manager/api/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
 import {
@@ -18,12 +18,12 @@ import {
   FormSheetHeader,
   FormSheetPopup,
 } from "@/components/patterns/form-sheet";
+import { GuardedSheet } from "@/components/patterns/guarded-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Sheet,
   SheetClose,
   SheetDescription,
   SheetTrigger,
@@ -51,6 +51,7 @@ export function CreateEnvironmentSheet({
   onOpenChange: onOpenChangeProp,
   hideTrigger = false,
 }: CreateEnvironmentSheetProps) {
+  const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const [internalOpen, setInternalOpen] = useState(false);
   const open = openProp ?? internalOpen;
   const setOpen = onOpenChangeProp ?? setInternalOpen;
@@ -66,6 +67,7 @@ export function CreateEnvironmentSheet({
     try {
       await onConfirm(data.name.trim());
       form.reset();
+      closeWithoutPromptRef.current?.();
       setOpen(false);
     } catch {
       // Toast + dialog stay open on failure.
@@ -73,7 +75,13 @@ export function CreateEnvironmentSheet({
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <GuardedSheet
+      open={open}
+      onOpenChange={setOpen}
+      isDirty={form.formState.isDirty}
+      onDiscard={() => form.reset()}
+      closeWithoutPromptRef={closeWithoutPromptRef}
+    >
       {hideTrigger ? null : (
         <SheetTrigger
           render={
@@ -141,6 +149,6 @@ export function CreateEnvironmentSheet({
           </FormSheetFooter>
         </FormSheetForm>
       </FormSheetPopup>
-    </Sheet>
+    </GuardedSheet>
   );
 }

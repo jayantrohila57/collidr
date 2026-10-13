@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";
 import {
@@ -10,11 +10,12 @@ import {
   FormSheetHeader,
   FormSheetPopup,
 } from "@/components/patterns/form-sheet";
+import { GuardedSheet } from "@/components/patterns/guarded-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetClose, SheetDescription } from "@/components/ui/sheet";
+import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import {
   Tooltip,
   TooltipContent,
@@ -43,6 +44,7 @@ export function EditEnvironmentSheet({
   onOpenChange: onOpenChangeProp,
   hideTrigger = false,
 }: EditEnvironmentSheetProps) {
+  const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const [internalOpen, setInternalOpen] = useState(false);
   const open = openProp ?? internalOpen;
   const setOpen = onOpenChangeProp ?? setInternalOpen;
@@ -74,16 +76,26 @@ export function EditEnvironmentSheet({
     setError(null);
     try {
       await onConfirm(environment.id, trimmed);
+      closeWithoutPromptRef.current?.();
       setOpen(false);
     } catch {
       // Toast + sheet stay open on failure.
     }
   };
 
+  const isDirty = useMemo(
+    () => name.trim() !== environment.name.trim(),
+    [environment.name, name],
+  );
+
+  const revertFields = () => {
+    setName(environment.name);
+    setError(null);
+  };
+
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen) {
-      setName(environment.name);
-      setError(null);
+      revertFields();
     }
     setOpen(newOpen);
   };
@@ -116,7 +128,13 @@ export function EditEnvironmentSheet({
           </TooltipContent>
         </Tooltip>
       ) : null}
-      <Sheet open={open} onOpenChange={handleOpenChange}>
+      <GuardedSheet
+        open={open}
+        onOpenChange={handleOpenChange}
+        isDirty={isDirty}
+        onDiscard={revertFields}
+        closeWithoutPromptRef={closeWithoutPromptRef}
+      >
         <FormSheetPopup>
           <FormSheetHeader>
             <SheetTitleWithIcon icon="environment">
@@ -157,7 +175,7 @@ export function EditEnvironmentSheet({
             </FormSheetFooter>
           </FormSheetForm>
         </FormSheetPopup>
-      </Sheet>
+      </GuardedSheet>
     </>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { variableKeySchema } from "@env-manager/api/validation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   PageHeaderActionLabel,
   pageHeaderActionButtonClassName,
@@ -15,12 +15,12 @@ import {
   FormSheetHeader,
   FormSheetPopup,
 } from "@/components/patterns/form-sheet";
+import { GuardedSheet } from "@/components/patterns/guarded-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Sheet,
   SheetClose,
   SheetDescription,
   SheetTrigger,
@@ -40,6 +40,7 @@ export function AddVariableSheet({
   triggerLayout = "toolbar",
 }: AddVariableSheetProps) {
   const isToolbar = triggerLayout === "toolbar";
+  const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const [open, setOpen] = useState(false);
   const [key, setKey] = useState("");
   const [value, setValue] = useState("");
@@ -69,20 +70,22 @@ export function AddVariableSheet({
     setError(null);
     try {
       await onConfirm({ key: key.trim().toUpperCase(), value });
-      setOpen(false);
       reset();
+      closeWithoutPromptRef.current?.();
+      setOpen(false);
     } catch {
       // Toast + sheet stay open on failure.
     }
   };
 
   return (
-    <Sheet
+    <GuardedSheet
       open={open}
-      onOpenChange={(next) => {
-        setOpen(next);
-        if (!next) reset();
-      }}
+      onOpenChange={setOpen}
+      isDirty={key.length > 0 || value.length > 0}
+      onDiscard={reset}
+      onClosed={reset}
+      closeWithoutPromptRef={closeWithoutPromptRef}
     >
       <SheetTrigger
         render={
@@ -148,6 +151,6 @@ export function AddVariableSheet({
           </FormSheetFooter>
         </FormSheetForm>
       </FormSheetPopup>
-    </Sheet>
+    </GuardedSheet>
   );
 }
