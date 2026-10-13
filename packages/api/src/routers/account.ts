@@ -1,5 +1,5 @@
 import { isActionsAuditEnabled } from "@env-manager/actions";
-import { db } from "@env-manager/db";
+import { db, deletedAccountUserUpdate } from "@env-manager/db";
 import { auditLog } from "@env-manager/db/schema/audit";
 import { auditEvent } from "@env-manager/db/schema/audit-event";
 import { account, session, user } from "@env-manager/db/schema/auth";
@@ -12,7 +12,7 @@ import {
 } from "@env-manager/db/schema/projects";
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
 import { requireAction } from "../actions/require-action";
@@ -262,27 +262,10 @@ export const accountRouter = router({
         });
       }
 
-      const anonymizedEmail = `deleted-${userId}@users.deleted.local`;
-
       await db
         .update(user)
-        .set({
-          name: "Deleted user",
-          email: anonymizedEmail,
-          image: null,
-          updatedAt: new Date(),
-        })
+        .set(deletedAccountUserUpdate(userId))
         .where(eq(user.id, userId));
-
-      try {
-        await db.execute(sql`
-          UPDATE "user"
-          SET deleted_at = NOW(), deleted_by = ${userId}
-          WHERE id = ${userId}
-        `);
-      } catch {
-        // Column may not exist until permissions migration lands.
-      }
 
       await db.delete(session).where(eq(session.userId, userId));
 

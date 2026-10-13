@@ -3,6 +3,7 @@ import { and, eq, inArray, isNull, type SQL } from "drizzle-orm";
 import type { PgColumn } from "drizzle-orm/pg-core";
 
 import { db } from "./client";
+import { user } from "./schema/auth";
 import { notification } from "./schema/notifications";
 import { invitation, member, organization } from "./schema/organization";
 import { environment, environmentVariable, project } from "./schema/projects";
@@ -39,7 +40,7 @@ export function activeInvitationWhere(extra?: SQL): SQL {
 }
 
 export function activeUserWhere(extra?: SQL): SQL {
-  return extra!;
+  return mergeAnd(extra, notDeleted(user.deletedAt)) ?? extra!;
 }
 
 export function activeNotificationWhere(extra?: SQL): SQL {

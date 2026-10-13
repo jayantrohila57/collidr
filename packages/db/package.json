@@ -15,7 +15,7 @@
     "db:studio": "drizzle-kit studio",
     "db:migrate": "drizzle-kit migrate",
     "db:reset-seed": "tsx scripts/reset-seed.ts",
-    "test": "node --import tsx --test src/connection-url.test.ts"
+    "test": "node --import tsx --test src/connection-url.test.ts src/account-soft-delete.test.ts"
   },
   "dependencies": {
     "@env-manager/crypto": "workspace:*",
