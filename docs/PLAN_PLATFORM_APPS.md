@@ -326,6 +326,7 @@ Each app’s tRPC context / middleware:
 
 - API-only; `requireMcpAuth` + MCP tool inventory (see **Appendix A** — 58 tools, scopes, canonical actions).
 - Issuer/JWKS from auth; no session cookies.
+- **Rate limits:** token-bucket state in Postgres (`rate_limit_bucket` via `@env-manager/db`) — Decision 14; no Vercel KV or Redis for MCP v1.
 
 ### 6.6 `apps/docs` (Fumadocs + our UI)
 
@@ -452,7 +453,7 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 - OAuth/MCP tables ([OAuth provider schema](https://www.better-auth.com/docs/plugins/oauth-provider#schema))
 - `user.role` + admin plugin fields
 - `audit_event.source`, `oauth_client_id`, `mcp_tool`
-- `platform_feature_flag`, `rate_limit_bucket` (optional)
+- `platform_feature_flag`, **`rate_limit_bucket`** in Postgres for MCP throttling (Decision 14 — not Vercel KV / external cache)
 
 ---
 
@@ -462,7 +463,7 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 |-------|---------|
 | SSO cookies | `httpOnly`, `secure`, scoped domain; [Cookies](https://www.better-auth.com/docs/concepts/cookies) |
 | `return_to` | Allowlist only — prevent open redirects |
-| MCP | PKCE, CIMD, scope step-up, `requireAction` per tool |
+| MCP | PKCE, CIMD, scope step-up, `requireAction` per tool; rate limits in **Postgres** (Decision 14) |
 | Console | **Admin role** + **mandatory production IP allowlist** via `CONSOLE_IP_ALLOWLIST` (Decision 11) |
 | Auth origins | `trustedOrigins` / `allowedReturnOrigins` — **production URLs only**; no preview wildcard (Decision 12) |
 | Docs | **Fully public** (Decision 10); Fumadocs built-in search (Decision 9); no secrets in MDX |
@@ -608,6 +609,17 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 **Implication:** Unarchive is a first-class permissioned operation, not an ad-hoc mutation bypassing the action matrix.
 
+### Decision 14 — MCP rate limit storage (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Store** | **PostgreSQL** — persist MCP rate-limit buckets in app schema (e.g. `rate_limit_bucket` in `0008_platform_apps.sql`). |
+| **Excluded** | No Vercel KV, Redis, Edge Config, or other external rate-limit store for MCP v1. |
+| **Rationale** | One operational datastore (Neon), transactional consistency with audit/oauth tables, no extra vendor for throttling. |
+| **Implementation** | `apps/mcp` (and shared services) read/write buckets via Drizzle; define window/key semantics in MCP hardening milestone (P8). |
+
+**Implication:** MCP deploy env does not require KV bindings; rate limiting is a DB concern like the rest of the platform.
+
 ---
 
 ## 15. Open decisions (numbered)
@@ -615,13 +627,12 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 1. **Cookie domain** (custom apex) — `env-manager.com` vs `.env-manager.com` vs per-subdomain only?
 2. **Auth proxy vs cookie-only** (custom apex) — rewrites on every sibling app or only `crossSubDomainCookies`?
 3. **Marketing site** — `www` → docs, studio landing, or separate?
-4. **Rate limit store** for MCP — KV vs Postgres?
-5. **MCP transport** — `@modelcontextprotocol/server` + `requireMcpAuth` vs `@vercel/mcp-adapter`?
-6. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
-7. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
-8. **Account app URL in emails** — branding and link targets?
-9. **Impersonation banner** — show on studio, account, or all apps?
-10. **Better Auth upgrade** — before P2 or as part of P2?
+4. **MCP transport** — `@modelcontextprotocol/server` + `requireMcpAuth` vs `@vercel/mcp-adapter`?
+5. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
+6. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
+7. **Account app URL in emails** — branding and link targets?
+8. **Impersonation banner** — show on studio, account, or all apps?
+9. **Better Auth upgrade** — before P2 or as part of P2?
 
 ---
 
