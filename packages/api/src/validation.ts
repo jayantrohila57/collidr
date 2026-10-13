@@ -264,6 +264,62 @@ export const notificationListItemOutput = z.object({
   actorUser: notificationActorOutput.nullable(),
 });
 
+export const accountConnectedOutput = z.object({
+  id: z.string(),
+  providerId: z.string(),
+  accountId: z.string(),
+  scope: z.string().nullable(),
+  createdAt: z.string(),
+});
+
+export const accountDeleteBlockerOutput = z.object({
+  canDelete: z.boolean(),
+  soleOwnerOrganizations: z.array(
+    z.object({
+      organizationId: z.string(),
+      name: z.string(),
+      slug: z.string(),
+    }),
+  ),
+});
+
+export const accountExportOutput = z.object({
+  exportedAt: z.string(),
+  note: z.string(),
+  profile: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      email: z.string(),
+      emailVerified: z.boolean(),
+      image: z.string().nullable(),
+      createdAt: z.string(),
+      updatedAt: z.string(),
+    })
+    .nullable(),
+  connectedAccounts: z.array(
+    z.object({
+      providerId: z.string(),
+      accountId: z.string(),
+      scope: z.string().nullable(),
+      createdAt: z.string(),
+    }),
+  ),
+  sessions: z.array(
+    z.object({
+      id: z.string(),
+      ipAddress: z.string().nullable(),
+      userAgent: z.string().nullable(),
+      createdAt: z.string(),
+      expiresAt: z.string(),
+    }),
+  ),
+  projects: z.array(z.record(z.unknown())),
+  environments: z.array(z.record(z.unknown())),
+  variables: z.array(z.record(z.unknown())),
+  auditLog: z.array(z.record(z.unknown())),
+});
+
 // Template schemas
 export const createTemplateInput = z.object({
   name: z.string().min(1).max(100),
