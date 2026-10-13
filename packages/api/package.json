@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "test": "SKIP_ENV_VALIDATION=1 node --import tsx --test src/variable-audit-payload.test.ts src/actions/evaluate-rbac.test.ts src/actions/require-action-membership.test.ts"
+    "test": "SKIP_ENV_VALIDATION=1 node --import tsx --test src/variable-audit-payload.test.ts src/actions/evaluate-rbac.test.ts src/actions/require-action-membership.test.ts src/routers/project-access-router.test.ts"
   },
   "dependencies": {
     "@env-manager/actions": "workspace:*",
