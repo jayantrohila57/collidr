@@ -79,13 +79,19 @@ export function AddVariableSheet({
         render={
           <Button
             size="sm"
-            className="max-sm:size-8 max-sm:gap-0 max-sm:px-0 sm:gap-1.5"
-            aria-label="Add variable"
+            className={
+              compactTrigger
+                ? "max-sm:size-8 max-sm:gap-0 max-sm:px-0 sm:gap-1.5"
+                : "gap-1.5"
+            }
+            aria-label={compactTrigger ? "Add variable" : undefined}
           />
         }
       >
         <AppIcon name="plus" className="text-current" />
-        <span className="sr-only sm:not-sr-only">Add Variable</span>
+        <span className={compactTrigger ? "sr-only sm:not-sr-only" : undefined}>
+          Add Variable
+        </span>
       </SheetTrigger>
       <FormSheetPopup>
         <FormSheetHeader>
