@@ -2,6 +2,10 @@
 
 import { variableKeySchema } from "@env-manager/api/validation";
 import { useState } from "react";
+import {
+  PageHeaderActionLabel,
+  pageHeaderActionButtonClassName,
+} from "@/components/layout/page-header-action-button";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";
 import {
@@ -84,18 +88,16 @@ export function AddVariableSheet({
         render={
           <Button
             size="sm"
-            className={
-              isToolbar
-                ? "max-sm:size-8 max-sm:gap-0 max-sm:px-0 sm:gap-1.5"
-                : "gap-1.5"
-            }
-            aria-label={isToolbar ? "Add variable" : undefined}
+            className={pageHeaderActionButtonClassName(
+              isToolbar ? "sm:gap-1.5" : "gap-1.5",
+              isToolbar,
+            )}
           />
         }
       >
         <AppIcon name="plus" className="text-current" />
         {isToolbar ? (
-          <span className="sr-only sm:not-sr-only">Add variable</span>
+          <PageHeaderActionLabel>Add variable</PageHeaderActionLabel>
         ) : (
           "Add variable"
         )}

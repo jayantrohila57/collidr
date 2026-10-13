@@ -2,9 +2,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { AppIcon } from "@/components/patterns/app-icon";
+import { PageHeaderActionButton } from "@/components/layout/app-layout";
 import DashboardSection from "@/components/section-dashboard";
-import { Button } from "@/components/ui/button";
 import { CreateProjectSheet } from "./create-project-sheet";
 import ProjectList from "./project-list";
 import { ProjectsListStats } from "./projects-list-stats";
@@ -37,15 +36,7 @@ export function ProjectsPageClient() {
         title="Projects"
         description="All workspace projects in one searchable list."
         action={
-          <Button
-            type="button"
-            size="sm"
-            className="gap-2 max-sm:size-8 max-sm:gap-0 max-sm:px-0"
-            onClick={openCreate}
-          >
-            <AppIcon name="plus" className="text-current" />
-            <span className="sr-only sm:not-sr-only">New project</span>
-          </Button>
+          <PageHeaderActionButton label="New project" onClick={openCreate} />
         }
         stats={<ProjectsListStats />}
       >

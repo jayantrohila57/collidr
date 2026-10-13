@@ -5,6 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
+import {
+  PageHeaderActionLabel,
+  pageHeaderActionButtonClassName,
+} from "@/components/layout/page-header-action-button";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";
 import {
@@ -76,21 +80,19 @@ export function CreateEnvironmentSheet({
             <Button
               variant={isAddAction ? "outline" : "default"}
               size="sm"
-              className={
-                compactOnMobile
-                  ? "max-sm:size-8 max-sm:shrink-0 max-sm:gap-0 max-sm:px-0"
-                  : "gap-1.5"
-              }
-              aria-label={compactOnMobile ? triggerText : undefined}
+              className={pageHeaderActionButtonClassName(
+                compactOnMobile ? undefined : "gap-1.5",
+                compactOnMobile,
+              )}
             />
           }
         >
           <AppIcon name="plus" className="text-current" />
-          <span
-            className={compactOnMobile ? "sr-only sm:not-sr-only" : undefined}
-          >
-            {triggerText}
-          </span>
+          {compactOnMobile ? (
+            <PageHeaderActionLabel>{triggerText}</PageHeaderActionLabel>
+          ) : (
+            triggerText
+          )}
         </SheetTrigger>
       )}
       <FormSheetPopup>

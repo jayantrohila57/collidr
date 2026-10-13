@@ -10,6 +10,13 @@ import { cn } from "@/lib/utils";
 
 export type { PageHeaderBackProp } from "@/components/layout/page-header";
 export { PageHeader, PageTitleRow } from "@/components/layout/page-header";
+export {
+  PageHeaderActionButton,
+  PageHeaderActionLabel,
+  pageHeaderActionButtonClassName,
+  pageHeaderActionCompactClassName,
+  pageHeaderActionLabelClassName,
+} from "@/components/layout/page-header-action-button";
 
 export function PageMain({
   className,

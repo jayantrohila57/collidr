@@ -4,8 +4,11 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PageStack, PageTitleRow } from "@/components/layout/app-layout";
-import { AppIcon } from "@/components/patterns/app-icon";
+import {
+  PageHeaderActionButton,
+  PageStack,
+  PageTitleRow,
+} from "@/components/layout/app-layout";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { ErrorState } from "@/components/patterns/error-state";
 import { StatCardRowSkeleton } from "@/components/patterns/stat-card";
@@ -60,15 +63,7 @@ export function DashboardHome() {
           title="Dashboard"
           description="Workspace overview and recent projects."
           action={
-            <Button
-              type="button"
-              size="sm"
-              className="gap-2"
-              onClick={openCreate}
-            >
-              <AppIcon name="plus" className="text-current" />
-              New project
-            </Button>
+            <PageHeaderActionButton label="New project" onClick={openCreate} />
           }
         />
 
