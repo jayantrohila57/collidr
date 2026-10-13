@@ -16,6 +16,7 @@ import {
   type AuthSession,
   getSessionActiveOrganizationId,
 } from "@env-manager/auth/session-types";
+import type { Route } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/server-auth";
@@ -48,10 +49,10 @@ export async function guardAuthenticatedPage(): Promise<AuthSession> {
     mode: "legacy",
   });
   if ("kind" in result && result.kind === "redirect") {
-    redirect(result.url);
+    redirect(result.url as Route);
   }
   if (!("ok" in result) || !result.ok) {
-    redirect("/sign-in");
+    redirect("/sign-in" as Route);
   }
   return result.session;
 }

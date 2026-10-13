@@ -1,4 +1,5 @@
 import { DEFAULT_STUDIO_URL } from "@env-manager/env/platform";
+import type { Route } from "next";
 import { redirect } from "next/navigation";
 
 function studioOrigin(): string {
@@ -11,5 +12,5 @@ function studioOrigin(): string {
 /** Legacy web dashboard routes that now live on studio. */
 export function redirectToStudio(pathname: string): never {
   const path = pathname.startsWith("/") ? pathname : `/${pathname}`;
-  redirect(`${studioOrigin()}${path}`);
+  redirect(`${studioOrigin()}${path}` as Route);
 }

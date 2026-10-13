@@ -1,4 +1,5 @@
 import { DEFAULT_WWW_URL } from "@env-manager/auth";
+import type { Route } from "next";
 import { redirect } from "next/navigation";
 
 export default function Home() {
@@ -6,5 +7,5 @@ export default function Home() {
     /\/$/,
     "",
   );
-  redirect(www);
+  redirect(www as Route);
 }

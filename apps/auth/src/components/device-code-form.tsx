@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@env-manager/ui/card";
 import Link from "next/link";
+import type { Route } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { GitHubSignInButton } from "@/components/github-sign-in-button";
@@ -54,7 +55,9 @@ export function DeviceCodeForm() {
         setError("Invalid or expired code. Check your terminal and try again.");
         return;
       }
-      router.push(`/device/approve?user_code=${encodeURIComponent(formatted)}`);
+      router.push(
+        `/device/approve?user_code=${encodeURIComponent(formatted)}` as Route,
+      );
     } catch {
       setError("Invalid or expired code. Check your terminal and try again.");
     } finally {

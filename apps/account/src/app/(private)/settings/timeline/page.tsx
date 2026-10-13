@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { SettingsSectionShell } from "@/app/(private)/settings/_components/settings-section-shell";
 import { TimelinePageClient } from "@/domain/timeline/components/timeline-page-client";

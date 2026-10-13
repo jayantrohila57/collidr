@@ -7,7 +7,6 @@ const HISTORY_ROOT_PATHS = new Set<PageBackHref>([
   "/dashboard",
   "/dashboard/projects",
   "/dashboard/organizations",
-  "/dashboard/settings",
   "/dashboard/notifications",
   "/dashboard/activity",
 ]);
