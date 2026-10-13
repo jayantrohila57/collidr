@@ -9,10 +9,15 @@ import { ProjectsSkeleton } from "./skeletons";
 
 interface ProjectListProps {
   onCreateProject?: () => void;
+  list?: ReturnType<typeof useProjects>;
 }
 
-export default function ProjectList({ onCreateProject }: ProjectListProps) {
-  const { projects, status, error, refetch } = useProjects();
+export default function ProjectList({
+  onCreateProject,
+  list,
+}: ProjectListProps) {
+  const internal = useProjects();
+  const { projects, status, error, refetch } = list ?? internal;
 
   switch (status) {
     case "loading":
@@ -21,10 +26,8 @@ export default function ProjectList({ onCreateProject }: ProjectListProps) {
       return (
         <ErrorState
           title="Failed to load projects"
-          description={
-            error?.message ??
-            "We could not load your projects. Please try again."
-          }
+          safeDescriptionFallback="We could not load your projects. Please try again."
+          description={error?.message}
           onRetry={() => void refetch()}
         />
       );

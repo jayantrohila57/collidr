@@ -26,6 +26,11 @@ const STATIC_LABELS: Record<string, string> = {
   invitations: "Invitations",
   roles: "Roles & access",
   settings: "Settings",
+  profile: "Profile",
+  sessions: "Sessions",
+  accounts: "Connected accounts",
+  export: "Export",
+  delete: "Delete account",
   timeline: "Timeline",
   projects: "Projects",
   notifications: "Notifications",
@@ -33,6 +38,16 @@ const STATIC_LABELS: Record<string, string> = {
   edit: "Edit",
   environments: "Environments",
 };
+
+const SETTINGS_TAB_SEGMENTS = new Set([
+  "profile",
+  "sessions",
+  "accounts",
+  "export",
+  "delete",
+  "timeline",
+  "organization",
+]);
 
 function formatSegmentLabel(segment: string, projectName?: string) {
   if (projectName) return projectName;
@@ -57,6 +72,13 @@ function breadcrumbLabel(
 ) {
   if (showNotFound && index === breadcrumbs.length - 1) {
     return "Not found";
+  }
+
+  if (
+    breadcrumbs[1]?.segment === "settings" &&
+    SETTINGS_TAB_SEGMENTS.has(breadcrumb.segment)
+  ) {
+    return STATIC_LABELS[breadcrumb.segment] ?? deSlug(breadcrumb.segment);
   }
 
   const isProjectSlug =

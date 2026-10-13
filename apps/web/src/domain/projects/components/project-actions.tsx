@@ -87,7 +87,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
         </Tooltip>
         <MenuPopup align="end" className="w-80">
           <MenuGroup>
-            <MenuGroupLabel>Project Actions</MenuGroupLabel>
+            <MenuGroupLabel>Project actions</MenuGroupLabel>
             <MenuItem
               onClick={() => {
                 setMenuOpen(false);
@@ -95,7 +95,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
               }}
             >
               <AppIcon name="edit" className={menuIconClass} />
-              Edit Project
+              Edit project
             </MenuItem>
           </MenuGroup>
 
@@ -110,7 +110,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             disabled={isChangingStatus || project.status === "active"}
           >
             <AppIcon name="power" className={menuIconClass} />
-            Set Active
+            Set active
           </MenuItem>
           <MenuItem
             onClick={() => {
@@ -121,7 +121,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             disabled={isChangingStatus || project.status === "inactive"}
           >
             <AppIcon name="statusInactive" className={menuIconClass} />
-            Set Inactive
+            Set inactive
           </MenuItem>
           <MenuItem
             onClick={() => {
@@ -132,7 +132,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             disabled={isChangingStatus || project.status === "maintenance"}
           >
             <AppIcon name="statusMaintenance" className={menuIconClass} />
-            Set Maintenance
+            Set maintenance
           </MenuItem>
 
           <MenuSeparator />
@@ -147,12 +147,12 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             {project.isPublic ? (
               <>
                 <AppIcon name="hide" className={menuIconClass} />
-                Make Private
+                Make private
               </>
             ) : (
               <>
                 <AppIcon name="reveal" className={menuIconClass} />
-                Make Public
+                Make public
               </>
             )}
           </MenuItem>
@@ -168,7 +168,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
               disabled={isUnarchiving}
             >
               <AppIcon name="archiveRestore" className={menuIconClass} />
-              Unarchive Project
+              Unarchive project
             </MenuItem>
           ) : (
             <MenuItem
@@ -179,7 +179,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
               disabled={isArchiving}
             >
               <AppIcon name="statusArchived" className={menuIconClass} />
-              Archive Project
+              Archive project
             </MenuItem>
           )}
 
@@ -194,7 +194,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             disabled={isDeleting}
           >
             <AppIcon name="delete" className={menuIconClass} />
-            Delete Project
+            Delete project
           </MenuItem>
         </MenuPopup>
       </Menu>

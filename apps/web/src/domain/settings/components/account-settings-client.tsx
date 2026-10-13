@@ -51,15 +51,15 @@ import {
   updateProfile,
   useSession,
 } from "@/domain/auth/lib/auth-actions";
+import { PermissionGate } from "@/domain/permissions/components/permission-gate";
+import { useCan } from "@/domain/permissions/hooks/use-permissions";
+import { accountSettingsActions } from "@/domain/permissions/org-section-actions";
 import { TimelinePageClient } from "@/domain/timeline/components/timeline-page-client";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { formatDateTime } from "@/lib/format";
 import { formatRelativeShort } from "@/lib/format-relative-short";
 import { initialsFromLabel } from "@/lib/initials";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
-import { PermissionGate } from "@/domain/permissions/components/permission-gate";
-import { useCan } from "@/domain/permissions/hooks/use-permissions";
-import { accountSettingsActions } from "@/domain/permissions/org-section-actions";
 import { sessionDeviceLabel } from "@/lib/session-device";
 import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";
@@ -214,6 +214,13 @@ export function AccountSettingsClient() {
   );
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
 
+  const canProfile = useCan(accountSettingsActions.profile);
+  const canSessions = useCan(accountSettingsActions.sessions);
+  const canAccounts = useCan(accountSettingsActions.accounts);
+  const canExport = useCan(accountSettingsActions.export);
+  const canDelete = useCan(accountSettingsActions.delete);
+  const canTimeline = useCan(accountSettingsActions.timeline);
+
   const deletePhrase = user?.email ?? "";
   const canDeleteAccount = deleteBlockersQuery.data?.data.canDelete ?? false;
   const soleOwnerOrgs =
@@ -308,13 +315,6 @@ export function AccountSettingsClient() {
     }
   };
 
-  const canProfile = useCan(accountSettingsActions.profile);
-  const canSessions = useCan(accountSettingsActions.sessions);
-  const canAccounts = useCan(accountSettingsActions.accounts);
-  const canExport = useCan(accountSettingsActions.export);
-  const canDelete = useCan(accountSettingsActions.delete);
-  const canTimeline = useCan(accountSettingsActions.timeline);
-
   const timelineLogs = timelineQuery.data?.data ?? [];
   const timelineStatus = timelineQuery.isLoading
     ? "loading"
@@ -346,9 +346,7 @@ export function AccountSettingsClient() {
           {canAccounts.allowed ? (
             <TabsTab value="accounts">Connected accounts</TabsTab>
           ) : null}
-          {canExport.allowed ? (
-            <TabsTab value="export">Export</TabsTab>
-          ) : null}
+          {canExport.allowed ? <TabsTab value="export">Export</TabsTab> : null}
           {canDelete.allowed ? (
             <TabsTab value="delete">Delete account</TabsTab>
           ) : null}
@@ -440,324 +438,326 @@ export function AccountSettingsClient() {
 
         <TabsPanel value="sessions" className="min-w-0">
           <PermissionGate action={accountSettingsActions.sessions}>
-          <SettingsPanel>
-            <SettingsSectionHeader
-              title="Sessions"
-              description="Devices signed in to your account."
-              icon="lock"
-            />
-            <SettingsRow
-              label="Revoke others"
-              description="Sign out every device except this one."
-            >
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="w-fit"
-                disabled={sessions.length <= 1 || sessionsLoading}
-                onClick={() => setRevokeOthersOpen(true)}
+            <SettingsPanel>
+              <SettingsSectionHeader
+                title="Sessions"
+                description="Devices signed in to your account."
+                icon="lock"
+              />
+              <SettingsRow
+                label="Revoke others"
+                description="Sign out every device except this one."
               >
-                Revoke all other sessions
-              </Button>
-            </SettingsRow>
-            {sessionsLoading ? (
-              <div className="space-y-3 px-4 py-4">
-                <Skeleton className="h-14 w-full" />
-                <Skeleton className="h-14 w-full" />
-              </div>
-            ) : sessionsError ? (
-              <div className="px-4 py-4">
-                <ErrorState
-                  title="Could not load sessions"
-                  description={sessionsError}
-                  onRetry={() => void loadSessions()}
-                />
-              </div>
-            ) : sessions.length === 0 ? (
-              <div className="px-4 py-6">
-                <Empty className="border border-dashed py-8">
-                  <EmptyHeader>
-                    <EmptyMedia variant="icon">
-                      <AppIcon name="lock" className="size-5" />
-                    </EmptyMedia>
-                    <EmptyTitle>No active sessions</EmptyTitle>
-                    <EmptyDescription>
-                      Sign in again to refresh this list.
-                    </EmptyDescription>
-                  </EmptyHeader>
-                </Empty>
-              </div>
-            ) : (
-              <ul className="divide-y">
-                {sessions.map((row) => {
-                  const isCurrent = row.token === sessionToken;
-                  const lastActive = row.updatedAt ?? row.createdAt;
-                  return (
-                    <li
-                      key={row.token}
-                      className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="min-w-0 space-y-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-medium text-sm">
-                            {sessionDeviceLabel(row.userAgent ?? null)}
-                          </p>
-                          {isCurrent ? (
-                            <Badge variant="secondary">This device</Badge>
-                          ) : null}
-                        </div>
-                        <p className="text-muted-foreground text-xs">
-                          {row.ipAddress ? `IP ${row.ipAddress}` : "IP unknown"}
-                          {lastActive
-                            ? ` · Last active ${formatRelativeShort(String(lastActive))}`
-                            : null}
-                        </p>
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="w-fit shrink-0"
-                        disabled={revokePending}
-                        onClick={() => setRevokeToken(row.token)}
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="w-fit"
+                  disabled={sessions.length <= 1 || sessionsLoading}
+                  onClick={() => setRevokeOthersOpen(true)}
+                >
+                  Revoke all other sessions
+                </Button>
+              </SettingsRow>
+              {sessionsLoading ? (
+                <div className="space-y-3 px-4 py-4">
+                  <Skeleton className="h-14 w-full" />
+                  <Skeleton className="h-14 w-full" />
+                </div>
+              ) : sessionsError ? (
+                <div className="px-4 py-4">
+                  <ErrorState
+                    title="Could not load sessions"
+                    description={sessionsError}
+                    onRetry={() => void loadSessions()}
+                  />
+                </div>
+              ) : sessions.length === 0 ? (
+                <div className="px-4 py-6">
+                  <Empty className="border border-dashed py-8">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <AppIcon name="lock" className="size-5" />
+                      </EmptyMedia>
+                      <EmptyTitle>No active sessions</EmptyTitle>
+                      <EmptyDescription>
+                        Sign in again to refresh this list.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
+                </div>
+              ) : (
+                <ul className="divide-y">
+                  {sessions.map((row) => {
+                    const isCurrent = row.token === sessionToken;
+                    const lastActive = row.updatedAt ?? row.createdAt;
+                    return (
+                      <li
+                        key={row.token}
+                        className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
                       >
-                        Revoke
-                      </Button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </SettingsPanel>
+                        <div className="min-w-0 space-y-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-medium text-sm">
+                              {sessionDeviceLabel(row.userAgent ?? null)}
+                            </p>
+                            {isCurrent ? (
+                              <Badge variant="secondary">This device</Badge>
+                            ) : null}
+                          </div>
+                          <p className="text-muted-foreground text-xs">
+                            {row.ipAddress
+                              ? `IP ${row.ipAddress}`
+                              : "IP unknown"}
+                            {lastActive
+                              ? ` · Last active ${formatRelativeShort(String(lastActive))}`
+                              : null}
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="w-fit shrink-0"
+                          disabled={revokePending}
+                          onClick={() => setRevokeToken(row.token)}
+                        >
+                          Revoke
+                        </Button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </SettingsPanel>
           </PermissionGate>
         </TabsPanel>
 
         <TabsPanel value="accounts" className="min-w-0">
           <PermissionGate action={accountSettingsActions.accounts}>
-          <SettingsPanel>
-            <SettingsSectionHeader
-              title="Connected accounts"
-              description="OAuth providers linked to your login."
-              icon="github"
-            />
-            {connectedQuery.isLoading ? (
-              <div className="space-y-3 px-4 py-4">
-                <Skeleton className="h-16 w-full" />
-              </div>
-            ) : connectedQuery.isError ? (
-              <div className="px-4 py-4">
-                <ErrorState
-                  title="Could not load accounts"
-                  description={connectedQuery.error.message}
-                  onRetry={() => void connectedQuery.refetch()}
-                />
-              </div>
-            ) : connectedAccounts.length === 0 ? (
-              <div className="px-4 py-6">
-                <Empty className="border border-dashed py-8">
-                  <EmptyHeader>
-                    <EmptyMedia variant="icon">
-                      <AppIcon name="github" className="size-5" />
-                    </EmptyMedia>
-                    <EmptyTitle>No connected accounts</EmptyTitle>
-                    <EmptyDescription>
-                      Link GitHub to sign in with OAuth.
-                    </EmptyDescription>
-                  </EmptyHeader>
-                  <EmptyContent>
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="gap-2"
-                      onClick={() => void handleLinkGithub()}
+            <SettingsPanel>
+              <SettingsSectionHeader
+                title="Connected accounts"
+                description="OAuth providers linked to your login."
+                icon="github"
+              />
+              {connectedQuery.isLoading ? (
+                <div className="space-y-3 px-4 py-4">
+                  <Skeleton className="h-16 w-full" />
+                </div>
+              ) : connectedQuery.isError ? (
+                <div className="px-4 py-4">
+                  <ErrorState
+                    title="Could not load accounts"
+                    description={connectedQuery.error.message}
+                    onRetry={() => void connectedQuery.refetch()}
+                  />
+                </div>
+              ) : connectedAccounts.length === 0 ? (
+                <div className="px-4 py-6">
+                  <Empty className="border border-dashed py-8">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <AppIcon name="github" className="size-5" />
+                      </EmptyMedia>
+                      <EmptyTitle>No connected accounts</EmptyTitle>
+                      <EmptyDescription>
+                        Link GitHub to sign in with OAuth.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                    <EmptyContent>
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => void handleLinkGithub()}
+                      >
+                        <AppIcon name="github" className="text-current" />
+                        Link GitHub
+                      </Button>
+                    </EmptyContent>
+                  </Empty>
+                </div>
+              ) : (
+                <ul className="divide-y">
+                  {connectedAccounts.map((row) => (
+                    <li
+                      key={row.id}
+                      className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between"
                     >
-                      <AppIcon name="github" className="text-current" />
-                      Link GitHub
-                    </Button>
-                  </EmptyContent>
-                </Empty>
-              </div>
-            ) : (
-              <ul className="divide-y">
-                {connectedAccounts.map((row) => (
-                  <li
-                    key={row.id}
-                    className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between"
-                  >
-                    <div className="min-w-0 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <AppIcon name="github" />
-                        <p className="font-medium text-sm capitalize">
-                          {row.providerId}
+                      <div className="min-w-0 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <AppIcon name="github" />
+                          <p className="font-medium text-sm capitalize">
+                            {row.providerId}
+                          </p>
+                        </div>
+                        <p className="font-mono text-muted-foreground text-xs">
+                          ID {row.accountId}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          Scopes: {row.scope?.trim() ? row.scope : "—"}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          Linked {formatDateTime(row.createdAt)}
                         </p>
                       </div>
-                      <p className="font-mono text-muted-foreground text-xs">
-                        ID {row.accountId}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        Scopes: {row.scope?.trim() ? row.scope : "—"}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        Linked {formatDateTime(row.createdAt)}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">
-                      {row.providerId === "github" ? (
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          className="w-fit"
-                          disabled={!canUnlinkGithub}
-                          onClick={() => void handleUnlinkGithub()}
-                        >
-                          Unlink
-                        </Button>
-                      ) : null}
-                      {!canUnlinkGithub ? (
-                        <p className="max-w-[14rem] text-muted-foreground text-xs">
-                          Add another sign-in method before unlinking your only
-                          provider.
-                        </p>
-                      ) : null}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {!githubAccount && connectedAccounts.length > 0 ? (
-              <SettingsRow
-                label="Link GitHub"
-                description="Add GitHub as a sign-in method."
-              >
-                <Button
-                  type="button"
-                  size="sm"
-                  className="w-fit gap-2"
-                  onClick={() => void handleLinkGithub()}
+                      <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">
+                        {row.providerId === "github" ? (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="w-fit"
+                            disabled={!canUnlinkGithub}
+                            onClick={() => void handleUnlinkGithub()}
+                          >
+                            Unlink
+                          </Button>
+                        ) : null}
+                        {!canUnlinkGithub ? (
+                          <p className="max-w-[14rem] text-muted-foreground text-xs">
+                            Add another sign-in method before unlinking your
+                            only provider.
+                          </p>
+                        ) : null}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {!githubAccount && connectedAccounts.length > 0 ? (
+                <SettingsRow
+                  label="Link GitHub"
+                  description="Add GitHub as a sign-in method."
                 >
-                  <AppIcon name="github" className="text-current" />
-                  Link GitHub
-                </Button>
-              </SettingsRow>
-            ) : null}
-          </SettingsPanel>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="w-fit gap-2"
+                    onClick={() => void handleLinkGithub()}
+                  >
+                    <AppIcon name="github" className="text-current" />
+                    Link GitHub
+                  </Button>
+                </SettingsRow>
+              ) : null}
+            </SettingsPanel>
           </PermissionGate>
         </TabsPanel>
 
         <TabsPanel value="export" className="min-w-0">
           <PermissionGate action={accountSettingsActions.export}>
-          <SettingsPanel>
-            <SettingsSectionHeader
-              title="Export my data"
-              description="Download a JSON copy of data you own."
-              icon="archiveRestore"
-            />
-            <SettingsRow
-              label="Download"
-              description="Includes projects, environments, variable keys, audit log, and profile metadata. Secret values are excluded."
-            >
-              <SubmitButton
-                type="button"
-                size="sm"
-                className="w-fit gap-2"
-                isLoading={exportMutation.isPending}
-                loadingLabel="Preparing…"
-                onClick={() => void handleExportDownload()}
+            <SettingsPanel>
+              <SettingsSectionHeader
+                title="Export my data"
+                description="Download a JSON copy of data you own."
+                icon="archiveRestore"
+              />
+              <SettingsRow
+                label="Download"
+                description="Includes projects, environments, variable keys, audit log, and profile metadata. Secret values are excluded."
               >
-                <AppIcon name="archiveRestore" className="text-current" />
-                Download JSON
-              </SubmitButton>
-            </SettingsRow>
-          </SettingsPanel>
+                <SubmitButton
+                  type="button"
+                  size="sm"
+                  className="w-fit gap-2"
+                  isLoading={exportMutation.isPending}
+                  loadingLabel="Preparing…"
+                  onClick={() => void handleExportDownload()}
+                >
+                  <AppIcon name="archiveRestore" className="text-current" />
+                  Download JSON
+                </SubmitButton>
+              </SettingsRow>
+            </SettingsPanel>
           </PermissionGate>
         </TabsPanel>
 
         <TabsPanel value="delete" className="min-w-0">
           <PermissionGate action={accountSettingsActions.delete}>
-          <SettingsPanel className="border-destructive/32 bg-destructive/4">
-            <SettingsSectionHeader
-              title="Delete account"
-              description="Soft-deletes your user and signs you out."
-              icon="danger"
-            />
-            {!canDeleteAccount && soleOwnerOrgs.length > 0 ? (
+            <SettingsPanel className="border-destructive/32 bg-destructive/4">
+              <SettingsSectionHeader
+                title="Delete account"
+                description="Soft-deletes your user and signs you out."
+                icon="danger"
+              />
+              {!canDeleteAccount && soleOwnerOrgs.length > 0 ? (
+                <SettingsRow
+                  label="Ownership"
+                  description="Transfer ownership before deleting."
+                >
+                  <ul className="max-w-md space-y-1 text-end text-muted-foreground text-xs">
+                    {soleOwnerOrgs.map((org) => (
+                      <li key={org.organizationId}>
+                        Sole owner of <strong>{org.name}</strong> ({org.slug})
+                      </li>
+                    ))}
+                  </ul>
+                </SettingsRow>
+              ) : null}
               <SettingsRow
-                label="Ownership"
-                description="Transfer ownership before deleting."
+                label="Delete"
+                description="Type your email to confirm. This cannot be undone."
               >
-                <ul className="max-w-md space-y-1 text-end text-muted-foreground text-xs">
-                  {soleOwnerOrgs.map((org) => (
-                    <li key={org.organizationId}>
-                      Sole owner of <strong>{org.name}</strong> ({org.slug})
-                    </li>
-                  ))}
-                </ul>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="w-fit"
+                  disabled={!canDeleteAccount || softDeleteMutation.isPending}
+                  onClick={() => {
+                    setDeleteConfirm("");
+                    setDeleteOpen(true);
+                  }}
+                >
+                  Delete account
+                </Button>
               </SettingsRow>
-            ) : null}
-            <SettingsRow
-              label="Delete"
-              description="Type your email to confirm. This cannot be undone."
-            >
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                className="w-fit"
-                disabled={!canDeleteAccount || softDeleteMutation.isPending}
-                onClick={() => {
-                  setDeleteConfirm("");
-                  setDeleteOpen(true);
-                }}
-              >
-                Delete account
-              </Button>
-            </SettingsRow>
-          </SettingsPanel>
+            </SettingsPanel>
           </PermissionGate>
         </TabsPanel>
 
         <TabsPanel value="timeline" className="min-w-0">
           <PermissionGate action={accountSettingsActions.timeline}>
-          <SettingsPanel>
-            <SettingsSectionHeader
-              title="Timeline"
-              description="Your personal audit history."
-              icon="activity"
-            />
-            <div className="min-w-0 px-4 py-4">
-              {isActionsAuditEnabledOnClient() ? (
-                <TimelinePageClient scope="self" />
-              ) : timelineStatus === "error" ? (
-                <ErrorState
-                  title="Could not load timeline"
-                  description={
-                    timelineQuery.error?.message ??
-                    "The audit API may not be available yet."
-                  }
-                  onRetry={() => void timelineQuery.refetch()}
-                />
-              ) : (
-                <AuditLogTableView
-                  logs={timelineLogs}
-                  isLoading={timelineStatus === "loading"}
-                  revealedIds={revealedIds}
-                  onToggleReveal={(id) => {
-                    setRevealedIds((prev) => {
-                      const next = new Set(prev);
-                      if (next.has(id)) next.delete(id);
-                      else next.add(id);
-                      return next;
-                    });
-                  }}
-                  searchValue=""
-                  onSearchChange={() => {}}
-                  empty={auditLogEmpty()}
-                />
-              )}
-            </div>
-          </SettingsPanel>
+            <SettingsPanel>
+              <SettingsSectionHeader
+                title="Timeline"
+                description="Your personal audit history."
+                icon="activity"
+              />
+              <div className="min-w-0 px-4 py-4">
+                {isActionsAuditEnabledOnClient() ? (
+                  <TimelinePageClient scope="self" />
+                ) : timelineStatus === "error" ? (
+                  <ErrorState
+                    title="Could not load timeline"
+                    description={
+                      timelineQuery.error?.message ??
+                      "The audit API may not be available yet."
+                    }
+                    onRetry={() => void timelineQuery.refetch()}
+                  />
+                ) : (
+                  <AuditLogTableView
+                    logs={timelineLogs}
+                    isLoading={timelineStatus === "loading"}
+                    revealedIds={revealedIds}
+                    onToggleReveal={(id) => {
+                      setRevealedIds((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(id)) next.delete(id);
+                        else next.add(id);
+                        return next;
+                      });
+                    }}
+                    searchValue=""
+                    onSearchChange={() => {}}
+                    empty={auditLogEmpty()}
+                  />
+                )}
+              </div>
+            </SettingsPanel>
           </PermissionGate>
         </TabsPanel>
       </Tabs>

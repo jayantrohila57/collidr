@@ -62,8 +62,23 @@ const schema = z.object({
 
 export default function OnboardingClient() {
   const router = useRouter();
-  const { afterOrganizationCreated } = useActiveOrganization();
+  const {
+    afterOrganizationCreated,
+    orgs,
+    initialLoadDone,
+    refreshOrganizations,
+  } = useActiveOrganization();
   const [navigating, setNavigating] = useState(false);
+
+  useEffect(() => {
+    if (!initialLoadDone) {
+      void refreshOrganizations();
+      return;
+    }
+    if (orgs.length > 0) {
+      router.replace("/dashboard");
+    }
+  }, [initialLoadDone, orgs.length, refreshOrganizations, router]);
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: { name: "", slug: "" },

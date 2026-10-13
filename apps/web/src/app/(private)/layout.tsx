@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { PageHeaderBar, PageHeaderRow } from "@/components/layout/app-layout";
@@ -19,10 +18,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { UserMenu } from "@/domain/auth/components/user-menu";
 import { NotificationBell } from "@/domain/notifications/components/notification-bell";
 import { NotificationPoller } from "@/domain/notifications/components/notification-poller";
-import {
-  layoutContentClass,
-  layoutInsetContainerWideClass,
-} from "@/lib/layout-spacing";
 
 interface OrganizationLayoutProps {
   children: React.ReactNode;
@@ -31,27 +26,6 @@ interface OrganizationLayoutProps {
 export default function OrganizationLayout({
   children,
 }: OrganizationLayoutProps) {
-  const pathname = usePathname();
-  const isOnboarding = pathname === "/dashboard/onboarding";
-  if (isOnboarding) {
-    return (
-      <Shell>
-        <TooltipProvider delay={0}>
-          <ActiveOrganizationProvider>
-            <main
-              id="main-content"
-              className={`min-h-svh min-w-0 bg-background ${layoutContentClass}`}
-            >
-              <div className={layoutInsetContainerWideClass}>
-                <OrgOnboardingGate>{children}</OrgOnboardingGate>
-              </div>
-            </main>
-          </ActiveOrganizationProvider>
-        </TooltipProvider>
-      </Shell>
-    );
-  }
-
   return (
     <Shell>
       <SidebarProvider>

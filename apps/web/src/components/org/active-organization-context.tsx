@@ -70,7 +70,19 @@ export function ActiveOrganizationProvider({
     const data = (list.data ?? []) as OrgListItem[];
     setOrgs(data);
     const active = await readActiveOrganizationId();
-    setActiveOrganizationId(active ?? data[0]?.id ?? null);
+    if (active) {
+      setActiveOrganizationId(active);
+      return;
+    }
+    const firstId = data[0]?.id ?? null;
+    setActiveOrganizationId(firstId);
+    if (firstId) {
+      try {
+        await authClient.organization.setActive({ organizationId: firstId });
+      } catch {
+        // Session may not be ready yet; OrgOnboardingGate will retry.
+      }
+    }
   }, [enabled]);
 
   useEffect(() => {

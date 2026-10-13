@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { CreateProjectSheet } from "@/domain/projects/components/create-project-sheet";
 import { ProjectsTableView } from "@/domain/projects/components/projects-table-view";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
+import { getClientErrorMessage } from "@/lib/errors/client-errors";
 import { appIcons } from "@/lib/icons";
 import { useDashboard } from "../hooks/use-dashboard";
 import { DashboardOverviewStats } from "./dashboard-overview-stats";
@@ -75,10 +76,11 @@ export function DashboardHome() {
         ) : status === "error" ? (
           <ErrorState
             title="Failed to load projects"
-            description={
-              error?.message ??
-              "We could not load your projects. Please try again."
-            }
+            safeDescriptionFallback="We could not load your projects. Please try again."
+            description={getClientErrorMessage(
+              error,
+              "We could not load your projects. Please try again.",
+            )}
             onRetry={() => void refetch()}
           />
         ) : overviewStatus === "error" ? (

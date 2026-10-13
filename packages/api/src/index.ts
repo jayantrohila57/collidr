@@ -16,6 +16,13 @@ export const t = initTRPC.context<Context>().create({
       shape.message ? new Error(shape.message) : null,
       fromCause,
     );
+    if (fromShape !== shape.message) {
+      console.error("[tRPC] Sanitized error for client:", {
+        code: shape.code,
+        clientMessage: fromShape,
+        cause: error.cause ?? error,
+      });
+    }
     return {
       ...shape,
       message: fromShape,

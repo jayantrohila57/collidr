@@ -5,8 +5,17 @@ const RAW_DB_PATTERNS = [
   /insert into/i,
   /update "/i,
   /delete from/i,
+  /select .+ from/i,
+  /violates unique constraint/i,
+  /duplicate key/i,
   /encrypted_value/i,
   /params:/i,
+  /relation .+ does not exist/i,
+  /column .+ does not exist/i,
+  /organization_id/i,
+  /user_id/i,
+  /active_organization/i,
+  /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i,
 ];
 
 function tryParseSerializedZodIssues(message: string): string | null {

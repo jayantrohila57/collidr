@@ -19,8 +19,8 @@ import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import { TRPCError } from "@trpc/server";
 import { and, count, eq, gte, or, sql } from "drizzle-orm";
 import { z } from "zod/v3";
-import type { Context } from "../context";
 import { actionGuard } from "../actions/action-guard";
+import type { Context } from "../context";
 import {
   orgAwareProcedure,
   orgProcedure,
@@ -74,7 +74,9 @@ async function fetchDashboardStats(ctx: OrgCtx) {
     db
       .select({ count: count() })
       .from(project)
-      .where(and(scope, eq(project.status, "active"))),
+      .where(
+        and(scope, eq(project.isArchived, false), eq(project.status, "active")),
+      ),
     db
       .select({ count: count() })
       .from(project)
@@ -438,12 +440,12 @@ export const dashboardRouter = router({
   getOverview: orgProcedure
     .use(actionGuard("organization.hub.view"))
     .query(async ({ ctx }) => {
-    const [stats, activity] = await Promise.all([
-      fetchDashboardStats(ctx),
-      fetchRecentActivity(ctx),
-    ]);
-    return { stats, activity };
-  }),
+      const [stats, activity] = await Promise.all([
+        fetchDashboardStats(ctx),
+        fetchRecentActivity(ctx),
+      ]);
+      return { stats, activity };
+    }),
 
   getStats: orgProcedure
     .use(actionGuard("organization.hub.view"))
@@ -456,31 +458,31 @@ export const dashboardRouter = router({
   getProjectsListStats: orgProcedure
     .use(actionGuard("organization.list"))
     .query(async ({ ctx }) => {
-    const stats = await fetchDashboardStats(ctx);
-    const scope = projectScope(ctx.session.user.id, ctx.activeOrganizationId);
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const [publicProjectsResult, recentlyUpdatedResult] = await Promise.all([
-      db
-        .select({ count: count() })
-        .from(project)
-        .where(and(scope, eq(project.isPublic, true))),
-      db
-        .select({ count: count() })
-        .from(project)
-        .where(and(scope, gte(project.updatedAt, sevenDaysAgo))),
-    ]);
-    return {
-      total: stats.totalProjects,
-      active: stats.activeProjects,
-      private: stats.privateProjects,
-      public: publicProjectsResult[0]?.count ?? 0,
-      archivedOrMaintenance: stats.archivedOrMaintenance,
-      totalEnvironments: stats.totalEnvironments,
-      totalVariables: stats.totalVariables,
-      recentlyUpdated7d: recentlyUpdatedResult[0]?.count ?? 0,
-    };
-  }),
+      const stats = await fetchDashboardStats(ctx);
+      const scope = projectScope(ctx.session.user.id, ctx.activeOrganizationId);
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const [publicProjectsResult, recentlyUpdatedResult] = await Promise.all([
+        db
+          .select({ count: count() })
+          .from(project)
+          .where(and(scope, eq(project.isPublic, true))),
+        db
+          .select({ count: count() })
+          .from(project)
+          .where(and(scope, gte(project.updatedAt, sevenDaysAgo))),
+      ]);
+      return {
+        total: stats.totalProjects,
+        active: stats.activeProjects,
+        private: stats.privateProjects,
+        public: publicProjectsResult[0]?.count ?? 0,
+        archivedOrMaintenance: stats.archivedOrMaintenance,
+        totalEnvironments: stats.totalEnvironments,
+        totalVariables: stats.totalVariables,
+        recentlyUpdated7d: recentlyUpdatedResult[0]?.count ?? 0,
+      };
+    }),
 
   getProjectDetailStats: orgProcedure
     .use(
@@ -512,9 +514,9 @@ export const dashboardRouter = router({
   getActivitySummary: orgAwareProcedure
     .use(actionGuard("audit.timeline.view.self"))
     .query(async ({ ctx }) =>
-    fetchActivitySummary({
-      session: ctx.session,
-      activeOrganizationId: ctx.activeOrganizationId,
-    }),
-  ),
+      fetchActivitySummary({
+        session: ctx.session,
+        activeOrganizationId: ctx.activeOrganizationId,
+      }),
+    ),
 });

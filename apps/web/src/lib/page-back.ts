@@ -6,6 +6,10 @@ export type PageBackHref = Route;
 const HISTORY_ROOT_PATHS = new Set<PageBackHref>([
   "/dashboard",
   "/dashboard/projects",
+  "/dashboard/organizations",
+  "/dashboard/settings",
+  "/dashboard/notifications",
+  "/dashboard/activity",
 ]);
 
 export function isDashboardRootPath(pathname: string): boolean {
@@ -35,10 +39,6 @@ export function getPageBackHref(pathname: string): PageBackHref | null {
 
   if (pathname === "/dashboard/settings/organization") {
     return "/dashboard/organizations";
-  }
-
-  if (pathname === "/dashboard/organizations") {
-    return "/dashboard";
   }
 
   const organizationDetail = /^\/dashboard\/organizations\/([^/]+)$/.exec(

@@ -3,6 +3,7 @@
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
+import { useDebouncedUrlParam } from "@/hooks/use-debounced-url-param";
 import type {
   OrganizationsSort,
   OrganizationsTypeFilter,
@@ -38,22 +39,24 @@ export function useOrganizationsListParams() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const search = searchParams.get("q") ?? "";
+  const urlSearch = searchParams.get("q") ?? "";
   const type = parseType(searchParams.get("type"));
   const sort = parseSort(searchParams.get("sort"));
   const view = parseView(searchParams.get("view"));
 
   const replaceParams = useCallback(
     (mutate: (params: URLSearchParams) => void) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(
+        typeof window !== "undefined" ? window.location.search : "",
+      );
       mutate(params);
       const query = params.toString();
       router.replace((query ? `${pathname}?${query}` : pathname) as Route);
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
-  const setSearch = useCallback(
+  const commitSearch = useCallback(
     (value: string) => {
       replaceParams((params) => {
         if (value.trim()) params.set("q", value);
@@ -62,6 +65,8 @@ export function useOrganizationsListParams() {
     },
     [replaceParams],
   );
+
+  const [search, setSearch] = useDebouncedUrlParam(urlSearch, commitSearch);
 
   const setType = useCallback(
     (value: OrganizationsTypeFilter) => {

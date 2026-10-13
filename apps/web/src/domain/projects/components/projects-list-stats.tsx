@@ -8,21 +8,47 @@ import {
 } from "@/components/patterns/stat-card";
 import { useOrgQueryEnabled } from "@/hooks/use-org-query-enabled";
 import { trpc } from "@/utils/trpc";
+import { useProjects } from "../hooks/use-projects";
+import {
+  countProjectsByStatus,
+  countProjectsByVisibility,
+} from "../lib/filter-projects";
 
-export function ProjectsListStats() {
+type ProjectsListStatsProps = {
+  list?: ReturnType<typeof useProjects>;
+};
+
+export function ProjectsListStats({ list }: ProjectsListStatsProps = {}) {
   const queryEnabled = useOrgQueryEnabled();
-  const { data, isPending } = useQuery({
+  const internal = useProjects();
+  const { status, projects } = list ?? internal;
+
+  const statsQuery = useQuery({
     ...trpc.dashboard.getProjectsListStats.queryOptions(),
-    enabled: queryEnabled,
+    enabled: queryEnabled && status === "success",
+    meta: { toastOnError: false },
   });
 
-  if (isPending || !queryEnabled) {
+  if (!queryEnabled || status === "loading") {
+    return <StatCardRowSkeleton count={8} />;
+  }
+
+  if (status === "error") {
+    return null;
+  }
+
+  const data = statsQuery.data;
+
+  if (statsQuery.isPending && !data) {
     return <StatCardRowSkeleton count={8} />;
   }
 
   if (!data) {
     return null;
   }
+
+  const statusCounts = countProjectsByStatus(projects);
+  const visibilityCounts = countProjectsByVisibility(projects);
 
   const items: StatCardItem[] = [
     {
@@ -33,19 +59,19 @@ export function ProjectsListStats() {
     },
     {
       label: "Active",
-      value: data.active,
+      value: statusCounts.active,
       hint: "Status active",
       icon: "statusActive",
     },
     {
       label: "Private",
-      value: data.private,
+      value: visibilityCounts.private,
       hint: "Not public",
       icon: "lock",
     },
     {
       label: "Public",
-      value: data.public,
+      value: visibilityCounts.public,
       hint: "Visible metadata",
       icon: "globe",
     },

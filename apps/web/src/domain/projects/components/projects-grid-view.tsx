@@ -17,13 +17,15 @@ export function ProjectsGridView({
     <Frame className="w-full min-w-0 max-w-full overflow-hidden rounded-xl">
       <div
         className={cn(
-          "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3",
+          "grid auto-rows-fr grid-cols-1 items-stretch sm:grid-cols-2 xl:grid-cols-3",
           layoutGapClass,
           className,
         )}
       >
         {projects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
+          <div key={project.id} className="flex h-full min-h-0 min-w-0">
+            <ProjectCard project={project} />
+          </div>
         ))}
       </div>
     </Frame>

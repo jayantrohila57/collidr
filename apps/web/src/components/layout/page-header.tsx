@@ -34,10 +34,7 @@ function resolveBack(
 
   if (back === "auto" || back === undefined) {
     if (isDashboardRootPath(pathname)) {
-      return {
-        fallbackHref: getPageBackFallback(pathname),
-        useHistory: true,
-      };
+      return null;
     }
     const href = getPageBackHref(pathname);
     if (href) {

@@ -14,6 +14,12 @@ export function isRecognizedDashboardPath(
     "/dashboard/projects",
     "/dashboard/projects/new",
     "/dashboard/settings",
+    "/dashboard/settings/profile",
+    "/dashboard/settings/sessions",
+    "/dashboard/settings/accounts",
+    "/dashboard/settings/export",
+    "/dashboard/settings/delete",
+    "/dashboard/settings/timeline",
     "/dashboard/settings/organization",
     "/dashboard/organizations",
   ]);

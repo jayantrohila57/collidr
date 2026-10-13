@@ -6,7 +6,6 @@ import { OrganizationsFeatureGate } from "@/domain/organizations/components/orga
 import { OrganizationsPageClient } from "@/domain/organizations/components/organizations-page-client";
 import { OrganizationsListSkeleton } from "@/domain/organizations/components/skeletons";
 import { PermissionGate } from "@/domain/permissions/components/permission-gate";
-import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
 import { getServerSession } from "@/lib/server-auth";
 import { siteConfig } from "@/lib/siteConfig";
 
@@ -24,10 +23,6 @@ export default async function OrganizationsPage() {
 
   if (!isOrganizationsEnabled()) {
     redirect("/dashboard");
-  }
-
-  if (!isActionsAuditEnabledOnServer()) {
-    redirect("/dashboard/settings/organization");
   }
 
   return (

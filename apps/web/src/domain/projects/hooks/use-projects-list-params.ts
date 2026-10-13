@@ -3,6 +3,7 @@
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
+import { useDebouncedUrlParam } from "@/hooks/use-debounced-url-param";
 import type {
   ProjectsSort,
   ProjectsStatusFilter,
@@ -69,7 +70,7 @@ export function useProjectsListParams() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const search = searchParams.get("q") ?? "";
+  const urlSearch = searchParams.get("q") ?? "";
   const status = parseListParam(searchParams.get("status"), STATUS_VALUES);
   const visibility = parseListParam(
     searchParams.get("visibility"),
@@ -80,15 +81,17 @@ export function useProjectsListParams() {
 
   const replaceParams = useCallback(
     (mutate: (params: URLSearchParams) => void) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(
+        typeof window !== "undefined" ? window.location.search : "",
+      );
       mutate(params);
       const query = params.toString();
       router.replace((query ? `${pathname}?${query}` : pathname) as Route);
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
-  const setSearch = useCallback(
+  const commitSearch = useCallback(
     (value: string) => {
       replaceParams((params) => {
         if (value.trim()) params.set("q", value);
@@ -97,6 +100,8 @@ export function useProjectsListParams() {
     },
     [replaceParams],
   );
+
+  const [search, setSearch] = useDebouncedUrlParam(urlSearch, commitSearch);
 
   const setStatus = useCallback(
     (value: ProjectsStatusFilter[]) => {

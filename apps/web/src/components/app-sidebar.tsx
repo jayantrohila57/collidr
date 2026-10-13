@@ -142,6 +142,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ];
 
   const pathMatchesNavItem = (href: string) => {
+    if (
+      href === "/dashboard/organizations" &&
+      pathname.startsWith("/dashboard/settings/organization")
+    ) {
+      return true;
+    }
     if (pathname === href) return true;
     if (href === "/dashboard") return false;
     return pathname.startsWith(`${href}/`);
