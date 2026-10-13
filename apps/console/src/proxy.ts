@@ -1,19 +1,27 @@
-import { getSessionCookie } from "better-auth/cookies";
+import { platformSessionMiddleware } from "@collidr/auth/platform-middleware";
+import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
 import { type NextRequest, NextResponse } from "next/server";
 
-import { consoleSignInUrl } from "@/lib/auth-url";
+const appOrigin = (
+  process.env.NEXT_PUBLIC_CONSOLE_URL ??
+  (process.env.VERCEL_SERVICES === "1"
+    ? resolvePublicServiceUrl("console")
+    : "http://localhost:3005")
+).replace(/\/$/, "");
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const signedIn = Boolean(getSessionCookie(request.headers));
 
   if (pathname.startsWith("/forbidden")) {
     return NextResponse.next();
   }
 
-  if (!signedIn && pathname.startsWith("/dashboard")) {
-    const signIn = consoleSignInUrl(request.url);
-    return NextResponse.redirect(new URL(signIn));
+  const gated = platformSessionMiddleware(request, {
+    appOrigin,
+    protectedPrefixes: ["/dashboard"],
+  });
+  if (gated) {
+    return gated;
   }
 
   const response = NextResponse.next();

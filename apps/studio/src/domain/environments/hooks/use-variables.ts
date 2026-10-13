@@ -9,8 +9,8 @@ type VariableOutput = {
   id: string;
   key: string;
   environmentId: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   value?: string;
   type?: "secret" | "config";
   note?: string | null;
@@ -65,8 +65,8 @@ export function useVariables(environmentId: string) {
             key: variables.key,
             value: variables.value,
             environmentId,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
           };
 
           queryClient.setQueryData(
@@ -114,7 +114,7 @@ export function useVariables(environmentId: string) {
                   ? {
                       ...variable,
                       ...variables,
-                      updatedAt: new Date().toISOString(),
+                      updatedAt: new Date(),
                     }
                   : variable,
               ),
@@ -226,8 +226,8 @@ export function useVariables(environmentId: string) {
               key: variable.key,
               value: variable.value,
               environmentId,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
             }),
           );
 

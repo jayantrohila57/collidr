@@ -16,7 +16,7 @@ const backButtonClassName = "size-8 shrink-0";
 
 export function PageBackButton({
   href,
-  fallbackHref = "/dashboard",
+  fallbackHref = "/settings",
   useHistory = false,
   className,
 }: {

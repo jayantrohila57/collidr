@@ -101,8 +101,8 @@ export function useEnvironments(projectSlug: string) {
               .replace(/[^a-z0-9]+/g, "-")
               .replace(/^-+|-+$/g, ""),
             projectId: previousProjectData.data.project?.id || "",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
             branch: null,
             deployedUrl: null,
             status: "active" as const,
@@ -180,7 +180,7 @@ export function useEnvironments(projectSlug: string) {
                       ? {
                           ...env,
                           ...(variables.name && { name: variables.name }),
-                          updatedAt: new Date().toISOString(),
+                          updatedAt: new Date(),
                         }
                       : env,
                 ),

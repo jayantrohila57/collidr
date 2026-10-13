@@ -8,6 +8,7 @@ import { organizationsRouter } from "./organizations";
 import { permissionsRouter } from "./permissions";
 import { projectAccessRouter } from "./project-access-router";
 import { projectsRouter } from "./projects";
+import { teamsRouter } from "./teams";
 import { environmentVariablesRouter } from "./variables";
 
 /** Product router for `apps/studio` — org/project/env surface without account settings. */
@@ -23,6 +24,7 @@ export const studioRouter = router({
   permissions: permissionsRouter,
   organizations: organizationsRouter,
   projectAccess: projectAccessRouter,
+  teams: teamsRouter,
 });
 
 export type StudioRouter = typeof studioRouter;

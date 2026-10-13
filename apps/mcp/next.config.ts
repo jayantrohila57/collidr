@@ -5,6 +5,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = withServiceBasePath("mcp", {
   typedRoutes: true,
+  reactCompiler: true,
 });
 
 export default nextConfig;

@@ -93,8 +93,8 @@ export const projectOutput = z.object({
   repositoryUrl: z.string().nullable(),
   websiteUrl: z.string().nullable(),
   userId: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
 export const environmentOutput = z.object({
@@ -107,16 +107,16 @@ export const environmentOutput = z.object({
   isProduction: z.boolean(),
   description: z.string().nullable(),
   projectId: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
 export const variableOutput = z.object({
   id: z.string(),
   key: z.string(),
   environmentId: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
 export const variableWithValueOutput = z.object({

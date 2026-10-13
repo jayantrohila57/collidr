@@ -1,13 +1,14 @@
 import { createMDX } from "fumadocs-mdx/next";
+import type { NextConfig } from "next";
 
 const docsBasePath =
   process.env.NEXT_BASE_PATH ??
   (process.env.VERCEL_SERVICES === "1" ? "/docs" : "");
 
-/** @type {import('next').NextConfig} */
-const config = {
+const config: NextConfig = {
   reactStrictMode: true,
-  typedRoutes: false,
+  typedRoutes: true,
+  reactCompiler: true,
   ...(docsBasePath ? { basePath: docsBasePath } : {}),
 };
 

@@ -372,7 +372,7 @@ async function fetchOrgSettingsStats(ctx: OrgCtx) {
   };
 }
 
-async function fetchUserAccountStats(userId: string) {
+export async function fetchUserAccountStats(userId: string) {
   const [orgCountRow, projectCountRow, userRow] = await Promise.all([
     isOrganizationsEnabled()
       ? db

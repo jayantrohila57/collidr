@@ -1,6 +1,7 @@
 "use client";
 
 import type { ConsoleAppRouter } from "@collidr/api/routers/console";
+import { transformer } from "@collidr/api/transformer";
 import { QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import {
@@ -38,6 +39,7 @@ export function createTrpcClient() {
     links: [
       httpBatchLink({
         url: "/api/trpc",
+        transformer,
         fetch(url, options) {
           return fetch(url, {
             ...options,

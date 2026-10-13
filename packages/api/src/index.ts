@@ -14,8 +14,10 @@ import {
   requireActiveOrganization,
 } from "./org-access";
 import { runWithPlatformAdminContext } from "./platform-admin-context";
+import { transformer } from "./transformer";
 
 export const t = initTRPC.context<Context>().create({
+  transformer,
   errorFormatter({ shape, error }) {
     const fallback = shape.message || "Something went wrong. Please try again.";
     const fromCause = getFriendlyErrorMessage(error.cause ?? error, fallback);

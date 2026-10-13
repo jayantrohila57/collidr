@@ -5,7 +5,7 @@ import { cache } from "react";
 import { hydrateProjectDetailQueries } from "@/lib/project-prefetch";
 import { getServerSession } from "@/lib/server-auth";
 import { ServerTiming } from "@/lib/server-timing";
-import { projectBySlugQueryKey } from "@/lib/trpc-query-keys";
+import { trpcQueryOptions } from "@/utils/trpc-query-options";
 
 export type ProjectPageData = {
   slug: string;
@@ -30,7 +30,7 @@ export const loadProjectPageData = cache(
     await hydrateProjectDetailQueries(queryClient, slug, session, timing);
 
     const projectPayload = queryClient.getQueryData(
-      projectBySlugQueryKey(slug),
+      trpcQueryOptions.projects.getBySlug.queryKey({ slug }),
     ) as
       | {
           data?: {

@@ -60,10 +60,7 @@ function resolveBack(
   }
 
   if (back.useHistory) {
-    const fallback =
-      back.href ??
-      getPageBackFallback(pathname) ??
-      ("/dashboard" as PageBackHref);
+    const fallback = back.href ?? getPageBackFallback(pathname) ?? "/settings";
     return {
       href: back.href ?? null,
       fallbackHref: fallback,
@@ -201,7 +198,7 @@ function PageHeaderSimple({
           <div className="self-center [grid-area:leading] md:self-start">
             <PageBackButton
               href={resolved?.href}
-              fallbackHref={resolved?.fallbackHref ?? "/dashboard"}
+              fallbackHref={resolved?.fallbackHref ?? "/settings"}
               useHistory={resolved?.useHistory ?? false}
             />
           </div>
@@ -343,7 +340,7 @@ function PageHeaderWithMetadata({
         >
           <PageBackButton
             href={resolved?.href}
-            fallbackHref={resolved?.fallbackHref ?? "/dashboard"}
+            fallbackHref={resolved?.fallbackHref ?? "/settings"}
             useHistory={resolved?.useHistory ?? false}
           />
         </div>

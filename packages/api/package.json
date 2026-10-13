@@ -11,6 +11,12 @@
     "./page-guards": {
       "default": "./src/page-guards/index.ts"
     },
+    "./transformer": {
+      "default": "./src/transformer.ts"
+    },
+    "./prefetch-with-caller": {
+      "default": "./src/prefetch-with-caller.ts"
+    },
     "./*": {
       "default": "./src/*.ts"
     }
@@ -26,6 +32,7 @@
     "@collidr/db": "workspace:*",
     "@collidr/env": "workspace:*",
     "@collidr/notifications": "workspace:*",
+    "@tanstack/react-query": "^5.104.2",
     "@trpc/client": "catalog:",
     "@trpc/server": "catalog:",
     "@types/pg": "catalog:",

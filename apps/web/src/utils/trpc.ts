@@ -1,4 +1,5 @@
 import type { AppRouter } from "@collidr/api/routers/index";
+import { transformer } from "@collidr/api/transformer";
 
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
@@ -76,6 +77,7 @@ export const createTrpcClient = () =>
     links: [
       httpBatchLink({
         url: "/api/trpc",
+        transformer,
         fetch(url, options) {
           return fetch(url, {
             ...options,

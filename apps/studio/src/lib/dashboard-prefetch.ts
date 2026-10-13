@@ -1,26 +1,25 @@
 import "server-only";
 
-import { appRouter } from "@collidr/api/routers/index";
+import { prefetchWithCaller } from "@collidr/api/prefetch-with-caller";
+import { studioRouter } from "@collidr/api/routers/studio";
 import type { auth } from "@collidr/auth";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { getServerSession } from "@/lib/server-auth";
 import { ServerTiming } from "@/lib/server-timing";
-
-/** Matches @trpc/tanstack-react-query key shape for `dashboard.getOverview`. */
-const dashboardOverviewQueryKey = [
-  ["dashboard", "getOverview"],
-  { type: "query" as const },
-] as const;
+import { trpcQueryOptions } from "@/utils/trpc-query-options";
 
 export async function dehydrateDashboardOverview(
   session: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>,
 ) {
   const queryClient = new QueryClient();
+  const caller = studioRouter.createCaller({ session });
 
   try {
-    const caller = appRouter.createCaller({ session });
-    const overview = await caller.dashboard.getOverview();
-    queryClient.setQueryData(dashboardOverviewQueryKey, overview);
+    await prefetchWithCaller(
+      queryClient,
+      trpcQueryOptions.dashboard.getOverview.queryOptions(),
+      () => caller.dashboard.getOverview(),
+    );
   } catch {
     // No active org or other expected failure — client will fetch.
   }

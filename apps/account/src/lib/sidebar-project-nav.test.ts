@@ -27,8 +27,8 @@ function project(
     repositoryUrl: null,
     websiteUrl: null,
     userId: "user-1",
-    createdAt: "2026-01-01T00:00:00.000Z",
-    updatedAt: "2026-01-01T00:00:00.000Z",
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    updatedAt: new Date("2026-01-01T00:00:00.000Z"),
   };
   return { ...base, ...overrides };
 }
@@ -50,25 +50,25 @@ describe("selectSidebarProjects", () => {
       id: "1",
       slug: "alpha",
       name: "Alpha",
-      updatedAt: "2026-01-03T00:00:00.000Z",
+      updatedAt: new Date("2026-01-03T00:00:00.000Z"),
     }),
     project({
       id: "2",
       slug: "beta",
       name: "Beta",
-      updatedAt: "2026-01-02T00:00:00.000Z",
+      updatedAt: new Date("2026-01-02T00:00:00.000Z"),
     }),
     project({
       id: "3",
       slug: "gamma",
       name: "Gamma",
-      updatedAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: new Date("2026-01-01T00:00:00.000Z"),
     }),
     project({
       id: "4",
       slug: "delta",
       name: "Delta",
-      updatedAt: "2025-12-31T00:00:00.000Z",
+      updatedAt: new Date("2025-12-31T00:00:00.000Z"),
     }),
   ];
 

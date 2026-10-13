@@ -31,8 +31,8 @@ interface EditVariableSheetProps {
     value?: string;
     type?: "secret" | "config";
     note?: string | null;
-    createdAt?: string;
-    updatedAt?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
     createdBy?: ProvenanceUser | null;
     updatedBy?: ProvenanceUser | null;
   };

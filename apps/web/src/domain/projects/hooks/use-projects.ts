@@ -12,21 +12,7 @@ import { useActiveOrganization } from "@/components/org/active-organization-cont
 import { actionToast } from "@/lib/action-toast";
 import { trpc } from "@/utils/trpc";
 
-// Interface for API response before transformation
-interface ApiProject {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  status: "active" | "inactive" | "maintenance";
-  isArchived: boolean;
-  isPublic: boolean;
-  repositoryUrl: string | null;
-  websiteUrl: string | null;
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
-}
+type ApiProject = ProjectOutput;
 
 interface ProjectsQueryResponse {
   status: "success";

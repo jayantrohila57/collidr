@@ -23,8 +23,8 @@ interface Variable {
   key: string;
   value?: string;
   environmentId: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   type?: "secret" | "config";
   note?: string | null;
   createdBy?: { id: string; name: string; image: string | null } | null;

@@ -1155,6 +1155,9 @@ importers:
       '@collidr/notifications':
         specifier: workspace:*
         version: link:../notifications
+      '@tanstack/react-query':
+        specifier: ^5.104.2
+        version: 5.104.2(react@19.3.0)
       '@trpc/client':
         specifier: 'catalog:'
         version: 11.19.0(@trpc/server@11.19.0(typescript@7.0.2))(typescript@7.0.2)

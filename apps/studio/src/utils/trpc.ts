@@ -1,4 +1,5 @@
-import type { AppRouter } from "@collidr/api/routers/index";
+import type { StudioRouter } from "@collidr/api/routers/studio";
+import { transformer } from "@collidr/api/transformer";
 
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
@@ -66,16 +67,17 @@ export const getQueryClient = () => {
   return browserQueryClient;
 };
 
-const t = createTRPCContext<AppRouter>();
+const t = createTRPCContext<StudioRouter>();
 
 export const TRPCProvider = t.TRPCProvider;
 export const useTRPC = t.useTRPC;
 
 export const createTrpcClient = () =>
-  createTRPCClient<AppRouter>({
+  createTRPCClient<StudioRouter>({
     links: [
       httpBatchLink({
         url: "/api/trpc",
+        transformer,
         fetch(url, options) {
           return fetch(url, {
             ...options,
@@ -94,7 +96,7 @@ export const createTrpcClient = () =>
 export const queryClient = getQueryClient();
 export const trpcClient = createTrpcClient();
 
-export const trpc = createTRPCOptionsProxy<AppRouter>({
+export const trpc = createTRPCOptionsProxy<StudioRouter>({
   client: trpcClient,
   queryClient,
 });

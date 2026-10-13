@@ -34,8 +34,8 @@ interface EditVariableSheetV2Props {
     value?: string;
     type?: VariableType;
     note?: string | null;
-    createdAt: string;
-    updatedAt: string;
+    createdAt: Date;
+    updatedAt: Date;
     createdBy?: ProvenanceUser | null;
     updatedBy?: ProvenanceUser | null;
   };

@@ -1,21 +1,12 @@
 import "server-only";
 
+import { prefetchWithCaller } from "@collidr/api/prefetch-with-caller";
 import { appRouter } from "@collidr/api/routers/index";
 import type { auth } from "@collidr/auth";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { getServerSession } from "@/lib/server-auth";
 import type { ServerTiming } from "@/lib/server-timing";
-import {
-  projectBySlugQueryKey,
-  projectDetailStatsQueryKey,
-} from "@/lib/trpc-query-keys";
-
-function environmentVariablesListQueryKey(environmentId: string) {
-  return [
-    ["environmentVariables", "list"],
-    { input: { environmentId }, type: "query" as const },
-  ] as const;
-}
+import { trpcQueryOptions } from "@/utils/trpc-query-options";
 
 export async function hydrateProjectDetailQueries(
   queryClient: QueryClient,
@@ -29,49 +20,42 @@ export async function hydrateProjectDetailQueries(
     timing ? timing.measure(name, fn) : fn();
 
   const projectRes = await measure("project", () =>
-    caller.projects.getBySlug({ slug }),
+    prefetchWithCaller(
+      queryClient,
+      trpcQueryOptions.projects.getBySlug.queryOptions({ slug }),
+      () => caller.projects.getBySlug({ slug }),
+    ),
   );
 
-  const serializedProject = {
-    ...projectRes,
-    data: {
-      ...projectRes.data,
-      project: projectRes.data.project
-        ? {
-            ...projectRes.data.project,
-            createdAt: projectRes.data.project.createdAt.toISOString(),
-            updatedAt: projectRes.data.project.updatedAt.toISOString(),
-          }
-        : null,
-      environments: projectRes.data.environments.map((env) => ({
-        ...env,
-        createdAt: env.createdAt.toISOString(),
-        updatedAt: env.updatedAt.toISOString(),
-      })),
-    },
-  };
-
-  queryClient.setQueryData(projectBySlugQueryKey(slug), serializedProject);
-
-  if (serializedProject.data.project) {
+  if (projectRes.data.project) {
     try {
-      const statsRes = await measure("stats", () =>
-        caller.dashboard.getProjectDetailStats({ slug }),
+      await measure("stats", () =>
+        prefetchWithCaller(
+          queryClient,
+          trpcQueryOptions.dashboard.getProjectDetailStats.queryOptions({
+            slug,
+          }),
+          () => caller.dashboard.getProjectDetailStats({ slug }),
+        ),
       );
-      queryClient.setQueryData(projectDetailStatsQueryKey(slug), statsRes);
     } catch {
       // Stats are optional for first paint; client will refetch.
     }
   }
 
-  const firstEnvironmentId = serializedProject.data.environments[0]?.id;
+  const firstEnvironmentId = projectRes.data.environments[0]?.id;
   if (firstEnvironmentId) {
-    const variablesRes = await measure("variables", () =>
-      caller.environmentVariables.list({ environmentId: firstEnvironmentId }),
-    );
-    queryClient.setQueryData(
-      environmentVariablesListQueryKey(firstEnvironmentId),
-      variablesRes,
+    await measure("variables", () =>
+      prefetchWithCaller(
+        queryClient,
+        trpcQueryOptions.environmentVariables.list.queryOptions({
+          environmentId: firstEnvironmentId,
+        }),
+        () =>
+          caller.environmentVariables.list({
+            environmentId: firstEnvironmentId,
+          }),
+      ),
     );
   }
 }

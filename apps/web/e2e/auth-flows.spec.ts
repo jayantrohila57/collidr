@@ -21,7 +21,7 @@ async function completeOnboardingIfNeeded(
 test.describe("auth redirects — production", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  test("middleware sends unauthenticated users to /sign-in with redirect", async ({
+  test("proxy sends unauthenticated users to /sign-in with redirect", async ({
     page,
   }) => {
     test.skip(!PROD, "Production base URL required");

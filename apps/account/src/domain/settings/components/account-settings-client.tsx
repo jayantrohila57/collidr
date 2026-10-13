@@ -5,7 +5,6 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { auditLogEmpty } from "@/components/data-table/data-table-empty-presets";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { ErrorState } from "@/components/patterns/error-state";
 import {
@@ -46,7 +45,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { AuditLogTableView } from "@/domain/audit/components/audit-log-table-view";
 import {
   linkGithubAccount,
   listAuthSessions,
@@ -218,14 +216,6 @@ export function AccountSettingsClient({
     },
   });
 
-  const timelineQuery = useQuery(
-    trpc.auditLogs.list.queryOptions({
-      limit: 50,
-      offset: 0,
-    }),
-  );
-  const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
-
   const canProfile = useCan(accountSettingsActions.profile);
   const canSessions = useCan(accountSettingsActions.sessions);
   const canAccounts = useCan(accountSettingsActions.accounts);
@@ -323,15 +313,6 @@ export function AccountSettingsClient({
       toast.error(err instanceof Error ? err.message : "Could not unlink");
     }
   };
-
-  const timelineLogs = timelineQuery.data?.data ?? [];
-  const timelineStatus = timelineQuery.isLoading
-    ? "loading"
-    : timelineQuery.isError
-      ? "error"
-      : timelineLogs.length === 0
-        ? "empty"
-        : "success";
 
   const resetProfileFields = () => {
     setName(user.name ?? "");
@@ -777,32 +758,15 @@ export function AccountSettingsClient({
                   <div className="min-w-0 px-4 py-4">
                     {isActionsAuditEnabledOnClient() ? (
                       <TimelinePageClient scope="self" />
-                    ) : timelineStatus === "error" ? (
-                      <ErrorState
-                        title="Could not load timeline"
-                        description={
-                          timelineQuery.error?.message ??
-                          "The audit API may not be available yet."
-                        }
-                        onRetry={() => void timelineQuery.refetch()}
-                      />
                     ) : (
-                      <AuditLogTableView
-                        logs={timelineLogs}
-                        isLoading={timelineStatus === "loading"}
-                        revealedIds={revealedIds}
-                        onToggleReveal={(id) => {
-                          setRevealedIds((prev) => {
-                            const next = new Set(prev);
-                            if (next.has(id)) next.delete(id);
-                            else next.add(id);
-                            return next;
-                          });
-                        }}
-                        searchValue=""
-                        onSearchChange={() => {}}
-                        empty={auditLogEmpty()}
-                      />
+                      <Empty>
+                        <EmptyHeader>
+                          <EmptyTitle>Timeline unavailable</EmptyTitle>
+                          <EmptyDescription>
+                            Audit timeline is not enabled for this environment.
+                          </EmptyDescription>
+                        </EmptyHeader>
+                      </Empty>
                     )}
                   </div>
                 </SettingsPanel>
