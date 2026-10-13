@@ -3,6 +3,13 @@
 import type { ProjectOutput } from "@env-manager/api/types";
 import type { Route } from "next";
 import Link from "next/link";
+import type { ReactNode } from "react";
+import {
+  pageHeaderMetadataClassName,
+  pageHeaderMetadataFieldClassName,
+  pageHeaderMetadataLabelClassName,
+  pageHeaderMetadataValueClassName,
+} from "@/components/layout/page-header-metadata-styles";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +20,70 @@ import {
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
+const ghostLinkClassName =
+  "h-6 max-w-full gap-1 px-1.5 text-muted-foreground hover:text-foreground";
+
+function MetadataField({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: ReactNode;
+  mono?: boolean;
+}) {
+  return (
+    <div className={pageHeaderMetadataFieldClassName}>
+      <dt className={pageHeaderMetadataLabelClassName}>{label}</dt>
+      <dd className={cn(pageHeaderMetadataValueClassName, mono && "font-mono")}>
+        {value}
+      </dd>
+    </div>
+  );
+}
+
+function MetadataLinkField({
+  label,
+  href,
+  icon,
+  tooltip,
+}: {
+  label: string;
+  href: string;
+  icon: "github" | "externalLink";
+  tooltip: string;
+}) {
+  return (
+    <div className={pageHeaderMetadataFieldClassName}>
+      <dt className={pageHeaderMetadataLabelClassName}>{label}</dt>
+      <dd className={pageHeaderMetadataValueClassName}>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(ghostLinkClassName, "ms-auto")}
+                render={
+                  <Link
+                    href={href as Route}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />
+                }
+              />
+            }
+          >
+            <AppIcon name={icon} className="size-3.5 shrink-0 text-current" />
+            <span className="truncate">{label}</span>
+          </TooltipTrigger>
+          <TooltipContent>{tooltip}</TooltipContent>
+        </Tooltip>
+      </dd>
+    </div>
+  );
+}
+
 export function ProjectMetadataRow({
   project,
   className,
@@ -22,81 +93,33 @@ export function ProjectMetadataRow({
 }) {
   return (
     <dl
-      className={cn(
-        "flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs",
-        className,
-      )}
+      data-slot="page-header-metadata"
+      className={cn(pageHeaderMetadataClassName, className)}
     >
-      <div className="flex min-w-0 items-center gap-1.5">
-        <dt className="shrink-0 text-muted-foreground">Slug</dt>
-        <dd className="truncate font-mono">{project.slug}</dd>
-      </div>
-      <span className="text-muted-foreground/40" aria-hidden>
-        ·
-      </span>
-      <div className="flex min-w-0 items-center gap-1.5">
-        <dt className="shrink-0 text-muted-foreground">Updated</dt>
-        <dd className="truncate tabular-nums">
-          {formatDateTime(project.updatedAt)}
-        </dd>
-      </div>
-      {project.repositoryUrl ? (
-        <>
-          <span className="text-muted-foreground/40" aria-hidden>
-            ·
+      <MetadataField label="Slug" value={project.slug} mono />
+      <MetadataField
+        label="Updated"
+        value={
+          <span className="tabular-nums">
+            {formatDateTime(project.updatedAt)}
           </span>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 gap-1 px-1.5 text-muted-foreground hover:text-foreground"
-                  render={
-                    <Link
-                      href={project.repositoryUrl as Route}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    />
-                  }
-                />
-              }
-            >
-              <AppIcon name="github" className="size-3.5 text-current" />
-              <span className="hidden sm:inline">Repository</span>
-            </TooltipTrigger>
-            <TooltipContent>Open repository</TooltipContent>
-          </Tooltip>
-        </>
+        }
+      />
+      {project.repositoryUrl ? (
+        <MetadataLinkField
+          label="Repository"
+          href={project.repositoryUrl}
+          icon="github"
+          tooltip="Open repository"
+        />
       ) : null}
       {project.websiteUrl ? (
-        <>
-          <span className="text-muted-foreground/40" aria-hidden>
-            ·
-          </span>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 gap-1 px-1.5 text-muted-foreground hover:text-foreground"
-                  render={
-                    <Link
-                      href={project.websiteUrl as Route}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    />
-                  }
-                />
-              }
-            >
-              <AppIcon name="externalLink" className="size-3.5 text-current" />
-              <span className="hidden sm:inline">Website</span>
-            </TooltipTrigger>
-            <TooltipContent>Open website</TooltipContent>
-          </Tooltip>
-        </>
+        <MetadataLinkField
+          label="Website"
+          href={project.websiteUrl}
+          icon="externalLink"
+          tooltip="Open website"
+        />
       ) : null}
     </dl>
   );

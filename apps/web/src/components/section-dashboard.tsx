@@ -62,10 +62,10 @@ export default function DashboardSection({
           titleAccessory={titleAccessory}
           description={description}
           action={trailingAction}
+          metadata={metadata}
           back={back}
         />
       ) : null}
-      {metadata ? <div className="min-w-0">{metadata}</div> : null}
       {stats ? <div className="min-w-0">{stats}</div> : null}
       {children ? <div className="min-w-0">{children}</div> : null}
     </PageStack>

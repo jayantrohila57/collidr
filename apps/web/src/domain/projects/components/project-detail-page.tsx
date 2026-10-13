@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { PageHeaderMetadataSkeleton } from "@/components/layout/page-header-metadata-skeleton";
 import { ErrorState } from "@/components/patterns/error-state";
 import {
   StatusBadge,
@@ -16,6 +17,9 @@ import { ProjectActions } from "./project-actions";
 import ProjectDetail from "./project-detail";
 import { ProjectDetailStats } from "./project-detail-stats";
 import { ProjectMetadataRow } from "./project-metadata-row";
+
+const E2E_LONG_DESCRIPTION =
+  "Seeded for Playwright local verification. This paragraph is intentionally long so the page header clamps the project description to three lines on desktop and mobile while metadata stays aligned in the header grid without shifting surrounding chrome.";
 
 interface ProjectDetailPageProps {
   slug: string;
@@ -64,14 +68,20 @@ export default function ProjectDetailPage({
     }
   };
 
-  const headerDescription =
-    project?.description?.trim() || initialDescription || undefined;
+  const useE2eLongDescription = searchParams.get("e2eLongDescription") === "1";
+  const headerDescription = useE2eLongDescription
+    ? E2E_LONG_DESCRIPTION
+    : project?.description?.trim() || initialDescription || undefined;
 
   if (isLoading && !project) {
     return (
       <DashboardSection
         title={initialName}
-        description={initialDescription}
+        description={
+          searchParams.get("e2eLongDescription") === "1"
+            ? E2E_LONG_DESCRIPTION
+            : initialDescription
+        }
         titleAccessory={
           <div className="flex flex-wrap gap-2">
             <Skeleton className="h-5 w-16 rounded-md" />
@@ -80,12 +90,7 @@ export default function ProjectDetailPage({
           </div>
         }
         action={<Skeleton className="size-7 rounded-md" />}
-        metadata={
-          <div className="flex flex-wrap items-center gap-3">
-            <Skeleton className="h-3 w-32" />
-            <Skeleton className="h-3 w-36" />
-          </div>
-        }
+        metadata={<PageHeaderMetadataSkeleton />}
         stats={<ProjectDetailStats slug={slug} />}
       >
         <ProjectDetailSkeleton />

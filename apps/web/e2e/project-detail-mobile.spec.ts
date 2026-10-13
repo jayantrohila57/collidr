@@ -6,6 +6,8 @@ const ARTIFACT_DIR =
   process.env.PROJECT_DETAIL_SCREENSHOT_DIR ??
   "/opt/cursor/artifacts/screenshots/project-detail-mobile";
 
+const LONG_DESC_QUERY = "e2eLongDescription=1";
+
 async function setColorScheme(
   page: import("@playwright/test").Page,
   scheme: "light" | "dark",
@@ -24,6 +26,7 @@ const VIEWPORTS = [
 ] as const;
 
 const PROJECT_DETAIL_PATH = "/dashboard/projects/e2e-demo-project";
+const PROJECT_DETAIL_LONG_DESC_PATH = `${PROJECT_DETAIL_PATH}?${LONG_DESC_QUERY}`;
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000";
 const e2eSecret = process.env.E2E_TEST_SECRET ?? "local-e2e-secret";
 
@@ -64,31 +67,44 @@ test.describe("project detail layout", () => {
   }
 
   for (const scheme of ["light", "dark"] as const) {
-    for (const width of [1280, 390] as const) {
-      test(`project detail chrome @ ${width}px ${scheme}`, async ({ page }) => {
-        await page.setViewportSize({ width, height: 800 });
-        await page.goto(PROJECT_DETAIL_PATH);
+    for (const width of [1280, 768, 390] as const) {
+      test(`project detail header @ ${width}px ${scheme} long description`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(PROJECT_DETAIL_LONG_DESC_PATH);
         await page.waitForLoadState("networkidle");
         await setColorScheme(page, scheme);
-        await expect(page.locator('[data-slot="tabs-list"]')).toBeVisible();
-        await expect(
-          page.locator("dl").filter({ hasText: "Slug" }).first(),
-        ).toBeVisible();
-        const slugBox = await page
-          .locator("dl")
-          .filter({ hasText: "Slug" })
-          .first()
-          .boundingBox();
-        const statBox = await page
+
+        const metadata = page.locator('[data-slot="page-header-metadata"]');
+        await expect(metadata).toBeVisible();
+        await expect(metadata.getByText("Slug", { exact: true })).toBeVisible();
+
+        const description = page.getByText(/intentionally long/i);
+        await expect(description).toBeVisible();
+
+        const statEnvironments = page
           .getByText("Environments", { exact: true })
-          .first()
-          .boundingBox();
-        if (slugBox && statBox) {
-          expect(slugBox.y).toBeLessThan(statBox.y);
+          .first();
+        const metaBox = await metadata.boundingBox();
+        const statBox = await statEnvironments.boundingBox();
+        if (metaBox && statBox) {
+          expect(metaBox.y).toBeLessThan(statBox.y);
         }
+
+        if (width >= 768) {
+          const title = page.getByRole("heading", {
+            name: "E2E Demo Project",
+          });
+          const titleBox = await title.boundingBox();
+          if (titleBox && metaBox) {
+            expect(Math.abs(titleBox.y - metaBox.y)).toBeLessThan(120);
+          }
+        }
+
         await assertNoHorizontalOverflow(page);
         await page.screenshot({
-          path: `${ARTIFACT_DIR}/project-detail-${width}-${scheme}.png`,
+          path: `${ARTIFACT_DIR}/project-detail-${width}-${scheme}-long-desc.png`,
           fullPage: true,
         });
       });
