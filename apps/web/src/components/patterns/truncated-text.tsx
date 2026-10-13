@@ -3,10 +3,10 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+  PreviewCard,
+  PreviewCardPopup,
+  PreviewCardTrigger,
+} from "@/components/ui/preview-card";
 import { cn } from "@/lib/utils";
 
 interface TruncatedTextProps {
@@ -106,24 +106,25 @@ export function TruncatedText({
   return (
     <div className={cn("space-y-1", className)}>
       {isTruncated ? (
-        <HoverCard openDelay={200}>
-          <HoverCardTrigger asChild>
-            <button
-              type="button"
-              className="w-full cursor-default text-start"
-              aria-label="Show full description"
-            >
-              {clamped}
-            </button>
-          </HoverCardTrigger>
-          <HoverCardContent
-            side="bottom"
+        <PreviewCard>
+          <PreviewCardTrigger
+            render={
+              <button
+                type="button"
+                className="w-full cursor-default text-start"
+                aria-label="Show full description"
+              >
+                {clamped}
+              </button>
+            }
+          />
+          <PreviewCardPopup
             align="start"
             className="wrap-anywhere max-w-md text-start"
           >
             {content}
-          </HoverCardContent>
-        </HoverCard>
+          </PreviewCardPopup>
+        </PreviewCard>
       ) : (
         clamped
       )}

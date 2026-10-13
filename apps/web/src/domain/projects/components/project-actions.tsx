@@ -13,19 +13,18 @@ import {
   RefreshCw,
 } from "lucide-react";
 import type { Route } from "next";
-import Link from "next/link";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { touchTarget } from "@/lib/utils";
+  Menu,
+  MenuGroupLabel,
+  MenuItem,
+  MenuLinkItem,
+  MenuPopup,
+  MenuSeparator,
+  MenuTrigger,
+} from "@/components/ui/menu";
+import { toast } from "@/lib/toast";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { ProjectActionDialog } from "./project-action-dialog";
 
@@ -81,69 +80,55 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
 
   return (
     <>
-      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-sm" className={touchTarget}>
-            <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Actions</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-80">
-          <DropdownMenuLabel>Project Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
+      <Menu open={menuOpen} onOpenChange={setMenuOpen}>
+        <MenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
+          <MoreHorizontal className="h-4 w-4" />
+          <span className="sr-only">Actions</span>
+        </MenuTrigger>
+        <MenuPopup align="end" className="w-80">
+          <MenuGroupLabel>Project Actions</MenuGroupLabel>
+          <MenuSeparator />
 
           {editHref ? (
-            <DropdownMenuItem asChild>
-              <Link href={editHref} onClick={() => setMenuOpen(false)}>
-                <Edit className="me-2 h-4 w-4" />
-                Edit Project
-              </Link>
-            </DropdownMenuItem>
+            <MenuLinkItem href={editHref} onClick={() => setMenuOpen(false)}>
+              <Edit className="me-2 h-4 w-4" />
+              Edit Project
+            </MenuLinkItem>
           ) : (
-            <DropdownMenuItem disabled>
+            <MenuItem disabled>
               <Edit className="me-2 h-4 w-4" />
               Edit Project (unavailable)
-            </DropdownMenuItem>
+            </MenuItem>
           )}
 
-          <DropdownMenuSeparator />
+          <MenuSeparator />
 
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              void handleStatusChange("active");
-            }}
+          <MenuItem
+            onClick={() => void handleStatusChange("active")}
             disabled={isChangingStatus || project.status === "active"}
           >
             <Power className="me-2 h-4 w-4" />
             Set Active
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              void handleStatusChange("inactive");
-            }}
+          </MenuItem>
+          <MenuItem
+            onClick={() => void handleStatusChange("inactive")}
             disabled={isChangingStatus || project.status === "inactive"}
           >
             <RefreshCw className="me-2 h-4 w-4" />
             Set Inactive
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              void handleStatusChange("maintenance");
-            }}
+          </MenuItem>
+          <MenuItem
+            onClick={() => void handleStatusChange("maintenance")}
             disabled={isChangingStatus || project.status === "maintenance"}
           >
             <RefreshCw className="me-2 h-4 w-4" />
             Set Maintenance
-          </DropdownMenuItem>
+          </MenuItem>
 
-          <DropdownMenuSeparator />
+          <MenuSeparator />
 
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
+          <MenuItem
+            onClick={() => {
               setMenuOpen(false);
               void toggleProjectPublic();
             }}
@@ -160,14 +145,13 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
                 Make Public
               </>
             )}
-          </DropdownMenuItem>
+          </MenuItem>
 
-          <DropdownMenuSeparator />
+          <MenuSeparator />
 
           {project.isArchived ? (
-            <DropdownMenuItem
-              onSelect={(e) => {
-                e.preventDefault();
+            <MenuItem
+              onClick={() => {
                 setMenuOpen(false);
                 setUnarchiveDialogOpen(true);
               }}
@@ -175,11 +159,10 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             >
               <ArchiveRestore className="me-2 h-4 w-4" />
               Unarchive Project
-            </DropdownMenuItem>
+            </MenuItem>
           ) : (
-            <DropdownMenuItem
-              onSelect={(e) => {
-                e.preventDefault();
+            <MenuItem
+              onClick={() => {
                 setMenuOpen(false);
                 setArchiveDialogOpen(true);
               }}
@@ -187,25 +170,24 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             >
               <Archive className="me-2 h-4 w-4" />
               Archive Project
-            </DropdownMenuItem>
+            </MenuItem>
           )}
 
-          <DropdownMenuSeparator />
+          <MenuSeparator />
 
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
+          <MenuItem
+            onClick={() => {
               setMenuOpen(false);
               setDeleteDialogOpen(true);
             }}
-            className="text-destructive focus:text-destructive"
+            variant="destructive"
             disabled={isDeleting}
           >
             <Delete className="me-2 h-4 w-4" />
             Delete Project
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </MenuItem>
+        </MenuPopup>
+      </Menu>
 
       <ProjectActionDialog
         open={deleteDialogOpen}

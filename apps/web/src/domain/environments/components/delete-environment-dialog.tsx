@@ -17,7 +17,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { touchTarget } from "@/lib/utils";
 
 interface DeleteEnvironmentDialogProps {
   environmentName: string;
@@ -40,20 +39,22 @@ export function DeleteEnvironmentDialog({
   return (
     <>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className={`size-11 shrink-0 ${touchTarget}`}
-            aria-label={`Delete ${environmentName} environment`}
-            onClick={(e) => {
-              e.stopPropagation();
-              setOpen(true);
-            }}
-          >
-            <Trash2 className="h-3.5 w-3.5" aria-hidden />
-          </Button>
+        <TooltipTrigger
+          render={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-11 shrink-0"
+              aria-label={`Delete ${environmentName} environment`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpen(true);
+              }}
+            />
+          }
+        >
+          <Trash2 className="h-3.5 w-3.5" aria-hidden />
         </TooltipTrigger>
         <TooltipContent>Delete environment</TooltipContent>
       </Tooltip>

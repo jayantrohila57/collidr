@@ -3,7 +3,7 @@
 import type { EnvironmentOutput, ProjectOutput } from "@env-manager/api/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";
 
 interface ProjectData {

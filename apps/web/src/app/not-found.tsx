@@ -12,11 +12,12 @@ export default function NotFound() {
         to it.
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-4">
-        <Button asChild>
-          <Link href={"/" as Route}>Go home</Link>
-        </Button>
-        <Button variant="outline" asChild>
-          <Link href={"/dashboard" as Route}>Open dashboard</Link>
+        <Button render={<Link href={"/" as Route} />}>Go home</Button>
+        <Button
+          variant="outline"
+          render={<Link href={"/dashboard" as Route} />}
+        >
+          Open dashboard
         </Button>
       </div>
     </div>

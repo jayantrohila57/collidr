@@ -2,28 +2,24 @@
 
 import { Building2, ChevronsUpDown, Plus, Settings } from "lucide-react";
 import type { Route } from "next";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Menu,
+  MenuGroupLabel,
+  MenuItem,
+  MenuLinkItem,
+  MenuPopup,
+  MenuSeparator,
+  MenuTrigger,
+} from "@/components/ui/menu";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+import { toast } from "@/lib/toast";
 
 export function OrgSwitcher() {
   const router = useRouter();
@@ -57,16 +53,20 @@ export function OrgSwitcher() {
     ? "Loading organization"
     : (active?.name ?? "Select organization");
 
-  const triggerButton = (
-    <Button
-      variant="outline"
-      className={
-        collapsed
-          ? "mb-0 size-8 justify-center p-0"
-          : "mb-2 w-full justify-between gap-2"
+  const menuTrigger = (
+    <MenuTrigger
+      render={
+        <Button
+          variant="outline"
+          className={
+            collapsed
+              ? "mb-0 size-8 justify-center p-0"
+              : "mb-2 w-full justify-between gap-2"
+          }
+          disabled={showInitialLoading}
+          aria-label="Switch organization"
+        />
       }
-      disabled={showInitialLoading}
-      aria-label="Switch organization"
     >
       <span
         className={
@@ -93,58 +93,45 @@ export function OrgSwitcher() {
         )}
       </span>
       {!collapsed && <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />}
-    </Button>
-  );
-
-  const dropdownTrigger = (
-    <DropdownMenuTrigger asChild>{triggerButton}</DropdownMenuTrigger>
+    </MenuTrigger>
   );
 
   return (
-    <DropdownMenu>
+    <Menu>
       {collapsed ? (
         <Tooltip>
-          <TooltipTrigger asChild>{dropdownTrigger}</TooltipTrigger>
-          <TooltipContent side="right">{triggerLabel}</TooltipContent>
+          <TooltipTrigger render={menuTrigger} />
+          <TooltipPopup side="right">{triggerLabel}</TooltipPopup>
         </Tooltip>
       ) : (
-        dropdownTrigger
+        menuTrigger
       )}
-      <DropdownMenuContent
+      <MenuPopup
         side={collapsed ? "right" : "bottom"}
         align="start"
         sideOffset={collapsed ? 8 : 4}
-        className={
-          collapsed
-            ? "w-60 min-w-60"
-            : "w-[var(--radix-dropdown-menu-trigger-width)] min-w-[var(--radix-dropdown-menu-trigger-width)]"
-        }
+        className={collapsed ? "w-60 min-w-60" : "w-full min-w-56"}
       >
-        <DropdownMenuLabel>Organizations</DropdownMenuLabel>
+        <MenuGroupLabel>Organizations</MenuGroupLabel>
         {orgs.map((org) => (
-          <DropdownMenuItem
-            key={org.id}
-            onSelect={() => void onSelectOrg(org.id)}
-          >
+          <MenuItem key={org.id} onClick={() => void onSelectOrg(org.id)}>
             <Building2 className="me-2 h-4 w-4" />
             <span className="truncate">{org.name}</span>
             {org.id === activeOrganizationId && (
               <span className="ms-auto text-muted-foreground text-xs">✓</span>
             )}
-          </DropdownMenuItem>
+          </MenuItem>
         ))}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href={"/dashboard/settings/organization" as Route}>
-            <Settings className="me-2 h-4 w-4" />
-            Organization settings
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => router.push("/dashboard/onboarding")}>
+        <MenuSeparator />
+        <MenuLinkItem href={"/dashboard/settings/organization" as Route}>
+          <Settings className="me-2 h-4 w-4" />
+          Organization settings
+        </MenuLinkItem>
+        <MenuItem onClick={() => router.push("/dashboard/onboarding")}>
           <Plus className="me-2 h-4 w-4" />
           Create organization
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </MenuItem>
+      </MenuPopup>
+    </Menu>
   );
 }

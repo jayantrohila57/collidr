@@ -11,7 +11,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
   Collapsible,
-  CollapsibleContent,
+  CollapsiblePanel,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
@@ -93,12 +93,13 @@ export function NavMain() {
           if (!hasChildren) {
             return (
               <SidebarMenuItem key={item.title}>
-                <Link href={item.url as Route} className="block w-full">
-                  <SidebarMenuButton tooltip={item.title}>
-                    {item.icon && <item.icon className="h-4 w-4" />}
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </Link>
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  render={<Link href={item.url as Route} />}
+                >
+                  {item.icon && <item.icon className="h-4 w-4" />}
+                  <span>{item.title}</span>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             );
           }
@@ -106,35 +107,34 @@ export function NavMain() {
           return (
             <Collapsible
               key={item.title}
-              asChild
               defaultOpen={isItemActive}
               className="group/collapsible"
             >
               <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title}>
-                    {item.icon && <item.icon />}
-                    <span>{item.title}</span>
-                    <ChevronRight className="ms-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                  </SidebarMenuButton>
+                <CollapsibleTrigger
+                  render={<SidebarMenuButton tooltip={item.title} />}
+                >
+                  {item.icon && <item.icon />}
+                  <span>{item.title}</span>
+                  <ChevronRight className="ms-auto h-4 w-4 transition-transform duration-200 group-data-open/collapsible:rotate-90" />
                 </CollapsibleTrigger>
-                <CollapsibleContent>
+                <CollapsiblePanel>
                   <SidebarMenuSub>
                     {item.items?.map((subItem) => {
                       return (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <Link href={subItem.url as Route}>
-                              {subItem.icon && <subItem.icon />}
+                          <SidebarMenuSubButton
+                            render={<Link href={subItem.url as Route} />}
+                          >
+                            {subItem.icon && <subItem.icon />}
 
-                              <span>{subItem.title}</span>
-                            </Link>
+                            <span>{subItem.title}</span>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       );
                     })}
                   </SidebarMenuSub>
-                </CollapsibleContent>
+                </CollapsiblePanel>
               </SidebarMenuItem>
             </Collapsible>
           );

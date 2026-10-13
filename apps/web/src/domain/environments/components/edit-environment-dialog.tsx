@@ -19,7 +19,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { cn, touchTarget } from "@/lib/utils";
 
 interface Environment {
   id: string;
@@ -79,22 +78,24 @@ export function EditEnvironmentDialog({
   return (
     <>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className={cn("size-11 shrink-0", touchTarget)}
-            aria-label={`Edit ${environment.name} environment`}
-            onClick={(e) => {
-              e.stopPropagation();
-              setName(environment.name);
-              setError(null);
-              setOpen(true);
-            }}
-          >
-            <Edit className="h-3.5 w-3.5" aria-hidden />
-          </Button>
+        <TooltipTrigger
+          render={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-11 shrink-0"
+              aria-label={`Edit ${environment.name} environment`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setName(environment.name);
+                setError(null);
+                setOpen(true);
+              }}
+            />
+          }
+        >
+          <Edit className="h-3.5 w-3.5" aria-hidden />
         </TooltipTrigger>
         <TooltipContent>Edit environment</TooltipContent>
       </Tooltip>

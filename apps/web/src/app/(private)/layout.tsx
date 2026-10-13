@@ -36,7 +36,7 @@ export default function OrganizationLayout({
   if (isOnboarding) {
     return (
       <Shell>
-        <TooltipProvider delayDuration={0}>
+        <TooltipProvider delay={0}>
           <ActiveOrganizationProvider>
             <main
               id="main-content"
@@ -53,7 +53,7 @@ export default function OrganizationLayout({
   return (
     <Shell>
       <SidebarProvider>
-        <TooltipProvider delayDuration={0}>
+        <TooltipProvider delay={0}>
           <ActiveOrganizationProvider>
             <AppSidebar />
             <SidebarInset className="flex min-h-svh min-w-0 flex-col overflow-x-hidden">

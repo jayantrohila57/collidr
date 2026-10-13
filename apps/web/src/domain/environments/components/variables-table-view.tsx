@@ -9,12 +9,12 @@ import { IconButton } from "@/components/patterns/icon-button";
 import { SecretValue } from "@/components/patterns/secret-value";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Menu,
+  MenuItem,
+  MenuPopup,
+  MenuSeparator,
+  MenuTrigger,
+} from "@/components/ui/menu";
 import {
   Table,
   TableBody,
@@ -23,7 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { touchTarget } from "@/lib/utils";
 import { AddVariableDialog } from "./add-variable-dialog";
 import { EditVariableDialog } from "./edit-variable-dialog";
 import { VariablesMobileList } from "./variables-mobile-list";
@@ -206,47 +205,39 @@ export function VariablesTableView({
                         label="Copy value"
                         disabled={!isRevealed || !variable.value}
                       />
-                      <DropdownMenu
-                        modal={false}
+                      <Menu
                         open={openActionsMenuId === variable.id}
                         onOpenChange={(open) =>
                           setOpenActionsMenuId(open ? variable.id : null)
                         }
                       >
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon-sm"
-                            className={touchTarget}
-                            aria-label="Variable actions"
-                          >
-                            <MoreVertical className="size-4" aria-hidden />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onSelect={(e) => {
-                              e.preventDefault();
-                              void handleEdit(variable);
-                            }}
-                          >
+                        <MenuTrigger
+                          render={
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon-sm"
+                              aria-label="Variable actions"
+                            />
+                          }
+                        >
+                          <MoreVertical className="size-4" aria-hidden />
+                        </MenuTrigger>
+                        <MenuPopup align="end">
+                          <MenuItem onClick={() => void handleEdit(variable)}>
                             <Pencil className="me-2 h-4 w-4" />
                             Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onSelect={(e) => {
-                              e.preventDefault();
-                              handleDelete(variable);
-                            }}
-                            className="text-destructive focus:text-destructive"
+                          </MenuItem>
+                          <MenuSeparator />
+                          <MenuItem
+                            onClick={() => handleDelete(variable)}
+                            variant="destructive"
                           >
                             <Trash2 className="me-2 h-4 w-4" />
                             Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          </MenuItem>
+                        </MenuPopup>
+                      </Menu>
                     </div>
                   </TableCell>
                 </TableRow>

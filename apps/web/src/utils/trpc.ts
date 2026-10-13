@@ -6,11 +6,11 @@ import {
   createTRPCContext,
   createTRPCOptionsProxy,
 } from "@trpc/tanstack-react-query";
-import { toast } from "sonner";
 import {
   getClientErrorMessage,
   isNetworkError,
 } from "@/lib/errors/client-errors";
+import { toast } from "@/lib/toast";
 
 const makeQueryClient = () =>
   new QueryClient({

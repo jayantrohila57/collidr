@@ -11,10 +11,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";
 
 export type OrgListItem = {

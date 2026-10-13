@@ -2,14 +2,14 @@
 
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
+  AlertDialogClose,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogPopup,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
 interface ConfirmDialogProps {
@@ -37,22 +37,22 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogPopup>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>
+          <AlertDialogClose
+            render={<Button variant="ghost" disabled={isPending} />}
+          >
             {cancelLabel}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={(e) => {
-              e.preventDefault();
-              void onConfirm();
-            }}
-            variant={variant}
+          </AlertDialogClose>
+          <Button
+            type="button"
+            variant={variant === "destructive" ? "destructive" : "default"}
             disabled={isPending}
+            onClick={() => void onConfirm()}
           >
             {isPending ? (
               <>
@@ -62,9 +62,9 @@ export function ConfirmDialog({
             ) : (
               confirmLabel
             )}
-          </AlertDialogAction>
+          </Button>
         </AlertDialogFooter>
-      </AlertDialogContent>
+      </AlertDialogPopup>
     </AlertDialog>
   );
 }

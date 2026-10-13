@@ -11,11 +11,14 @@ export default function PrivateNotFound() {
         This project or page could not be found.
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
-        <Button asChild>
-          <Link href={"/dashboard/projects" as Route}>All projects</Link>
+        <Button render={<Link href={"/dashboard/projects" as Route} />}>
+          All projects
         </Button>
-        <Button variant="outline" asChild>
-          <Link href={"/dashboard" as Route}>Dashboard</Link>
+        <Button
+          variant="outline"
+          render={<Link href={"/dashboard" as Route} />}
+        >
+          Dashboard
         </Button>
       </div>
     </div>

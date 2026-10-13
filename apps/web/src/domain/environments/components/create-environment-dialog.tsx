@@ -52,25 +52,27 @@ export function CreateEnvironmentDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant={triggerText === "Add Environment" ? "outline" : "default"}
-          size={triggerText === "Add Environment" ? "sm" : "default"}
-          className={
-            compactOnMobile
-              ? "max-sm:size-11 max-sm:shrink-0 max-sm:px-0"
-              : undefined
-          }
-          aria-label={compactOnMobile ? "Add environment" : undefined}
-        >
-          <Plus
-            className={compactOnMobile ? "size-4 sm:me-2" : "me-2 h-4 w-4"}
-            aria-hidden
+      <DialogTrigger
+        render={
+          <Button
+            variant={triggerText === "Add Environment" ? "outline" : "default"}
+            size={triggerText === "Add Environment" ? "sm" : "default"}
+            className={
+              compactOnMobile
+                ? "max-sm:size-11 max-sm:shrink-0 max-sm:px-0"
+                : undefined
+            }
+            aria-label={compactOnMobile ? "Add environment" : undefined}
           />
-          <span className={compactOnMobile ? "hidden sm:inline" : undefined}>
-            {triggerText}
-          </span>
-        </Button>
+        }
+      >
+        <Plus
+          className={compactOnMobile ? "size-4 sm:me-2" : "me-2 h-4 w-4"}
+          aria-hidden
+        />
+        <span className={compactOnMobile ? "hidden sm:inline" : undefined}>
+          {triggerText}
+        </span>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

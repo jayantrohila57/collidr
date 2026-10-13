@@ -150,32 +150,36 @@ export default function Pricing() {
                   ))}
                 </div>
 
-                <Button
-                  className={`mt-6 w-full ${
-                    plan.popular ? "bg-primary" : 'variant="outline"'
-                  }`}
-                  variant={plan.popular ? "default" : "outline"}
-                  size="lg"
-                  asChild={!!session?.user}
-                >
-                  {isPending ? (
-                    <div className="h-11 animate-pulse rounded bg-muted" />
-                  ) : session?.user ? (
-                    <Link href="/dashboard">
-                      {plan.name === "Enterprise"
-                        ? "Contact Sales"
-                        : "Get Started"}
-                      <ArrowRight className="ms-2 h-4 w-4" />
-                    </Link>
-                  ) : (
-                    <>
-                      {plan.name === "Enterprise"
-                        ? "Contact Sales"
-                        : "Get Started"}
-                      <ArrowRight className="ms-2 h-4 w-4" />
-                    </>
-                  )}
-                </Button>
+                {isPending ? (
+                  <div className="mt-6 h-11 w-full animate-pulse rounded bg-muted" />
+                ) : session?.user ? (
+                  <Button
+                    className={`mt-6 w-full ${
+                      plan.popular ? "bg-primary" : 'variant="outline"'
+                    }`}
+                    variant={plan.popular ? "default" : "outline"}
+                    size="lg"
+                    render={<Link href="/dashboard" />}
+                  >
+                    {plan.name === "Enterprise"
+                      ? "Contact Sales"
+                      : "Get Started"}
+                    <ArrowRight className="ms-2 h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    className={`mt-6 w-full ${
+                      plan.popular ? "bg-primary" : 'variant="outline"'
+                    }`}
+                    variant={plan.popular ? "default" : "outline"}
+                    size="lg"
+                  >
+                    {plan.name === "Enterprise"
+                      ? "Contact Sales"
+                      : "Get Started"}
+                    <ArrowRight className="ms-2 h-4 w-4" />
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}

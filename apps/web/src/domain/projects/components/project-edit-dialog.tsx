@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { MenuItem } from "@/components/ui/menu";
 import { EditProject } from "./project-edit";
 
 interface EditProjectDialogProps {
@@ -53,15 +53,10 @@ export function EditProjectDialog({
   return (
     <>
       {triggerVariant === "menu" ? (
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault();
-            openDialog();
-          }}
-        >
+        <MenuItem onClick={openDialog}>
           <Edit className="me-2 h-4 w-4" />
           Edit Project
-        </DropdownMenuItem>
+        </MenuItem>
       ) : (
         <Button variant="outline" size="sm" onClick={openDialog}>
           <Edit className="me-2 h-4 w-4" />

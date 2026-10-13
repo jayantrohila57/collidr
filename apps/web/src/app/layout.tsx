@@ -1,21 +1,20 @@
 import type { Metadata } from "next";
 
-import { Instrument_Sans, Poppins } from "next/font/google";
+import { Geist_Mono, Inter } from "next/font/google";
 
 import "../index.css";
 import Providers from "@/components/providers";
 import { generateMetadata as generateSiteMetadata } from "@/lib/siteConfig";
 import { cn } from "@/lib/utils";
 
-const instrumentSans = Instrument_Sans({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 });
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = generateSiteMetadata();
@@ -29,10 +28,12 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("font-sans", instrumentSans.variable)}
+      className={cn("font-sans", inter.variable, geistMono.variable)}
     >
-      <body className={`${poppins.variable} antialiased`}>
-        <Providers>{children}</Providers>
+      <body className="relative antialiased">
+        <div className="relative isolate flex min-h-svh min-w-0 flex-col">
+          <Providers>{children}</Providers>
+        </div>
       </body>
     </html>
   );

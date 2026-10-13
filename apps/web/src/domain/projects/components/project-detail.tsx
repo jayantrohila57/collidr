@@ -58,34 +58,46 @@ export default function ProjectDetail({
             <div className="flex flex-wrap items-center gap-2 border-t pt-4">
               {project.repositoryUrl && (
                 <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline" size="sm" asChild>
-                      <Link
-                        href={project.repositoryUrl as Route}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Github className="h-4 w-4" aria-hidden />
-                        Repository
-                      </Link>
-                    </Button>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        render={
+                          <Link
+                            href={project.repositoryUrl as Route}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          />
+                        }
+                      />
+                    }
+                  >
+                    <Github className="h-4 w-4" aria-hidden />
+                    Repository
                   </TooltipTrigger>
                   <TooltipContent>Open GitHub repository</TooltipContent>
                 </Tooltip>
               )}
               {project.websiteUrl && (
                 <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline" size="sm" asChild>
-                      <Link
-                        href={project.websiteUrl as Route}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Globe className="h-4 w-4" aria-hidden />
-                        Website
-                      </Link>
-                    </Button>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        render={
+                          <Link
+                            href={project.websiteUrl as Route}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          />
+                        }
+                      />
+                    }
+                  >
+                    <Globe className="h-4 w-4" aria-hidden />
+                    Website
                   </TooltipTrigger>
                   <TooltipContent>Open project website</TooltipContent>
                 </Tooltip>

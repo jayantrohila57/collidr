@@ -29,24 +29,26 @@ export function IconButton({
   ...props
 }: IconButtonProps) {
   return (
-    <TooltipProvider delayDuration={300}>
+    <TooltipProvider delay={300}>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className={cn("size-11 shrink-0", className)}
-            aria-label={label}
-            disabled={disabled || isLoading}
-            {...props}
-          >
-            {isLoading ? (
-              <Spinner className="size-4" aria-hidden />
-            ) : (
-              <Icon className={cn("size-4", iconClassName)} aria-hidden />
-            )}
-          </Button>
+        <TooltipTrigger
+          render={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className={cn("size-11 shrink-0", className)}
+              aria-label={label}
+              disabled={disabled || isLoading}
+              {...props}
+            />
+          }
+        >
+          {isLoading ? (
+            <Spinner className="size-4" aria-hidden />
+          ) : (
+            <Icon className={cn("size-4", iconClassName)} aria-hidden />
+          )}
         </TooltipTrigger>
         <TooltipContent>{label}</TooltipContent>
       </Tooltip>

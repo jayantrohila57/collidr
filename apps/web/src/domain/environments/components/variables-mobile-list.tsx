@@ -6,13 +6,12 @@ import { IconButton } from "@/components/patterns/icon-button";
 import { SecretValue } from "@/components/patterns/secret-value";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { touchTarget } from "@/lib/utils";
+  Menu,
+  MenuItem,
+  MenuPopup,
+  MenuSeparator,
+  MenuTrigger,
+} from "@/components/ui/menu";
 
 interface Variable {
   id: string;
@@ -53,33 +52,35 @@ export function VariablesMobileList({
               <p className="wrap-anywhere min-w-0 flex-1 font-medium font-mono text-sm">
                 {variable.key}
               </p>
-              <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className={`size-11 shrink-0 ${touchTarget}`}
-                    aria-label="Variable actions"
-                  >
-                    <MoreVertical className="size-4" aria-hidden />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onSelect={() => onEdit(variable)}>
+              <Menu>
+                <MenuTrigger
+                  render={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-11 shrink-0"
+                      aria-label="Variable actions"
+                    />
+                  }
+                >
+                  <MoreVertical className="size-4" aria-hidden />
+                </MenuTrigger>
+                <MenuPopup align="end">
+                  <MenuItem onClick={() => onEdit(variable)}>
                     <Pencil className="me-2 h-4 w-4" />
                     Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onSelect={() => onDelete(variable)}
-                    className="text-destructive focus:text-destructive"
+                  </MenuItem>
+                  <MenuSeparator />
+                  <MenuItem
+                    onClick={() => onDelete(variable)}
+                    variant="destructive"
                   >
                     <Trash2 className="me-2 h-4 w-4" />
                     Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  </MenuItem>
+                </MenuPopup>
+              </Menu>
             </div>
             <div className="min-w-0">
               <SecretValue revealed={isRevealed} value={variable.value} />

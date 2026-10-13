@@ -26,8 +26,12 @@ export function PageHeader({
   const trailingAction =
     action ??
     (actionLabel && actionHref ? (
-      <Button variant="default" asChild className="shrink-0">
-        <Link href={actionHref as Route}>{actionLabel}</Link>
+      <Button
+        variant="default"
+        className="shrink-0"
+        render={<Link href={actionHref as Route} />}
+      >
+        {actionLabel}
       </Button>
     ) : null);
 

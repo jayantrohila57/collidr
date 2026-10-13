@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { touchTarget } from "@/lib/utils";
 import { CreateEnvironmentDialog } from "./create-environment-dialog";
 import { DeleteEnvironmentDialog } from "./delete-environment-dialog";
 import { EditEnvironmentDialog } from "./edit-environment-dialog";
@@ -107,11 +106,17 @@ export function EnvironmentsTabsView({
         className="min-w-0 gap-4"
       >
         <div className="min-w-0 space-y-2 lg:hidden">
-          <Select value={resolvedActive} onValueChange={onTabChange}>
-            <SelectTrigger
-              className={`w-full ${touchTarget}`}
-              aria-label="Select environment"
-            >
+          <Select
+            value={resolvedActive}
+            items={environments.map((env) => ({
+              value: env.id,
+              label: env.name,
+            }))}
+            onValueChange={(value) => {
+              if (value) onTabChange(value);
+            }}
+          >
+            <SelectTrigger className="w-full" aria-label="Select environment">
               <SelectValue placeholder="Select environment" />
             </SelectTrigger>
             <SelectContent>

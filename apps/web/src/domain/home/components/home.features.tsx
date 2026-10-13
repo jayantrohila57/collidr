@@ -138,11 +138,13 @@ export default function Features() {
               {isPending ? (
                 <div className="h-11 w-32 animate-pulse rounded-lg bg-muted" />
               ) : session?.user ? (
-                <Button size="lg" className="gap-2" asChild>
-                  <Link href="/dashboard">
-                    Get Started Now
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
+                <Button
+                  size="lg"
+                  className="gap-2"
+                  render={<Link href="/dashboard" />}
+                >
+                  Get Started Now
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               ) : (
                 <Button size="lg" className="gap-2">

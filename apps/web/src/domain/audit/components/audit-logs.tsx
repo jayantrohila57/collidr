@@ -34,7 +34,19 @@ export default function AuditLogs() {
             className="ps-10"
           />
         </div>
-        <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+        <Select
+          value={selectedProjectId}
+          items={[
+            { value: "ALL", label: "All Projects" },
+            ...projects.map((project) => ({
+              value: project.id,
+              label: project.name,
+            })),
+          ]}
+          onValueChange={(value) => {
+            if (value) setSelectedProjectId(value);
+          }}
+        >
           <SelectTrigger className="w-full sm:w-48">
             <SelectValue placeholder="Filter by Project" />
           </SelectTrigger>

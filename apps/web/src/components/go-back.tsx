@@ -4,7 +4,6 @@ import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { touchTarget } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
@@ -20,27 +19,29 @@ const GoBackButton = memo(() => {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            size="icon-sm"
-            className={`shrink-0 ${touchTarget}`}
-            onClick={handleGoBack}
-            variant="outline"
-            aria-label="Back"
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                handleGoBack();
-              }
-            }}
-          >
-            <ChevronLeft
-              aria-hidden="true"
-              focusable="false"
-              role="presentation"
+        <TooltipTrigger
+          render={
+            <Button
+              size="icon-sm"
+              className="shrink-0"
+              onClick={handleGoBack}
+              variant="outline"
+              aria-label="Back"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  handleGoBack();
+                }
+              }}
             />
-          </Button>
+          }
+        >
+          <ChevronLeft
+            aria-hidden="true"
+            focusable="false"
+            role="presentation"
+          />
         </TooltipTrigger>
         <TooltipContent>
           <p id="go-back-tooltip">{"Back"}</p>

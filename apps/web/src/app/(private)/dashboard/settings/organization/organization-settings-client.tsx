@@ -4,7 +4,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { ErrorState } from "@/components/patterns/error-state";
@@ -12,12 +11,11 @@ import { FormField } from "@/components/patterns/form-field";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
+  AlertDialogClose,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogPopup,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
@@ -40,6 +38,7 @@ import {
   formatOrganizationCreateError,
   resolveOrgSlugForSave,
 } from "@/lib/org-slug";
+import { toast } from "@/lib/toast";
 
 type MemberRow = {
   id: string;
@@ -48,6 +47,11 @@ type MemberRow = {
 };
 
 const ROLES = ["member", "admin", "owner"] as const;
+
+const ROLE_SELECT_ITEMS = ROLES.map((role) => ({
+  value: role,
+  label: role,
+}));
 
 export function OrganizationSettingsForm({
   organizationId,
@@ -336,7 +340,13 @@ export function OrganizationSettingsForm({
                 />
               </FormField>
               <FormField id="invite-role" label="Role">
-                <Select value={inviteRole} onValueChange={setInviteRole}>
+                <Select
+                  value={inviteRole}
+                  items={ROLE_SELECT_ITEMS}
+                  onValueChange={(value) => {
+                    if (value) setInviteRole(value);
+                  }}
+                >
                   <SelectTrigger id="invite-role" className="w-full sm:w-32">
                     <SelectValue />
                   </SelectTrigger>
@@ -384,9 +394,10 @@ export function OrganizationSettingsForm({
                 </span>
                 <Select
                   value={member.role}
-                  onValueChange={(role) =>
-                    void handleRoleChange(member.id, role)
-                  }
+                  items={ROLE_SELECT_ITEMS}
+                  onValueChange={(role) => {
+                    if (role) void handleRoleChange(member.id, role);
+                  }}
                   disabled={rolePendingId === member.id || !isOwner}
                 >
                   <SelectTrigger
@@ -470,7 +481,7 @@ export function OrganizationSettingsForm({
       </Card>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
+        <AlertDialogPopup>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete organization</AlertDialogTitle>
             <AlertDialogDescription>
@@ -485,16 +496,16 @@ export function OrganizationSettingsForm({
             aria-label="Confirm organization name"
           />
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deletePending}>
+            <AlertDialogClose
+              render={<Button variant="ghost" disabled={deletePending} />}
+            >
               Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
+            </AlertDialogClose>
+            <Button
+              type="button"
               variant="destructive"
               disabled={deletePending || deleteConfirmName !== orgName}
-              onClick={(e) => {
-                e.preventDefault();
-                void handleDelete();
-              }}
+              onClick={() => void handleDelete()}
             >
               {deletePending ? (
                 <>
@@ -504,9 +515,9 @@ export function OrganizationSettingsForm({
               ) : (
                 "Delete"
               )}
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
-        </AlertDialogContent>
+        </AlertDialogPopup>
       </AlertDialog>
     </div>
   );

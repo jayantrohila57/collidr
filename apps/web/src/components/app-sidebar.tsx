@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
 import { siteConfig } from "@/lib/siteConfig";
-import { touchTarget } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Separator } from "./ui/separator";
 
@@ -41,7 +40,7 @@ function MobileSidebarClose() {
       type="button"
       variant="outline"
       size="icon"
-      className={`size-11 shrink-0 ${touchTarget}`}
+      className="size-11 shrink-0"
       aria-label="Close sidebar"
       onClick={() => setOpenMobile(false)}
     >
@@ -122,12 +121,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuButton
                       isActive={isActive(item.href)}
                       tooltip={item.label}
-                      asChild
+                      render={<Link href={item.href as Route} />}
                     >
-                      <Link href={item.href as Route}>
-                        <Icon />
-                        <span>{item.label}</span>
-                      </Link>
+                      <Icon />
+                      <span>{item.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -175,14 +172,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           `/dashboard/projects/${project.slug}`,
                         )}
                         tooltip={project.name}
-                        asChild
+                        render={
+                          <Link
+                            href={
+                              `/dashboard/projects/${project.slug}` as Route
+                            }
+                          />
+                        }
                       >
-                        <Link
-                          href={`/dashboard/projects/${project.slug}` as Route}
-                        >
-                          <FolderIcon />
-                          <span>{project.name}</span>
-                        </Link>
+                        <FolderIcon />
+                        <span>{project.name}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}

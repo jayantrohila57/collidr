@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod/v3";
 import { PageContainer } from "@/components/layout/page-container";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
@@ -19,6 +18,7 @@ import {
   formatOrganizationCreateError,
   slugifyOrganizationName,
 } from "@/lib/org-slug";
+import { toast } from "@/lib/toast";
 
 const schema = z.object({
   name: z

@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import { Button } from "@/components/ui/button";
-import { cn, touchTarget } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface HorizontalScrollRailProps {
   children: ReactNode;
@@ -67,7 +67,6 @@ export function HorizontalScrollRail({
           size="icon"
           className={cn(
             "size-11 shrink-0",
-            touchTarget,
             !canScrollLeft && "pointer-events-none opacity-0",
           )}
           aria-label="Scroll tabs left"
@@ -106,7 +105,6 @@ export function HorizontalScrollRail({
           size="icon"
           className={cn(
             "size-11 shrink-0",
-            touchTarget,
             !canScrollRight && "pointer-events-none opacity-0",
           )}
           aria-label="Scroll tabs right"

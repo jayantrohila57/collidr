@@ -35,11 +35,13 @@ export default function Hero() {
         {isPending ? (
           <div className="h-11 w-32 animate-pulse rounded-lg bg-muted" />
         ) : session?.user ? (
-          <Button size="lg" className="w-80 gap-2" asChild>
-            <Link href="/dashboard">
-              Get Started
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+          <Button
+            size="lg"
+            className="w-80 gap-2"
+            render={<Link href="/dashboard" />}
+          >
+            Get Started
+            <ArrowRight className="h-4 w-4" />
           </Button>
         ) : (
           <GitHubLoginButton />

@@ -40,8 +40,8 @@ export function EmptyState({
       {actionLabel && (actionHref || onAction) && (
         <EmptyContent>
           {actionHref ? (
-            <Button asChild>
-              <Link href={actionHref as Route}>{actionLabel}</Link>
+            <Button render={<Link href={actionHref as Route} />}>
+              {actionLabel}
             </Button>
           ) : (
             <Button type="button" onClick={onAction}>
