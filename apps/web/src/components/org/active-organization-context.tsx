@@ -14,6 +14,7 @@ import {
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { authClient } from "@/lib/auth-client";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
+import { shouldBootstrapSessionActiveOrganization } from "@/lib/org-session-bootstrap";
 import { pathAfterOrganizationSwitch } from "@/lib/org-switch-redirect";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { toast } from "@/lib/toast";
@@ -97,9 +98,25 @@ export function ActiveOrganizationProvider({
         sessionActiveOrganizationId ??
         data[0]?.id ??
         null;
+
+      if (
+        shouldBootstrapSessionActiveOrganization(
+          sessionActiveOrganizationId,
+          active,
+          options?.activeOrganizationId,
+        )
+      ) {
+        try {
+          await authClient.organization.setActive({ organizationId: active });
+          await refetchSession();
+        } catch {
+          // Session may not be ready yet; org-scoped queries retry after focus/switch.
+        }
+      }
+
       setActiveOrganizationId(active);
     },
-    [enabled, sessionActiveOrganizationId],
+    [enabled, refetchSession, sessionActiveOrganizationId],
   );
 
   useEffect(() => {
@@ -128,6 +145,12 @@ export function ActiveOrganizationProvider({
           void queryClient.prefetchQuery(trpc.projects.list.queryOptions());
           void queryClient.prefetchQuery(
             trpc.dashboard.getOverview.queryOptions(),
+          );
+          void queryClient.prefetchQuery(
+            trpc.permissions.snapshot.queryOptions(),
+          );
+          void queryClient.prefetchQuery(
+            trpc.notifications.unreadCount.queryOptions(),
           );
         }
       }

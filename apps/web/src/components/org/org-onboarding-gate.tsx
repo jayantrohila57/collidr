@@ -54,6 +54,17 @@ export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
           return;
         }
 
+        const firstId = (orgs[0] as { id?: string })?.id;
+        if (firstId) {
+          try {
+            await authClient.organization.setActive({
+              organizationId: firstId,
+            });
+          } catch {
+            // ActiveOrganizationProvider bootstrap will retry.
+          }
+        }
+
         if (!cancelled) setReady(true);
       } catch {
         if (!cancelled) setReady(true);

@@ -60,10 +60,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const notificationCount = notificationsEnabled
     ? (unreadNotifications.data?.data ?? 0)
     : 0;
+  const notificationsBadgeLoading =
+    notificationsEnabled && unreadNotifications.isPending;
 
   const actionsAudit = isActionsAuditEnabledOnClient();
   const permissions = useCan("organization.list");
   const canTimeline = useCan("audit.timeline.view.org");
+  const platformNavLoading =
+    actionsAudit &&
+    (!initialLoadDone || permissions.isLoading || canTimeline.isLoading);
 
   const menuItems = actionsAudit
     ? platformNav
@@ -83,7 +88,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           }
           if (!item.action) return true;
           if (item.action === "organization.list") {
-            return permissions.allowed;
+            return permissions.allowed || permissions.isLoading;
           }
           if (item.action === "audit.timeline.view.org") {
             return canTimeline.allowed || canTimeline.isLoading;
@@ -175,7 +180,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="flex min-w-0 flex-col gap-1">
-              {actionsAudit && !initialLoadDone
+              {platformNavLoading
                 ? (
                     [
                       "nav-skeleton-a",
@@ -197,6 +202,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       "badge" in item && typeof item.badge === "number"
                         ? item.badge
                         : 0;
+                    const showNotificationBadge =
+                      item.href === "/dashboard/notifications" &&
+                      (badge > 0 || notificationsBadgeLoading);
                     return (
                       <SidebarMenuItem key={item.href} className="relative">
                         <SidebarMenuButton
@@ -207,8 +215,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           <Icon />
                           <span>{item.label}</span>
                         </SidebarMenuButton>
-                        {badge > 0 ? (
-                          <SidebarMenuBadge className="bg-destructive text-destructive-foreground">
+                        {showNotificationBadge ? (
+                          <SidebarMenuBadge
+                            className={
+                              notificationsBadgeLoading && badge === 0
+                                ? "opacity-0"
+                                : "bg-destructive text-destructive-foreground"
+                            }
+                          >
                             {badge > 99 ? "99+" : badge}
                           </SidebarMenuBadge>
                         ) : null}
