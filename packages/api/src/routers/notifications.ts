@@ -1,4 +1,4 @@
-import { db } from "@env-manager/db";
+import { activeNotificationWhere, activeUserWhere, db } from "@env-manager/db";
 import { user } from "@env-manager/db/schema/auth";
 import { notification } from "@env-manager/db/schema/notifications";
 import {
@@ -53,9 +53,11 @@ export const notificationsRouter = router({
         .select({ total: sql<number>`count(*)::int` })
         .from(notification)
         .where(
-          and(
-            eq(notification.recipientUserId, ctx.session.user.id),
-            isNull(notification.readAt),
+          activeNotificationWhere(
+            and(
+              eq(notification.recipientUserId, ctx.session.user.id),
+              isNull(notification.readAt),
+            ),
           ),
         );
 
@@ -97,7 +99,9 @@ export const notificationsRouter = router({
       }
 
       const userId = ctx.session.user.id;
-      const conditions = [eq(notification.recipientUserId, userId)];
+      const conditions = [
+        activeNotificationWhere(eq(notification.recipientUserId, userId)),
+      ];
       if (input.unreadOnly) {
         conditions.push(isNull(notification.readAt));
       }
@@ -128,7 +132,7 @@ export const notificationsRouter = router({
         })
         .from(notification)
         .leftJoin(user, eq(notification.actorUserId, user.id))
-        .where(and(...conditions))
+        .where(and(...conditions.filter(Boolean)))
         .orderBy(desc(notification.createdAt), desc(notification.id))
         .limit(input.limit + 1);
 
@@ -173,9 +177,11 @@ export const notificationsRouter = router({
         .update(notification)
         .set({ readAt: new Date() })
         .where(
-          and(
-            eq(notification.id, input.id),
-            eq(notification.recipientUserId, ctx.session.user.id),
+          activeNotificationWhere(
+            and(
+              eq(notification.id, input.id),
+              eq(notification.recipientUserId, ctx.session.user.id),
+            ),
           ),
         )
         .returning({ id: notification.id });
@@ -192,9 +198,11 @@ export const notificationsRouter = router({
         .update(notification)
         .set({ readAt: null })
         .where(
-          and(
-            eq(notification.id, input.id),
-            eq(notification.recipientUserId, ctx.session.user.id),
+          activeNotificationWhere(
+            and(
+              eq(notification.id, input.id),
+              eq(notification.recipientUserId, ctx.session.user.id),
+            ),
           ),
         )
         .returning({ id: notification.id });
@@ -210,9 +218,11 @@ export const notificationsRouter = router({
         .update(notification)
         .set({ readAt: new Date() })
         .where(
-          and(
-            eq(notification.recipientUserId, ctx.session.user.id),
-            isNull(notification.readAt),
+          activeNotificationWhere(
+            and(
+              eq(notification.recipientUserId, ctx.session.user.id),
+              isNull(notification.readAt),
+            ),
           ),
         )
         .returning({ id: notification.id });

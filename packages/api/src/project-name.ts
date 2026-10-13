@@ -1,4 +1,4 @@
-import { db } from "@env-manager/db";
+import { activeProjectWhere, db } from "@env-manager/db";
 import { project } from "@env-manager/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { and, eq, ne, sql } from "drizzle-orm";
@@ -21,7 +21,7 @@ export async function assertUniqueProjectName(
   const existing = await db
     .select({ id: project.id })
     .from(project)
-    .where(and(...conditions))
+    .where(activeProjectWhere(and(...conditions)))
     .limit(1);
 
   if (existing.length > 0) {

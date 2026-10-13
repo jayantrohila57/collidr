@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 
 import { db } from "../client";
 import { project } from "../schema/projects";
+import { activeProjectWhere } from "../soft-delete";
 
 export async function getOwnedProjectBySlug(userId: string, slug: string) {
   const rows = await db
@@ -12,7 +13,11 @@ export async function getOwnedProjectBySlug(userId: string, slug: string) {
       description: project.description,
     })
     .from(project)
-    .where(and(eq(project.slug, slug), eq(project.userId, userId)))
+    .where(
+      activeProjectWhere(
+        and(eq(project.slug, slug), eq(project.userId, userId)),
+      ),
+    )
     .limit(1);
 
   return rows[0] ?? null;

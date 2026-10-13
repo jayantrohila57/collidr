@@ -31,6 +31,8 @@ export const env = createEnv({
       .enum(["true", "false"])
       .default("false")
       .optional(),
+    /** Enable after soft-delete columns are applied (see docs/SOFT_DELETES.md) */
+    SOFT_DELETES_ENABLED: z.enum(["true", "false"]).default("false").optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

@@ -1,4 +1,12 @@
-import { db } from "@env-manager/db";
+import {
+  activeEnvironmentVariableWhere,
+  activeEnvironmentWhere,
+  activeInvitationWhere,
+  activeMemberWhere,
+  activeProjectWhere,
+  activeUserWhere,
+  db,
+} from "@env-manager/db";
 import { auditLog } from "@env-manager/db/schema/audit";
 import { user } from "@env-manager/db/schema/auth";
 import { invitation, member } from "@env-manager/db/schema/organization";
@@ -40,7 +48,11 @@ async function fetchDashboardStats(ctx: OrgCtx) {
     ? db
         .select({ count: count() })
         .from(member)
-        .where(eq(member.organizationId, ctx.activeOrganizationId))
+        .where(
+          activeMemberWhere(
+            eq(member.organizationId, ctx.activeOrganizationId),
+          ),
+        )
     : Promise.resolve([{ count: 1 }]);
 
   const [
@@ -79,12 +91,14 @@ async function fetchDashboardStats(ctx: OrgCtx) {
       .select({ count: count() })
       .from(environment)
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(scope),
+      .where(activeEnvironmentWhere(scope)),
     db
       .select({ count: count() })
       .from(environment)
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(and(scope, eq(environment.status, "active"))),
+      .where(
+        activeEnvironmentWhere(and(scope, eq(environment.status, "active"))),
+      ),
     db
       .select({ count: count() })
       .from(environmentVariable)
@@ -93,7 +107,7 @@ async function fetchDashboardStats(ctx: OrgCtx) {
         eq(environmentVariable.environmentId, environment.id),
       )
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(scope),
+      .where(activeEnvironmentVariableWhere(scope)),
     db
       .select({
         status: project.status,
@@ -109,7 +123,7 @@ async function fetchDashboardStats(ctx: OrgCtx) {
       })
       .from(environment)
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(scope)
+      .where(activeEnvironmentWhere(scope))
       .groupBy(environment.status),
     db
       .select({ count: count() })
@@ -126,7 +140,9 @@ async function fetchDashboardStats(ctx: OrgCtx) {
       .select({ count: count() })
       .from(environment)
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(and(scope, eq(environment.isProduction, true))),
+      .where(
+        activeEnvironmentWhere(and(scope, eq(environment.isProduction, true))),
+      ),
     memberCountPromise,
   ]);
 
@@ -233,7 +249,7 @@ async function fetchProjectDetailStats(ctx: OrgCtx, slug: string) {
     db
       .select({ count: count() })
       .from(environment)
-      .where(eq(environment.projectId, projectRow.id)),
+      .where(activeEnvironmentWhere(eq(environment.projectId, projectRow.id))),
     db
       .select({ count: count() })
       .from(environmentVariable)
@@ -241,7 +257,11 @@ async function fetchProjectDetailStats(ctx: OrgCtx, slug: string) {
         environment,
         eq(environmentVariable.environmentId, environment.id),
       )
-      .where(eq(environment.projectId, projectRow.id)),
+      .where(
+        activeEnvironmentVariableWhere(
+          activeEnvironmentWhere(eq(environment.projectId, projectRow.id)),
+        ),
+      ),
   ]);
 
   return {
@@ -276,14 +296,16 @@ async function fetchOrgSettingsStats(ctx: OrgCtx) {
       db
         .select({ count: count() })
         .from(member)
-        .where(eq(member.organizationId, organizationId)),
+        .where(activeMemberWhere(eq(member.organizationId, organizationId))),
       db
         .select({ count: count() })
         .from(invitation)
         .where(
-          and(
-            eq(invitation.organizationId, organizationId),
-            eq(invitation.status, "pending"),
+          activeInvitationWhere(
+            and(
+              eq(invitation.organizationId, organizationId),
+              eq(invitation.status, "pending"),
+            ),
           ),
         ),
       db.select({ count: count() }).from(project).where(scope),
@@ -291,9 +313,11 @@ async function fetchOrgSettingsStats(ctx: OrgCtx) {
         .select({ role: member.role })
         .from(member)
         .where(
-          and(
-            eq(member.organizationId, organizationId),
-            eq(member.userId, userId),
+          activeMemberWhere(
+            and(
+              eq(member.organizationId, organizationId),
+              eq(member.userId, userId),
+            ),
           ),
         )
         .limit(1),
@@ -313,16 +337,16 @@ async function fetchUserAccountStats(userId: string) {
       ? db
           .select({ count: count() })
           .from(member)
-          .where(eq(member.userId, userId))
+          .where(activeMemberWhere(eq(member.userId, userId)))
       : Promise.resolve([{ count: 0 }]),
     db
       .select({ count: count() })
       .from(project)
-      .where(eq(project.userId, userId)),
+      .where(activeProjectWhere(eq(project.userId, userId))),
     db
       .select({ createdAt: user.createdAt })
       .from(user)
-      .where(eq(user.id, userId))
+      .where(activeUserWhere(eq(user.id, userId)))
       .limit(1),
   ]);
 

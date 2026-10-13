@@ -1,4 +1,9 @@
-import { db } from "@env-manager/db";
+import {
+  activeInvitationWhere,
+  activeMemberWhere,
+  activeUserWhere,
+  db,
+} from "@env-manager/db";
 import { user } from "@env-manager/db/schema/auth";
 import {
   invitation,
@@ -14,7 +19,7 @@ async function findUserIdByEmail(email: string) {
   const row = await db
     .select({ id: user.id })
     .from(user)
-    .where(eq(sql`lower(${user.email})`, normalized))
+    .where(activeUserWhere(eq(sql`lower(${user.email})`, normalized)))
     .limit(1);
   return row[0]?.id ?? null;
 }
@@ -36,7 +41,7 @@ export async function notifyInvitationReceived(invitationId: string) {
     .from(invitation)
     .innerJoin(organization, eq(invitation.organizationId, organization.id))
     .innerJoin(user, eq(invitation.inviterId, user.id))
-    .where(eq(invitation.id, invitationId))
+    .where(activeInvitationWhere(eq(invitation.id, invitationId)))
     .limit(1);
 
   const row = rows[0];
@@ -80,7 +85,7 @@ export async function notifyInvitationAccepted(invitationId: string) {
     })
     .from(invitation)
     .innerJoin(organization, eq(invitation.organizationId, organization.id))
-    .where(eq(invitation.id, invitationId))
+    .where(activeInvitationWhere(eq(invitation.id, invitationId)))
     .limit(1);
 
   const invite = rows[0];
@@ -91,7 +96,11 @@ export async function notifyInvitationAccepted(invitationId: string) {
   const memberUser = await db
     .select({ id: user.id, name: user.name })
     .from(user)
-    .where(eq(sql`lower(${user.email})`, invite.email.trim().toLowerCase()))
+    .where(
+      activeUserWhere(
+        eq(sql`lower(${user.email})`, invite.email.trim().toLowerCase()),
+      ),
+    )
     .limit(1);
 
   const memberRow = memberUser[0];
@@ -103,9 +112,11 @@ export async function notifyInvitationAccepted(invitationId: string) {
     .select({ userId: member.userId })
     .from(member)
     .where(
-      and(
-        eq(member.organizationId, invite.organizationId),
-        inArray(member.role, ["owner", "admin"]),
+      activeMemberWhere(
+        and(
+          eq(member.organizationId, invite.organizationId),
+          inArray(member.role, ["owner", "admin"]),
+        ),
       ),
     );
 
@@ -147,11 +158,13 @@ export async function syncInvitationReceivedByEmail(
     .select({ id: invitation.id })
     .from(invitation)
     .where(
-      and(
-        eq(invitation.organizationId, organizationId),
-        eq(invitation.inviterId, inviterUserId),
-        eq(invitation.status, "pending"),
-        eq(sql`lower(${invitation.email})`, normalized),
+      activeInvitationWhere(
+        and(
+          eq(invitation.organizationId, organizationId),
+          eq(invitation.inviterId, inviterUserId),
+          eq(invitation.status, "pending"),
+          eq(sql`lower(${invitation.email})`, normalized),
+        ),
       ),
     )
     .orderBy(desc(invitation.createdAt))
@@ -176,12 +189,14 @@ export async function syncInvitationAcceptedByEmail(
     .select({ id: invitation.id })
     .from(invitation)
     .where(
-      and(
-        eq(invitation.organizationId, organizationId),
-        eq(invitation.status, "accepted"),
-        or(
-          eq(sql`lower(${invitation.email})`, normalized),
-          eq(invitation.email, email.trim()),
+      activeInvitationWhere(
+        and(
+          eq(invitation.organizationId, organizationId),
+          eq(invitation.status, "accepted"),
+          or(
+            eq(sql`lower(${invitation.email})`, normalized),
+            eq(invitation.email, email.trim()),
+          ),
         ),
       ),
     )

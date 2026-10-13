@@ -1,13 +1,20 @@
-import { relations } from "drizzle-orm";
-import { index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+import {
+  index,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 import { user } from "./auth";
+import { softDeleteColumns } from "./soft-delete-columns";
 
 export const organization = pgTable(
   "organization",
   {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
-    slug: text("slug").notNull().unique(),
+    slug: text("slug").notNull(),
     logo: text("logo"),
     metadata: text("metadata"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -16,7 +23,12 @@ export const organization = pgTable(
       onDelete: "set null",
     }),
   },
-  (table) => [index("organization_slug_idx").on(table.slug)],
+  (table) => [
+    uniqueIndex("organization_slug_active_uidx")
+      .on(table.slug)
+      .where(sql`${table.deletedAt} IS NULL`),
+    index("organization_slug_idx").on(table.slug),
+  ],
 );
 
 export const member = pgTable(
@@ -31,8 +43,12 @@ export const member = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
     role: text("role").default("member").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    ...softDeleteColumns,
   },
   (table) => [
+    uniqueIndex("member_organization_user_active_uidx")
+      .on(table.organizationId, table.userId)
+      .where(sql`${table.deletedAt} IS NULL`),
     index("member_user_id_idx").on(table.userId),
     index("member_organization_id_idx").on(table.organizationId),
   ],
@@ -53,6 +69,7 @@ export const invitation = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    ...softDeleteColumns,
   },
   (table) => [
     index("invitation_organization_id_idx").on(table.organizationId),

@@ -1,4 +1,8 @@
-import { db } from "@env-manager/db";
+import {
+  activeEnvironmentVariableWhere,
+  activeEnvironmentWhere,
+  db,
+} from "@env-manager/db";
 import { auditLog } from "@env-manager/db/schema/audit";
 import {
   environment,
@@ -49,7 +53,7 @@ export async function getProjectEnvironmentIds(
 ): Promise<{ projectId: string | null; environmentId: string } | null> {
   try {
     const result = await db.query.environment.findFirst({
-      where: eq(environment.id, environmentId),
+      where: activeEnvironmentWhere(eq(environment.id, environmentId)),
       columns: {
         id: true,
         projectId: true,
@@ -68,7 +72,9 @@ export async function getProjectEnvironmentIds(
 export async function getVariableDetails(variableId: string) {
   try {
     const result = await db.query.environmentVariable.findFirst({
-      where: eq(environmentVariable.id, variableId),
+      where: activeEnvironmentVariableWhere(
+        eq(environmentVariable.id, variableId),
+      ),
       columns: {
         id: true,
         key: true,

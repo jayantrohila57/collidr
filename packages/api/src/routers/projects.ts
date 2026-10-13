@@ -1,4 +1,8 @@
-import { db } from "@env-manager/db";
+import {
+  activeEnvironmentWhere,
+  db,
+  softDeleteProjectById,
+} from "@env-manager/db";
 import { environment, project } from "@env-manager/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
@@ -103,7 +107,7 @@ export const projectsRouter = router({
           updatedAt: environment.updatedAt,
         })
         .from(environment)
-        .where(eq(environment.projectId, input.id))
+        .where(activeEnvironmentWhere(eq(environment.projectId, input.id)))
         .orderBy(environment.name);
 
       const projectRecord = projectData[0];
@@ -178,7 +182,11 @@ export const projectsRouter = router({
           updatedAt: environment.updatedAt,
         })
         .from(environment)
-        .where(eq(environment.projectId, projectData[0]?.id || ""))
+        .where(
+          activeEnvironmentWhere(
+            eq(environment.projectId, projectData[0]?.id || ""),
+          ),
+        )
         .orderBy(environment.name);
 
       return respond({
@@ -351,7 +359,7 @@ export const projectsRouter = router({
 
       const slug = existingProject[0]?.slug;
 
-      await db.delete(project).where(eq(project.id, input.id));
+      await softDeleteProjectById(input.id, ctx.session.user.id);
 
       await createAuditLog({
         userId: ctx.session.user.id,

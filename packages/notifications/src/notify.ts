@@ -1,4 +1,4 @@
-import { db } from "@env-manager/db";
+import { activeNotificationWhere, db } from "@env-manager/db";
 import { notification } from "@env-manager/db/schema/notifications";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { isNotificationsEnabled } from "./feature";
@@ -74,15 +74,17 @@ export async function notify(input: NotifyInput): Promise<number> {
         .select({ id: notification.id })
         .from(notification)
         .where(
-          row.recipientUserId
-            ? and(
-                eq(notification.recipientUserId, row.recipientUserId),
-                eq(notification.idempotencyKey, row.idempotencyKey),
-              )
-            : and(
-                eq(notification.recipientEmail, row.recipientEmail ?? ""),
-                eq(notification.idempotencyKey, row.idempotencyKey),
-              ),
+          activeNotificationWhere(
+            row.recipientUserId
+              ? and(
+                  eq(notification.recipientUserId, row.recipientUserId),
+                  eq(notification.idempotencyKey, row.idempotencyKey),
+                )
+              : and(
+                  eq(notification.recipientEmail, row.recipientEmail ?? ""),
+                  eq(notification.idempotencyKey, row.idempotencyKey),
+                ),
+          ),
         )
         .limit(1);
       if (existing.length > 0) {

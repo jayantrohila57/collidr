@@ -3,6 +3,11 @@ import { and, eq } from "drizzle-orm";
 import { db } from "./client";
 import { user } from "./schema/auth";
 import { environment, project } from "./schema/projects";
+import {
+  activeEnvironmentWhere,
+  activeProjectWhere,
+  activeUserWhere,
+} from "./soft-delete";
 
 const E2E_EMAIL = "e2e-playwright@env-manager.local";
 const E2E_PROJECT_NAME = "E2E Demo Project";
@@ -16,7 +21,7 @@ export async function ensureE2eDemoProject() {
   const [userRow] = await db
     .select({ id: user.id })
     .from(user)
-    .where(eq(user.email, E2E_EMAIL))
+    .where(activeUserWhere(eq(user.email, E2E_EMAIL)))
     .limit(1);
 
   if (!userRow) {
@@ -27,7 +32,9 @@ export async function ensureE2eDemoProject() {
     .select({ id: project.id })
     .from(project)
     .where(
-      and(eq(project.userId, userRow.id), eq(project.slug, E2E_PROJECT_SLUG)),
+      activeProjectWhere(
+        and(eq(project.userId, userRow.id), eq(project.slug, E2E_PROJECT_SLUG)),
+      ),
     )
     .limit(1);
 
@@ -56,9 +63,11 @@ export async function ensureE2eDemoProject() {
     .select({ id: environment.id })
     .from(environment)
     .where(
-      and(
-        eq(environment.projectId, projectRow.id),
-        eq(environment.slug, E2E_ENV_SLUG),
+      activeEnvironmentWhere(
+        and(
+          eq(environment.projectId, projectRow.id),
+          eq(environment.slug, E2E_ENV_SLUG),
+        ),
       ),
     )
     .limit(1);

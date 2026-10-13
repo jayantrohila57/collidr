@@ -1,4 +1,4 @@
-import { db } from "@env-manager/db";
+import { activeUserWhere, db } from "@env-manager/db";
 import { assertOrganizationCanBeDeleted } from "@env-manager/db/org-delete-policy";
 import * as authSchema from "@env-manager/db/schema/auth";
 import { user } from "@env-manager/db/schema/auth";
@@ -31,7 +31,7 @@ export const auth = betterAuth({
           const [record] = await db
             .select({ email: user.email })
             .from(user)
-            .where(eq(user.id, session.userId))
+            .where(activeUserWhere(eq(user.id, session.userId)))
             .limit(1);
           if (record?.email) {
             await linkPendingNotificationsForUser(session.userId, record.email);

@@ -9,7 +9,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { organization } from "./organization";
-
 export const notification = pgTable(
   "notification",
   {

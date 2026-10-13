@@ -3,7 +3,7 @@ import {
   isActionsAuditEnabled,
   normalizeOrgRole,
 } from "@env-manager/actions";
-import { db } from "@env-manager/db";
+import { activeMemberWhere, activeProjectWhere, db } from "@env-manager/db";
 import { member } from "@env-manager/db/schema/organization";
 import { project } from "@env-manager/db/schema/projects";
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
@@ -42,9 +42,11 @@ export async function requireActiveOrganization(
     .select({ id: member.id, role: member.role })
     .from(member)
     .where(
-      and(
-        eq(member.organizationId, organizationId),
-        eq(member.userId, ctx.user.id),
+      activeMemberWhere(
+        and(
+          eq(member.organizationId, organizationId),
+          eq(member.userId, ctx.user.id),
+        ),
       ),
     )
     .limit(1);
@@ -63,14 +65,14 @@ export function projectListFilter(
   userId: string,
   organizationId: string | null,
 ) {
-  if (isOrganizationsEnabled() && organizationId) {
-    return and(
-      eq(project.userId, userId),
-      eq(project.organizationId, organizationId),
-      isNull(project.deletedAt),
-    );
-  }
-  return and(eq(project.userId, userId), isNull(project.deletedAt));
+  const scope =
+    isOrganizationsEnabled() && organizationId
+      ? and(
+          eq(project.userId, userId),
+          eq(project.organizationId, organizationId),
+        )
+      : eq(project.userId, userId);
+  return activeProjectWhere(scope);
 }
 
 export async function resolveOrgContext(auth: SessionLike) {
@@ -90,7 +92,11 @@ export async function attachProjectToOrganization(
   await db
     .update(project)
     .set({ organizationId })
-    .where(and(eq(project.id, projectId), isNull(project.organizationId)));
+    .where(
+      activeProjectWhere(
+        and(eq(project.id, projectId), isNull(project.organizationId)),
+      ),
+    );
 }
 
 export async function assertProjectAccess(
@@ -103,10 +109,11 @@ export async function assertProjectAccess(
       .select({ id: project.id })
       .from(project)
       .where(
-        and(
-          eq(project.id, projectId),
-          eq(project.organizationId, organizationId),
-          isNull(project.deletedAt),
+        activeProjectWhere(
+          and(
+            eq(project.id, projectId),
+            eq(project.organizationId, organizationId),
+          ),
         ),
       )
       .limit(1);
@@ -122,9 +129,11 @@ export async function assertProjectAccess(
       .select({ role: member.role })
       .from(member)
       .where(
-        and(
-          eq(member.organizationId, organizationId),
-          eq(member.userId, userId),
+        activeMemberWhere(
+          and(
+            eq(member.organizationId, organizationId),
+            eq(member.userId, userId),
+          ),
         ),
       )
       .limit(1);
@@ -150,18 +159,15 @@ export async function assertProjectAccess(
     .select({ id: project.id })
     .from(project)
     .where(
-      isOrganizationsEnabled() && organizationId
-        ? and(
-            eq(project.id, projectId),
-            eq(project.userId, userId),
-            eq(project.organizationId, organizationId),
-            isNull(project.deletedAt),
-          )
-        : and(
-            eq(project.id, projectId),
-            eq(project.userId, userId),
-            isNull(project.deletedAt),
-          ),
+      activeProjectWhere(
+        isOrganizationsEnabled() && organizationId
+          ? and(
+              eq(project.id, projectId),
+              eq(project.userId, userId),
+              eq(project.organizationId, organizationId),
+            )
+          : and(eq(project.id, projectId), eq(project.userId, userId)),
+      ),
     )
     .limit(1);
 

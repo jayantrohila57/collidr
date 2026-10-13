@@ -6,7 +6,8 @@
   "exports": {
     "./server": "./src/server.ts",
     "./web": "./src/web.ts",
-    "./organizations": "./src/organizations.ts"
+    "./organizations": "./src/organizations.ts",
+    "./soft-deletes": "./src/soft-deletes.ts"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.1",

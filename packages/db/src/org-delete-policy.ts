@@ -2,6 +2,7 @@ import { count, eq } from "drizzle-orm";
 import { db } from "./index";
 import { member } from "./schema/organization";
 import { project } from "./schema/projects";
+import { activeMemberWhere, activeProjectWhere } from "./soft-delete";
 
 function parseMetadata(
   metadata: string | Record<string, unknown> | null | undefined,
@@ -33,7 +34,7 @@ export async function assertOrganizationCanBeDeleted(
   const [{ value: membershipCount }] = await db
     .select({ value: count() })
     .from(member)
-    .where(eq(member.userId, userId));
+    .where(activeMemberWhere(eq(member.userId, userId)));
 
   if ((membershipCount ?? 0) <= 1) {
     throw new Error(
@@ -44,7 +45,7 @@ export async function assertOrganizationCanBeDeleted(
   const [{ value: projectCount }] = await db
     .select({ value: count() })
     .from(project)
-    .where(eq(project.organizationId, org.id));
+    .where(activeProjectWhere(eq(project.organizationId, org.id)));
 
   if ((projectCount ?? 0) > 0) {
     throw new Error(

@@ -1,4 +1,4 @@
-import { db } from "@env-manager/db";
+import { activeProjectWhere, db } from "@env-manager/db";
 import { project } from "@env-manager/db/schema/projects";
 import { eq } from "drizzle-orm";
 
@@ -32,7 +32,7 @@ export async function ensureUniqueProjectSlug(
     const existing = await db
       .select({ id: project.id })
       .from(project)
-      .where(eq(project.slug, candidate))
+      .where(activeProjectWhere(eq(project.slug, candidate)))
       .limit(1);
 
     const taken = existing[0];

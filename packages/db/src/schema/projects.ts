@@ -1,21 +1,21 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   index,
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { organization } from "./organization";
-
 export const project = pgTable(
   "project",
   {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
-    slug: varchar("slug", { length: 255 }).notNull().unique(),
+    slug: varchar("slug", { length: 255 }).notNull(),
     description: text("description"),
     isArchived: boolean("is_archived").default(false).notNull(),
     isPublic: boolean("is_public").default(false).notNull(),
@@ -44,6 +44,9 @@ export const project = pgTable(
     }),
   },
   (table) => [
+    uniqueIndex("project_slug_active_uidx")
+      .on(table.slug)
+      .where(sql`${table.deletedAt} IS NULL`),
     index("project_userId_idx").on(table.userId),
     index("project_slug_idx").on(table.slug),
     index("project_status_idx").on(table.status),
@@ -82,6 +85,9 @@ export const environment = pgTable(
     }),
   },
   (table) => [
+    uniqueIndex("environment_project_slug_active_uidx")
+      .on(table.projectId, table.slug)
+      .where(sql`${table.deletedAt} IS NULL`),
     index("environment_projectId_idx").on(table.projectId),
     index("environment_slug_idx").on(table.slug),
     index("environment_status_idx").on(table.status),
@@ -109,6 +115,9 @@ export const environmentVariable = pgTable(
     }),
   },
   (table) => [
+    uniqueIndex("environment_variable_env_key_active_uidx")
+      .on(table.environmentId, table.key)
+      .where(sql`${table.deletedAt} IS NULL`),
     index("environment_variable_environmentId_idx").on(table.environmentId),
     index("environment_variable_key_idx").on(table.key),
   ],

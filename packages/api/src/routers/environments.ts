@@ -1,4 +1,10 @@
-import { db } from "@env-manager/db";
+import {
+  activeEnvironmentVariableWhere,
+  activeEnvironmentWhere,
+  activeProjectWhere,
+  db,
+  softDeleteEnvironmentById,
+} from "@env-manager/db";
 import {
   environment,
   environmentVariable,
@@ -36,9 +42,11 @@ export const environmentsRouter = router({
         .select()
         .from(project)
         .where(
-          and(
-            eq(project.id, input.projectId),
-            eq(project.userId, ctx.session.user.id),
+          activeProjectWhere(
+            and(
+              eq(project.id, input.projectId),
+              eq(project.userId, ctx.session.user.id),
+            ),
           ),
         )
         .limit(1);
@@ -50,7 +58,9 @@ export const environmentsRouter = router({
       const environments = await db
         .select()
         .from(environment)
-        .where(eq(environment.projectId, input.projectId))
+        .where(
+          activeEnvironmentWhere(eq(environment.projectId, input.projectId)),
+        )
         .orderBy(environment.name);
 
       return respond({ message: "Environments fetched", data: environments });
@@ -86,9 +96,11 @@ export const environmentsRouter = router({
         .from(environment)
         .innerJoin(project, eq(environment.projectId, project.id))
         .where(
-          and(
-            eq(environment.id, input.id),
-            eq(project.userId, ctx.session.user.id),
+          activeEnvironmentWhere(
+            and(
+              eq(environment.id, input.id),
+              eq(project.userId, ctx.session.user.id),
+            ),
           ),
         )
         .limit(1);
@@ -110,7 +122,11 @@ export const environmentsRouter = router({
           updatedAt: environmentVariable.updatedAt,
         })
         .from(environmentVariable)
-        .where(eq(environmentVariable.environmentId, input.id))
+        .where(
+          activeEnvironmentVariableWhere(
+            eq(environmentVariable.environmentId, input.id),
+          ),
+        )
         .orderBy(environmentVariable.key);
 
       const environmentRecord = environmentData[0];
@@ -138,9 +154,11 @@ export const environmentsRouter = router({
         .select()
         .from(project)
         .where(
-          and(
-            eq(project.id, input.projectId),
-            eq(project.userId, ctx.session.user.id),
+          activeProjectWhere(
+            and(
+              eq(project.id, input.projectId),
+              eq(project.userId, ctx.session.user.id),
+            ),
           ),
         )
         .limit(1);
@@ -156,9 +174,11 @@ export const environmentsRouter = router({
         .select({ id: environment.id })
         .from(environment)
         .where(
-          and(
-            eq(environment.projectId, input.projectId),
-            sql`lower(trim(${environment.name})) = lower(${name})`,
+          activeEnvironmentWhere(
+            and(
+              eq(environment.projectId, input.projectId),
+              sql`lower(trim(${environment.name})) = lower(${name})`,
+            ),
           ),
         )
         .limit(1);
@@ -219,9 +239,11 @@ export const environmentsRouter = router({
         .from(environment)
         .innerJoin(project, eq(environment.projectId, project.id))
         .where(
-          and(
-            eq(environment.id, input.id),
-            eq(project.userId, ctx.session.user.id),
+          activeEnvironmentWhere(
+            and(
+              eq(environment.id, input.id),
+              eq(project.userId, ctx.session.user.id),
+            ),
           ),
         )
         .limit(1);
@@ -242,10 +264,12 @@ export const environmentsRouter = router({
           .select({ id: environment.id })
           .from(environment)
           .where(
-            and(
-              eq(environment.projectId, existing.projectId),
-              sql`lower(trim(${environment.name})) = lower(${name})`,
-              ne(environment.id, input.id),
+            activeEnvironmentWhere(
+              and(
+                eq(environment.projectId, existing.projectId),
+                sql`lower(trim(${environment.name})) = lower(${name})`,
+                ne(environment.id, input.id),
+              ),
             ),
           )
           .limit(1);
@@ -309,9 +333,11 @@ export const environmentsRouter = router({
         .from(environment)
         .innerJoin(project, eq(environment.projectId, project.id))
         .where(
-          and(
-            eq(environment.id, input.id),
-            eq(project.userId, ctx.session.user.id),
+          activeEnvironmentWhere(
+            and(
+              eq(environment.id, input.id),
+              eq(project.userId, ctx.session.user.id),
+            ),
           ),
         )
         .limit(1);
@@ -323,8 +349,7 @@ export const environmentsRouter = router({
       const envRecord = existingEnvironment[0]?.environment;
       const projectRecord = existingEnvironment[0]?.project;
 
-      // Delete environment (cascade will handle variables)
-      await db.delete(environment).where(eq(environment.id, input.id));
+      await softDeleteEnvironmentById(input.id, ctx.session.user.id);
 
       if (envRecord && projectRecord) {
         await createAuditLog({

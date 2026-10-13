@@ -1,5 +1,11 @@
 import { decrypt, encrypt } from "@env-manager/crypto";
-import { db } from "@env-manager/db";
+import {
+  activeEnvironmentVariableWhere,
+  db,
+  environmentOwnedByUserWhere,
+  softDeleteEnvironmentVariableById,
+  variableOwnedByUserWhere,
+} from "@env-manager/db";
 import {
   environment,
   environmentVariable,
@@ -37,9 +43,9 @@ export const environmentVariablesRouter = router({
         .from(environment)
         .innerJoin(project, eq(environment.projectId, project.id))
         .where(
-          and(
+          environmentOwnedByUserWhere(
+            ctx.session.user.id,
             eq(environment.id, input.environmentId),
-            eq(project.userId, ctx.session.user.id),
           ),
         )
         .limit(1);
@@ -57,7 +63,11 @@ export const environmentVariablesRouter = router({
           updatedAt: environmentVariable.updatedAt,
         })
         .from(environmentVariable)
-        .where(eq(environmentVariable.environmentId, input.environmentId))
+        .where(
+          activeEnvironmentVariableWhere(
+            eq(environmentVariable.environmentId, input.environmentId),
+          ),
+        )
         .orderBy(environmentVariable.key);
 
       return respond({ message: "Variables fetched", data: variables });
@@ -80,9 +90,9 @@ export const environmentVariablesRouter = router({
         .from(environment)
         .innerJoin(project, eq(environment.projectId, project.id))
         .where(
-          and(
+          environmentOwnedByUserWhere(
+            ctx.session.user.id,
             inArray(environment.id, input.environmentIds),
-            eq(project.userId, ctx.session.user.id),
           ),
         );
 
@@ -97,7 +107,11 @@ export const environmentVariablesRouter = router({
           total: count(),
         })
         .from(environmentVariable)
-        .where(inArray(environmentVariable.environmentId, allowedIds))
+        .where(
+          activeEnvironmentVariableWhere(
+            inArray(environmentVariable.environmentId, allowedIds),
+          ),
+        )
         .groupBy(environmentVariable.environmentId);
 
       const data: Record<string, number> = {};
@@ -132,9 +146,9 @@ export const environmentVariablesRouter = router({
         )
         .innerJoin(project, eq(environment.projectId, project.id))
         .where(
-          and(
+          variableOwnedByUserWhere(
+            ctx.session.user.id,
             eq(environmentVariable.id, input.id),
-            eq(project.userId, ctx.session.user.id),
           ),
         )
         .limit(1);
@@ -164,9 +178,9 @@ export const environmentVariablesRouter = router({
         .from(environment)
         .innerJoin(project, eq(environment.projectId, project.id))
         .where(
-          and(
+          environmentOwnedByUserWhere(
+            ctx.session.user.id,
             eq(environment.id, input.environmentId),
-            eq(project.userId, ctx.session.user.id),
           ),
         )
         .limit(1);
@@ -181,9 +195,11 @@ export const environmentVariablesRouter = router({
         .select({ id: environmentVariable.id })
         .from(environmentVariable)
         .where(
-          and(
-            eq(environmentVariable.environmentId, input.environmentId),
-            eq(environmentVariable.key, normalizedKey),
+          activeEnvironmentVariableWhere(
+            and(
+              eq(environmentVariable.environmentId, input.environmentId),
+              eq(environmentVariable.key, normalizedKey),
+            ),
           ),
         )
         .limit(1);
@@ -256,9 +272,9 @@ export const environmentVariablesRouter = router({
         )
         .innerJoin(project, eq(environment.projectId, project.id))
         .where(
-          and(
+          variableOwnedByUserWhere(
+            ctx.session.user.id,
             eq(environmentVariable.id, input.id),
-            eq(project.userId, ctx.session.user.id),
           ),
         )
         .limit(1);
@@ -284,9 +300,14 @@ export const environmentVariablesRouter = router({
           .select({ id: environmentVariable.id })
           .from(environmentVariable)
           .where(
-            and(
-              eq(environmentVariable.environmentId, existingVar.environmentId),
-              eq(environmentVariable.key, normalizedKey),
+            activeEnvironmentVariableWhere(
+              and(
+                eq(
+                  environmentVariable.environmentId,
+                  existingVar.environmentId,
+                ),
+                eq(environmentVariable.key, normalizedKey),
+              ),
             ),
           )
           .limit(1);
@@ -360,9 +381,9 @@ export const environmentVariablesRouter = router({
         )
         .innerJoin(project, eq(environment.projectId, project.id))
         .where(
-          and(
+          variableOwnedByUserWhere(
+            ctx.session.user.id,
             eq(environmentVariable.id, input.id),
-            eq(project.userId, ctx.session.user.id),
           ),
         )
         .limit(1);
@@ -395,9 +416,7 @@ export const environmentVariablesRouter = router({
         });
       }
 
-      await db
-        .delete(environmentVariable)
-        .where(eq(environmentVariable.id, input.id));
+      await softDeleteEnvironmentVariableById(input.id, ctx.session.user.id);
 
       return { success: true };
     }),
@@ -413,9 +432,9 @@ export const environmentVariablesRouter = router({
         .from(environment)
         .innerJoin(project, eq(environment.projectId, project.id))
         .where(
-          and(
+          environmentOwnedByUserWhere(
+            ctx.session.user.id,
             eq(environment.id, input.environmentId),
-            eq(project.userId, ctx.session.user.id),
           ),
         )
         .limit(1);
@@ -434,7 +453,11 @@ export const environmentVariablesRouter = router({
           key: environmentVariable.key,
         })
         .from(environmentVariable)
-        .where(eq(environmentVariable.environmentId, input.environmentId));
+        .where(
+          activeEnvironmentVariableWhere(
+            eq(environmentVariable.environmentId, input.environmentId),
+          ),
+        );
 
       const existingKeyMap = new Map(existingVars.map((v) => [v.key, v.id]));
 
@@ -500,9 +523,9 @@ export const environmentVariablesRouter = router({
         .from(environment)
         .innerJoin(project, eq(environment.projectId, project.id))
         .where(
-          and(
+          environmentOwnedByUserWhere(
+            ctx.session.user.id,
             eq(environment.id, input.environmentId),
-            eq(project.userId, ctx.session.user.id),
           ),
         )
         .limit(1);
@@ -517,7 +540,11 @@ export const environmentVariablesRouter = router({
           encryptedValue: environmentVariable.encryptedValue,
         })
         .from(environmentVariable)
-        .where(eq(environmentVariable.environmentId, input.environmentId))
+        .where(
+          activeEnvironmentVariableWhere(
+            eq(environmentVariable.environmentId, input.environmentId),
+          ),
+        )
         .orderBy(environmentVariable.key);
 
       // Format as .env file (KEY=value with proper escaping)
