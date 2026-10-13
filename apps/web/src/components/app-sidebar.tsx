@@ -68,6 +68,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const menuItems = actionsAudit
     ? platformNav
         .filter((item) => {
+          // Settings lives in SidebarFooter only (#79).
+          if (item.href === "/dashboard/settings") {
+            return false;
+          }
           if (
             item.href === "/dashboard/notifications" &&
             !notificationsEnabled
@@ -188,29 +192,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     </SidebarMenuItem>
                   ))
                 : menuItems.map((item) => {
-                const Icon = item.icon;
-                const badge =
-                  "badge" in item && typeof item.badge === "number"
-                    ? item.badge
-                    : 0;
-                return (
-                  <SidebarMenuItem key={item.href} className="relative">
-                    <SidebarMenuButton
-                      isActive={isActive(item.href)}
-                      tooltip={item.label}
-                      render={<Link href={item.href as Route} />}
-                    >
-                      <Icon />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                    {badge > 0 ? (
-                      <SidebarMenuBadge className="bg-destructive text-destructive-foreground">
-                        {badge > 99 ? "99+" : badge}
-                      </SidebarMenuBadge>
-                    ) : null}
-                  </SidebarMenuItem>
-                );
-              })}
+                    const Icon = item.icon;
+                    const badge =
+                      "badge" in item && typeof item.badge === "number"
+                        ? item.badge
+                        : 0;
+                    return (
+                      <SidebarMenuItem key={item.href} className="relative">
+                        <SidebarMenuButton
+                          isActive={isActive(item.href)}
+                          tooltip={item.label}
+                          render={<Link href={item.href as Route} />}
+                        >
+                          <Icon />
+                          <span>{item.label}</span>
+                        </SidebarMenuButton>
+                        {badge > 0 ? (
+                          <SidebarMenuBadge className="bg-destructive text-destructive-foreground">
+                            {badge > 99 ? "99+" : badge}
+                          </SidebarMenuBadge>
+                        ) : null}
+                      </SidebarMenuItem>
+                    );
+                  })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

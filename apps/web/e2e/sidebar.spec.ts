@@ -26,6 +26,16 @@ test.describe("app sidebar", () => {
     const footer = page.locator('[data-slot="sidebar-footer"]');
     await expect(footer.getByRole("link", { name: "Settings" })).toBeVisible();
     await expect(
+      page.locator('[data-slot="sidebar"]').getByRole("link", {
+        name: "Settings",
+      }),
+    ).toHaveCount(1);
+    await expect(
+      page
+        .locator('[data-slot="collapsible-trigger"]')
+        .filter({ hasText: "Projects" }),
+    ).toBeVisible();
+    await expect(
       footer.getByRole("button", { name: "Switch organization" }),
     ).toHaveCount(0);
     const orgSwitcher = header.getByRole("button", {

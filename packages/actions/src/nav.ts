@@ -24,5 +24,11 @@ export const platformNav: NavItem[] = [
     label: "Notifications",
     action: "notification.list",
   },
-  { href: "/dashboard/settings", label: "Settings", action: "profile.view" },
 ];
+
+/** Account settings — rendered in app sidebar footer, not `platformNav`. */
+export const sidebarFooterNav: NavItem = {
+  href: "/dashboard/settings",
+  label: "Settings",
+  action: "profile.view",
+};
