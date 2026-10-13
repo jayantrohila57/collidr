@@ -32,4 +32,13 @@ describe("evaluatePermission", () => {
     });
     assert.equal(result.allowed, true);
   });
+
+  it("allows notification.mark_unread for any signed-in user", () => {
+    const result = evaluatePermission({
+      action: "notification.mark_unread",
+      orgRole: null,
+      project: null,
+    });
+    assert.equal(result.allowed, true);
+  });
 });

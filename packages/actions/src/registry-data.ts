@@ -486,6 +486,13 @@ const rows: MatrixRow[] = [
     entityType: "notification",
   },
   {
+    name: "notification.mark_unread",
+    scope: "user",
+    description: "Mark notification unread",
+    selfOnly: true,
+    entityType: "notification",
+  },
+  {
     name: "profile.view",
     scope: "user",
     description: "View profile settings",

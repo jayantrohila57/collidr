@@ -430,6 +430,7 @@ Legend:
 | `audit.timeline.view.self` | Y | Y | Y | Y |
 | `notification.list` | Y | Y | Y | Y |
 | `notification.mark_read` | Y | Y | Y | Y |
+| `notification.mark_unread` | Y | Y | Y | Y |
 | `profile.view` | Y | Y | Y | Y |
 | `profile.update` | Y | Y | Y | Y |
 | `session.list` | Y | Y | Y | Y |

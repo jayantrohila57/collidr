@@ -199,7 +199,7 @@ export const notificationsRouter = router({
     }),
 
   markUnread: protectedProcedure
-    .use(actionGuard("notification.mark_read"))
+    .use(actionGuard("notification.mark_unread"))
     .input(z.object({ id: z.string() }))
     .output(makeResponseSchema(z.boolean()))
     .mutation(async ({ ctx, input }) => {
