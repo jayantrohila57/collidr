@@ -1,16 +1,18 @@
+import { sessionUserIsPlatformAdmin } from "@env-manager/actions/platform-admin-flag";
 import {
   isPostgresMissingColumnError,
   logSchemaOutOfDateOnce,
 } from "@env-manager/db/postgres-errors";
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import { initTRPC, TRPCError } from "@trpc/server";
-
+import { assertConsoleOperator } from "./console-access";
 import type { Context } from "./context";
 import { getFriendlyErrorMessage } from "./errors";
 import {
   getActiveOrganizationId,
   requireActiveOrganization,
 } from "./org-access";
+import { runWithPlatformAdminContext } from "./platform-admin-context";
 
 export const t = initTRPC.context<Context>().create({
   errorFormatter({ shape, error }) {
@@ -49,12 +51,22 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
       cause: "No session",
     });
   }
-  return next({
-    ctx: {
-      ...ctx,
-      session: ctx.session,
-    },
-  });
+  const session = ctx.session;
+  const platformAdmin = sessionUserIsPlatformAdmin(session.user);
+  return runWithPlatformAdminContext(platformAdmin, () =>
+    next({
+      ctx: {
+        session,
+        platformAdmin,
+      },
+    }),
+  );
+});
+
+/** Platform console operator — Admin role + `CONSOLE_ALLOWED_EMAILS` (Decision 11). */
+export const consoleProcedure = protectedProcedure.use(({ ctx, next }) => {
+  assertConsoleOperator(ctx.session);
+  return next({ ctx });
 });
 
 /** When orgs are enabled, requires an active organization on the session. */

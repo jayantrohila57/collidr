@@ -1,9 +1,11 @@
 const DEFAULT_AUTH_URL = "https://auth-env-manager.vercel.app";
 const DEFAULT_STUDIO_URL = "https://studio-env-manager.vercel.app";
+const DEFAULT_CONSOLE_URL = "https://console-env-manager.vercel.app";
 
 export type PlatformUrlEnv = {
   authUrl?: string;
   studioUrl?: string;
+  consoleUrl?: string;
 };
 
 function trimTrailingSlash(url: string): string {
@@ -22,6 +24,15 @@ export function defaultStudioReturnTo(env: PlatformUrlEnv = {}): string {
  * Auth app sign-in URL with allowlisted `return_to` (Decision 4, PLAN §5).
  * Until `apps/auth` ships, the same path works on the legacy web host.
  */
+export function defaultConsoleReturnTo(env: PlatformUrlEnv = {}): string {
+  const consoleOrigin = trimTrailingSlash(
+    env.consoleUrl ??
+      process.env.NEXT_PUBLIC_CONSOLE_URL ??
+      DEFAULT_CONSOLE_URL,
+  );
+  return `${consoleOrigin}/dashboard`;
+}
+
 export function buildSignInUrl(
   options: PlatformUrlEnv & { returnTo?: string } = {},
 ): string {

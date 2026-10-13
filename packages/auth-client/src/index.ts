@@ -3,3 +3,7 @@ export {
   type CreateEnvManagerAuthClientOptions,
   createEnvManagerAuthClient,
 } from "./create-auth-client";
+export {
+  EnvManagerImpersonationBanner,
+  getImpersonatedByUserId,
+} from "./impersonation-banner";

@@ -16,6 +16,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { organization } from "better-auth/plugins";
+import { admin } from "better-auth/plugins/admin";
 import { eq } from "drizzle-orm";
 import { writeAuthAuditEvent } from "./audit-event";
 import { resolveDefaultActiveOrganizationId } from "./bootstrap-active-organization";
@@ -112,6 +113,10 @@ export const auth = betterAuth({
   },
   plugins: [
     nextCookies(),
+    admin({
+      defaultRole: "user",
+      adminRoles: ["admin"],
+    }),
     ...(isOrganizationsEnabled()
       ? [
           organization({

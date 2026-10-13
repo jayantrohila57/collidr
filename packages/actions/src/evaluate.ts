@@ -1,4 +1,5 @@
 import { isOrgRoleAtLeast, normalizeOrgRole } from "./org-roles";
+import { isPlatformAdminFlag } from "./platform-admin-flag";
 import { getActionDefinition } from "./registry";
 import type { ActionName, OrgRole } from "./types";
 
@@ -20,7 +21,7 @@ export type EvaluatePermissionResult =
   | { allowed: false; reason: string };
 
 export function isPlatformAdmin(): boolean {
-  return false;
+  return isPlatformAdminFlag();
 }
 
 export function evaluatePermission(

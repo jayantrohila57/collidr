@@ -1,6 +1,6 @@
 "use client";
 
-import { ImpersonationBanner } from "@env-manager/ui/patterns/impersonation-banner";
+import { EnvManagerImpersonationBanner } from "@env-manager/auth-client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { OfflineBanner } from "@/components/patterns/offline-banner";
 import { SkipLink } from "@/components/patterns/skip-link";
 import { DirectionProvider } from "@/components/ui/direction";
 import { ToastProvider } from "@/components/ui/toast";
+import { authClient } from "@/lib/auth-client";
 import {
   getClientErrorMessage,
   isBenignClientError,
@@ -50,7 +51,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           >
             <ToastProvider position="bottom-left">
               <SkipLink />
-              <ImpersonationBanner />
+              <EnvManagerImpersonationBanner authClient={authClient} />
               <OfflineBanner />
               {children}
               <ReactQueryDevtools />

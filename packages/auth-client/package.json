@@ -7,10 +7,12 @@
     "check-types": "tsc --noEmit"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./impersonation-banner": "./src/impersonation-banner.tsx"
   },
   "dependencies": {
     "@env-manager/actions": "workspace:*",
+    "@env-manager/ui": "workspace:*",
     "better-auth": "catalog:"
   },
   "devDependencies": {

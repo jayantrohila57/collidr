@@ -5,8 +5,8 @@ import {
   layoutGapClass,
   layoutGutterClass,
   layoutRowClass,
-} from "@/lib/layout-spacing";
-import { cn } from "@/lib/utils";
+} from "../lib/layout-spacing";
+import { cn } from "../lib/utils";
 
 export type ImpersonationBannerProps = {
   /** When set, the banner is shown (admin impersonation session). */

@@ -13,7 +13,9 @@
     "SOFT_DELETES_ENABLED",
     "NEXT_PUBLIC_AUTH_URL",
     "NEXT_PUBLIC_STUDIO_URL",
-    "NEXT_PUBLIC_WWW_URL"
+    "NEXT_PUBLIC_WWW_URL",
+    "NEXT_PUBLIC_CONSOLE_URL",
+    "CONSOLE_ALLOWED_EMAILS"
   ],
   "tasks": {
     "build": {
@@ -43,7 +45,9 @@
         "E2E_TEST_SECRET",
         "NEXT_PUBLIC_AUTH_URL",
         "NEXT_PUBLIC_STUDIO_URL",
-        "NEXT_PUBLIC_WWW_URL"
+        "NEXT_PUBLIC_WWW_URL",
+        "NEXT_PUBLIC_CONSOLE_URL",
+        "CONSOLE_ALLOWED_EMAILS"
       ]
     },
     "lint": {

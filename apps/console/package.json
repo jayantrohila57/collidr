@@ -1,0 +1,41 @@
+{
+  "name": "console",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3003",
+    "build": "next build",
+    "start": "next start --port 3003",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@env-manager/api": "workspace:*",
+    "@env-manager/db": "workspace:*",
+    "@env-manager/auth": "workspace:*",
+    "@env-manager/auth-client": "workspace:*",
+    "@env-manager/env": "workspace:*",
+    "@env-manager/ui": "workspace:*",
+    "@tanstack/react-query": "^5.90.19",
+    "@trpc/client": "catalog:",
+    "@trpc/server": "catalog:",
+    "@trpc/tanstack-react-query": "^11.8.1",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "better-auth": "catalog:",
+    "lucide-react": "^0.546.0",
+    "next": "catalog:",
+    "next-themes": "^0.4.6",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "superjson": "^2.2.6",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@env-manager/config": "workspace:*",
+    "@tailwindcss/postcss": "^4.1.10",
+    "@types/node": "^20",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "tailwindcss": "^4.1.10",
+    "typescript": "catalog:"
+  }
+}

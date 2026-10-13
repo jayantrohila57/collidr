@@ -1,0 +1,29 @@
+"use client";
+
+import { EnvManagerImpersonationBanner } from "@env-manager/auth-client";
+import { ThemeProvider } from "@env-manager/ui/theme-provider";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
+import { authClient } from "@/lib/auth-client";
+import { createTrpcClient, getQueryClient, TRPCProvider } from "@/utils/trpc";
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(() => getQueryClient());
+  const [trpcClient] = useState(() => createTrpcClient());
+
+  return (
+    <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <EnvManagerImpersonationBanner authClient={authClient} />
+          {children}
+        </ThemeProvider>
+      </QueryClientProvider>
+    </TRPCProvider>
+  );
+}

@@ -15,6 +15,7 @@
     "dev:web": "turbo -F web dev",
     "dev:www": "turbo -F www dev",
     "dev:docs": "turbo -F docs dev",
+    "dev:console": "turbo -F console dev",
     "db:push": "turbo -F @env-manager/db db:push",
     "db:studio": "turbo -F @env-manager/db db:studio",
     "db:generate": "turbo -F @env-manager/db db:generate",
