@@ -1,3 +1,7 @@
+import {
+  isPostgresMissingColumnError,
+  logSchemaOutOfDateOnce,
+} from "@env-manager/db/postgres-errors";
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import { initTRPC, TRPCError } from "@trpc/server";
 
@@ -16,7 +20,10 @@ export const t = initTRPC.context<Context>().create({
       shape.message ? new Error(shape.message) : null,
       fromCause,
     );
-    if (fromShape !== shape.message) {
+    const root = error.cause ?? error;
+    if (isPostgresMissingColumnError(root)) {
+      logSchemaOutOfDateOnce(root, "tRPC errorFormatter");
+    } else if (fromShape !== shape.message) {
       console.error("[tRPC] Sanitized error for client:", {
         code: shape.code,
         clientMessage: fromShape,
