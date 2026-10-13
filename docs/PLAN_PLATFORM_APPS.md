@@ -353,7 +353,7 @@ Each app’s tRPC context / middleware:
 | **`@env-manager/auth`** | extend | `createAuth()` — **only imported by `apps/auth`** |
 | **`@env-manager/auth-client`** | **new** | `createAuthClient({ baseURL })`, React hooks, org client plugin |
 | **`@env-manager/api`** | extend | Shared `appRouter` / sub-routers + `services/*` for tRPC and MCP; each app mounts a **subset** at `/api/trpc` (Decision 16) |
-| **`@env-manager/ui`** | **new** | coss components, toast, icons, patterns (`PageHeader`, data-table) from `apps/web` |
+| **`@env-manager/ui`** | **new** | coss components, toast, icons, patterns (`PageHeader`, data-table) from `apps/web`; **impersonation banner** (Decision 19) |
 | **`@env-manager/docs-config`** | optional | Shared MDX components for docs + studio help links |
 
 **Turbo:** `globalEnv` adds `NEXT_PUBLIC_AUTH_URL`, `NEXT_PUBLIC_STUDIO_URL`, etc.
@@ -675,6 +675,17 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 **Implication:** One canonical URL namespace for trust-sensitive email links; product hostnames stay out of transactional mail footers except as post-auth redirect targets.
 
+### Decision 19 — Impersonation banner (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Visibility** | When Better Auth **admin impersonation** is active, show a persistent **impersonation banner** in **every UI app** — `apps/auth` (consent/sign-in shells), `apps/studio`, `apps/account`, `apps/console`, and `apps/docs` (when a session exists). |
+| **Excluded** | `apps/mcp` is API-only (no banner); banner is not console-only. |
+| **Implementation** | Shared component in **`@env-manager/ui`** (or equivalent) driven by session/admin plugin state; include **exit impersonation** action wired to auth API. |
+| **UX** | High-contrast, non-dismissible while impersonating; must not be hidden behind collapsible chrome. |
+
+**Implication:** Operators cannot impersonate from console and lose context on navigation to studio/account; users always see when a session is impersonated.
+
 ---
 
 ## 15. Open decisions (numbered)
@@ -682,8 +693,7 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 1. **Cookie domain** (custom apex) — `env-manager.com` vs `.env-manager.com` vs per-subdomain only?
 2. **Auth proxy vs cookie-only** (custom apex) — rewrites on every sibling app or only `crossSubDomainCookies`?
 3. **Marketing site** — `www` → docs, studio landing, or separate?
-4. **Impersonation banner** — show on studio, account, or all apps?
-5. **Better Auth upgrade** — before P2 or as part of P2?
+4. **Better Auth upgrade** — before P2 or as part of P2?
 
 ---
 
