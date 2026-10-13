@@ -36,6 +36,13 @@ export default function ConsoleUserDetailPage() {
     },
   });
 
+  const setSupportManager = useMutation({
+    ...trpc.platform.setSupportManager.mutationOptions(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries();
+    },
+  });
+
   const revokeSession = useMutation({
     ...trpc.platform.revokeSession.mutationOptions(),
     onSuccess: async () => {
@@ -125,6 +132,23 @@ export default function ConsoleUserDetailPage() {
             type="button"
             variant="outline"
             size="sm"
+            disabled={!user || setSupportManager.isPending}
+            onClick={() =>
+              user &&
+              setSupportManager.mutate({
+                userId: user.id,
+                granted: !user.isSupportManager,
+              })
+            }
+          >
+            {user?.isSupportManager
+              ? "Revoke support manager"
+              : "Grant support manager"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
             disabled={!user}
             onClick={() =>
               user && authClient.admin.impersonateUser({ userId: user.id })
@@ -172,6 +196,16 @@ export default function ConsoleUserDetailPage() {
             <div>
               <span className="text-muted-foreground">Role</span>
               <p className="font-mono text-xs">{user.role}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Support manager</span>
+              <p>
+                {user.isSupportManager ? (
+                  <Badge variant="secondary">Yes</Badge>
+                ) : (
+                  <Badge variant="outline">No</Badge>
+                )}
+              </p>
             </div>
             <div>
               <span className="text-muted-foreground">Status</span>

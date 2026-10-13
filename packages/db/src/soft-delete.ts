@@ -7,6 +7,11 @@ import { user } from "./schema/auth";
 import { notification } from "./schema/notifications";
 import { invitation, member, organization } from "./schema/organization";
 import { environment, environmentVariable, project } from "./schema/projects";
+import {
+  supportFaqArticle,
+  supportTicket,
+  supportTicketMessage,
+} from "./schema/support";
 
 export function notDeleted(deletedAtColumn: PgColumn): SQL | undefined {
   if (!isSoftDeletesEnabled()) {
@@ -45,6 +50,18 @@ export function activeUserWhere(extra?: SQL): SQL {
 
 export function activeNotificationWhere(extra?: SQL): SQL {
   return mergeAnd(extra, notDeleted(notification.deletedAt)) ?? extra!;
+}
+
+export function activeSupportTicketWhere(extra?: SQL): SQL {
+  return mergeAnd(extra, notDeleted(supportTicket.deletedAt)) ?? extra!;
+}
+
+export function activeSupportTicketMessageWhere(extra?: SQL): SQL {
+  return mergeAnd(extra, notDeleted(supportTicketMessage.deletedAt)) ?? extra!;
+}
+
+export function activeSupportFaqArticleWhere(extra?: SQL): SQL {
+  return mergeAnd(extra, notDeleted(supportFaqArticle.deletedAt)) ?? extra!;
 }
 
 /** Use with `environment` inner-joined to `project`. */

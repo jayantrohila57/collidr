@@ -30,3 +30,21 @@ export async function assertPlatformSetRole(
     });
   }
 }
+
+export async function assertPlatformSupportManagerChange(
+  operatorUserId: string,
+  targetUserId: string,
+  grant: boolean,
+): Promise<void> {
+  if (isActionsAuditEnabled()) {
+    await requireAction(
+      grant
+        ? "platform.support.grant_manager"
+        : "platform.support.revoke_manager",
+      {
+        userId: operatorUserId,
+        targetUserId,
+      },
+    );
+  }
+}

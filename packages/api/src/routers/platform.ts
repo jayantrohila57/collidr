@@ -8,6 +8,7 @@ import { auditEvent } from "@env-manager/db/schema/audit-event";
 import { session, user } from "@env-manager/db/schema/auth";
 import { member, organization } from "@env-manager/db/schema/organization";
 import { project } from "@env-manager/db/schema/projects";
+import { platformSupportManager } from "@env-manager/db/schema/support";
 import { TRPCError } from "@trpc/server";
 import {
   and,
@@ -27,6 +28,7 @@ import { makeResponseSchema, respond } from "../validation";
 import {
   assertPlatformOperatorList,
   assertPlatformSetRole,
+  assertPlatformSupportManagerChange,
   toIsoString,
 } from "./platform-helpers";
 
@@ -211,6 +213,12 @@ export const platformRouter = router({
         .orderBy(desc(session.createdAt))
         .limit(20);
 
+      const [supportRow] = await db
+        .select({ userId: platformSupportManager.userId })
+        .from(platformSupportManager)
+        .where(eq(platformSupportManager.userId, input.userId))
+        .limit(1);
+
       return {
         user: {
           id: row.id,
@@ -220,6 +228,7 @@ export const platformRouter = router({
           banned: row.banned,
           banReason: row.banReason,
           banExpires: row.banExpires ? toIsoString(row.banExpires) : null,
+          isSupportManager: Boolean(supportRow),
           createdAt: toIsoString(row.createdAt),
           updatedAt: toIsoString(row.updatedAt),
         },
@@ -246,6 +255,37 @@ export const platformRouter = router({
         .update(user)
         .set({ role: input.role, updatedAt: new Date() })
         .where(eq(user.id, input.userId));
+
+      return { ok: true as const };
+    }),
+
+  setSupportManager: consoleProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        granted: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await assertPlatformSupportManagerChange(
+        ctx.session.user.id,
+        input.userId,
+        input.granted,
+      );
+
+      if (input.granted) {
+        await db
+          .insert(platformSupportManager)
+          .values({
+            userId: input.userId,
+            grantedBy: ctx.session.user.id,
+          })
+          .onConflictDoNothing();
+      } else {
+        await db
+          .delete(platformSupportManager)
+          .where(eq(platformSupportManager.userId, input.userId));
+      }
 
       return { ok: true as const };
     }),

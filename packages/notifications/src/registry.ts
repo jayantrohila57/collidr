@@ -9,6 +9,7 @@ export type NotificationIconName =
 export const notificationTypes = [
   "invitation.received",
   "invitation.accepted",
+  "support.ticket.reply",
 ] as const;
 
 export type NotificationType = (typeof notificationTypes)[number];
@@ -28,9 +29,16 @@ const invitationAcceptedData = z.object({
   memberUserId: z.string(),
 });
 
+const supportTicketReplyData = z.object({
+  ticketId: z.string(),
+  ticketNumber: z.number().int(),
+  subject: z.string(),
+});
+
 export const notificationDataSchemas: Record<NotificationType, z.ZodTypeAny> = {
   "invitation.received": invitationReceivedData,
   "invitation.accepted": invitationAcceptedData,
+  "support.ticket.reply": supportTicketReplyData,
 };
 
 export type NotificationRenderContext = {
@@ -64,6 +72,15 @@ export const notificationRenderers: Record<
       body: `${data.memberName} joined ${data.organizationName}.`,
       icon: "member",
       href: "/dashboard/settings/organization",
+    };
+  },
+  "support.ticket.reply": (raw) => {
+    const data = supportTicketReplyData.parse(raw);
+    return {
+      title: `Reply on ticket #${data.ticketNumber}`,
+      body: data.subject,
+      icon: "organization",
+      href: `/tickets/${data.ticketId}`,
     };
   },
 };

@@ -21,6 +21,7 @@
     "dev:auth": "turbo -F auth dev",
     "dev:studio": "turbo -F studio dev",
     "dev:account": "turbo -F account dev",
+    "dev:support": "turbo -F support dev",
     "db:push": "turbo -F @env-manager/db db:push",
     "db:studio": "turbo -F @env-manager/db db:studio",
     "db:generate": "turbo -F @env-manager/db db:generate",

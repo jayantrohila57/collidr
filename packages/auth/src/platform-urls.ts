@@ -4,26 +4,38 @@ export const DEFAULT_STUDIO_URL = "https://studio-env-manager.vercel.app";
 export const DEFAULT_ACCOUNT_URL = "https://account-env-manager.vercel.app";
 export const DEFAULT_WWW_URL = "https://www-env-manager.vercel.app";
 export const DEFAULT_MCP_URL = "https://mcp-env-manager.vercel.app";
+export const DEFAULT_SUPPORT_URL = "https://support-env-manager.vercel.app";
+export const DEFAULT_CONSOLE_URL = "https://console-env-manager.vercel.app";
 
 export function trimTrailingSlash(url: string): string {
   return url.endsWith("/") ? url.slice(0, -1) : url;
 }
 
 /** Origins allowed for `return_to` and Better Auth `trustedOrigins` (production only). */
-export function getPlatformProductionOrigins(env: {
-  authUrl?: string;
-  studioUrl?: string;
-  accountUrl?: string;
-  wwwUrl?: string;
-  mcpUrl?: string;
-  legacyWebUrl?: string;
-} = {}): string[] {
+export function getPlatformProductionOrigins(
+  env: {
+    authUrl?: string;
+    studioUrl?: string;
+    accountUrl?: string;
+    wwwUrl?: string;
+    mcpUrl?: string;
+    supportUrl?: string;
+    consoleUrl?: string;
+    legacyWebUrl?: string;
+  } = {},
+): string[] {
   const origins = [
     env.authUrl ?? process.env.BETTER_AUTH_URL ?? DEFAULT_AUTH_URL,
     env.studioUrl ?? process.env.NEXT_PUBLIC_STUDIO_URL ?? DEFAULT_STUDIO_URL,
     env.accountUrl ??
       process.env.NEXT_PUBLIC_ACCOUNT_URL ??
       DEFAULT_ACCOUNT_URL,
+    env.consoleUrl ??
+      process.env.NEXT_PUBLIC_CONSOLE_URL ??
+      DEFAULT_CONSOLE_URL,
+    env.supportUrl ??
+      process.env.NEXT_PUBLIC_SUPPORT_URL ??
+      DEFAULT_SUPPORT_URL,
     env.wwwUrl ?? process.env.NEXT_PUBLIC_WWW_URL ?? DEFAULT_WWW_URL,
     env.mcpUrl ?? process.env.NEXT_PUBLIC_MCP_URL ?? DEFAULT_MCP_URL,
     env.legacyWebUrl ?? process.env.CORS_ORIGIN,

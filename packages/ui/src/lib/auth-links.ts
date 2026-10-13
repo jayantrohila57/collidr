@@ -1,12 +1,23 @@
 const DEFAULT_AUTH_URL = "https://auth-env-manager.vercel.app";
 const DEFAULT_STUDIO_URL = "https://studio-env-manager.vercel.app";
 const DEFAULT_CONSOLE_URL = "https://console-env-manager.vercel.app";
+const DEFAULT_SUPPORT_URL = "https://support-env-manager.vercel.app";
 
 export type PlatformUrlEnv = {
   authUrl?: string;
   studioUrl?: string;
   consoleUrl?: string;
+  supportUrl?: string;
 };
+
+export function defaultSupportReturnTo(env: PlatformUrlEnv = {}): string {
+  const supportOrigin = trimTrailingSlash(
+    env.supportUrl ??
+      process.env.NEXT_PUBLIC_SUPPORT_URL ??
+      DEFAULT_SUPPORT_URL,
+  );
+  return `${supportOrigin}/tickets`;
+}
 
 function trimTrailingSlash(url: string): string {
   return url.endsWith("/") ? url.slice(0, -1) : url;
