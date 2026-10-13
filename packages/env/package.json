@@ -15,9 +15,13 @@
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
+  "scripts": {
+    "test": "node --import tsx --test src/encryption-key-schema.test.ts"
+  },
   "devDependencies": {
     "@env-manager/config": "workspace:*",
     "@types/node": "^22.13.14",
+    "tsx": "^4.19.4",
     "typescript": "catalog:"
   }
 }
