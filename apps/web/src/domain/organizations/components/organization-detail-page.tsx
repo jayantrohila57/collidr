@@ -8,6 +8,7 @@ import { ErrorState } from "@/components/patterns/error-state";
 import DashboardSection from "@/components/section-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isPersonalOrganization } from "@/lib/org-personal";
+import { deSlug } from "@/lib/utils";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { OrganizationDetailStats } from "./organization-detail-stats";
 import {
@@ -36,7 +37,9 @@ export default function OrganizationDetailPage({ slug }: { slug: string }) {
   const meta = listItem ?? organization;
   const personal = meta ? isPersonalOrganization(meta) : false;
   const settingsHref = `/dashboard/organizations/${slug}/settings` as Route;
-  const displayName = listItem?.name ?? organization?.name ?? slug;
+  const resolvedName = listItem?.name ?? organization?.name;
+  const displayName =
+    resolvedName ?? (status === "loading" ? deSlug(slug) : slug);
 
   return (
     <DashboardSection

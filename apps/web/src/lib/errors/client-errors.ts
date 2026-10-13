@@ -46,6 +46,15 @@ function tryParseSerializedZodIssues(message: string): string | null {
   return null;
 }
 
+export function isBenignClientError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const name = (error as { name?: string }).name ?? "";
+  if (name === "AbortError" || name === "CancelledError") return true;
+  const message =
+    error instanceof Error ? error.message : String((error as Error).message);
+  return /cancel/i.test(message);
+}
+
 export function isNetworkError(error: unknown): boolean {
   if (!error) return false;
   if (error instanceof TypeError && error.message === "Failed to fetch") {

@@ -7,7 +7,10 @@ import { OfflineBanner } from "@/components/patterns/offline-banner";
 import { SkipLink } from "@/components/patterns/skip-link";
 import { DirectionProvider } from "@/components/ui/direction";
 import { ToastProvider } from "@/components/ui/toast";
-import { getClientErrorMessage } from "@/lib/errors/client-errors";
+import {
+  getClientErrorMessage,
+  isBenignClientError,
+} from "@/lib/errors/client-errors";
 import { toast } from "@/lib/toast";
 import { createTrpcClient, getQueryClient, TRPCProvider } from "@/utils/trpc";
 
@@ -19,6 +22,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const onUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (isBenignClientError(event.reason)) {
+        event.preventDefault();
+        return;
+      }
       event.preventDefault();
       toast.error(
         getClientErrorMessage(event.reason, "An unexpected error occurred."),

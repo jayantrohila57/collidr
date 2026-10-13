@@ -6,6 +6,7 @@ import {
   useActiveOrganization,
 } from "@/components/org/active-organization-context";
 import { authClient } from "@/lib/auth-client";
+import { isBenignClientError } from "@/lib/errors/client-errors";
 
 export type OrganizationDetail = {
   id: string;
@@ -64,6 +65,9 @@ export function useOrganizationBySlug(slug: string) {
       });
       setStatus("success");
     } catch (err) {
+      if (isBenignClientError(err)) {
+        return;
+      }
       setError(err instanceof Error ? err : new Error("Failed to load"));
       setStatus("error");
     }

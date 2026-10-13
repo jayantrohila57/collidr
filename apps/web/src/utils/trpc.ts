@@ -8,6 +8,7 @@ import {
 } from "@trpc/tanstack-react-query";
 import {
   getClientErrorMessage,
+  isBenignClientError,
   isNetworkError,
 } from "@/lib/errors/client-errors";
 import { toast } from "@/lib/toast";
@@ -17,6 +18,7 @@ const makeQueryClient = () =>
     queryCache: new QueryCache({
       onError: (error, query) => {
         if (query.meta?.toastOnError === false) return;
+        if (isBenignClientError(error)) return;
         const message = getClientErrorMessage(
           error,
           "Failed to load data. Please try again.",

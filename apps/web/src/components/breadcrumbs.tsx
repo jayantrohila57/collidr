@@ -4,6 +4,7 @@ import { Home, MoreHorizontal } from "lucide-react";
 import type { Route } from "next";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
+import { useActiveOrganization } from "@/components/org/active-organization-context";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -49,8 +50,8 @@ const SETTINGS_TAB_SEGMENTS = new Set([
   "organization",
 ]);
 
-function formatSegmentLabel(segment: string, projectName?: string) {
-  if (projectName) return projectName;
+function formatSegmentLabel(segment: string, resolvedName?: string) {
+  if (resolvedName) return resolvedName;
   return STATIC_LABELS[segment] ?? deSlug(segment);
 }
 
@@ -68,6 +69,7 @@ function breadcrumbLabel(
   index: number,
   breadcrumbs: ReturnType<typeof generateBreadcrumbs>,
   projectFromList?: { name: string },
+  orgFromList?: { name: string },
   showNotFound?: boolean,
 ) {
   if (showNotFound && index === breadcrumbs.length - 1) {
@@ -86,9 +88,18 @@ function breadcrumbLabel(
     breadcrumbs[1]?.segment === "projects" &&
     !["new", "edit"].includes(breadcrumb.segment);
 
+  const isOrgSlug =
+    index === 2 &&
+    breadcrumbs[1]?.segment === "organizations" &&
+    breadcrumb.segment !== "new";
+
   return formatSegmentLabel(
     breadcrumb.segment,
-    isProjectSlug ? projectFromList?.name : undefined,
+    isProjectSlug
+      ? projectFromList?.name
+      : isOrgSlug
+        ? orgFromList?.name
+        : undefined,
   );
 }
 
@@ -96,6 +107,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const breadcrumbs = generateBreadcrumbs(pathname);
+  const { orgs } = useActiveOrganization();
   const { projects, status: projectsStatus } = useProjects();
   const projectSlugs = new Set(
     projects.map((p) => p.slug).filter((s): s is string => Boolean(s?.trim())),
@@ -113,6 +125,14 @@ export function Breadcrumbs({ className }: { className?: string }) {
     !["new", "edit"].includes(projectSlugFromPath)
       ? projects.find((p) => p.slug === projectSlugFromPath)
       : undefined;
+
+  const orgSlugFromPath =
+    breadcrumbs[1]?.segment === "organizations"
+      ? breadcrumbs[2]?.segment
+      : undefined;
+  const orgFromList = orgSlugFromPath
+    ? orgs.find((o) => o.slug === orgSlugFromPath)
+    : undefined;
 
   const handleBreadcrumbClick = (href: string) => {
     router.push(href as Route);
@@ -175,6 +195,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
                             index,
                             breadcrumbs,
                             projectFromList,
+                            orgFromList,
                             showNotFound,
                           )}
                         </MenuItem>
@@ -194,6 +215,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
                   lastIndex,
                   breadcrumbs,
                   projectFromList,
+                  orgFromList,
                   showNotFound,
                 )}
               </BreadcrumbPage>
@@ -228,6 +250,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
             index,
             breadcrumbs,
             projectFromList,
+            orgFromList,
             showNotFound,
           );
 

@@ -306,11 +306,19 @@ function PageHeaderWithMetadata({
 
   const desktopAreas = hasBack
     ? hasAction
-      ? "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta_action']"
-      : "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta']"
+      ? description
+        ? "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta_action'_'leading_leading-sep_desc_desc_desc_action']"
+        : "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta_action']"
+      : description
+        ? "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta'_'leading_leading-sep_desc_desc_desc']"
+        : "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta']"
     : hasAction
-      ? "md:[grid-template-areas:'title_meta-sep_meta_action']"
-      : "md:[grid-template-areas:'title_meta-sep_meta']";
+      ? description
+        ? "md:[grid-template-areas:'title_meta-sep_meta_action'_'desc_desc_desc_action']"
+        : "md:[grid-template-areas:'title_meta-sep_meta_action']"
+      : description
+        ? "md:[grid-template-areas:'title_meta-sep_meta'_'desc_desc_desc']"
+        : "md:[grid-template-areas:'title_meta-sep_meta']";
 
   return (
     <div
@@ -357,7 +365,7 @@ function PageHeaderWithMetadata({
       {description ? (
         <PageHeaderDescriptionSlot
           description={description}
-          className="[grid-area:desc] md:mt-0.5 md:[grid-area:title]"
+          className="[grid-area:desc]"
         />
       ) : null}
 
