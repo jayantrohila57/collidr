@@ -68,6 +68,10 @@
     "check-types": {
       "dependsOn": ["^check-types"]
     },
+    "test": {
+      "dependsOn": ["^test"],
+      "env": ["SKIP_ENV_VALIDATION", "DATABASE_URL", "DATABASE_URL_POOLED"]
+    },
     "a11y": {
       "dependsOn": ["^a11y"],
       "inputs": ["$TURBO_DEFAULT$", "e2e/**", "playwright.config.ts"],

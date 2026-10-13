@@ -97,7 +97,11 @@
       }
     },
     {
-      "includes": ["apps/web/src/components/ui/**"],
+      "includes": [
+        "apps/web/src/components/ui/**",
+        "apps/studio/src/components/ui/**",
+        "apps/account/src/components/ui/**"
+      ],
       "linter": {
         "rules": {
           "suspicious": {
