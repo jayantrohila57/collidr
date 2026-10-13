@@ -10,6 +10,45 @@ import { z } from "zod/v3";
 import { createAuditLog } from "../audit";
 import { throwFriendlyError } from "../errors";
 import { orgProcedure, router } from "../index";
+import { formatEnvironmentRows } from "../variable-format";
+import { isVariablesV2Enabled } from "../variables-v2";
+
+const baseEnvironmentSelect = {
+  id: environment.id,
+  name: environment.name,
+  slug: environment.slug,
+  branch: environment.branch,
+  deployedUrl: environment.deployedUrl,
+  status: environment.status,
+  isProduction: environment.isProduction,
+  description: environment.description,
+  projectId: environment.projectId,
+  createdAt: environment.createdAt,
+  updatedAt: environment.updatedAt,
+};
+
+async function listProjectEnvironments(projectId: string) {
+  const where = activeEnvironmentWhere(eq(environment.projectId, projectId));
+
+  if (isVariablesV2Enabled()) {
+    return db
+      .select({
+        ...baseEnvironmentSelect,
+        createdById: environment.createdBy,
+        updatedById: environment.updatedBy,
+      })
+      .from(environment)
+      .where(where)
+      .orderBy(environment.name);
+  }
+
+  return db
+    .select(baseEnvironmentSelect)
+    .from(environment)
+    .where(where)
+    .orderBy(environment.name);
+}
+
 import { attachProjectToOrganization, projectListFilter } from "../org-access";
 import { listAccessibleProjectIds, projectIdsFilter } from "../project-list";
 import { assertUniqueProjectName } from "../project-name";
@@ -92,31 +131,18 @@ export const projectsRouter = router({
         )
         .limit(1);
 
-      const environmentsList = await db
-        .select({
-          id: environment.id,
-          name: environment.name,
-          slug: environment.slug,
-          branch: environment.branch,
-          deployedUrl: environment.deployedUrl,
-          status: environment.status,
-          isProduction: environment.isProduction,
-          description: environment.description,
-          projectId: environment.projectId,
-          createdAt: environment.createdAt,
-          updatedAt: environment.updatedAt,
-        })
-        .from(environment)
-        .where(activeEnvironmentWhere(eq(environment.projectId, input.id)))
-        .orderBy(environment.name);
+      const environmentsList = await listProjectEnvironments(input.id);
 
       const projectRecord = projectData[0];
+      const formattedEnvironments = projectRecord
+        ? await formatEnvironmentRows(environmentsList)
+        : [];
 
       return respond({
         message: "Project fetched",
         data: {
           project: projectRecord || null,
-          environments: projectRecord ? environmentsList : [],
+          environments: formattedEnvironments,
         },
       });
     }),
@@ -167,33 +193,18 @@ export const projectsRouter = router({
         });
       }
 
-      const environmentsList = await db
-        .select({
-          id: environment.id,
-          name: environment.name,
-          slug: environment.slug,
-          branch: environment.branch,
-          deployedUrl: environment.deployedUrl,
-          status: environment.status,
-          isProduction: environment.isProduction,
-          description: environment.description,
-          projectId: environment.projectId,
-          createdAt: environment.createdAt,
-          updatedAt: environment.updatedAt,
-        })
-        .from(environment)
-        .where(
-          activeEnvironmentWhere(
-            eq(environment.projectId, projectData[0]?.id || ""),
-          ),
-        )
-        .orderBy(environment.name);
+      const environmentsList = await listProjectEnvironments(
+        projectData[0]?.id || "",
+      );
+
+      const formattedEnvironments =
+        await formatEnvironmentRows(environmentsList);
 
       return respond({
         message: "Project fetched",
         data: {
           project: projectData[0] || null,
-          environments: environmentsList,
+          environments: formattedEnvironments,
         },
       });
     }),

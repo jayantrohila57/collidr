@@ -12,6 +12,10 @@ type VariableOutput = {
   createdAt: string;
   updatedAt: string;
   value?: string;
+  type?: "secret" | "config";
+  note?: string | null;
+  createdBy?: { id: string; name: string; image: string | null } | null;
+  updatedBy?: { id: string; name: string; image: string | null } | null;
 };
 
 interface VariablesQueryResponse {
@@ -182,6 +186,26 @@ export function useVariables(environmentId: string) {
     }),
   );
 
+  const createBatchMutation = useMutation(
+    trpc.environmentVariables.createBatch.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
+      onSuccess: async (_result, input) => {
+        await Promise.all(
+          input.environmentIds.map((id) =>
+            queryClient.invalidateQueries({
+              queryKey: trpc.environmentVariables.list.queryKey({
+                environmentId: id,
+              }),
+            }),
+          ),
+        );
+        await queryClient.invalidateQueries({
+          queryKey: trpc.environmentVariables.countsByEnvironment.queryKey(),
+        });
+      },
+    }),
+  );
+
   const bulkImportMutation = useMutation(
     trpc.environmentVariables.bulkImport.mutationOptions({
       meta: { skipGlobalErrorToast: true },
@@ -318,7 +342,14 @@ export function useVariables(environmentId: string) {
         loading: "Adding variable…",
         success: "Variable added",
       }),
-    isCreating: createMutation.isPending,
+    createVariablesBatch: (
+      input: Parameters<typeof createBatchMutation.mutateAsync>[0],
+    ) =>
+      toast.promise(createBatchMutation.mutateAsync(input), {
+        loading: "Saving variables…",
+        success: "Variables saved",
+      }),
+    isCreating: createMutation.isPending || createBatchMutation.isPending,
     updateVariable: (input: Parameters<typeof updateMutation.mutateAsync>[0]) =>
       actionToast(updateMutation.mutateAsync(input), {
         loading: "Saving variable…",

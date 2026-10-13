@@ -11,6 +11,8 @@ import {
   FormSheetPopup,
 } from "@/components/patterns/form-sheet";
 import { GuardedSheet } from "@/components/patterns/guarded-sheet";
+import type { ProvenanceUser } from "@/components/patterns/provenance-attribution";
+import { ProvenanceDetail } from "@/components/patterns/provenance-attribution";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
@@ -21,10 +23,15 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { isVariablesV2EnabledOnClient } from "@/lib/variables-v2-enabled";
 
 interface Environment {
   id: string;
   name: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  createdBy?: ProvenanceUser | null;
+  updatedBy?: ProvenanceUser | null;
 }
 
 interface EditEnvironmentSheetProps {
@@ -164,6 +171,16 @@ export function EditEnvironmentSheet({
                   aria-invalid={Boolean(error)}
                 />
               </FormField>
+              {isVariablesV2EnabledOnClient() &&
+              environment.createdAt &&
+              environment.updatedAt ? (
+                <ProvenanceDetail
+                  createdBy={environment.createdBy}
+                  createdAt={environment.createdAt}
+                  updatedBy={environment.updatedBy}
+                  updatedAt={environment.updatedAt}
+                />
+              ) : null}
             </FormSheetBody>
             <FormSheetFooter>
               <SheetClose render={<Button variant="ghost" type="button" />}>

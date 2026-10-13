@@ -133,6 +133,12 @@ export const getEnvironmentInput = z.object({
   id: entityIdSchema,
 });
 
+export const provenanceUserOutput = z.object({
+  id: z.string(),
+  name: z.string(),
+  image: z.string().nullable(),
+});
+
 export const environmentOutput = z.object({
   id: z.string(),
   name: z.string(),
@@ -145,7 +151,11 @@ export const environmentOutput = z.object({
   projectId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  createdBy: provenanceUserOutput.nullable().optional(),
+  updatedBy: provenanceUserOutput.nullable().optional(),
 });
+
+export const environmentVariableTypeSchema = z.enum(["secret", "config"]);
 
 // Variable schemas
 export const variableKeySchema = z
@@ -162,12 +172,46 @@ export const createVariableInput = z.object({
   environmentId: entityIdSchema,
   key: variableKeySchema,
   value: z.string().max(100_000, "Value is too long"),
+  type: environmentVariableTypeSchema.optional(),
+  note: z
+    .string()
+    .max(2000, "Note must be 2000 characters or fewer")
+    .optional(),
+});
+
+export const createVariablesBatchInput = z.object({
+  environmentIds: z.array(entityIdSchema).min(1).max(64),
+  variables: z
+    .array(
+      z.object({
+        key: variableKeySchema,
+        value: z.string().max(100_000, "Value is too long"),
+        type: environmentVariableTypeSchema.default("secret"),
+        note: z
+          .string()
+          .max(2000, "Note must be 2000 characters or fewer")
+          .optional(),
+      }),
+    )
+    .min(1)
+    .max(25),
+});
+
+export const createVariablesBatchOutput = z.object({
+  created: z.number(),
+  skipped: z.number(),
 });
 
 export const updateVariableInput = z.object({
   id: entityIdSchema,
   key: variableKeySchema.optional(),
   value: z.string().max(100_000, "Value is too long").optional(),
+  type: environmentVariableTypeSchema.optional(),
+  note: z
+    .string()
+    .max(2000, "Note must be 2000 characters or fewer")
+    .nullable()
+    .optional(),
 });
 
 export const getVariableInput = z.object({
@@ -180,6 +224,11 @@ export const variableOutput = z.object({
   environmentId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  type: environmentVariableTypeSchema.optional(),
+  note: z.string().nullable().optional(),
+  value: z.string().optional(),
+  createdBy: provenanceUserOutput.nullable().optional(),
+  updatedBy: provenanceUserOutput.nullable().optional(),
 });
 
 export const variableWithDecryptedValueOutput = variableOutput.extend({

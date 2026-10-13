@@ -2,6 +2,7 @@ import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   index,
+  pgEnum,
   pgTable,
   text,
   timestamp,
@@ -10,6 +11,12 @@ import {
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { organization } from "./organization";
+
+export const environmentVariableTypeEnum = pgEnum("environment_variable_type", [
+  "secret",
+  "config",
+]);
+
 export const project = pgTable(
   "project",
   {
@@ -74,6 +81,12 @@ export const environment = pgTable(
     projectId: text("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
+    createdBy: text("created_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    updatedBy: text("updated_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -101,9 +114,17 @@ export const environmentVariable = pgTable(
     id: text("id").primaryKey(),
     key: text("key").notNull(),
     encryptedValue: text("encrypted_value").notNull(),
+    type: environmentVariableTypeEnum("type").default("secret").notNull(),
+    note: text("note"),
     environmentId: text("environment_id")
       .notNull()
       .references(() => environment.id, { onDelete: "cascade" }),
+    createdBy: text("created_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    updatedBy: text("updated_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -143,6 +164,16 @@ export const environmentRelations = relations(environment, ({ one, many }) => ({
     references: [project.id],
   }),
   variables: many(environmentVariable),
+  createdByUser: one(user, {
+    fields: [environment.createdBy],
+    references: [user.id],
+    relationName: "environmentCreatedBy",
+  }),
+  updatedByUser: one(user, {
+    fields: [environment.updatedBy],
+    references: [user.id],
+    relationName: "environmentUpdatedBy",
+  }),
 }));
 
 export const environmentVariableRelations = relations(
@@ -151,6 +182,16 @@ export const environmentVariableRelations = relations(
     environment: one(environment, {
       fields: [environmentVariable.environmentId],
       references: [environment.id],
+    }),
+    createdByUser: one(user, {
+      fields: [environmentVariable.createdBy],
+      references: [user.id],
+      relationName: "variableCreatedBy",
+    }),
+    updatedByUser: one(user, {
+      fields: [environmentVariable.updatedBy],
+      references: [user.id],
+      relationName: "variableUpdatedBy",
     }),
   }),
 );

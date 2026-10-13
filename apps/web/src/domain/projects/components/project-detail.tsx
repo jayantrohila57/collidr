@@ -49,7 +49,15 @@ export default function ProjectDetail({
           isUpdating={isUpdating}
           isDeleting={isDeleting}
         >
-          {(env) => <EnvironmentPanel environmentId={env.id} />}
+          {(env) => (
+            <EnvironmentPanel
+              environmentId={env.id}
+              projectEnvironments={environments.map((item) => ({
+                id: item.id,
+                name: item.name,
+              }))}
+            />
+          )}
         </EnvironmentsTabsView>
       </section>
     </PageStack>

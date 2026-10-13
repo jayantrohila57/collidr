@@ -31,6 +31,18 @@ import { EnvironmentTabCountBadge } from "./environment-tab-count-badge";
 interface Environment {
   id: string;
   name: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  createdBy?: {
+    id: string;
+    name: string;
+    image?: string | null;
+  } | null;
+  updatedBy?: {
+    id: string;
+    name: string;
+    image?: string | null;
+  } | null;
 }
 
 interface EnvironmentsTabsViewProps {

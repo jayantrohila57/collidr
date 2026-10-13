@@ -11,6 +11,7 @@ import {
   FormSheetPopup,
 } from "@/components/patterns/form-sheet";
 import { GuardedSheet } from "@/components/patterns/guarded-sheet";
+import type { ProvenanceUser } from "@/components/patterns/provenance-attribution";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,8 @@ import { Input } from "@/components/ui/input";
 import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { isVariablesV2EnabledOnClient } from "@/lib/variables-v2-enabled";
+import { EditVariableSheetV2 } from "./edit-variable-sheet-v2";
 
 interface EditVariableSheetProps {
   open: boolean;
@@ -26,24 +29,34 @@ interface EditVariableSheetProps {
     id: string;
     key: string;
     value?: string;
+    type?: "secret" | "config";
+    note?: string | null;
+    createdAt?: string;
+    updatedAt?: string;
+    createdBy?: ProvenanceUser | null;
+    updatedBy?: ProvenanceUser | null;
   };
   isLoadingValue?: boolean;
   onConfirm: (data: {
     id: string;
     key: string;
     value: string;
+    type?: "secret" | "config";
+    note?: string | null;
   }) => Promise<void>;
   isPending: boolean;
 }
 
-export function EditVariableSheet({
+function EditVariableSheetLegacy({
   open,
   onOpenChange,
   variable,
   isLoadingValue = false,
   onConfirm,
   isPending,
-}: EditVariableSheetProps) {
+}: Omit<EditVariableSheetProps, "variable"> & {
+  variable: { id: string; key: string; value?: string };
+}) {
   const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const [key, setKey] = useState(variable.key);
   const [value, setValue] = useState(variable.value || "");
@@ -176,5 +189,52 @@ export function EditVariableSheet({
         </FormSheetForm>
       </FormSheetPopup>
     </GuardedSheet>
+  );
+}
+
+export function EditVariableSheet({
+  open,
+  onOpenChange,
+  variable,
+  isLoadingValue,
+  onConfirm,
+  isPending,
+}: EditVariableSheetProps) {
+  if (
+    isVariablesV2EnabledOnClient() &&
+    variable.createdAt &&
+    variable.updatedAt
+  ) {
+    return (
+      <EditVariableSheetV2
+        open={open}
+        onOpenChange={onOpenChange}
+        variable={{
+          id: variable.id,
+          key: variable.key,
+          value: variable.value,
+          type: variable.type,
+          note: variable.note,
+          createdAt: variable.createdAt,
+          updatedAt: variable.updatedAt,
+          createdBy: variable.createdBy,
+          updatedBy: variable.updatedBy,
+        }}
+        isLoadingValue={isLoadingValue}
+        onConfirm={onConfirm}
+        isPending={isPending}
+      />
+    );
+  }
+
+  return (
+    <EditVariableSheetLegacy
+      open={open}
+      onOpenChange={onOpenChange}
+      variable={variable}
+      isLoadingValue={isLoadingValue}
+      onConfirm={onConfirm}
+      isPending={isPending}
+    />
   );
 }

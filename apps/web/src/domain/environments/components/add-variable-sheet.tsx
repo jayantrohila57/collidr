@@ -26,19 +26,35 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { isVariablesV2EnabledOnClient } from "@/lib/variables-v2-enabled";
+import { AddVariableSheetV2 } from "./add-variable-sheet-v2";
 
 interface AddVariableSheetProps {
   onConfirm: (data: { key: string; value: string }) => Promise<void>;
+  onConfirmBatch?: (data: {
+    environmentIds: string[];
+    variables: Array<{
+      key: string;
+      value: string;
+      type: "secret" | "config";
+      note?: string;
+    }>;
+  }) => Promise<void>;
+  environments?: { id: string; name: string }[];
+  defaultEnvironmentId?: string;
   isPending: boolean;
   /** Toolbar: icon-only below `sm`. Table empty: always labeled. */
   triggerLayout?: "toolbar" | "tableEmpty";
 }
 
-export function AddVariableSheet({
+function AddVariableSheetLegacy({
   onConfirm,
   isPending,
   triggerLayout = "toolbar",
-}: AddVariableSheetProps) {
+}: Omit<
+  AddVariableSheetProps,
+  "onConfirmBatch" | "environments" | "defaultEnvironmentId"
+>) {
   const isToolbar = triggerLayout === "toolbar";
   const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const [open, setOpen] = useState(false);
@@ -152,5 +168,41 @@ export function AddVariableSheet({
         </FormSheetForm>
       </FormSheetPopup>
     </GuardedSheet>
+  );
+}
+
+export function AddVariableSheet({
+  onConfirm,
+  onConfirmBatch,
+  environments,
+  defaultEnvironmentId,
+  isPending,
+  triggerLayout = "toolbar",
+}: AddVariableSheetProps) {
+  const v2 =
+    isVariablesV2EnabledOnClient() &&
+    environments &&
+    environments.length > 0 &&
+    defaultEnvironmentId &&
+    onConfirmBatch;
+
+  if (v2) {
+    return (
+      <AddVariableSheetV2
+        environments={environments}
+        defaultEnvironmentId={defaultEnvironmentId}
+        onConfirm={onConfirmBatch}
+        isPending={isPending}
+        triggerLayout={triggerLayout}
+      />
+    );
+  }
+
+  return (
+    <AddVariableSheetLegacy
+      onConfirm={onConfirm}
+      isPending={isPending}
+      triggerLayout={triggerLayout}
+    />
   );
 }

@@ -30,6 +30,12 @@ import {
   updateEnvironmentInput,
   variableOutput,
 } from "../validation";
+import {
+  formatEnvironmentRows,
+  formatSingleEnvironment,
+  formatVariableRows,
+} from "../variable-format";
+import { isVariablesV2Enabled } from "../variables-v2";
 
 export const environmentsRouter = router({
   // List all environments for a project
@@ -55,15 +61,51 @@ export const environmentsRouter = router({
         return respond({ message: "Project not found", data: [] });
       }
 
-      const environments = await db
-        .select()
-        .from(environment)
-        .where(
-          activeEnvironmentWhere(eq(environment.projectId, input.projectId)),
-        )
-        .orderBy(environment.name);
+      const listWhere = activeEnvironmentWhere(
+        eq(environment.projectId, input.projectId),
+      );
 
-      return respond({ message: "Environments fetched", data: environments });
+      const environments = isVariablesV2Enabled()
+        ? await db
+            .select({
+              id: environment.id,
+              name: environment.name,
+              slug: environment.slug,
+              branch: environment.branch,
+              deployedUrl: environment.deployedUrl,
+              status: environment.status,
+              isProduction: environment.isProduction,
+              description: environment.description,
+              projectId: environment.projectId,
+              createdAt: environment.createdAt,
+              updatedAt: environment.updatedAt,
+              createdById: environment.createdBy,
+              updatedById: environment.updatedBy,
+            })
+            .from(environment)
+            .where(listWhere)
+            .orderBy(environment.name)
+        : await db
+            .select({
+              id: environment.id,
+              name: environment.name,
+              slug: environment.slug,
+              branch: environment.branch,
+              deployedUrl: environment.deployedUrl,
+              status: environment.status,
+              isProduction: environment.isProduction,
+              description: environment.description,
+              projectId: environment.projectId,
+              createdAt: environment.createdAt,
+              updatedAt: environment.updatedAt,
+            })
+            .from(environment)
+            .where(listWhere)
+            .orderBy(environment.name);
+
+      const data = await formatEnvironmentRows(environments);
+
+      return respond({ message: "Environments fetched", data });
     }),
 
   // Get a single environment with its variables
@@ -79,31 +121,52 @@ export const environmentsRouter = router({
     )
     .query(async ({ ctx, input }) => {
       // Verify user owns the environment through project
-      const environmentData = await db
-        .select({
-          id: environment.id,
-          name: environment.name,
-          slug: environment.slug,
-          branch: environment.branch,
-          deployedUrl: environment.deployedUrl,
-          status: environment.status,
-          isProduction: environment.isProduction,
-          description: environment.description,
-          projectId: environment.projectId,
-          createdAt: environment.createdAt,
-          updatedAt: environment.updatedAt,
-        })
-        .from(environment)
-        .innerJoin(project, eq(environment.projectId, project.id))
-        .where(
-          activeEnvironmentWhere(
-            and(
-              eq(environment.id, input.id),
-              eq(project.userId, ctx.session.user.id),
-            ),
-          ),
-        )
-        .limit(1);
+      const envWhere = activeEnvironmentWhere(
+        and(
+          eq(environment.id, input.id),
+          eq(project.userId, ctx.session.user.id),
+        ),
+      );
+
+      const environmentData = isVariablesV2Enabled()
+        ? await db
+            .select({
+              id: environment.id,
+              name: environment.name,
+              slug: environment.slug,
+              branch: environment.branch,
+              deployedUrl: environment.deployedUrl,
+              status: environment.status,
+              isProduction: environment.isProduction,
+              description: environment.description,
+              projectId: environment.projectId,
+              createdAt: environment.createdAt,
+              updatedAt: environment.updatedAt,
+              createdById: environment.createdBy,
+              updatedById: environment.updatedBy,
+            })
+            .from(environment)
+            .innerJoin(project, eq(environment.projectId, project.id))
+            .where(envWhere)
+            .limit(1)
+        : await db
+            .select({
+              id: environment.id,
+              name: environment.name,
+              slug: environment.slug,
+              branch: environment.branch,
+              deployedUrl: environment.deployedUrl,
+              status: environment.status,
+              isProduction: environment.isProduction,
+              description: environment.description,
+              projectId: environment.projectId,
+              createdAt: environment.createdAt,
+              updatedAt: environment.updatedAt,
+            })
+            .from(environment)
+            .innerJoin(project, eq(environment.projectId, project.id))
+            .where(envWhere)
+            .limit(1);
 
       if (environmentData.length === 0) {
         return respond({
@@ -113,21 +176,38 @@ export const environmentsRouter = router({
       }
 
       // Get variables for this environment
-      const variables = await db
-        .select({
-          id: environmentVariable.id,
-          key: environmentVariable.key,
-          environmentId: environmentVariable.environmentId,
-          createdAt: environmentVariable.createdAt,
-          updatedAt: environmentVariable.updatedAt,
-        })
-        .from(environmentVariable)
-        .where(
-          activeEnvironmentVariableWhere(
-            eq(environmentVariable.environmentId, input.id),
-          ),
-        )
-        .orderBy(environmentVariable.key);
+      const variablesWhere = activeEnvironmentVariableWhere(
+        eq(environmentVariable.environmentId, input.id),
+      );
+
+      const variables = isVariablesV2Enabled()
+        ? await db
+            .select({
+              id: environmentVariable.id,
+              key: environmentVariable.key,
+              environmentId: environmentVariable.environmentId,
+              createdAt: environmentVariable.createdAt,
+              updatedAt: environmentVariable.updatedAt,
+              type: environmentVariable.type,
+              note: environmentVariable.note,
+              encryptedValue: environmentVariable.encryptedValue,
+              createdById: environmentVariable.createdBy,
+              updatedById: environmentVariable.updatedBy,
+            })
+            .from(environmentVariable)
+            .where(variablesWhere)
+            .orderBy(environmentVariable.key)
+        : await db
+            .select({
+              id: environmentVariable.id,
+              key: environmentVariable.key,
+              environmentId: environmentVariable.environmentId,
+              createdAt: environmentVariable.createdAt,
+              updatedAt: environmentVariable.updatedAt,
+            })
+            .from(environmentVariable)
+            .where(variablesWhere)
+            .orderBy(environmentVariable.key);
 
       const environmentRecord = environmentData[0];
 
@@ -138,9 +218,16 @@ export const environmentsRouter = router({
         });
       }
 
+      const formattedEnvironment =
+        await formatSingleEnvironment(environmentRecord);
+      const formattedVariables = await formatVariableRows(variables);
+
       return respond({
         message: "Environment fetched",
-        data: { environment: environmentRecord, variables },
+        data: {
+          environment: formattedEnvironment,
+          variables: formattedVariables,
+        },
       });
     }),
 
@@ -202,6 +289,12 @@ export const environmentsRouter = router({
           isProduction: input.isProduction,
           description: input.description || null,
           projectId: input.projectId,
+          ...(isVariablesV2Enabled()
+            ? {
+                createdBy: ctx.session.user.id,
+                updatedBy: ctx.session.user.id,
+              }
+            : {}),
         })
         .returning();
 
@@ -222,9 +315,15 @@ export const environmentsRouter = router({
         newValue: JSON.stringify({ name: newEnvironment[0].name }),
       });
 
+      const formatted = await formatSingleEnvironment({
+        ...newEnvironment[0],
+        createdById: newEnvironment[0].createdBy,
+        updatedById: newEnvironment[0].updatedBy,
+      });
+
       return respond({
         message: "Environment created",
-        data: newEnvironment[0],
+        data: formatted,
       });
     }),
 
@@ -295,6 +394,9 @@ export const environmentsRouter = router({
         updateData.isProduction = input.isProduction;
       if (input.description !== undefined)
         updateData.description = input.description || null;
+      if (isVariablesV2Enabled()) {
+        updateData.updatedBy = ctx.session.user.id;
+      }
 
       const updatedEnvironment = await db
         .update(environment)
@@ -316,9 +418,15 @@ export const environmentsRouter = router({
         newValue: JSON.stringify({ name: updatedEnvironment[0].name }),
       });
 
+      const formatted = await formatSingleEnvironment({
+        ...updatedEnvironment[0],
+        createdById: updatedEnvironment[0].createdBy,
+        updatedById: updatedEnvironment[0].updatedBy,
+      });
+
       return respond({
         message: "Environment updated",
-        data: updatedEnvironment[0],
+        data: formatted,
       });
     }),
 

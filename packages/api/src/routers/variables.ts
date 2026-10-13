@@ -21,6 +21,8 @@ import {
   bulkImportResultOutput,
   bulkImportVariablesInput,
   createVariableInput,
+  createVariablesBatchInput,
+  createVariablesBatchOutput,
   exportVariablesInput,
   exportVariablesOutput,
   getVariableInput,
@@ -30,6 +32,8 @@ import {
   variableOutput,
   variableWithDecryptedValueOutput,
 } from "../validation";
+import { formatVariableRows } from "../variable-format";
+import { isVariablesV2Enabled } from "../variables-v2";
 
 export const environmentVariablesRouter = router({
   // List variables for an environment (metadata only)
@@ -54,23 +58,42 @@ export const environmentVariablesRouter = router({
         return respond({ message: "Environment not found", data: [] });
       }
 
-      const variables = await db
-        .select({
-          id: environmentVariable.id,
-          key: environmentVariable.key,
-          environmentId: environmentVariable.environmentId,
-          createdAt: environmentVariable.createdAt,
-          updatedAt: environmentVariable.updatedAt,
-        })
-        .from(environmentVariable)
-        .where(
-          activeEnvironmentVariableWhere(
-            eq(environmentVariable.environmentId, input.environmentId),
-          ),
-        )
-        .orderBy(environmentVariable.key);
+      const listWhere = activeEnvironmentVariableWhere(
+        eq(environmentVariable.environmentId, input.environmentId),
+      );
 
-      return respond({ message: "Variables fetched", data: variables });
+      const variables = isVariablesV2Enabled()
+        ? await db
+            .select({
+              id: environmentVariable.id,
+              key: environmentVariable.key,
+              environmentId: environmentVariable.environmentId,
+              createdAt: environmentVariable.createdAt,
+              updatedAt: environmentVariable.updatedAt,
+              type: environmentVariable.type,
+              note: environmentVariable.note,
+              encryptedValue: environmentVariable.encryptedValue,
+              createdById: environmentVariable.createdBy,
+              updatedById: environmentVariable.updatedBy,
+            })
+            .from(environmentVariable)
+            .where(listWhere)
+            .orderBy(environmentVariable.key)
+        : await db
+            .select({
+              id: environmentVariable.id,
+              key: environmentVariable.key,
+              environmentId: environmentVariable.environmentId,
+              createdAt: environmentVariable.createdAt,
+              updatedAt: environmentVariable.updatedAt,
+            })
+            .from(environmentVariable)
+            .where(listWhere)
+            .orderBy(environmentVariable.key);
+
+      const data = await formatVariableRows(variables);
+
+      return respond({ message: "Variables fetched", data });
     }),
 
   countsByEnvironment: protectedProcedure
@@ -130,38 +153,85 @@ export const environmentVariablesRouter = router({
     .input(getVariableInput)
     .output(makeResponseSchema(variableWithDecryptedValueOutput.nullable()))
     .query(async ({ ctx, input }) => {
-      const data = await db
-        .select({
-          id: environmentVariable.id,
-          key: environmentVariable.key,
-          encryptedValue: environmentVariable.encryptedValue,
-          environmentId: environmentVariable.environmentId,
-          createdAt: environmentVariable.createdAt,
-          updatedAt: environmentVariable.updatedAt,
-        })
-        .from(environmentVariable)
-        .innerJoin(
-          environment,
-          eq(environmentVariable.environmentId, environment.id),
-        )
-        .innerJoin(project, eq(environment.projectId, project.id))
-        .where(
-          variableOwnedByUserWhere(
-            ctx.session.user.id,
-            eq(environmentVariable.id, input.id),
-          ),
-        )
-        .limit(1);
+      const getWhere = variableOwnedByUserWhere(
+        ctx.session.user.id,
+        eq(environmentVariable.id, input.id),
+      );
+
+      const data = isVariablesV2Enabled()
+        ? await db
+            .select({
+              id: environmentVariable.id,
+              key: environmentVariable.key,
+              encryptedValue: environmentVariable.encryptedValue,
+              environmentId: environmentVariable.environmentId,
+              createdAt: environmentVariable.createdAt,
+              updatedAt: environmentVariable.updatedAt,
+              type: environmentVariable.type,
+              note: environmentVariable.note,
+              createdById: environmentVariable.createdBy,
+              updatedById: environmentVariable.updatedBy,
+            })
+            .from(environmentVariable)
+            .innerJoin(
+              environment,
+              eq(environmentVariable.environmentId, environment.id),
+            )
+            .innerJoin(project, eq(environment.projectId, project.id))
+            .where(getWhere)
+            .limit(1)
+        : await db
+            .select({
+              id: environmentVariable.id,
+              key: environmentVariable.key,
+              encryptedValue: environmentVariable.encryptedValue,
+              environmentId: environmentVariable.environmentId,
+              createdAt: environmentVariable.createdAt,
+              updatedAt: environmentVariable.updatedAt,
+            })
+            .from(environmentVariable)
+            .innerJoin(
+              environment,
+              eq(environmentVariable.environmentId, environment.id),
+            )
+            .innerJoin(project, eq(environment.projectId, project.id))
+            .where(getWhere)
+            .limit(1);
 
       const record = data[0];
       if (!record) {
         return respond({ message: "Variable not found", data: null });
       }
 
+      const formatRow = isVariablesV2Enabled()
+        ? {
+            id: record.id,
+            key: record.key,
+            environmentId: record.environmentId,
+            createdAt: record.createdAt,
+            updatedAt: record.updatedAt,
+            type: (record as { type?: "secret" | "config" }).type,
+            note: (record as { note?: string | null }).note,
+            encryptedValue: record.encryptedValue,
+            createdById: (record as { createdById?: string | null })
+              .createdById,
+            updatedById: (record as { updatedById?: string | null })
+              .updatedById,
+          }
+        : {
+            id: record.id,
+            key: record.key,
+            environmentId: record.environmentId,
+            createdAt: record.createdAt,
+            updatedAt: record.updatedAt,
+          };
+
+      const [formatted] = await formatVariableRows([formatRow]);
+
       return respond({
         message: "Variable fetched",
         data: {
-          ...record,
+          ...formatted,
           value: decrypt(record.encryptedValue),
         },
       });
@@ -220,6 +290,14 @@ export const environmentVariablesRouter = router({
             key: normalizedKey,
             encryptedValue: encrypt(input.value),
             environmentId: input.environmentId,
+            ...(isVariablesV2Enabled()
+              ? {
+                  type: input.type ?? "secret",
+                  note: input.note?.trim() || null,
+                  createdBy: ctx.session.user.id,
+                  updatedBy: ctx.session.user.id,
+                }
+              : {}),
           })
           .returning();
       } catch (error) {
@@ -249,7 +327,125 @@ export const environmentVariablesRouter = router({
         });
       }
 
-      return respond({ message: "Variable created", data: newVariable });
+      const [formatted] = await formatVariableRows([
+        {
+          id: newVariable.id,
+          key: newVariable.key,
+          environmentId: newVariable.environmentId,
+          createdAt: newVariable.createdAt,
+          updatedAt: newVariable.updatedAt,
+          type: newVariable.type,
+          note: newVariable.note,
+          encryptedValue: newVariable.encryptedValue,
+          createdById: newVariable.createdBy,
+          updatedById: newVariable.updatedBy,
+        },
+      ]);
+
+      return respond({ message: "Variable created", data: formatted });
+    }),
+
+  createBatch: protectedProcedure
+    .input(createVariablesBatchInput)
+    .output(makeResponseSchema(createVariablesBatchOutput))
+    .mutation(async ({ ctx, input }) => {
+      if (!isVariablesV2Enabled()) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Variables v2 is not enabled.",
+        });
+      }
+
+      const allowed = await db
+        .select({ id: environment.id })
+        .from(environment)
+        .innerJoin(project, eq(environment.projectId, project.id))
+        .where(
+          and(
+            inArray(environment.id, input.environmentIds),
+            eq(project.userId, ctx.session.user.id),
+          ),
+        );
+
+      const allowedIds = new Set(allowed.map((row) => row.id));
+      if (allowedIds.size === 0) {
+        return respond({
+          message: "No accessible environments",
+          data: { created: 0, skipped: 0 },
+        });
+      }
+
+      let created = 0;
+      let skipped = 0;
+
+      for (const environmentId of input.environmentIds) {
+        if (!allowedIds.has(environmentId)) {
+          skipped += input.variables.length;
+          continue;
+        }
+
+        for (const variable of input.variables) {
+          const normalizedKey = variable.key.trim().toUpperCase();
+
+          const duplicate = await db
+            .select({ id: environmentVariable.id })
+            .from(environmentVariable)
+            .where(
+              and(
+                eq(environmentVariable.environmentId, environmentId),
+                eq(environmentVariable.key, normalizedKey),
+              ),
+            )
+            .limit(1);
+
+          if (duplicate.length > 0) {
+            skipped++;
+            continue;
+          }
+
+          const [newVariable] = await db
+            .insert(environmentVariable)
+            .values({
+              id: crypto.randomUUID(),
+              key: normalizedKey,
+              encryptedValue: encrypt(variable.value),
+              environmentId,
+              type: variable.type ?? "secret",
+              note: variable.note?.trim() || null,
+              createdBy: ctx.session.user.id,
+              updatedBy: ctx.session.user.id,
+            })
+            .returning();
+
+          if (!newVariable) {
+            skipped++;
+            continue;
+          }
+
+          created++;
+
+          const envDetails = await getProjectEnvironmentIds(environmentId);
+          if (envDetails) {
+            await createAuditLog({
+              userId: ctx.session.user.id,
+              projectId: envDetails.projectId,
+              environmentId: envDetails.environmentId,
+              variableId: newVariable.id,
+              action: "CREATE",
+              entityType: "VARIABLE",
+              newValue: JSON.stringify({
+                key: normalizedKey,
+                type: variable.type ?? "secret",
+              }),
+            });
+          }
+        }
+      }
+
+      return respond({
+        message: `Created ${created} variable${created === 1 ? "" : "s"}`,
+        data: { created, skipped },
+      });
     }),
 
   // Update a variable
@@ -323,10 +519,20 @@ export const environmentVariablesRouter = router({
       const updateData: {
         key?: string;
         encryptedValue?: string;
+        type?: "secret" | "config";
+        note?: string | null;
+        updatedBy?: string;
       } = {};
       if (normalizedKey) updateData.key = normalizedKey;
       if (input.value !== undefined) {
         updateData.encryptedValue = encrypt(input.value);
+      }
+      if (isVariablesV2Enabled()) {
+        if (input.type !== undefined) updateData.type = input.type;
+        if (input.note !== undefined) {
+          updateData.note = input.note?.trim() || null;
+        }
+        updateData.updatedBy = ctx.session.user.id;
       }
 
       const [updated] = await db
@@ -358,7 +564,22 @@ export const environmentVariablesRouter = router({
         });
       }
 
-      return respond({ message: "Variable updated", data: updated });
+      const [formatted] = await formatVariableRows([
+        {
+          id: updated.id,
+          key: updated.key,
+          environmentId: updated.environmentId,
+          createdAt: updated.createdAt,
+          updatedAt: updated.updatedAt,
+          type: updated.type,
+          note: updated.note,
+          encryptedValue: updated.encryptedValue,
+          createdById: updated.createdBy,
+          updatedById: updated.updatedBy,
+        },
+      ]);
+
+      return respond({ message: "Variable updated", data: formatted });
     }),
 
   // Delete a variable

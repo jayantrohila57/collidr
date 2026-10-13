@@ -8,10 +8,13 @@ import { variablesTableEmpty } from "@/components/data-table/data-table-empty-pr
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
+import { ProvenanceAttribution } from "@/components/patterns/provenance-attribution";
 import { SecretValue } from "@/components/patterns/secret-value";
 import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/toast";
+import { isVariablesV2EnabledOnClient } from "@/lib/variables-v2-enabled";
 import { AddVariableSheet } from "./add-variable-sheet";
 import { EditVariableSheet } from "./edit-variable-sheet";
 
@@ -22,6 +25,10 @@ interface Variable {
   environmentId: string;
   createdAt: string;
   updatedAt: string;
+  type?: "secret" | "config";
+  note?: string | null;
+  createdBy?: { id: string; name: string; image: string | null } | null;
+  updatedBy?: { id: string; name: string; image: string | null } | null;
 }
 
 interface VariablesTableViewProps {
@@ -33,6 +40,17 @@ interface VariablesTableViewProps {
   onEdit: (variable: Variable) => void;
   onDelete: (id: string) => void;
   onAddVariable: (data: { key: string; value: string }) => Promise<void>;
+  onAddVariablesBatch?: (data: {
+    environmentIds: string[];
+    variables: Array<{
+      key: string;
+      value: string;
+      type: "secret" | "config";
+      note?: string;
+    }>;
+  }) => Promise<void>;
+  projectEnvironments?: { id: string; name: string }[];
+  activeEnvironmentId?: string;
   onFetchValue: (id: string, options?: { force?: boolean }) => Promise<string>;
   isAddingVariable: boolean;
   isUpdating?: boolean;
@@ -49,10 +67,17 @@ export function VariablesTableView({
   onEdit,
   onDelete,
   onAddVariable,
+  onAddVariablesBatch,
+  projectEnvironments = [],
+  activeEnvironmentId,
   onFetchValue,
   isAddingVariable,
   isUpdating = false,
 }: VariablesTableViewProps) {
+  const variablesV2 = isVariablesV2EnabledOnClient();
+
+  const isValueRevealed = (variable: Variable) =>
+    variable.type === "config" || revealedIds.has(variable.id);
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     key: string;
@@ -129,14 +154,24 @@ export function VariablesTableView({
         ),
         cell: ({ row }) => {
           const variable = row.original;
-          const isRevealed = revealedIds.has(variable.id);
+          const isRevealed = isValueRevealed(variable);
           return (
             <div className="min-w-0">
               <div className="hidden min-w-0 sm:block">
                 <TableLeadingCell leading={<AppIcon name="variable" />}>
-                  <span className="block truncate font-medium font-mono text-sm">
-                    {variable.key}
-                  </span>
+                  <div className="flex min-w-0 items-center gap-1.5">
+                    <span className="block truncate font-medium font-mono text-sm">
+                      {variable.key}
+                    </span>
+                    {variablesV2 && variable.type ? (
+                      <Badge
+                        variant="outline"
+                        className="h-5 px-1.5 text-[10px]"
+                      >
+                        {variable.type === "config" ? "Config" : "Secret"}
+                      </Badge>
+                    ) : null}
+                  </div>
                 </TableLeadingCell>
               </div>
               <div className="min-w-0 sm:hidden">
@@ -163,7 +198,7 @@ export function VariablesTableView({
         enableSorting: false,
         cell: ({ row }) => {
           const variable = row.original;
-          const isRevealed = revealedIds.has(variable.id);
+          const isRevealed = isValueRevealed(variable);
           const isValueExpanded = expandedValueIds.has(variable.id);
           const showExpand =
             isRevealed && Boolean(variable.value && variable.value.length > 80);
@@ -188,6 +223,28 @@ export function VariablesTableView({
           );
         },
       }),
+      ...(variablesV2
+        ? [
+            columnHelper.display({
+              id: "updatedBy",
+              meta: {
+                className: "hidden min-w-[10rem] py-2.5 md:table-cell",
+              },
+              header: "Updated",
+              enableSorting: false,
+              cell: ({ row }) => {
+                const variable = row.original;
+                return (
+                  <ProvenanceAttribution
+                    user={variable.updatedBy}
+                    at={variable.updatedAt}
+                    compact
+                  />
+                );
+              },
+            }),
+          ]
+        : []),
       columnHelper.display({
         id: "actions",
         meta: {
@@ -197,7 +254,8 @@ export function VariablesTableView({
         enableSorting: false,
         cell: ({ row }) => {
           const variable = row.original;
-          const isRevealed = revealedIds.has(variable.id);
+          const isRevealed = isValueRevealed(variable);
+          const isConfig = variable.type === "config";
 
           return (
             <div className="flex justify-end">
@@ -212,7 +270,7 @@ export function VariablesTableView({
                         className="me-2 text-foreground"
                       />
                     ),
-                    disabled: revealingIds?.has(variable.id),
+                    disabled: isConfig || revealingIds?.has(variable.id),
                     onSelect: () => onReveal(variable.id),
                   },
                   {
@@ -256,6 +314,7 @@ export function VariablesTableView({
       revealedIds,
       revealingIds,
       toggleValueExpanded,
+      variablesV2,
     ],
   );
 
@@ -276,6 +335,9 @@ export function VariablesTableView({
         empty={variablesTableEmpty(
           <AddVariableSheet
             onConfirm={onAddVariable}
+            onConfirmBatch={onAddVariablesBatch}
+            environments={projectEnvironments}
+            defaultEnvironmentId={activeEnvironmentId}
             isPending={isAddingVariable}
             triggerLayout="tableEmpty"
           />,
@@ -284,6 +346,9 @@ export function VariablesTableView({
           variables.length > 0 ? (
             <AddVariableSheet
               onConfirm={onAddVariable}
+              onConfirmBatch={onAddVariablesBatch}
+              environments={projectEnvironments}
+              defaultEnvironmentId={activeEnvironmentId}
               isPending={isAddingVariable}
               triggerLayout="toolbar"
             />
@@ -309,6 +374,8 @@ export function VariablesTableView({
               ...editVariable,
               key: data.key,
               value: data.value,
+              type: data.type ?? editVariable.type,
+              note: data.note ?? editVariable.note,
             };
             await onEdit(updatedVariable);
           }}

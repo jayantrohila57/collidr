@@ -11,9 +11,21 @@ interface Variable {
   createdAt: string;
   updatedAt: string;
   value?: string;
+  type?: "secret" | "config";
+  note?: string | null;
+  createdBy?: { id: string; name: string; image: string | null } | null;
+  updatedBy?: { id: string; name: string; image: string | null } | null;
 }
 
-export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
+interface EnvironmentPanelProps {
+  environmentId: string;
+  projectEnvironments?: { id: string; name: string }[];
+}
+
+export function EnvironmentPanel({
+  environmentId,
+  projectEnvironments = [],
+}: EnvironmentPanelProps) {
   const {
     variables,
     status,
@@ -21,6 +33,7 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
     revealingIds,
     toggleReveal,
     createVariable,
+    createVariablesBatch,
     isCreating,
     updateVariable,
     isUpdating,
@@ -31,11 +44,26 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
 
   const variablesWithValues = variables.map((variable) => ({
     ...variable,
-    value: getRevealedValue(variable.id),
+    value:
+      variable.type === "config" && variable.value !== undefined
+        ? variable.value
+        : getRevealedValue(variable.id),
   }));
 
   const handleCreate = async (data: { key: string; value: string }) => {
     await createVariable({ environmentId, ...data });
+  };
+
+  const handleCreateBatch = async (data: {
+    environmentIds: string[];
+    variables: Array<{
+      key: string;
+      value: string;
+      type: "secret" | "config";
+      note?: string;
+    }>;
+  }) => {
+    await createVariablesBatch(data);
   };
 
   const handleEdit = async (variable: Variable) => {
@@ -43,6 +71,8 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
       id: variable.id,
       key: variable.key,
       value: variable.value ?? "",
+      type: variable.type,
+      note: variable.note ?? null,
     });
   };
 
@@ -72,6 +102,9 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
       onEdit={handleEdit}
       onDelete={handleDelete}
       onAddVariable={handleCreate}
+      onAddVariablesBatch={handleCreateBatch}
+      projectEnvironments={projectEnvironments}
+      activeEnvironmentId={environmentId}
       onFetchValue={fetchVariableValue}
       isAddingVariable={isCreating}
       isUpdating={isUpdating}
