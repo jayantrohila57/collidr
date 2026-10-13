@@ -3,26 +3,22 @@
 import { Github, Shield } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import { PageContainer } from "@/components/layout/page-container";
 import { ErrorState } from "@/components/patterns/error-state";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { formatDateTime } from "@/lib/format";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+import { SettingsPageSkeleton } from "./settings-skeleton";
 
 export function SettingsPage() {
   const { data: session, isPending, error, refetch } = useSession();
   const user = session?.user;
 
   if (isPending) {
-    return (
-      <div className="mx-auto max-w-2xl space-y-4" aria-busy="true">
-        <Skeleton className="h-40 w-full rounded-lg" />
-        <Skeleton className="h-24 w-full rounded-lg" />
-      </div>
-    );
+    return <SettingsPageSkeleton />;
   }
 
   if (error || !user) {
@@ -36,7 +32,7 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <PageContainer size="narrow" className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -102,6 +98,6 @@ export function SettingsPage() {
         Project visibility and secrets are managed per project. Use the project
         actions menu to change status, visibility, or delete data.
       </p>
-    </div>
+    </PageContainer>
   );
 }

@@ -109,7 +109,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
               <BreadcrumbSeparator className="shrink-0 first:hidden">
                 {"/"}
               </BreadcrumbSeparator>
-              <BreadcrumbItem className="max-w-[5.5rem] shrink truncate sm:max-w-[8rem] md:max-w-xs">
+              <BreadcrumbItem className="max-w-24 shrink truncate sm:max-w-32 md:max-w-xs">
                 {index === breadcrumbs.length - 1 ? (
                   <BreadcrumbPage className="truncate">{label}</BreadcrumbPage>
                 ) : (

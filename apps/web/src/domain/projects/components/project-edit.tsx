@@ -62,14 +62,14 @@ export function EditProject({
   };
 
   return (
-    <Card className="border-none bg-input/10 shadow-none">
+    <Card>
       {!embedded && (
         <CardHeader>
           <CardTitle className="text-xl">Edit Project</CardTitle>
         </CardHeader>
       )}
       <CardContent className={embedded ? "px-0 pt-0" : undefined}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Project Name Field */}
           <Controller
             name="name"
@@ -77,22 +77,17 @@ export function EditProject({
             render={({ field, fieldState }) => (
               <div className="space-y-2">
                 <Label htmlFor={field.name} className="font-medium text-sm">
-                  Project Name <span className="text-red-500">*</span>
+                  Project Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   {...field}
                   id={field.name}
                   placeholder="Enter project name"
-                  className={
-                    fieldState.invalid
-                      ? "border-red-500 focus:ring-red-500"
-                      : ""
-                  }
                   disabled={isUpdating}
                   aria-invalid={fieldState.invalid}
                 />
                 {fieldState.invalid && (
-                  <p className="mt-1 text-red-500 text-sm">
+                  <p className="text-destructive text-sm">
                     {fieldState.error?.message}
                   </p>
                 )}
@@ -107,7 +102,8 @@ export function EditProject({
             render={({ field, fieldState }) => (
               <div className="space-y-2">
                 <Label htmlFor={field.name} className="font-medium text-sm">
-                  Description <span className="text-gray-400">(Optional)</span>
+                  Description{" "}
+                  <span className="text-muted-foreground">(Optional)</span>
                 </Label>
                 <Textarea
                   {...field}
@@ -115,22 +111,20 @@ export function EditProject({
                   placeholder="Provide a brief description of your project to help team members understand its purpose..."
                   rows={4}
                   maxLength={500}
-                  className={`wrap-anywhere resize-none ${
-                    fieldState.invalid
-                      ? "border-red-500 focus:ring-red-500"
-                      : ""
-                  }`}
+                  className="wrap-anywhere resize-none"
                   disabled={isUpdating}
                   aria-invalid={fieldState.invalid}
                 />
                 {fieldState.invalid && (
-                  <p className="mt-1 text-red-500 text-sm">
+                  <p className="text-destructive text-sm">
                     {fieldState.error?.message}
                   </p>
                 )}
                 <p
-                  className={`mt-1 text-xs ${
-                    descriptionLength > 500 ? "text-red-500" : "text-gray-500"
+                  className={`text-xs ${
+                    descriptionLength > 500
+                      ? "text-destructive"
+                      : "text-muted-foreground"
                   }`}
                 >
                   {descriptionLength}/500 characters
@@ -143,7 +137,7 @@ export function EditProject({
             name="isPublic"
             control={form.control}
             render={({ field }) => (
-              <div className="flex items-center justify-between gap-4 rounded-lg border bg-muted/30 p-4">
+              <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
                 <div className="min-w-0 flex-1 space-y-0.5">
                   <Label htmlFor="edit-project-visibility" className="text-sm">
                     Public project
@@ -171,23 +165,18 @@ export function EditProject({
               <div className="space-y-2">
                 <Label htmlFor={field.name} className="font-medium text-sm">
                   Repository URL{" "}
-                  <span className="text-gray-400">(Optional)</span>
+                  <span className="text-muted-foreground">(Optional)</span>
                 </Label>
                 <Input
                   {...field}
                   id={field.name}
                   type="url"
                   placeholder="https://github.com/org/repo"
-                  className={
-                    fieldState.invalid
-                      ? "border-red-500 focus:ring-red-500"
-                      : ""
-                  }
                   disabled={isUpdating}
                   aria-invalid={fieldState.invalid}
                 />
                 {fieldState.invalid && (
-                  <p className="mt-1 text-red-500 text-sm">
+                  <p className="text-destructive text-sm">
                     {fieldState.error?.message}
                   </p>
                 )}
@@ -202,23 +191,19 @@ export function EditProject({
             render={({ field, fieldState }) => (
               <div className="space-y-2">
                 <Label htmlFor={field.name} className="font-medium text-sm">
-                  Website URL <span className="text-gray-400">(Optional)</span>
+                  Website URL{" "}
+                  <span className="text-muted-foreground">(Optional)</span>
                 </Label>
                 <Input
                   {...field}
                   id={field.name}
                   type="url"
                   placeholder="https://your-project.com"
-                  className={
-                    fieldState.invalid
-                      ? "border-red-500 focus:ring-red-500"
-                      : ""
-                  }
                   disabled={isUpdating}
                   aria-invalid={fieldState.invalid}
                 />
                 {fieldState.invalid && (
-                  <p className="mt-1 text-red-500 text-sm">
+                  <p className="text-destructive text-sm">
                     {fieldState.error?.message}
                   </p>
                 )}
@@ -228,10 +213,10 @@ export function EditProject({
 
           {/* Form Actions */}
           <div className="flex items-center justify-between pt-4">
-            <div className="text-gray-500 text-sm">
-              <span className="text-red-500">*</span> Required fields
+            <div className="text-muted-foreground text-sm">
+              <span className="text-destructive">*</span> Required fields
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -244,7 +229,6 @@ export function EditProject({
                 isLoading={isUpdating}
                 loadingLabel="Updating…"
                 disabled={!form.formState.isValid}
-                className="min-w-[120px]"
               >
                 Update Project
               </SubmitButton>

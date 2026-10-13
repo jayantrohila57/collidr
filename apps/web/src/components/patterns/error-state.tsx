@@ -25,7 +25,7 @@ export function ErrorState({
   retryLabel = "Try again",
 }: ErrorStateProps) {
   return (
-    <Empty className="min-h-[12rem] w-full border border-destructive/30 bg-destructive/5">
+    <Empty className="min-h-48 w-full border border-destructive/30 bg-destructive/5">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <AlertTriangle className="size-6 text-destructive" aria-hidden />

@@ -1,9 +1,10 @@
-import { expect, test } from "@playwright/test";
+import { test } from "@playwright/test";
+import { assertNoHorizontalOverflow } from "./helpers/layout";
 
 const VIEWPORTS = [
   { width: 375, height: 812, name: "375" },
   { width: 768, height: 1024, name: "768" },
-  { width: 1024, height: 768, name: "1024" },
+  { width: 1280, height: 800, name: "1280" },
 ] as const;
 
 const ROUTES = [
@@ -12,16 +13,6 @@ const ROUTES = [
   "/dashboard/projects",
   "/dashboard/projects/new",
 ] as const;
-
-async function assertNoHorizontalOverflow(
-  page: import("@playwright/test").Page,
-) {
-  const overflow = await page.evaluate(() => {
-    const doc = document.documentElement;
-    return doc.scrollWidth - doc.clientWidth;
-  });
-  expect(overflow).toBeLessThanOrEqual(1);
-}
 
 for (const viewport of VIEWPORTS) {
   for (const route of ROUTES) {

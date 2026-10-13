@@ -21,7 +21,7 @@ export function SubmitButton({
     <Button
       type="submit"
       disabled={disabled || isLoading}
-      className={cn("min-w-[7.5rem]", className)}
+      className={cn("min-w-28", className)}
       {...props}
     >
       {isLoading ? (

@@ -34,7 +34,7 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
     : null;
 
   return (
-    <Card className="min-h-0 border bg-input/30 sm:min-h-64">
+    <Card className="flex min-h-0 flex-col">
       <CardHeader>
         <CardTitle className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <Folder className="h-5 w-5" />
@@ -68,7 +68,7 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
       </CardHeader>
       <CardFooter className="mt-auto flex flex-row items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs">
             <Calendar className="h-3 w-3" />
             <span>{formattedDate}</span>
           </div>
@@ -76,7 +76,7 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
           {project.isArchived && <Badge variant="outline">Archived</Badge>}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {project.repositoryUrl && (
             <Link
               href={project.repositoryUrl as Route}

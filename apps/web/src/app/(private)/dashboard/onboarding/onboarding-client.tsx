@@ -92,7 +92,7 @@ export default function OnboardingClient() {
   return (
     <PageContainer
       size="narrow"
-      className="min-h-[60vh] justify-center py-4 md:py-6"
+      className="min-h-svh justify-center py-4 md:py-6"
     >
       <Card className="w-full">
         <CardHeader>

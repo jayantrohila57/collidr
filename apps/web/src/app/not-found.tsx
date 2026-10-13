@@ -11,7 +11,7 @@ export default function NotFound() {
         The page you are looking for does not exist or you no longer have access
         to it.
       </p>
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
+      <div className="mt-6 flex flex-wrap justify-center gap-4">
         <Button asChild>
           <Link href={"/" as Route}>Go home</Link>
         </Button>

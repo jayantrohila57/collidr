@@ -41,13 +41,13 @@ export function VariablesMobileList({
   onDelete,
 }: VariablesMobileListProps) {
   return (
-    <ul className="space-y-3 md:hidden">
+    <ul className="space-y-4 md:hidden">
       {variables.map((variable) => {
         const isRevealed = revealedIds.has(variable.id);
         return (
           <li
             key={variable.id}
-            className="rounded-lg border bg-card p-3 shadow-xs"
+            className="space-y-4 rounded-lg border bg-card p-4"
           >
             <div className="flex items-start justify-between gap-2">
               <p className="wrap-anywhere min-w-0 flex-1 font-medium font-mono text-sm">
@@ -81,10 +81,10 @@ export function VariablesMobileList({
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="mt-2 min-w-0">
+            <div className="min-w-0">
               <SecretValue revealed={isRevealed} value={variable.value} />
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2">
               <IconButton
                 icon={isRevealed ? EyeOff : Eye}
                 label={isRevealed ? "Hide value" : "Reveal value"}

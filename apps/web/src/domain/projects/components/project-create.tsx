@@ -55,11 +55,11 @@ export function CreateProject() {
   };
 
   return (
-    <Card className="border-none bg-input/10 shadow-none">
+    <Card>
       <CardContent>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6 overflow-x-hidden"
+          className="space-y-4 overflow-x-hidden"
         >
           <Controller
             name="name"
@@ -67,22 +67,17 @@ export function CreateProject() {
             render={({ field, fieldState }) => (
               <div className="space-y-2">
                 <Label htmlFor={field.name} className="font-medium text-sm">
-                  Project Name <span className="text-red-500">*</span>
+                  Project Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   {...field}
                   id={field.name}
                   placeholder="Enter project name"
-                  className={
-                    fieldState.invalid
-                      ? "border-red-500 focus:ring-red-500"
-                      : ""
-                  }
                   disabled={isCreating}
                   aria-invalid={fieldState.invalid}
                 />
                 {fieldState.invalid && (
-                  <p className="mt-1 text-red-500 text-sm">
+                  <p className="text-destructive text-sm">
                     {fieldState.error?.message}
                   </p>
                 )}
@@ -96,7 +91,8 @@ export function CreateProject() {
             render={({ field, fieldState }) => (
               <div className="space-y-2">
                 <Label htmlFor={field.name} className="font-medium text-sm">
-                  Description <span className="text-gray-400">(Optional)</span>
+                  Description{" "}
+                  <span className="text-muted-foreground">(Optional)</span>
                 </Label>
                 <Textarea
                   {...field}
@@ -104,22 +100,20 @@ export function CreateProject() {
                   placeholder="Provide a brief description of your project to help team members understand its purpose..."
                   rows={4}
                   maxLength={500}
-                  className={`wrap-anywhere resize-none ${
-                    fieldState.invalid
-                      ? "border-red-500 focus:ring-red-500"
-                      : ""
-                  }`}
+                  className="wrap-anywhere resize-none"
                   disabled={isCreating}
                   aria-invalid={fieldState.invalid}
                 />
                 {fieldState.invalid && (
-                  <p className="mt-1 text-red-500 text-sm">
+                  <p className="text-destructive text-sm">
                     {fieldState.error?.message}
                   </p>
                 )}
                 <p
-                  className={`mt-1 text-xs ${
-                    descriptionLength > 500 ? "text-red-500" : "text-gray-500"
+                  className={`text-xs ${
+                    descriptionLength > 500
+                      ? "text-destructive"
+                      : "text-muted-foreground"
                   }`}
                 >
                   {descriptionLength}/500 characters
@@ -135,23 +129,18 @@ export function CreateProject() {
               <div className="space-y-2">
                 <Label htmlFor={field.name} className="font-medium text-sm">
                   Repository URL{" "}
-                  <span className="text-gray-400">(Optional)</span>
+                  <span className="text-muted-foreground">(Optional)</span>
                 </Label>
                 <Input
                   {...field}
                   id={field.name}
                   type="url"
                   placeholder="https://github.com/org/repo"
-                  className={
-                    fieldState.invalid
-                      ? "border-red-500 focus:ring-red-500"
-                      : ""
-                  }
                   disabled={isCreating}
                   aria-invalid={fieldState.invalid}
                 />
                 {fieldState.invalid && (
-                  <p className="mt-1 text-red-500 text-sm">
+                  <p className="text-destructive text-sm">
                     {fieldState.error?.message}
                   </p>
                 )}
@@ -165,23 +154,19 @@ export function CreateProject() {
             render={({ field, fieldState }) => (
               <div className="space-y-2">
                 <Label htmlFor={field.name} className="font-medium text-sm">
-                  Website URL <span className="text-gray-400">(Optional)</span>
+                  Website URL{" "}
+                  <span className="text-muted-foreground">(Optional)</span>
                 </Label>
                 <Input
                   {...field}
                   id={field.name}
                   type="url"
                   placeholder="https://your-project.com"
-                  className={
-                    fieldState.invalid
-                      ? "border-red-500 focus:ring-red-500"
-                      : ""
-                  }
                   disabled={isCreating}
                   aria-invalid={fieldState.invalid}
                 />
                 {fieldState.invalid && (
-                  <p className="mt-1 text-red-500 text-sm">
+                  <p className="text-destructive text-sm">
                     {fieldState.error?.message}
                   </p>
                 )}
@@ -193,7 +178,7 @@ export function CreateProject() {
             name="isPublic"
             control={form.control}
             render={({ field }) => (
-              <div className="flex items-center justify-between gap-4 rounded-lg border bg-muted/30 p-4">
+              <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
                 <div className="min-w-0 flex-1 space-y-0.5">
                   <Label htmlFor="project-visibility" className="text-sm">
                     Public project
@@ -214,11 +199,11 @@ export function CreateProject() {
             )}
           />
 
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-4">
-            <div className="text-gray-500 text-sm">
-              <span className="text-red-500">*</span> Required fields
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-4">
+            <div className="text-muted-foreground text-sm">
+              <span className="text-destructive">*</span> Required fields
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <Button
                 type="button"
                 variant="outline"

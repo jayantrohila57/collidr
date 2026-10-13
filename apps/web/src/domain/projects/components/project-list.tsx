@@ -113,7 +113,7 @@ export default function ProjectList() {
               className="rounded-lg border"
             >
               <AccordionTrigger className="p-4 hover:no-underline">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {category.icon}
                   <span className="font-medium">{category.title}</span>
                   <span className="text-muted-foreground text-sm">

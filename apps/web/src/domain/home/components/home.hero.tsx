@@ -16,8 +16,8 @@ export default function Hero() {
       data-testid="marketing-hero"
       className="flex flex-col items-start justify-start space-y-4 py-16 md:items-start md:text-left"
     >
-      <div className="space-y-8">
-        <Badge variant="secondary" className="mb-4">
+      <div className="space-y-6">
+        <Badge variant="secondary">
           <Zap className="mr-2 h-3 w-3" />
           Developer-First Environment Management
         </Badge>
@@ -47,7 +47,7 @@ export default function Hero() {
       </div>
 
       <div className="grid w-full grid-cols-1 gap-6 pt-4 sm:grid-cols-3">
-        <Card className="border bg-input/30">
+        <Card>
           <CardContent className="p-4 text-left">
             <div className="mb-2 flex justify-start">
               <Shield className="h-8 w-8 text-primary" />
@@ -58,7 +58,7 @@ export default function Hero() {
             </p>
           </CardContent>
         </Card>
-        <Card className="border bg-input/30">
+        <Card>
           <CardContent className="p-4 text-left">
             <div className="mb-2 flex justify-start">
               <Zap className="h-8 w-8 text-primary" />
@@ -69,7 +69,7 @@ export default function Hero() {
             </p>
           </CardContent>
         </Card>
-        <Card className="border bg-input/30">
+        <Card>
           <CardContent className="p-4 text-left">
             <div className="mb-2 flex justify-start">
               <CheckCircle className="h-8 w-8 text-primary" />

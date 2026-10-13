@@ -256,7 +256,7 @@ export default function DashboardStats() {
               <CardTitle>Recent Projects</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {activity.recentProjects.length === 0 ? (
                   <p className="text-muted-foreground text-sm">
                     No projects yet
@@ -283,7 +283,7 @@ export default function DashboardStats() {
                         >
                           {project.status}
                         </Badge>
-                        <p className="mt-1 text-muted-foreground text-xs">
+                        <p className="text-muted-foreground text-xs">
                           {formatDate(project.createdAt)}
                         </p>
                       </div>

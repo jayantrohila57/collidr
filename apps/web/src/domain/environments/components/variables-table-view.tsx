@@ -153,9 +153,9 @@ export function VariablesTableView({
         <Table className="w-full table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[32%]">Key</TableHead>
-              <TableHead className="w-[48%]">Value</TableHead>
-              <TableHead className="w-[20%] text-right">Actions</TableHead>
+              <TableHead className="w-1/3">Key</TableHead>
+              <TableHead className="w-1/2">Value</TableHead>
+              <TableHead className="w-1/6 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -181,7 +181,7 @@ export function VariablesTableView({
                       <Button
                         type="button"
                         variant="link"
-                        className="mt-1 h-auto p-0 text-xs"
+                        className="h-auto p-0 text-xs"
                         onClick={() => toggleValueExpanded(variable.id)}
                       >
                         {isValueExpanded ? "Collapse" : "Expand"}

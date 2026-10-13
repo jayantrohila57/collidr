@@ -67,7 +67,7 @@ export function EnvironmentsTabsView({
 
   if (environments.length === 0) {
     return (
-      <Empty className="h-full w-full border-2 border-muted-foreground/20 border-dashed bg-muted/30">
+      <Empty className="h-full w-full border border-dashed">
         <EmptyHeader>
           <EmptyMedia variant="icon">
             <Plus className="h-6 w-6" />
@@ -89,10 +89,10 @@ export function EnvironmentsTabsView({
 
   return (
     <Card className="min-w-0 bg-background">
-      <CardHeader className="gap-3 space-y-0">
-        <div className="flex min-w-0 items-center justify-between gap-2">
-          <CardTitle className="flex min-w-0 items-center gap-2 text-lg sm:text-2xl">
-            <FileKey className="h-5 w-5 shrink-0 sm:h-6 sm:w-6" />
+      <CardHeader className="space-y-0">
+        <div className="flex min-w-0 items-center justify-between gap-4">
+          <CardTitle className="flex min-w-0 items-center gap-2 text-lg">
+            <FileKey className="size-5 shrink-0" />
             <span className="truncate">Environments</span>
           </CardTitle>
           <CreateEnvironmentDialog
@@ -107,7 +107,7 @@ export function EnvironmentsTabsView({
         <Tabs
           value={resolvedActive}
           onValueChange={onTabChange}
-          className="min-w-0 gap-3"
+          className="min-w-0 gap-4"
         >
           <div className="min-w-0 space-y-2 md:hidden">
             <Select value={resolvedActive} onValueChange={onTabChange}>
@@ -152,14 +152,7 @@ export function EnvironmentsTabsView({
                     key={env.id}
                     className="inline-flex shrink-0 items-center gap-0.5"
                   >
-                    <TabsTrigger
-                      className={
-                        resolvedActive === env.id
-                          ? "shrink-0 rounded-none border-b-2 border-b-primary px-3 text-base text-primary"
-                          : "shrink-0 rounded-none border-b-2 border-b-border px-3 text-base"
-                      }
-                      value={env.id}
-                    >
+                    <TabsTrigger className="shrink-0" value={env.id}>
                       {env.name}
                     </TabsTrigger>
                     <span className="flex shrink-0 items-center gap-0.5 pr-2">
@@ -184,7 +177,7 @@ export function EnvironmentsTabsView({
             <TabsContent
               key={env.id}
               value={env.id}
-              className="min-w-0 rounded-md border bg-input/10 p-3 sm:p-4"
+              className="min-w-0 rounded-md border p-4 md:p-6"
             >
               {children(env)}
             </TabsContent>

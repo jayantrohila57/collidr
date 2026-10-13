@@ -1,29 +1,43 @@
+import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+
+function ProjectCardSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <Skeleton className="size-10 rounded-lg" />
+        <Skeleton className="h-5 w-3/4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-2/3" />
+      </CardHeader>
+      <CardFooter className="flex justify-between">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="size-8 rounded-md" />
+      </CardFooter>
+    </Card>
+  );
+}
 
 export function ProjectsSkeleton() {
   return (
-    <div className="space-y-4">
-      {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="rounded-lg border bg-input/10">
-          <div className="p-5">
-            <div className="flex items-center gap-3">
-              <Skeleton className="h-2 w-2 rounded-full" />
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-3 w-8" />
-            </div>
-          </div>
-          <div className="px-4 pb-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {[1, 2, 3, 4].map((j) => (
-                <Skeleton
-                  key={j}
-                  className="group/card flex min-h-80 w-full flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-card-foreground text-sm shadow-xs ring-foreground/10 has-[>img:first-child]:pt-0 data-[size=sm]:gap-4 data-[size=sm]:py-4 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl"
-                />
-              ))}
-            </div>
-          </div>
+    <div
+      className="space-y-4"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <div className="rounded-lg border">
+        <div className="flex items-center gap-2 p-4">
+          <Skeleton className="size-2 rounded-full" />
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-4 w-8" />
         </div>
-      ))}
+        <div className="grid gap-4 px-4 pb-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {["a", "b", "c", "d"].map((id) => (
+            <ProjectCardSkeleton key={id} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
