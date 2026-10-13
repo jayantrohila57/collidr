@@ -1,5 +1,5 @@
 import { count, eq } from "drizzle-orm";
-import { db } from "./index";
+import { db } from "./client";
 import { member } from "./schema/organization";
 import { project } from "./schema/projects";
 import { activeMemberWhere, activeProjectWhere } from "./soft-delete";

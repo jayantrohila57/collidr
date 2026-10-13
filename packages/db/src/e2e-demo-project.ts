@@ -1,10 +1,7 @@
 import { and, eq } from "drizzle-orm";
 
 import { db } from "./client";
-import { E2E_DEMO_VAR_KEY, seedE2eDemoVariables } from "./e2e-demo-variables";
-
-export { E2E_DEMO_VAR_KEY };
-
+import { seedE2eDemoVariables } from "./e2e-demo-variables";
 import { user } from "./schema/auth";
 import { environment, project } from "./schema/projects";
 import {

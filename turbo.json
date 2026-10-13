@@ -33,7 +33,9 @@
         "VARIABLES_V2_ENABLED",
         "NEXT_PUBLIC_VARIABLES_V2_ENABLED",
         "ACTIONS_AUDIT_ENABLED",
-        "NEXT_PUBLIC_ACTIONS_AUDIT_ENABLED"
+        "NEXT_PUBLIC_ACTIONS_AUDIT_ENABLED",
+        "E2E_TEST_MODE",
+        "E2E_TEST_SECRET"
       ]
     },
     "lint": {

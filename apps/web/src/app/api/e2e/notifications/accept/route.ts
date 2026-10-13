@@ -5,6 +5,8 @@ import { isE2eAuthRouteAllowed } from "@/lib/e2e-auth-allowed";
 import { isValidE2eSecret } from "@/lib/e2e-secret";
 import { e2ePersonaCredentials } from "@/lib/e2e-users";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   if (!isE2eAuthRouteAllowed()) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
