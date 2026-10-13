@@ -4,7 +4,6 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardStats from "@/components/dashboard-stats";
 import DashboardSection from "@/components/section-dashboard";
-import Shell from "@/components/shell";
 import { dehydrateDashboardOverview } from "@/lib/dashboard-prefetch";
 
 const header = {
@@ -26,13 +25,9 @@ export default async function DashboardPage() {
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <Shell>
-        <Shell.Section variant="dashboard" padding="dashboard" scale="full">
-          <DashboardSection {...header} showBack={false}>
-            <DashboardStats />
-          </DashboardSection>
-        </Shell.Section>
-      </Shell>
+      <DashboardSection {...header} showBack={false}>
+        <DashboardStats />
+      </DashboardSection>
     </HydrationBoundary>
   );
 }

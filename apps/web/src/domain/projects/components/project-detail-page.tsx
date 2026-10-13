@@ -4,6 +4,7 @@ import { ErrorState } from "@/components/patterns/error-state";
 import { StatusBadge } from "@/components/patterns/status-badge";
 import DashboardSection from "@/components/section-dashboard";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
 import { useEnvironments } from "@/domain/environments/hooks/use-environments";
 import { ProjectActions } from "./project-actions";
@@ -44,7 +45,17 @@ export default function ProjectDetailPage({
 
   if (status === "loading") {
     return (
-      <DashboardSection title={initialName}>
+      <DashboardSection
+        title={initialName}
+        titleAccessory={
+          <div className="flex flex-wrap gap-2">
+            <Skeleton className="h-5 w-16 rounded-md" />
+            <Skeleton className="h-5 w-14 rounded-md" />
+            <Skeleton className="h-5 w-20 rounded-md" />
+          </div>
+        }
+        action={<Skeleton className="h-9 w-9 rounded-md" />}
+      >
         <ProjectDetailSkeleton />
       </DashboardSection>
     );

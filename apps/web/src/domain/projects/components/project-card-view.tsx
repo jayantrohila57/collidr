@@ -34,17 +34,17 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
     : null;
 
   return (
-    <Card className="flex min-h-0 flex-col">
+    <Card className="flex h-full min-h-0 flex-col">
       <CardHeader>
-        <CardTitle className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <CardTitle className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <Folder className="h-5 w-5" />
         </CardTitle>
-        <CardAction className="flex items-center gap-1">
-          {project.isPublic && <Badge variant="outline">Public</Badge>}
+        <CardAction className="flex min-h-6 items-center justify-end gap-1">
+          {project.isPublic ? <Badge variant="outline">Public</Badge> : null}
           <ProjectActions project={project} />
         </CardAction>
       </CardHeader>
-      <CardHeader>
+      <CardHeader className="flex-1">
         {projectHref ? (
           <Link href={projectHref} className="group block h-full">
             <CardTitle>{project.name}</CardTitle>
@@ -52,7 +52,7 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
         ) : (
           <CardTitle>{project.name}</CardTitle>
         )}
-        <CardDescription>
+        <CardDescription className="min-h-10">
           <TruncatedText
             text={project.description ?? ""}
             lines={2}
@@ -69,15 +69,16 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
       <CardFooter className="mt-auto flex flex-row items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 text-muted-foreground text-xs">
-            <Calendar className="h-3 w-3" />
+            <Calendar className="size-3" />
             <span>{formattedDate}</span>
           </div>
-
-          {project.isArchived && <Badge variant="outline">Archived</Badge>}
+          {project.isArchived ? (
+            <Badge variant="outline">Archived</Badge>
+          ) : null}
         </div>
 
-        <div className="flex items-center gap-2">
-          {project.repositoryUrl && (
+        <div className="flex min-h-8 items-center gap-2">
+          {project.repositoryUrl ? (
             <Link
               href={project.repositoryUrl as Route}
               target="_blank"
@@ -85,12 +86,14 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
               onClick={(e) => e.stopPropagation()}
               aria-label={`Open ${project.name} repository`}
             >
-              <Button variant={"ghost"} size="icon">
-                <Github className="h-4 w-4" aria-hidden />
+              <Button variant="ghost" size="icon">
+                <Github className="size-4" aria-hidden />
               </Button>
             </Link>
+          ) : (
+            <span className="size-8 shrink-0" aria-hidden />
           )}
-          {project.websiteUrl && (
+          {project.websiteUrl ? (
             <Link
               href={project.websiteUrl as Route}
               target="_blank"
@@ -98,10 +101,12 @@ export function ProjectCardView({ project }: ProjectCardViewProps) {
               onClick={(e) => e.stopPropagation()}
               aria-label={`Open ${project.name} website`}
             >
-              <Button variant={"ghost"} size="icon">
-                <Globe className="h-4 w-4" aria-hidden />
+              <Button variant="ghost" size="icon">
+                <Globe className="size-4" aria-hidden />
               </Button>
             </Link>
+          ) : (
+            <span className="size-8 shrink-0" aria-hidden />
           )}
         </div>
       </CardFooter>

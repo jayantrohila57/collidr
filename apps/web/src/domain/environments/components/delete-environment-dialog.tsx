@@ -45,7 +45,7 @@ export function DeleteEnvironmentDialog({
             type="button"
             variant="ghost"
             size="icon"
-            className={`size-11 shrink-0 text-destructive hover:text-destructive ${touchTarget}`}
+            className={`size-11 shrink-0 ${touchTarget}`}
             aria-label={`Delete ${environmentName} environment`}
             onClick={(e) => {
               e.stopPropagation();

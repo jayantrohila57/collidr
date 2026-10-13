@@ -113,7 +113,7 @@ const MainVariants = cva("relative", {
   variants: {
     variant: {
       default: "flex flex-col",
-      dashboard: "flex flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6",
+      dashboard: "flex flex-1 flex-col gap-4 p-4",
       centered: "flex flex-col items-center justify-center py-16",
     },
     scale: {

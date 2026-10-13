@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
-import Shell from "@/components/shell";
 import { ProjectsSkeleton } from "@/domain/projects/components/skeletons";
 import { siteConfig } from "@/lib/siteConfig";
 
@@ -37,12 +36,8 @@ export default async function ProjectsPage() {
   }
 
   return (
-    <Shell>
-      <Shell.Section variant="dashboard" padding="dashboard" scale="full">
-        <DashboardSection {...header}>
-          <ProjectList />
-        </DashboardSection>
-      </Shell.Section>
-    </Shell>
+    <DashboardSection {...header}>
+      <ProjectList />
+    </DashboardSection>
   );
 }

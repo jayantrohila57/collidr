@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
-import Shell from "@/components/shell";
 import { SettingsPage } from "@/domain/settings/components/settings-page";
 
 export const metadata: Metadata = {
@@ -21,15 +20,12 @@ export default async function SettingsRoute() {
   }
 
   return (
-    <Shell>
-      <Shell.Section variant="dashboard" padding="dashboard" scale="full">
-        <DashboardSection
-          title="Settings"
-          description="Account information and security preferences."
-        >
-          <SettingsPage />
-        </DashboardSection>
-      </Shell.Section>
-    </Shell>
+    <DashboardSection
+      title="Settings"
+      description="Account information and security preferences."
+      showBack={false}
+    >
+      <SettingsPage />
+    </DashboardSection>
   );
 }

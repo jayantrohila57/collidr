@@ -32,27 +32,29 @@ export function PageHeader({
     ) : null);
 
   return (
-    <header className="flex min-w-0 shrink-0 flex-col gap-2">
-      <div className="flex min-w-0 items-start gap-2">
-        {showBack && <GoBackButton />}
-        <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center justify-between gap-2">
-            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-              <h1 className="min-w-0 truncate font-semibold text-xl tracking-tight">
-                {title}
-              </h1>
-              {titleAccessory}
-            </div>
-            {trailingAction && (
-              <div className="flex shrink-0 items-center">{trailingAction}</div>
-            )}
+    <header className="flex min-w-0 shrink-0 flex-col gap-4">
+      {showBack ? (
+        <div className="-ml-1">
+          <GoBackButton />
+        </div>
+      ) : null}
+      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h1 className="min-w-0 truncate font-semibold text-xl tracking-tight">
+              {title}
+            </h1>
+            {titleAccessory}
           </div>
-          {description && (
+          {description ? (
             <p className="wrap-anywhere text-muted-foreground text-sm">
               {description}
             </p>
-          )}
+          ) : null}
         </div>
+        {trailingAction ? (
+          <div className="flex shrink-0 items-center">{trailingAction}</div>
+        ) : null}
       </div>
     </header>
   );

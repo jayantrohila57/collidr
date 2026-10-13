@@ -109,7 +109,7 @@ export function EnvironmentsTabsView({
           onValueChange={onTabChange}
           className="min-w-0 gap-4"
         >
-          <div className="min-w-0 space-y-2 md:hidden">
+          <div className="min-w-0 space-y-2 lg:hidden">
             <Select value={resolvedActive} onValueChange={onTabChange}>
               <SelectTrigger
                 className={`w-full ${touchTarget}`}
@@ -141,12 +141,9 @@ export function EnvironmentsTabsView({
             )}
           </div>
 
-          <div className="hidden min-w-0 md:block">
+          <div className="hidden min-w-0 lg:block">
             <HorizontalScrollRail>
-              <TabsList
-                variant="line"
-                className="inline-flex h-auto w-max flex-nowrap justify-start gap-0"
-              >
+              <TabsList className="inline-flex h-auto w-max flex-nowrap justify-start">
                 {environments.map((env) => (
                   <div
                     key={env.id}
@@ -177,7 +174,7 @@ export function EnvironmentsTabsView({
             <TabsContent
               key={env.id}
               value={env.id}
-              className="min-w-0 rounded-md border p-4 md:p-6"
+              className="min-w-0 rounded-md border p-4"
             >
               {children(env)}
             </TabsContent>

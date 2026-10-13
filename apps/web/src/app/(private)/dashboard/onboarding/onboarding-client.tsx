@@ -10,6 +10,7 @@ import { PageContainer } from "@/components/layout/page-container";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { FormField } from "@/components/patterns/form-field";
+import { PageHeader } from "@/components/patterns/page-header";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -92,11 +93,16 @@ export default function OnboardingClient() {
   return (
     <PageContainer
       size="narrow"
-      className="min-h-svh justify-center py-4 md:py-6"
+      className="mx-auto w-full max-w-lg justify-center"
     >
-      <Card className="w-full">
+      <PageHeader
+        title="Create your organization"
+        description="Set up a workspace to manage projects and environment variables."
+        showBack={false}
+      />
+      <Card>
         <CardHeader>
-          <CardTitle>Create your organization</CardTitle>
+          <CardTitle className="text-base">Organization details</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -138,14 +144,15 @@ export default function OnboardingClient() {
                 </FormField>
               )}
             />
-            <SubmitButton
-              isLoading={isBusy}
-              loadingLabel="Creating…"
-              disabled={!form.formState.isValid || isBusy}
-              className="w-full"
-            >
-              Continue
-            </SubmitButton>
+            <div className="flex justify-end pt-2">
+              <SubmitButton
+                isLoading={isBusy}
+                loadingLabel="Creating…"
+                disabled={!form.formState.isValid || isBusy}
+              >
+                Continue
+              </SubmitButton>
+            </div>
           </form>
         </CardContent>
       </Card>

@@ -15,7 +15,7 @@ interface PageShellProps {
   containerSize?: "default" | "narrow" | "full";
 }
 
-/** Dashboard page frame: header + bordered content (sidebar-07 / dashboard-01). */
+/** Page frame: header + flat content on background (cards only inside children). */
 export function PageShell({
   title,
   description,

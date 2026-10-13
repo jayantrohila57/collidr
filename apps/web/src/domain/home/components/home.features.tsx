@@ -91,12 +91,9 @@ export default function Features() {
           description="Built by developers, for developers. Our platform provides all the tools you need to manage environment variables securely and efficiently."
         />
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => (
-            <Card
-              key={`feature-${feature.title.toLowerCase()}`}
-              className="relative overflow-hidden border bg-input/30"
-            >
+            <Card key={`feature-${feature.title.toLowerCase()}`}>
               <CardHeader className="pb-4">
                 <div className="mb-2 flex items-center justify-between">
                   <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
@@ -128,9 +125,9 @@ export default function Features() {
           ))}
         </div>
 
-        <div className="mt-8">
-          <Card className="mx-auto border-primary/20 bg-primary/5">
-            <CardContent className="p-8">
+        <div className="mt-6">
+          <Card className="mx-auto">
+            <CardContent>
               <h3 className="mb-4 font-bold text-2xl">
                 Ready to streamline your environment management?
               </h3>

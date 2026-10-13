@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
-import Shell from "@/components/shell";
 import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
 import { trpc } from "@/utils/trpc";
 
@@ -39,15 +38,11 @@ export default function EditProjectClient({ slug }: EditProjectClientProps) {
   }
 
   return (
-    <Shell>
-      <Shell.Section variant="dashboard" padding="dashboard" scale="full">
-        <DashboardSection
-          title={`Edit ${project.name}`}
-          description="Update project information and settings."
-        >
-          <EditProject project={project} />
-        </DashboardSection>
-      </Shell.Section>
-    </Shell>
+    <DashboardSection
+      title={`Edit ${project.name}`}
+      description="Update project information and settings."
+    >
+      <EditProject project={project} />
+    </DashboardSection>
   );
 }

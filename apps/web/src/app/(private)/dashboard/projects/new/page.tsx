@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
-import Shell from "@/components/shell";
 import { ProjectsSkeleton } from "@/domain/projects/components/skeletons";
 
 const CreateProject = dynamic(
@@ -24,10 +23,10 @@ export const metadata: Metadata = {
 
 const header = {
   title: "Create New Project",
-  description: " Add a new project to organize your environment variables.",
+  description: "Add a new project to organize your environment variables.",
 };
 
-export default async function ProjectsPage() {
+export default async function NewProjectPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -37,12 +36,8 @@ export default async function ProjectsPage() {
   }
 
   return (
-    <Shell>
-      <Shell.Section variant="dashboard" padding="dashboard" scale="full">
-        <DashboardSection {...header}>
-          <CreateProject />
-        </DashboardSection>
-      </Shell.Section>
-    </Shell>
+    <DashboardSection {...header}>
+      <CreateProject />
+    </DashboardSection>
   );
 }

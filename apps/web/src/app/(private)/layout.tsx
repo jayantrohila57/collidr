@@ -26,10 +26,29 @@ export default function OrganizationLayout({
   children,
 }: OrganizationLayoutProps) {
   const pathname = usePathname();
+  const isOnboarding = pathname === "/dashboard/onboarding";
+
   const showCompactMobileNav =
     pathname === "/dashboard" ||
     pathname === "/dashboard/settings" ||
     pathname.startsWith("/dashboard/settings/");
+
+  if (isOnboarding) {
+    return (
+      <Shell>
+        <TooltipProvider delayDuration={0}>
+          <ActiveOrganizationProvider>
+            <main
+              id="main-content"
+              className="flex min-h-svh min-w-0 flex-col bg-background p-4"
+            >
+              <OrgOnboardingGate>{children}</OrgOnboardingGate>
+            </main>
+          </ActiveOrganizationProvider>
+        </TooltipProvider>
+      </Shell>
+    );
+  }
 
   return (
     <Shell>
@@ -38,22 +57,22 @@ export default function OrganizationLayout({
           <ActiveOrganizationProvider>
             <AppSidebar />
             <SidebarInset className="flex min-h-svh min-w-0 flex-col overflow-x-hidden">
-              <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-2 backdrop-blur-md supports-backdrop-filter:bg-background/80 sm:px-4">
+              <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4 lg:px-4">
                 <div className="flex w-full min-w-0 items-center justify-between gap-2">
-                  <div className="flex min-w-0 flex-1 flex-row items-center justify-start gap-1">
-                    <SidebarTrigger className="-ml-0.5 size-11 shrink-0" />
+                  <div className="flex min-w-0 flex-1 flex-row items-center justify-start gap-2">
+                    <SidebarTrigger className="-ml-1 size-11 shrink-0" />
                     <Separator
                       orientation="vertical"
-                      className="my-auto mr-1 ml-0.5 hidden data-[orientation=vertical]:h-6 sm:block"
+                      className="my-auto hidden h-6 lg:block"
                     />
-                    <div className="hidden min-w-0 flex-1 md:block">
+                    <div className="hidden min-w-0 flex-1 lg:block">
                       <Breadcrumbs />
                     </div>
                     <div
                       className={
                         showCompactMobileNav
-                          ? "flex min-w-0 flex-1 flex-row items-center gap-2 md:hidden"
-                          : "hidden min-w-0 flex-1 md:hidden"
+                          ? "flex min-w-0 flex-1 flex-row items-center gap-2 lg:hidden"
+                          : "hidden min-w-0 flex-1 lg:hidden"
                       }
                     >
                       {showCompactMobileNav ? (
@@ -85,7 +104,7 @@ export default function OrganizationLayout({
                       )}
                     </div>
                   </div>
-                  <div className="flex shrink-0 flex-row items-center justify-end gap-2 sm:gap-4">
+                  <div className="flex shrink-0 flex-row items-center justify-end gap-2">
                     <ModeToggle />
                     <UserMenu />
                   </div>

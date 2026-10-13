@@ -153,9 +153,13 @@ export function VariablesTableView({
         <Table className="w-full table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/3">Key</TableHead>
-              <TableHead className="w-1/2">Value</TableHead>
-              <TableHead className="w-1/6 text-right">Actions</TableHead>
+              <TableHead className="w-1/3 text-muted-foreground">Key</TableHead>
+              <TableHead className="w-1/2 text-muted-foreground">
+                Value
+              </TableHead>
+              <TableHead className="w-1/6 text-right text-muted-foreground">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

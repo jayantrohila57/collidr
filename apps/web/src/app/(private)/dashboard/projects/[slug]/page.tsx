@@ -4,17 +4,12 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import Shell from "@/components/shell";
 import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
 
 const ProjectDetailPage = dynamic(
   () => import("@/domain/projects/components/project-detail-page"),
   {
-    loading: () => (
-      <div className="p-2">
-        <ProjectDetailSkeleton />
-      </div>
-    ),
+    loading: () => <ProjectDetailSkeleton />,
   },
 );
 
@@ -72,11 +67,5 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     notFound();
   }
 
-  return (
-    <Shell>
-      <Shell.Section variant="dashboard" padding="dashboard" scale="full">
-        <ProjectDetailPage slug={slug} initialName={projectRecord.name} />
-      </Shell.Section>
-    </Shell>
-  );
+  return <ProjectDetailPage slug={slug} initialName={projectRecord.name} />;
 }
