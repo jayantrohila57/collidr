@@ -1,12 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
 import {
   type StatCardItem,
   StatCardRow,
   StatCardRowSkeleton,
 } from "@/components/patterns/stat-card";
+import { formatRelativeShort } from "@/lib/format-relative-short";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { trpc } from "@/utils/trpc";
 
@@ -25,7 +25,7 @@ export function UserSettingsStats() {
 
   const orgsEnabled = isOrganizationsEnabledOnClient();
   const accountAge = data.accountCreatedAt
-    ? formatDistanceToNow(new Date(data.accountCreatedAt), { addSuffix: true })
+    ? formatRelativeShort(data.accountCreatedAt)
     : "—";
 
   const items: StatCardItem[] = [

@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { PageHeaderBar, PageHeaderRow } from "@/components/layout/app-layout";
 import { DashboardInsetContainer } from "@/components/layout/dashboard-inset-container";
+import { DashboardNarrowContent } from "@/components/layout/dashboard-narrow-content";
 import { ModeToggle } from "@/components/mode-toggle";
 import { ActiveOrganizationProvider } from "@/components/org/active-organization-context";
 import { OrgOnboardingGate } from "@/components/org/org-onboarding-gate";
@@ -33,6 +34,7 @@ export default function OrganizationLayout({
   const pathname = usePathname();
   const isOnboarding = pathname === "/dashboard/onboarding";
   const contentWidth = getDashboardContentWidth(pathname);
+  const useNarrowColumn = contentWidth === "narrow";
 
   if (isOnboarding) {
     return (
@@ -64,7 +66,7 @@ export default function OrganizationLayout({
               className="flex h-svh max-h-svh min-h-0 flex-col overflow-hidden md:h-[calc(100svh-1rem)] md:max-h-[calc(100svh-1rem)]"
             >
               <PageHeaderBar>
-                <DashboardInsetContainer width={contentWidth}>
+                <DashboardInsetContainer width="wide">
                   <PageHeaderRow>
                     <div className="flex min-w-0 flex-1 items-center gap-2">
                       <SidebarTrigger className="size-8 shrink-0" />
@@ -92,11 +94,16 @@ export default function OrganizationLayout({
                 scale="dashboard"
                 className="min-w-0 max-w-full"
               >
-                <DashboardInsetContainer
-                  width={contentWidth}
-                  className="min-w-0 pb-2"
-                >
-                  <OrgOnboardingGate>{children}</OrgOnboardingGate>
+                <DashboardInsetContainer width="wide" className="min-w-0 pb-2">
+                  <OrgOnboardingGate>
+                    {useNarrowColumn ? (
+                      <DashboardNarrowContent>
+                        {children}
+                      </DashboardNarrowContent>
+                    ) : (
+                      children
+                    )}
+                  </OrgOnboardingGate>
                 </DashboardInsetContainer>
               </Shell.Main>
             </SidebarInset>

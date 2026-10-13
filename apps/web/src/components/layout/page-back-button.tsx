@@ -10,8 +10,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { PageBackHref } from "@/lib/page-back";
+import { cn } from "@/lib/utils";
 
-export function PageBackButton({ href }: { href?: PageBackHref | null }) {
+export function PageBackButton({
+  href,
+  className,
+}: {
+  href?: PageBackHref | null;
+  className?: string;
+}) {
   const router = useRouter();
 
   if (href) {
@@ -23,7 +30,7 @@ export function PageBackButton({ href }: { href?: PageBackHref | null }) {
               type="button"
               variant="ghost"
               size="icon-sm"
-              className="shrink-0"
+              className={cn("shrink-0", className)}
               aria-label="Back"
               render={<Link href={href} />}
             />
@@ -44,7 +51,7 @@ export function PageBackButton({ href }: { href?: PageBackHref | null }) {
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="shrink-0"
+            className={cn("shrink-0", className)}
             aria-label="Back"
             onClick={() => router.back()}
           />

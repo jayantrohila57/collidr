@@ -33,10 +33,10 @@ function projectStatusLabel(project: ProjectOutput) {
 }
 
 const col = {
-  project: "w-[40%] min-w-0 max-w-[14rem] sm:max-w-none",
+  project: "w-[40%] min-w-0 max-w-none sm:max-w-none",
   status: "hidden w-24 md:table-cell",
-  visibility: "hidden w-28 lg:table-cell",
-  updated: "hidden w-28 xl:table-cell",
+  visibility: "hidden w-28 md:table-cell",
+  updated: "hidden w-28 md:table-cell",
   links: "hidden w-20 2xl:table-cell",
   actions:
     "sticky end-0 z-10 w-12 bg-background shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)] dark:shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.35)]",

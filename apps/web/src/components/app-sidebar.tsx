@@ -51,16 +51,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { href: "/dashboard/settings", label: "Settings", icon: SettingsIcon },
   ];
 
+  const pathMatchesNavItem = (href: string) => {
+    if (pathname === href) return true;
+    if (href === "/dashboard") return false;
+    return pathname.startsWith(`${href}/`);
+  };
+
   const isActive = (href: string) => {
     if (!mounted) return false;
-    if (href === pathname) return true;
 
     const sortedItems = [...menuItems].sort(
       (a, b) => b.href.length - a.href.length,
     );
 
-    const activeItem = sortedItems.find(
-      (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
+    const activeItem = sortedItems.find((item) =>
+      pathMatchesNavItem(item.href),
     );
 
     return activeItem?.href === href;

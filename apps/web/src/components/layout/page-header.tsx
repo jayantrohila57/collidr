@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { PageBackButton } from "@/components/layout/page-back-button";
 import {
-  layoutChromeRowClass,
+  layoutPageHeaderRowClass,
   layoutPageTitleClass,
 } from "@/lib/layout-spacing";
 import { getPageBackHref, type PageBackHref } from "@/lib/page-back";
@@ -53,24 +53,27 @@ export function PageHeader({
   const resolved = resolveBack(back, pathname);
 
   return (
-    <div className={layoutChromeRowClass}>
-      <div className="flex min-w-0 flex-1 items-center gap-2">
+    <div className={layoutPageHeaderRowClass}>
+      <div className="flex min-w-0 flex-1 items-start gap-2">
         {resolved ? (
           <PageBackButton
             href={resolved.useHistory && !resolved.href ? null : resolved.href}
+            className="mt-0.5"
           />
         ) : null}
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <h1 className={cn(layoutPageTitleClass, "truncate")}>{title}</h1>
             {titleAccessory}
           </div>
           {description ? (
-            <p className="text-muted-foreground text-xs">{description}</p>
+            <p className="line-clamp-2 text-muted-foreground text-xs">
+              {description}
+            </p>
           ) : null}
         </div>
       </div>
-      {action ? <div className="shrink-0">{action}</div> : null}
+      {action ? <div className="mt-0.5 shrink-0">{action}</div> : null}
     </div>
   );
 }

@@ -48,7 +48,7 @@ export function SettingsPage() {
               {initialsFromLabel(user.name ?? user.email ?? "User", "US")}
             </AvatarFallback>
           </Avatar>
-          <div className="min-w-0 text-end sm:text-start">
+          <div className="min-w-0 text-start">
             <p className="truncate font-medium text-sm">
               {user.name ?? "User"}
             </p>

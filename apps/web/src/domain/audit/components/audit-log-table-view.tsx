@@ -7,8 +7,10 @@ import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import type { DataTableEmptyConfig } from "@/components/data-table/data-table-empty-types";
 import { AppIcon } from "@/components/patterns/app-icon";
+import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import type { AppIconName } from "@/lib/icons";
 
 const actionVariants: Record<
   string,
@@ -50,6 +52,19 @@ interface AuditLogTableViewProps {
   filter?: ReactNode;
   filterActive?: boolean;
   empty?: DataTableEmptyConfig;
+}
+
+function auditEntityIcon(entityType: string): AppIconName {
+  switch (entityType) {
+    case "VARIABLE":
+      return "variable";
+    case "ENVIRONMENT":
+      return "environment";
+    case "PROJECT":
+      return "project";
+    default:
+      return "activity";
+  }
 }
 
 const getEntityDescription = (log: AuditLog) => {
@@ -99,10 +114,19 @@ export function AuditLogTableView({
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Entity" />
         ),
-        cell: ({ getValue }) => (
-          <Badge variant={entityTypeVariants[getValue()] || "secondary"}>
-            {getValue()}
-          </Badge>
+        cell: ({ row, getValue }) => (
+          <TableLeadingCell
+            leading={
+              <AppIcon
+                name={auditEntityIcon(row.original.entityType)}
+                className="text-muted-foreground"
+              />
+            }
+          >
+            <Badge variant={entityTypeVariants[getValue()] || "secondary"}>
+              {getValue()}
+            </Badge>
+          </TableLeadingCell>
         ),
       }),
       columnHelper.display({

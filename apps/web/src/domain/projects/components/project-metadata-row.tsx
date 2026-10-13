@@ -4,7 +4,6 @@ import type { ProjectOutput } from "@env-manager/api/types";
 import type { Route } from "next";
 import Link from "next/link";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { TruncatedText } from "@/components/patterns/truncated-text";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -25,12 +24,6 @@ export function ProjectMetadataRow({
 
   return (
     <div className={cn("flex min-w-0 flex-col gap-2 text-sm", className)}>
-      <TruncatedText
-        text={project.description ?? ""}
-        lines={2}
-        emptyFallback="No description provided."
-      />
-
       <dl className="grid gap-x-4 gap-y-1 text-xs sm:grid-cols-[auto_1fr_auto_1fr] sm:items-center">
         <dt className="text-muted-foreground">Slug</dt>
         <dd className="truncate font-mono">{project.slug}</dd>

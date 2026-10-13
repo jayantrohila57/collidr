@@ -40,7 +40,7 @@ export const layoutSectionStackClass = `flex min-w-0 flex-col ${layoutGapClass}`
 export const layoutContentClass = `flex flex-1 min-w-0 flex-col ${layoutGapClass} ${layoutGutterClass}`;
 
 /** Scrollable dashboard main below the inset header (single scroll container) */
-export const layoutDashboardScrollClass = `flex min-h-0 flex-1 min-w-0 flex-col ${layoutGapClass} overflow-x-hidden overflow-y-auto overscroll-y-contain py-2 ${layoutInsetXClass}`;
+export const layoutDashboardScrollClass = `flex min-h-0 flex-1 min-w-0 flex-col ${layoutGapClass} overflow-x-hidden overflow-y-auto overscroll-y-contain py-2 [scrollbar-gutter:stable] ${layoutInsetXClass}`;
 
 /** Fixed inset header shell — matches SidebarHeader vertical rhythm */
 export const layoutChromeClass = `flex shrink-0 flex-col ${layoutGapClass} py-2 ${layoutInsetXClass}`;
@@ -48,8 +48,12 @@ export const layoutChromeClass = `flex shrink-0 flex-col ${layoutGapClass} py-2 
 /** Inner row aligned to sidebar team switcher */
 export const layoutChromeRowClass = `flex w-full min-w-0 items-center justify-between ${layoutRowLgClass} ${layoutGapClass}`;
 
+/** In-page title row — grows with title, badges, and clamped description */
+export const layoutPageHeaderRowClass =
+  "flex w-full min-w-0 items-start justify-between gap-2 min-h-12 py-0.5";
+
 /** In-page title row (DashboardSection, page heroes) */
-export const layoutTitleRowClass = layoutChromeRowClass;
+export const layoutTitleRowClass = layoutPageHeaderRowClass;
 
 /** Form / sheet field stacks */
 export const layoutFormStackClass = `grid ${layoutGapClass}`;

@@ -30,12 +30,12 @@ function StatCardInner({ item }: { item: StatCardItem }) {
           <CardDescription className="text-xs">{item.label}</CardDescription>
           <AppIcon name={item.icon} className="size-4" />
         </div>
-        <CardTitle className="text-xl tabular-nums sm:text-2xl">
+        <CardTitle className="truncate text-nowrap text-xl tabular-nums sm:text-2xl">
           {item.value}
         </CardTitle>
       </CardHeader>
       {item.hint ? (
-        <CardPanel className="px-3 pt-0 pb-3 text-muted-foreground text-xs sm:px-4 sm:pb-4">
+        <CardPanel className="truncate text-nowrap px-3 pt-0 pb-3 text-muted-foreground text-xs sm:px-4 sm:pb-4">
           {item.hint}
         </CardPanel>
       ) : null}
@@ -70,12 +70,12 @@ export function StatCard({
               </CardDescription>
               <AppIcon name={item.icon} className="size-4" />
             </div>
-            <CardTitle className="text-xl tabular-nums sm:text-2xl">
+            <CardTitle className="truncate text-nowrap text-xl tabular-nums sm:text-2xl">
               {item.value}
             </CardTitle>
           </CardHeader>
           {item.hint ? (
-            <CardPanel className="px-3 pt-0 pb-3 text-muted-foreground text-xs sm:px-4 sm:pb-4">
+            <CardPanel className="truncate text-nowrap px-3 pt-0 pb-3 text-muted-foreground text-xs sm:px-4 sm:pb-4">
               {item.hint}
             </CardPanel>
           ) : null}

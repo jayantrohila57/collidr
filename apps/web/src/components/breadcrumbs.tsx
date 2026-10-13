@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
+import { isRecognizedDashboardPath } from "@/lib/dashboard-path";
 import { cn, deSlug } from "@/lib/utils";
 
 const STATIC_LABELS: Record<string, string> = {
@@ -43,7 +44,12 @@ function breadcrumbLabel(
   index: number,
   breadcrumbs: ReturnType<typeof generateBreadcrumbs>,
   projectFromList?: { name: string },
+  showNotFound?: boolean,
 ) {
+  if (showNotFound && index === breadcrumbs.length - 1) {
+    return "Not found";
+  }
+
   const isProjectSlug =
     index === 2 &&
     breadcrumbs[1]?.segment === "projects" &&
@@ -59,7 +65,15 @@ export function Breadcrumbs({ className }: { className?: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const breadcrumbs = generateBreadcrumbs(pathname);
-  const { projects } = useProjects();
+  const { projects, status: projectsStatus } = useProjects();
+  const projectSlugs = new Set(
+    projects.map((p) => p.slug).filter((s): s is string => Boolean(s?.trim())),
+  );
+  const projectsLoaded =
+    projectsStatus === "success" || projectsStatus === "empty";
+  const showNotFound =
+    pathname != null &&
+    !isRecognizedDashboardPath(pathname, projectSlugs, projectsLoaded);
 
   const projectSlugFromPath = breadcrumbs[2]?.segment;
   const projectFromList =
@@ -130,6 +144,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
                             index,
                             breadcrumbs,
                             projectFromList,
+                            showNotFound,
                           )}
                         </MenuItem>
                       ))}
@@ -148,6 +163,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
                   lastIndex,
                   breadcrumbs,
                   projectFromList,
+                  showNotFound,
                 )}
               </BreadcrumbPage>
             </BreadcrumbItem>
@@ -181,6 +197,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
             index,
             breadcrumbs,
             projectFromList,
+            showNotFound,
           );
 
           return (

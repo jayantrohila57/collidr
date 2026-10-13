@@ -1,13 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
 import {
   type StatCardItem,
   StatCardRow,
   StatCardRowSkeleton,
 } from "@/components/patterns/stat-card";
 import { useOrgQueryEnabled } from "@/hooks/use-org-query-enabled";
+import { formatRelativeShort } from "@/lib/format-relative-short";
 import { trpc } from "@/utils/trpc";
 
 export function ProjectDetailStats({ slug }: { slug: string }) {
@@ -25,9 +25,7 @@ export function ProjectDetailStats({ slug }: { slug: string }) {
     return null;
   }
 
-  const updatedLabel = formatDistanceToNow(new Date(data.updatedAt), {
-    addSuffix: true,
-  });
+  const updatedLabel = formatRelativeShort(data.updatedAt);
 
   const visibility = data.isPublic ? "Public" : "Private";
   const statusLabel = data.isArchived
