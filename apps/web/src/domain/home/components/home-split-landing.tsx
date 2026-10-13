@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -48,12 +49,11 @@ function FeatureRow({
   feature: HomeLandingFeature;
   compact?: boolean;
 }) {
-  const Icon = feature.icon;
   return (
     <li className="flex min-w-0 gap-3">
-      <Icon
+      <AppIcon
+        name={feature.icon}
         className="mt-0.5 size-4 shrink-0 text-muted-foreground"
-        aria-hidden
       />
       <div className="min-w-0">
         <p className="font-medium text-sm">{feature.title}</p>

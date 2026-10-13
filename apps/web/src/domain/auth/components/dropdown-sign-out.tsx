@@ -1,7 +1,7 @@
 "use client";
 
-import { LogOut } from "lucide-react";
 import * as React from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { MenuItem } from "@/components/ui/menu";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/lib/toast";
@@ -39,7 +39,7 @@ export const SignOutDropdownMenuItem = React.forwardRef<
       className={cn(inset && "ps-8", className)}
       {...props}
     >
-      {isLoading ? <Spinner /> : <LogOut className="h-4 w-4" />}
+      {isLoading ? <Spinner /> : <AppIcon name="logOut" className="size-4" />}
       {isLoading ? "Signing out..." : "Sign out"}
     </MenuItem>
   );

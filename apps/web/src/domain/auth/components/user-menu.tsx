@@ -1,8 +1,8 @@
 "use client";
 
 import type { User } from "better-auth";
-import { LogOut } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -96,7 +96,7 @@ export function UserMenu() {
         </MenuGroup>
         <MenuSeparator />
         <MenuItem onClick={handleSignOut} disabled={isLoading}>
-          <LogOut className="me-2 h-4 w-4" />
+          <AppIcon name="logOut" className="me-2 size-4" />
           <span>Log out</span>
         </MenuItem>
       </MenuPopup>

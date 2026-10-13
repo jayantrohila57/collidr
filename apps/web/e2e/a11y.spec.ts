@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { seriousAxeViolations } from "./helpers/a11y";
 
 test.describe("accessibility", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
@@ -14,10 +15,6 @@ test.describe("accessibility", () => {
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
       .analyze();
 
-    const serious = results.violations.filter(
-      (v) => v.impact === "serious" || v.impact === "critical",
-    );
-
-    expect(serious).toEqual([]);
+    expect(seriousAxeViolations(results)).toEqual([]);
   });
 });

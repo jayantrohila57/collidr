@@ -3,6 +3,7 @@ import {
   Activity,
   Archive,
   ArchiveRestore,
+  ArrowLeft,
   Building2,
   Calendar,
   ChevronLeft,
@@ -18,6 +19,7 @@ import {
   KeyRound,
   Layers,
   Lock,
+  LogOut,
   Mail,
   MoreHorizontal,
   MoreVertical,
@@ -76,6 +78,8 @@ export const appIcons = {
   power: Power,
   archiveRestore: ArchiveRestore,
   back: ChevronLeft,
+  arrowLeft: ArrowLeft,
+  logOut: LogOut,
 } as const satisfies Record<string, LucideIcon>;
 
 export type AppIconName = keyof typeof appIcons;

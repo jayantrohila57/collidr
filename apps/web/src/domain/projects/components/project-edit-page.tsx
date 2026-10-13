@@ -1,7 +1,7 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { Button } from "@/components/ui/button";
 import { useEnvironments } from "../../environments/hooks/use-environments";
 import { EditProject } from "./project-edit";
@@ -34,7 +34,7 @@ export default function EditProjectPage({ projectSlug }: EditProjectPageProps) {
       <div className="flex items-center gap-4">
         <Link href={`/dashboard/projects/${projectSlug}`}>
           <Button variant="ghost" size="sm">
-            <ArrowLeft className="me-2 h-4 w-4" />
+            <AppIcon name="arrowLeft" className="me-2 size-4" />
             Back to Project
           </Button>
         </Link>

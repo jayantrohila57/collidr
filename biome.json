@@ -80,6 +80,23 @@
   },
   "overrides": [
     {
+      "includes": ["apps/web/src/domain/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "lucide-react": "Import icons via @/lib/icons (AppIcon / appIcons) in domain code."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["apps/web/src/components/ui/**"],
       "linter": {
         "rules": {

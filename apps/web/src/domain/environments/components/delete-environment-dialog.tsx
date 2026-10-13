@@ -1,7 +1,7 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
 import { useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,7 +55,7 @@ export function DeleteEnvironmentDialog({
               />
             }
           >
-            <Trash2 className="h-3.5 w-3.5" aria-hidden />
+            <AppIcon name="delete" className="size-3.5" />
           </TooltipTrigger>
           <TooltipContent>Delete environment</TooltipContent>
         </Tooltip>

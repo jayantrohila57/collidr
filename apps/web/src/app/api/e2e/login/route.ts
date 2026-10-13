@@ -1,14 +1,11 @@
 import { auth } from "@env-manager/auth";
 import { ensureE2eDemoProject } from "@env-manager/db";
 import { NextResponse } from "next/server";
+import { isE2eAuthRouteAllowed } from "@/lib/e2e-auth-allowed";
 
 const E2E_EMAIL = "e2e-playwright@env-manager.local";
 const E2E_PASSWORD = "e2e-local-only-not-for-production";
 const E2E_NAME = "Playwright E2E";
-
-function isE2eLoginEnabled() {
-  return process.env.E2E_TEST_MODE === "1";
-}
 
 function assertE2eSecret(request: Request) {
   const expected = process.env.E2E_TEST_SECRET ?? "local-e2e-secret";
@@ -17,7 +14,7 @@ function assertE2eSecret(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!isE2eLoginEnabled()) {
+  if (!isE2eAuthRouteAllowed()) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   if (!assertE2eSecret(request)) {

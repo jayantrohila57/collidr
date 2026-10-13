@@ -29,7 +29,10 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        command: "pnpm next dev --port 3000",
+        command:
+          process.env.E2E_USE_PROD_SERVER === "1"
+            ? "pnpm build && pnpm start --port 3000"
+            : "pnpm next dev --port 3000",
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

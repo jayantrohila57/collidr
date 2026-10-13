@@ -1,7 +1,7 @@
 "use client";
 
-import { Github } from "lucide-react";
 import { useTransition } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/lib/toast";
@@ -44,7 +44,7 @@ export function GitHubLoginButton({
       size={size}
       className={cn("gap-2", className)}
     >
-      {isLoading ? <Spinner /> : <Github className="h-4 w-4" />}
+      {isLoading ? <Spinner /> : <AppIcon name="github" className="size-4" />}
       {label}
     </Button>
   );
