@@ -18,6 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Can } from "@/domain/permissions/components/can";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { EditProjectSheet } from "./edit-project-sheet";
 import { ProjectActionDialog } from "./project-action-dialog";
@@ -160,27 +161,39 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
           <MenuSeparator />
 
           {project.isArchived ? (
-            <MenuItem
-              onClick={() => {
-                setMenuOpen(false);
-                setUnarchiveDialogOpen(true);
-              }}
-              disabled={isUnarchiving}
+            <Can
+              action="project.unarchive"
+              projectId={project.id}
+              fallback={null}
             >
-              <AppIcon name="archiveRestore" className={menuIconClass} />
-              Unarchive project
-            </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  setMenuOpen(false);
+                  setUnarchiveDialogOpen(true);
+                }}
+                disabled={isUnarchiving}
+              >
+                <AppIcon name="archiveRestore" className={menuIconClass} />
+                Unarchive project
+              </MenuItem>
+            </Can>
           ) : (
-            <MenuItem
-              onClick={() => {
-                setMenuOpen(false);
-                setArchiveDialogOpen(true);
-              }}
-              disabled={isArchiving}
+            <Can
+              action="project.archive"
+              projectId={project.id}
+              fallback={null}
             >
-              <AppIcon name="statusArchived" className={menuIconClass} />
-              Archive project
-            </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  setMenuOpen(false);
+                  setArchiveDialogOpen(true);
+                }}
+                disabled={isArchiving}
+              >
+                <AppIcon name="statusArchived" className={menuIconClass} />
+                Archive project
+              </MenuItem>
+            </Can>
           )}
 
           <MenuSeparator />

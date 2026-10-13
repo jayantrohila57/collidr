@@ -33,6 +33,15 @@ describe("evaluatePermission", () => {
     assert.equal(result.allowed, true);
   });
 
+  it("allows project.unarchive for assigned project managers", () => {
+    const result = evaluatePermission({
+      action: "project.unarchive",
+      orgRole: "manager",
+      project: { isProjectManager: true, isProjectCreator: false },
+    });
+    assert.equal(result.allowed, true);
+  });
+
   it("allows notification.mark_unread for any signed-in user", () => {
     const result = evaluatePermission({
       action: "notification.mark_unread",

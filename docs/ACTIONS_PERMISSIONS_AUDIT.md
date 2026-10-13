@@ -408,6 +408,7 @@ Legend:
 | `project.update` | Y | Y | G | G |
 | `project.delete` | Y | Y | — | — |
 | `project.archive` | Y | Y | G | — |
+| `project.unarchive` | Y | Y | G | — |
 | `project.status.change` | Y | Y | G | — |
 | `project.public.toggle` | Y | Y | G | — |
 | `project.assign_manager` | Y | Y | — | — |

@@ -470,7 +470,7 @@ export const projectsRouter = router({
 
   // Unarchive a project
   unarchive: orgProcedure
-    .use(actionGuard("project.restore", projectIdFromInput))
+    .use(actionGuard("project.unarchive", projectIdFromInput))
     .input(getProjectInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {

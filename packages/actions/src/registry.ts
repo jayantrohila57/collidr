@@ -18,6 +18,7 @@ export const PROJECT_GRANT_KEYS = [
   "project.read",
   "project.update",
   "project.archive",
+  "project.unarchive",
   "project.status.change",
   "project.public.toggle",
   "project.assign_team",

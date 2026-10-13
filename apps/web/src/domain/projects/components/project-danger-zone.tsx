@@ -9,6 +9,7 @@ import {
   SettingsSectionHeader,
 } from "@/components/patterns/settings-layout";
 import { Button } from "@/components/ui/button";
+import { Can } from "@/domain/permissions/components/can";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { ProjectActionDialog } from "./project-action-dialog";
 
@@ -39,39 +40,47 @@ export function ProjectDangerZone({ project }: ProjectDangerZoneProps) {
           icon="danger"
         />
         {project.isArchived ? (
-          <SettingsRow
-            label="Archived"
-            description="This project is hidden from the main project list."
+          <Can
+            action="project.unarchive"
+            projectId={project.id}
+            fallback={null}
           >
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="w-fit gap-2"
-              disabled={isUnarchiving}
-              onClick={() => setUnarchiveDialogOpen(true)}
+            <SettingsRow
+              label="Archived"
+              description="This project is hidden from the main project list."
             >
-              <AppIcon name="archiveRestore" className="text-current" />
-              Unarchive project
-            </Button>
-          </SettingsRow>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-fit gap-2"
+                disabled={isUnarchiving}
+                onClick={() => setUnarchiveDialogOpen(true)}
+              >
+                <AppIcon name="archiveRestore" className="text-current" />
+                Unarchive project
+              </Button>
+            </SettingsRow>
+          </Can>
         ) : (
-          <SettingsRow
-            label="Archive"
-            description="Hide the project without deleting environments or variables."
-          >
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="w-fit gap-2"
-              disabled={isArchiving}
-              onClick={() => setArchiveDialogOpen(true)}
+          <Can action="project.archive" projectId={project.id} fallback={null}>
+            <SettingsRow
+              label="Archive"
+              description="Hide the project without deleting environments or variables."
             >
-              <AppIcon name="statusArchived" className="text-current" />
-              Archive project
-            </Button>
-          </SettingsRow>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-fit gap-2"
+                disabled={isArchiving}
+                onClick={() => setArchiveDialogOpen(true)}
+              >
+                <AppIcon name="statusArchived" className="text-current" />
+                Archive project
+              </Button>
+            </SettingsRow>
+          </Can>
         )}
         <SettingsRow
           label="Delete project"

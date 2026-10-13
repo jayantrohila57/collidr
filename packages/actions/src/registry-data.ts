@@ -288,6 +288,14 @@ const rows: MatrixRow[] = [
     projectGrantKey: "project.archive",
   },
   {
+    name: "project.unarchive",
+    scope: "project",
+    description: "Unarchive project",
+    manager: "grant",
+    entityType: "project",
+    projectGrantKey: "project.unarchive",
+  },
+  {
     name: "project.status.change",
     scope: "project",
     description: "Change project status",
