@@ -11,6 +11,10 @@ export const organization = pgTable(
     logo: text("logo"),
     metadata: text("metadata"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    deletedBy: text("deleted_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
   },
   (table) => [index("organization_slug_idx").on(table.slug)],
 );

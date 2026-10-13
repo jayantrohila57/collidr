@@ -7,6 +7,7 @@ import { createAuditLog } from "../audit";
 import { throwFriendlyError } from "../errors";
 import { orgProcedure, router } from "../index";
 import { attachProjectToOrganization, projectListFilter } from "../org-access";
+import { listAccessibleProjectIds, projectIdsFilter } from "../project-list";
 import { assertUniqueProjectName } from "../project-name";
 import {
   buildProjectSlugFromName,
@@ -30,10 +31,22 @@ export const projectsRouter = router({
   list: orgProcedure
     .output(makeResponseSchema(z.array(projectOutput)))
     .query(async ({ ctx }) => {
+      const accessibleIds = await listAccessibleProjectIds(
+        ctx.session.user.id,
+        ctx.activeOrganizationId,
+      );
+      const idFilter = projectIdsFilter(accessibleIds);
       const projectsList = await db
         .select()
         .from(project)
-        .where(projectListFilter(ctx.session.user.id, ctx.activeOrganizationId))
+        .where(
+          idFilter
+            ? and(
+                eq(project.organizationId, ctx.activeOrganizationId!),
+                idFilter,
+              )
+            : projectListFilter(ctx.session.user.id, ctx.activeOrganizationId),
+        )
         .orderBy(project.updatedAt);
 
       return respond({ message: "Projects fetched", data: projectsList });

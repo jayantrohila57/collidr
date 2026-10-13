@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
 import { ActivitySummaryStats } from "@/domain/audit/components/activity-summary-stats";
 import AuditLogs from "@/domain/audit/components/audit-logs";
+import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
 import { getServerSession } from "@/lib/server-auth";
 
 export const metadata: Metadata = {
@@ -15,6 +16,10 @@ export default async function ActivityPage() {
 
   if (!session?.user) {
     redirect("/");
+  }
+
+  if (isActionsAuditEnabledOnServer()) {
+    redirect("/dashboard/timeline");
   }
 
   return (

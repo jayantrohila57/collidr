@@ -11,6 +11,7 @@
   },
   "scripts": {},
   "dependencies": {
+    "@env-manager/actions": "workspace:*",
     "@env-manager/auth": "workspace:*",
     "@env-manager/crypto": "workspace:*",
     "@env-manager/db": "workspace:*",

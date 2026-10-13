@@ -33,6 +33,10 @@ export const notification = pgTable(
     readAt: timestamp("read_at"),
     idempotencyKey: text("idempotency_key"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    deletedBy: text("deleted_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
   },
   (table) => [
     index("notification_recipient_user_read_created_idx").on(

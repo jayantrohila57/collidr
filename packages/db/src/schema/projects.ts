@@ -38,6 +38,10 @@ export const project = pgTable(
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    deletedBy: text("deleted_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
   },
   (table) => [
     index("project_userId_idx").on(table.userId),
@@ -72,6 +76,10 @@ export const environment = pgTable(
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    deletedBy: text("deleted_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
   },
   (table) => [
     index("environment_projectId_idx").on(table.projectId),
@@ -95,6 +103,10 @@ export const environmentVariable = pgTable(
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    deletedBy: text("deleted_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
   },
   (table) => [
     index("environment_variable_environmentId_idx").on(table.environmentId),

@@ -78,6 +78,9 @@ importers:
       '@daypicker/react':
         specifier: ^10.0.2
         version: 10.0.2(@types/react@19.2.8)(react@19.2.3)
+      '@env-manager/actions':
+        specifier: workspace:*
+        version: link:../../packages/actions
       '@env-manager/api':
         specifier: workspace:*
         version: link:../../packages/api
@@ -209,8 +212,24 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
+  packages/actions:
+    dependencies:
+      zod:
+        specifier: 'catalog:'
+        version: 4.3.5
+    devDependencies:
+      '@env-manager/config':
+        specifier: workspace:*
+        version: link:../config
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   packages/api:
     dependencies:
+      '@env-manager/actions':
+        specifier: workspace:*
+        version: link:../actions
       '@env-manager/auth':
         specifier: workspace:*
         version: link:../auth

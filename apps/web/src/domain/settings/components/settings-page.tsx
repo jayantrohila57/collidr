@@ -11,6 +11,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/domain/auth/lib/auth-actions";
+import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { formatDateTime } from "@/lib/format";
 import { initialsFromLabel } from "@/lib/initials";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
@@ -77,7 +78,71 @@ export function SettingsPage() {
         </div>
       </SettingsRow>
 
-      {isOrganizationsEnabledOnClient() ? (
+      {isActionsAuditEnabledOnClient() ? (
+        <>
+          <SettingsRow
+            label="Sessions"
+            description="Devices signed in to your account."
+            icon="settings"
+          >
+            <Button
+              size="sm"
+              render={<Link href={"/dashboard/settings/sessions" as Route} />}
+            >
+              Manage sessions
+            </Button>
+          </SettingsRow>
+          <SettingsRow
+            label="Connected accounts"
+            description="OAuth providers linked to your account."
+            icon="github"
+          >
+            <Button
+              size="sm"
+              render={<Link href={"/dashboard/settings/accounts" as Route} />}
+            >
+              View accounts
+            </Button>
+          </SettingsRow>
+          <SettingsRow
+            label="Export my data"
+            description="Download a JSON export of your data."
+            icon="settings"
+          >
+            <Button
+              size="sm"
+              render={<Link href={"/dashboard/settings/export" as Route} />}
+            >
+              Export
+            </Button>
+          </SettingsRow>
+          <SettingsRow
+            label="Timeline"
+            description="Audit log for your account actions."
+            icon="settings"
+          >
+            <Button
+              size="sm"
+              render={<Link href={"/dashboard/settings/timeline" as Route} />}
+            >
+              View timeline
+            </Button>
+          </SettingsRow>
+          <SettingsRow
+            label="Delete account"
+            description="Permanently remove your account."
+            icon="settings"
+          >
+            <Button
+              size="sm"
+              variant="destructive"
+              render={<Link href={"/dashboard/settings/delete" as Route} />}
+            >
+              Delete account
+            </Button>
+          </SettingsRow>
+        </>
+      ) : isOrganizationsEnabledOnClient() ? (
         <SettingsRow
           label="Organization"
           description="Members, invitations, and workspace profile."

@@ -1,0 +1,109 @@
+import {
+  type ActionName,
+  actionNames,
+  evaluatePermission,
+  isActionsAuditEnabled,
+  normalizeOrgRole,
+} from "@env-manager/actions";
+import { db } from "@env-manager/db";
+import { member } from "@env-manager/db/schema/organization";
+import { and, eq } from "drizzle-orm";
+import { isActionBlocked } from "./is-action-blocked";
+import {
+  loadProjectAccessContext,
+  userHasAnyProjectManagerAssignment,
+} from "./project-access";
+
+export type PermissionsSnapshot = {
+  platformAdmin: false;
+  orgRole: "owner" | "manager" | "member" | null;
+  actions: Record<string, boolean>;
+  blocked: ActionName[];
+};
+
+export async function buildPermissionsSnapshot(input: {
+  userId: string;
+  organizationId: string | null;
+  projectId?: string | null;
+}): Promise<PermissionsSnapshot> {
+  const blocked: ActionName[] = [];
+  const actions: Record<string, boolean> = {};
+
+  if (!isActionsAuditEnabled()) {
+    for (const name of actionNames) {
+      actions[name] = true;
+    }
+    return {
+      platformAdmin: false,
+      orgRole: null,
+      actions,
+      blocked,
+    };
+  }
+
+  let orgRole: "owner" | "manager" | "member" | null = null;
+  if (input.organizationId) {
+    const [membership] = await db
+      .select({ role: member.role })
+      .from(member)
+      .where(
+        and(
+          eq(member.organizationId, input.organizationId),
+          eq(member.userId, input.userId),
+        ),
+      )
+      .limit(1);
+    orgRole = normalizeOrgRole(membership?.role);
+  }
+
+  const projectCtx = input.projectId
+    ? await loadProjectAccessContext(input.userId, input.projectId)
+    : null;
+
+  let managerHasTimeline = false;
+  if (orgRole === "manager" && input.organizationId) {
+    managerHasTimeline = await userHasAnyProjectManagerAssignment(
+      input.userId,
+      input.organizationId,
+    );
+  }
+
+  for (const name of actionNames) {
+    const action = name as ActionName;
+    if (
+      await isActionBlocked(action, {
+        userId: input.userId,
+        organizationId: input.organizationId,
+        projectId: input.projectId,
+      })
+    ) {
+      blocked.push(action);
+      actions[name] = false;
+      continue;
+    }
+
+    const defScope = evaluatePermission({
+      action,
+      orgRole,
+      project: projectCtx,
+    });
+
+    if (
+      action === "audit.timeline.view.org" &&
+      orgRole === "manager" &&
+      !managerHasTimeline
+    ) {
+      actions[name] = false;
+      continue;
+    }
+
+    actions[name] = defScope.allowed;
+  }
+
+  return {
+    platformAdmin: false,
+    orgRole,
+    actions,
+    blocked,
+  };
+}

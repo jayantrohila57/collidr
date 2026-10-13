@@ -1,8 +1,12 @@
 "use client";
 
+import { platformNav } from "@env-manager/actions/nav";
+import type { LucideIcon } from "lucide-react";
 import {
   ActivityIcon,
   BellIcon,
+  Building2Icon,
+  ClockIcon,
   FolderClosedIcon,
   LayoutDashboardIcon,
   SettingsIcon,
@@ -30,9 +34,21 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { useNotificationsUnreadCount } from "@/domain/notifications/hooks/use-notifications";
+import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
+import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+
+const navIcons: Record<string, LucideIcon> = {
+  "/dashboard": LayoutDashboardIcon,
+  "/dashboard/projects": FolderClosedIcon,
+  "/dashboard/organizations": Building2Icon,
+  "/dashboard/timeline": ClockIcon,
+  "/dashboard/notifications": BellIcon,
+  "/dashboard/settings": SettingsIcon,
+  "/dashboard/activity": ActivityIcon,
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
@@ -51,21 +67,70 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     setMounted(true);
   }, []);
 
-  const menuItems = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboardIcon },
-    { href: "/dashboard/projects", label: "Projects", icon: FolderClosedIcon },
-    { href: "/dashboard/activity", label: "Activity", icon: ActivityIcon },
-    ...(notificationsEnabled
-      ? [
-          {
-            href: "/dashboard/notifications",
-            label: "Notifications",
-            icon: BellIcon,
-            badge: notificationCount,
-          },
-        ]
-      : []),
-  ] as const;
+  const actionsAudit = isActionsAuditEnabledOnClient();
+  const permissions = useCan("organization.list");
+  const canTimeline = useCan("audit.timeline.view.org");
+
+  const menuItems = actionsAudit
+    ? platformNav
+        .filter((item) => {
+          if (
+            item.href === "/dashboard/notifications" &&
+            !notificationsEnabled
+          ) {
+            return false;
+          }
+          if (item.href === "/dashboard/organizations" && !showOrgSwitcher) {
+            return false;
+          }
+          if (!item.action) return true;
+          if (item.action === "organization.list") {
+            return permissions.allowed;
+          }
+          if (item.action === "audit.timeline.view.org") {
+            return canTimeline.allowed;
+          }
+          if (item.action === "notification.list") {
+            return notificationsEnabled;
+          }
+          return true;
+        })
+        .map((item) => ({
+          href: item.href,
+          label: item.label,
+          icon: navIcons[item.href] ?? LayoutDashboardIcon,
+          badge:
+            item.href === "/dashboard/notifications"
+              ? notificationCount
+              : undefined,
+        }))
+    : [
+        {
+          href: "/dashboard",
+          label: "Dashboard",
+          icon: LayoutDashboardIcon,
+        },
+        {
+          href: "/dashboard/projects",
+          label: "Projects",
+          icon: FolderClosedIcon,
+        },
+        {
+          href: "/dashboard/activity",
+          label: "Activity",
+          icon: ActivityIcon,
+        },
+        ...(notificationsEnabled
+          ? [
+              {
+                href: "/dashboard/notifications",
+                label: "Notifications",
+                icon: BellIcon,
+                badge: notificationCount,
+              },
+            ]
+          : []),
+      ];
 
   const pathMatchesNavItem = (href: string) => {
     if (pathname === href) return true;

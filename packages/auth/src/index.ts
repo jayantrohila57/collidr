@@ -3,6 +3,7 @@ import { assertOrganizationCanBeDeleted } from "@env-manager/db/org-delete-polic
 import * as authSchema from "@env-manager/db/schema/auth";
 import { user } from "@env-manager/db/schema/auth";
 import * as organizationSchema from "@env-manager/db/schema/organization";
+import * as teamSchema from "@env-manager/db/schema/team";
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import { env } from "@env-manager/env/server";
 import {
@@ -57,6 +58,7 @@ export const auth = betterAuth({
     schema: {
       ...authSchema,
       ...organizationSchema,
+      ...teamSchema,
     },
   }),
   trustedOrigins: [env.CORS_ORIGIN],
@@ -72,6 +74,7 @@ export const auth = betterAuth({
       ? [
           organization({
             allowUserToCreateOrganization: true,
+            teams: { enabled: true },
             organizationHooks: {
               beforeDeleteOrganization: async ({ organization: org, user }) => {
                 await assertOrganizationCanBeDeleted(org, user.id);
