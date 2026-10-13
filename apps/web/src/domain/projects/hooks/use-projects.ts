@@ -9,7 +9,6 @@ import {
 } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useOrgQueryScopeKey } from "@/components/org/active-organization-context";
 import { trpc } from "@/utils/trpc";
 
 // Interface for API response before transformation
@@ -89,14 +88,7 @@ const PROJECTS_LOAD_TIMEOUT_MS = 20_000;
 
 export function useProjects() {
   const queryClient = useQueryClient();
-  const orgScope = useOrgQueryScopeKey();
   const [loadTimedOut, setLoadTimedOut] = useState(false);
-
-  useEffect(() => {
-    queryClient.removeQueries({
-      queryKey: trpc.projects.list.queryKey(),
-    });
-  }, [orgScope, queryClient]);
 
   const projectsQuery = useQuery({
     ...trpc.projects.list.queryOptions(),
@@ -138,10 +130,7 @@ export function useProjects() {
           queryKey: trpc.projects.list.queryKey(),
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.dashboard.getStats.queryKey(),
-        });
-        queryClient.invalidateQueries({
-          queryKey: trpc.dashboard.getRecentActivity.queryKey(),
+          queryKey: trpc.dashboard.getOverview.queryKey(),
         });
 
         toast.success("Project created successfully");
@@ -205,10 +194,7 @@ export function useProjects() {
             query.queryKey[1][0] === "getBySlug",
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.dashboard.getStats.queryKey(),
-        });
-        queryClient.invalidateQueries({
-          queryKey: trpc.dashboard.getRecentActivity.queryKey(),
+          queryKey: trpc.dashboard.getOverview.queryKey(),
         });
       },
       onSuccess: () => {
@@ -258,10 +244,7 @@ export function useProjects() {
           queryKey: trpc.projects.list.queryKey(),
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.dashboard.getStats.queryKey(),
-        });
-        queryClient.invalidateQueries({
-          queryKey: trpc.dashboard.getRecentActivity.queryKey(),
+          queryKey: trpc.dashboard.getOverview.queryKey(),
         });
       },
       onSuccess: () => {

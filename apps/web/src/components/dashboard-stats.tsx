@@ -77,9 +77,9 @@ interface StatCardProps {
 function StatCard({ title, value, icon, description, href }: StatCardProps) {
   const cardContent = (
     <Card
-      className={`border bg-input/30 ${
+      className={
         href ? "cursor-pointer transition-colors hover:bg-accent/50" : ""
-      }`}
+      }
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="font-medium text-sm">{title}</CardTitle>
@@ -151,9 +151,8 @@ export default function DashboardStats() {
   // }));
 
   return (
-    <div className="space-y-2">
-      {/* Welcome Section */}
-      <div className="min-w-0 rounded-lg border bg-card p-4">
+    <div className="space-y-4">
+      <div className="min-w-0 rounded-lg border bg-card p-4 md:p-6">
         <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">
             <Avatar className="size-14 shrink-0 border-2 sm:size-20">
@@ -252,7 +251,7 @@ export default function DashboardStats() {
 
       {activity && (
         <div className="grid gap-4 lg:grid-cols-2">
-          <Card className="border bg-input/30">
+          <Card>
             <CardHeader>
               <CardTitle>Recent Projects</CardTitle>
             </CardHeader>

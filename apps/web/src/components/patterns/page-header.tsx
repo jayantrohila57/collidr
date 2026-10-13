@@ -48,7 +48,7 @@ export function PageHeader({
             )}
           </div>
           {description && (
-            <p className="wrap-anywhere mt-1 line-clamp-2 text-muted-foreground text-xs">
+            <p className="wrap-anywhere text-muted-foreground text-sm">
               {description}
             </p>
           )}

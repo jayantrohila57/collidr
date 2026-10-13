@@ -2,11 +2,13 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v3";
+import { PageContainer } from "@/components/layout/page-container";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
+import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { FormField } from "@/components/patterns/form-field";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,6 +44,7 @@ const schema = z.object({
 export default function OnboardingClient() {
   const router = useRouter();
   const { afterOrganizationCreated } = useActiveOrganization();
+  const [navigating, setNavigating] = useState(false);
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: { name: "", slug: "" },
@@ -56,6 +59,8 @@ export default function OnboardingClient() {
     const next = slugifyOrganizationName(nameValue);
     if (next) form.setValue("slug", next, { shouldValidate: true });
   }, [nameValue, slugTouched, form]);
+
+  const isBusy = form.formState.isSubmitting || navigating;
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
     form.clearErrors("slug");
@@ -74,16 +79,21 @@ export default function OnboardingClient() {
     }
 
     const orgId = created.data?.id;
+    toast.success("Organization created");
+    setNavigating(true);
+
     if (orgId) {
       await afterOrganizationCreated(orgId);
     }
 
-    toast.success("Organization created");
     router.replace("/dashboard");
   };
 
   return (
-    <div className="mx-auto flex min-h-[60vh] max-w-lg items-center p-4">
+    <PageContainer
+      size="narrow"
+      className="min-h-[60vh] justify-center py-4 md:py-6"
+    >
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Create your organization</CardTitle>
@@ -112,29 +122,26 @@ export default function OnboardingClient() {
                   id="org-slug"
                   label="URL slug"
                   required
-                  hint="Used in URLs and must be unique."
+                  hint="Slugs use lowercase letters, numbers, and hyphens."
                   error={fieldState.error?.message}
                 >
-                  <Input
-                    {...field}
+                  <OrgSlugInput
                     id="org-slug"
                     placeholder="acme-inc"
                     autoComplete="off"
-                    onChange={(e) => {
-                      field.onChange(e);
-                      form.setValue("slug", e.target.value, {
-                        shouldTouch: true,
-                        shouldValidate: true,
-                      });
-                    }}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    ref={field.ref}
                   />
                 </FormField>
               )}
             />
             <SubmitButton
-              isLoading={form.formState.isSubmitting}
+              isLoading={isBusy}
               loadingLabel="Creating…"
-              disabled={!form.formState.isValid}
+              disabled={!form.formState.isValid || isBusy}
               className="w-full"
             >
               Continue
@@ -142,6 +149,6 @@ export default function OnboardingClient() {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   );
 }

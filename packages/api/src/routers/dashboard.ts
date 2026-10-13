@@ -6,6 +6,7 @@ import {
   project,
 } from "@env-manager/db/schema/projects";
 import { and, count, eq, gte, sql } from "drizzle-orm";
+import type { Context } from "../context";
 import { orgProcedure, router } from "../index";
 import { projectListFilter } from "../org-access";
 
@@ -13,34 +14,45 @@ function projectScope(userId: string, organizationId: string | null) {
   return projectListFilter(userId, organizationId);
 }
 
-export const dashboardRouter = router({
-  getStats: orgProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id;
-    const scope = projectScope(userId, ctx.activeOrganizationId);
+type OrgCtx = Context & {
+  session: NonNullable<Context["session"]>;
+  activeOrganizationId: string | null;
+};
 
-    const totalProjectsResult = await db
+async function fetchDashboardStats(ctx: OrgCtx) {
+  const userId = ctx.session.user.id;
+  const scope = projectScope(userId, ctx.activeOrganizationId);
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const [
+    totalProjectsResult,
+    activeProjectsResult,
+    totalEnvironmentsResult,
+    activeEnvironmentsResult,
+    totalVariablesResult,
+    projectsByStatusResult,
+    environmentsByStatusResult,
+    recentAuditLogsResult,
+    productionEnvironmentsResult,
+  ] = await Promise.all([
+    db.select({ count: count() }).from(project).where(scope),
+    db
       .select({ count: count() })
       .from(project)
-      .where(scope);
-
-    const activeProjectsResult = await db
-      .select({ count: count() })
-      .from(project)
-      .where(and(scope, eq(project.status, "active")));
-
-    const totalEnvironmentsResult = await db
+      .where(and(scope, eq(project.status, "active"))),
+    db
       .select({ count: count() })
       .from(environment)
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(scope);
-
-    const activeEnvironmentsResult = await db
+      .where(scope),
+    db
       .select({ count: count() })
       .from(environment)
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(and(scope, eq(environment.status, "active")));
-
-    const totalVariablesResult = await db
+      .where(and(scope, eq(environment.status, "active"))),
+    db
       .select({ count: count() })
       .from(environmentVariable)
       .innerJoin(
@@ -48,18 +60,16 @@ export const dashboardRouter = router({
         eq(environmentVariable.environmentId, environment.id),
       )
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(scope);
-
-    const projectsByStatusResult = await db
+      .where(scope),
+    db
       .select({
         status: project.status,
         count: count(),
       })
       .from(project)
       .where(scope)
-      .groupBy(project.status);
-
-    const environmentsByStatusResult = await db
+      .groupBy(project.status),
+    db
       .select({
         status: environment.status,
         count: count(),
@@ -67,12 +77,8 @@ export const dashboardRouter = router({
       .from(environment)
       .innerJoin(project, eq(environment.projectId, project.id))
       .where(scope)
-      .groupBy(environment.status);
-
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-    const recentAuditLogsResult = await db
+      .groupBy(environment.status),
+    db
       .select({ count: count() })
       .from(auditLog)
       .innerJoin(project, eq(auditLog.projectId, project.id))
@@ -82,44 +88,45 @@ export const dashboardRouter = router({
           gte(auditLog.createdAt, sevenDaysAgo),
           scope,
         ),
-      );
-
-    const productionEnvironmentsResult = await db
+      ),
+    db
       .select({ count: count() })
       .from(environment)
       .innerJoin(project, eq(environment.projectId, project.id))
-      .where(and(scope, eq(environment.isProduction, true)));
+      .where(and(scope, eq(environment.isProduction, true))),
+  ]);
 
-    return {
-      totalProjects: totalProjectsResult[0]?.count || 0,
-      activeProjects: activeProjectsResult[0]?.count || 0,
-      totalEnvironments: totalEnvironmentsResult[0]?.count || 0,
-      activeEnvironments: activeEnvironmentsResult[0]?.count || 0,
-      totalVariables: totalVariablesResult[0]?.count || 0,
-      productionEnvironments: productionEnvironmentsResult[0]?.count || 0,
-      recentAuditLogs: recentAuditLogsResult[0]?.count || 0,
-      projectsByStatus: projectsByStatusResult.reduce(
-        (acc, item) => {
-          acc[item.status] = item.count;
-          return acc;
-        },
-        {} as Record<string, number>,
-      ),
-      environmentsByStatus: environmentsByStatusResult.reduce(
-        (acc, item) => {
-          acc[item.status] = item.count;
-          return acc;
-        },
-        {} as Record<string, number>,
-      ),
-    };
-  }),
+  return {
+    totalProjects: totalProjectsResult[0]?.count || 0,
+    activeProjects: activeProjectsResult[0]?.count || 0,
+    totalEnvironments: totalEnvironmentsResult[0]?.count || 0,
+    activeEnvironments: activeEnvironmentsResult[0]?.count || 0,
+    totalVariables: totalVariablesResult[0]?.count || 0,
+    productionEnvironments: productionEnvironmentsResult[0]?.count || 0,
+    recentAuditLogs: recentAuditLogsResult[0]?.count || 0,
+    projectsByStatus: projectsByStatusResult.reduce(
+      (acc, item) => {
+        acc[item.status] = item.count;
+        return acc;
+      },
+      {} as Record<string, number>,
+    ),
+    environmentsByStatus: environmentsByStatusResult.reduce(
+      (acc, item) => {
+        acc[item.status] = item.count;
+        return acc;
+      },
+      {} as Record<string, number>,
+    ),
+  };
+}
 
-  getRecentActivity: orgProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id;
-    const scope = projectScope(userId, ctx.activeOrganizationId);
+async function fetchRecentActivity(ctx: OrgCtx) {
+  const userId = ctx.session.user.id;
+  const scope = projectScope(userId, ctx.activeOrganizationId);
 
-    const recentProjects = await db
+  const [recentProjects, recentAuditLogs] = await Promise.all([
+    db
       .select({
         id: project.id,
         name: project.name,
@@ -130,9 +137,8 @@ export const dashboardRouter = router({
       .from(project)
       .where(scope)
       .orderBy(sql`${project.createdAt} DESC`)
-      .limit(5);
-
-    const recentAuditLogs = await db
+      .limit(5),
+    db
       .select({
         id: auditLog.id,
         action: auditLog.action,
@@ -144,11 +150,39 @@ export const dashboardRouter = router({
       .innerJoin(project, eq(auditLog.projectId, project.id))
       .where(and(eq(auditLog.userId, userId), scope))
       .orderBy(sql`${auditLog.createdAt} DESC`)
-      .limit(10);
+      .limit(10),
+  ]);
 
-    return {
-      recentProjects,
-      recentAuditLogs,
-    };
+  return {
+    recentProjects: recentProjects.map((row) => ({
+      ...row,
+      createdAt:
+        row.createdAt instanceof Date
+          ? row.createdAt.toISOString()
+          : String(row.createdAt),
+    })),
+    recentAuditLogs: recentAuditLogs.map((row) => ({
+      ...row,
+      createdAt:
+        row.createdAt instanceof Date
+          ? row.createdAt.toISOString()
+          : String(row.createdAt),
+    })),
+  };
+}
+
+export const dashboardRouter = router({
+  getOverview: orgProcedure.query(async ({ ctx }) => {
+    const [stats, activity] = await Promise.all([
+      fetchDashboardStats(ctx),
+      fetchRecentActivity(ctx),
+    ]);
+    return { stats, activity };
   }),
+
+  getStats: orgProcedure.query(async ({ ctx }) => fetchDashboardStats(ctx)),
+
+  getRecentActivity: orgProcedure.query(async ({ ctx }) =>
+    fetchRecentActivity(ctx),
+  ),
 });

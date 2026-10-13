@@ -91,7 +91,7 @@ export function useEnvironments(projectSlug: string) {
           queryKey: trpc.projects.list.queryKey(),
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.dashboard.getStats.queryKey(),
+          queryKey: trpc.dashboard.getOverview.queryKey(),
         });
       },
       onSuccess: (response) => {
@@ -168,7 +168,7 @@ export function useEnvironments(projectSlug: string) {
           queryKey: trpc.projects.getBySlug.queryKey({ slug: projectSlug }),
         });
         queryClient.invalidateQueries({
-          queryKey: trpc.dashboard.getStats.queryKey(),
+          queryKey: trpc.dashboard.getOverview.queryKey(),
         });
         setActiveTab((current) =>
           current === variables.id ? undefined : current,

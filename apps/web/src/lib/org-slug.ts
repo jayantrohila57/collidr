@@ -1,3 +1,11 @@
+/** Live slug field: lowercase and allowed chars only (keeps trailing hyphen while typing). */
+export function normalizeOrgSlugInput(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-{2,}/g, "-");
+}
+
 export function slugifyOrganizationName(name: string): string {
   return name
     .toLowerCase()
@@ -16,7 +24,7 @@ export function formatOrganizationCreateError(
     lower.includes("already exists") ||
     lower.includes("organization_already_exists")
   ) {
-    return "That organization slug is already taken. Choose a different slug.";
+    return "That slug is already taken. Choose a different slug.";
   }
   return message;
 }

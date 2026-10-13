@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+import { trpc } from "@/utils/trpc";
 
 export type OrgListItem = {
   id: string;
@@ -106,13 +107,17 @@ export function ActiveOrganizationProvider({
       setIsSwitching(true);
       try {
         await authClient.organization.setActive({ organizationId });
+
+        const refreshOrgs = refreshOrganizations();
         await invalidateAfterOrganizationChange(queryClient);
-        router.refresh();
-        const refresh = refreshOrganizations();
+        void router.refresh();
+
+        await queryClient.fetchQuery(trpc.dashboard.getOverview.queryOptions());
+
         if (options?.awaitRefresh) {
-          await refresh;
+          await refreshOrgs;
         } else {
-          void refresh;
+          void refreshOrgs;
         }
       } finally {
         setIsSwitching(false);

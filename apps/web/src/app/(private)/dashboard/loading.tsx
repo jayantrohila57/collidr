@@ -9,6 +9,7 @@ export default function DashboardLoading() {
         <DashboardSection
           title="Dashboard"
           description="Overview of your environment manager statistics"
+          showBack={false}
         >
           <DashboardPageSkeleton />
         </DashboardSection>

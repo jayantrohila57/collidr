@@ -5,7 +5,10 @@ import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { FormSection } from "@/components/layout/form-section";
+import { PageContainer } from "@/components/layout/page-container";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
+import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { ErrorState } from "@/components/patterns/error-state";
 import { FormField } from "@/components/patterns/form-field";
 import { SubmitButton } from "@/components/patterns/submit-button";
@@ -37,7 +40,6 @@ import { isPersonalOrganization } from "@/lib/org-personal";
 import {
   formatOrganizationCreateError,
   resolveOrgSlugForSave,
-  slugifyOrganizationName,
 } from "@/lib/org-slug";
 
 type MemberRow = {
@@ -259,10 +261,12 @@ export function OrganizationSettingsForm({
 
   if (loading) {
     return (
-      <div className="space-y-4 p-4" aria-busy="true">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-24 w-full" />
-      </div>
+      <PageContainer size="narrow" aria-busy="true">
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-24 w-full" />
+        </div>
+      </PageContainer>
     );
   }
 
@@ -277,84 +281,83 @@ export function OrganizationSettingsForm({
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 p-4">
+    <PageContainer size="narrow" className="space-y-6">
       <form onSubmit={handleSaveProfile} className="space-y-4">
-        <div>
-          <h2 className="font-semibold text-lg">Organization</h2>
-          <p className="text-muted-foreground text-sm">
-            Name and slug for this workspace.
-          </p>
-        </div>
-        <FormField id="org-name-edit" label="Name" required>
-          <Input
-            id="org-name-edit"
-            value={orgName}
-            onChange={(e) => setOrgName(e.target.value)}
-          />
-        </FormField>
-        <FormField
-          id="org-slug-edit"
-          label="Slug"
-          required
-          hint="Lowercase identifier; must be unique across Env Manager."
-          error={slugError}
+        <FormSection
+          title="Organization"
+          description="Name and slug for this workspace."
         >
-          <Input
-            id="org-slug-edit"
-            value={orgSlug}
-            onChange={(e) => {
-              setSlugError(undefined);
-              setOrgSlug(e.target.value);
-            }}
-            onBlur={(e) => {
-              setOrgSlug(slugifyOrganizationName(e.target.value));
-            }}
-          />
-        </FormField>
-        <SubmitButton isLoading={savePending} loadingLabel="Saving…">
-          Save changes
-        </SubmitButton>
-      </form>
-
-      <form onSubmit={handleInvite} className="space-y-4 rounded-lg border p-4">
-        <h3 className="font-medium text-sm">Invite member</h3>
-        <div className="grid gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-end">
-          <FormField id="invite-email" label="Email" required>
+          <FormField id="org-name-edit" label="Name" required>
             <Input
-              id="invite-email"
-              type="email"
-              value={inviteEmail}
-              onChange={(e) => setInviteEmail(e.target.value)}
-              placeholder="colleague@example.com"
-              autoComplete="email"
+              id="org-name-edit"
+              value={orgName}
+              onChange={(e) => setOrgName(e.target.value)}
             />
           </FormField>
-          <FormField id="invite-role" label="Role">
-            <Select value={inviteRole} onValueChange={setInviteRole}>
-              <SelectTrigger id="invite-role" className="w-full sm:w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ROLES.map((role) => (
-                  <SelectItem key={role} value={role} className="capitalize">
-                    {role}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormField>
-          <SubmitButton
-            isLoading={invitePending}
-            loadingLabel="Sending…"
-            disabled={!inviteEmail.trim()}
+          <FormField
+            id="org-slug-edit"
+            label="Slug"
+            required
+            hint="Slugs use lowercase letters, numbers, and hyphens."
+            error={slugError}
           >
-            Invite
+            <OrgSlugInput
+              id="org-slug-edit"
+              value={orgSlug}
+              onChange={(value) => {
+                setSlugError(undefined);
+                setOrgSlug(value);
+              }}
+            />
+          </FormField>
+          <SubmitButton isLoading={savePending} loadingLabel="Saving…">
+            Save changes
           </SubmitButton>
-        </div>
+        </FormSection>
       </form>
 
-      <div>
-        <h3 className="mb-2 font-medium text-sm">Members</h3>
+      <form
+        onSubmit={handleInvite}
+        className="space-y-4 rounded-lg border p-4 md:p-6"
+      >
+        <FormSection title="Invite member">
+          <div className="grid gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-end">
+            <FormField id="invite-email" label="Email" required>
+              <Input
+                id="invite-email"
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                placeholder="colleague@example.com"
+                autoComplete="email"
+              />
+            </FormField>
+            <FormField id="invite-role" label="Role">
+              <Select value={inviteRole} onValueChange={setInviteRole}>
+                <SelectTrigger id="invite-role" className="w-full sm:w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ROLES.map((role) => (
+                    <SelectItem key={role} value={role} className="capitalize">
+                      {role}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
+            <SubmitButton
+              isLoading={invitePending}
+              loadingLabel="Sending…"
+              disabled={!inviteEmail.trim()}
+            >
+              Invite
+            </SubmitButton>
+          </div>
+        </FormSection>
+      </form>
+
+      <FormSection title="Members">
         <ul className="divide-y rounded-md border">
           {members.map((member) => (
             <li
@@ -389,9 +392,9 @@ export function OrganizationSettingsForm({
             </li>
           ))}
         </ul>
-      </div>
+      </FormSection>
 
-      <div className="space-y-4 rounded-lg border border-destructive/40 p-4">
+      <div className="space-y-4 rounded-lg border border-destructive/40 p-4 md:p-6">
         <h3 className="font-medium text-destructive text-sm">Danger zone</h3>
         {isOwner ? (
           <>
@@ -480,7 +483,7 @@ export function OrganizationSettingsForm({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </PageContainer>
   );
 }
 
