@@ -7,11 +7,7 @@ import { useSession } from "@/domain/auth/lib/auth-actions";
 import { authClient } from "@/lib/auth-client";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 
-const EXEMPT_PREFIXES = [
-  "/dashboard/onboarding",
-  "/dashboard/settings/organization",
-  "/dashboard/organizations",
-];
+const EXEMPT_PREFIXES = ["/dashboard/onboarding", "/dashboard/organizations"];
 
 export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();

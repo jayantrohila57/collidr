@@ -35,9 +35,12 @@ import {
 import { useNotificationsUnreadCount } from "@/domain/notifications/hooks/use-notifications";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
+import { accountSettingsUrl } from "@/lib/account-url";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+
+const accountSettingsHref = accountSettingsUrl();
 
 const navIcons: Record<string, LucideIcon> = {
   "/dashboard": LayoutDashboardIcon,
@@ -145,19 +148,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ];
 
   const pathMatchesNavItem = (href: string) => {
-    if (
-      href === "/dashboard/organizations" &&
-      pathname.startsWith("/dashboard/settings/organization")
-    ) {
-      return true;
-    }
     if (pathname === href) return true;
     if (href === "/dashboard") return false;
     return pathname.startsWith(`${href}/`);
   };
 
   const isActive = (href: string) => {
-    const sortedItems = [...menuItems, { href: "/dashboard/settings" }].sort(
+    const sortedItems = [...menuItems].sort(
       (a, b) => b.href.length - a.href.length,
     );
 
@@ -247,13 +244,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu className="flex min-w-0 flex-col gap-1">
           <SidebarMenuItem>
             <SidebarMenuButton
-              isActive={isActive("/dashboard/settings")}
+              isActive={false}
               tooltip="Settings"
-              render={<Link href={"/dashboard/settings" as Route} />}
-            >
-              <SettingsIcon />
-              <span>Settings</span>
-            </SidebarMenuButton>
+              render={
+                <a href={accountSettingsHref} rel="noopener noreferrer">
+                  <SettingsIcon />
+                  <span>Settings</span>
+                </a>
+              }
+            />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

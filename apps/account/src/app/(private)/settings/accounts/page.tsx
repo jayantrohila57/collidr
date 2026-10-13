@@ -1,5 +1,28 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { SettingsSectionShell } from "@/app/(private)/settings/_components/settings-section-shell";
+import { AccountSettingsClient } from "@/domain/settings/components/account-settings-client";
+import { AccountSettingsSkeleton } from "@/domain/settings/components/account-settings-skeleton";
+import { getServerSession } from "@/lib/server-auth";
+
+export const metadata: Metadata = {
+  title: "Connected accounts",
+  description: "OAuth providers linked to your profile.",
+};
 
 export default async function AccountsSettingsPage() {
-  redirect("/settings?tab=accounts");
+  const session = await getServerSession();
+  if (!session?.user) redirect("/");
+
+  return (
+    <SettingsSectionShell
+      title="Connected accounts"
+      description="GitHub and other providers used to sign in."
+    >
+      <Suspense fallback={<AccountSettingsSkeleton />}>
+        <AccountSettingsClient section="accounts" />
+      </Suspense>
+    </SettingsSectionShell>
+  );
 }

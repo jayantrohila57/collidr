@@ -111,8 +111,8 @@ export async function revokeOtherAuthSessions() {
 export async function linkGithubAccount() {
   const callbackURL =
     typeof window !== "undefined"
-      ? `${window.location.origin}/settings?tab=accounts`
-      : "/settings?tab=accounts";
+      ? `${window.location.origin}/settings/accounts`
+      : "/settings/accounts";
   const result = await authClient.$fetch("/link-social", {
     method: "POST",
     body: {

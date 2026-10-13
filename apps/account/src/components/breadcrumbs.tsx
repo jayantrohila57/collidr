@@ -16,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
-import { isRecognizedDashboardPath } from "@/lib/dashboard-path";
+import { isRecognizedAccountSettingsPath } from "@/lib/account-settings-path";
 import { cn, deSlug } from "@/lib/utils";
 
 const STATIC_LABELS: Record<string, string> = {
@@ -108,15 +108,9 @@ export function Breadcrumbs({ className }: { className?: string }) {
   const router = useRouter();
   const breadcrumbs = generateBreadcrumbs(pathname);
   const { orgs } = useActiveOrganization();
-  const { projects, status: projectsStatus } = useProjects();
-  const projectSlugs = new Set(
-    projects.map((p) => p.slug).filter((s): s is string => Boolean(s?.trim())),
-  );
-  const projectsLoaded =
-    projectsStatus === "success" || projectsStatus === "empty";
+  const { projects } = useProjects();
   const showNotFound =
-    pathname != null &&
-    !isRecognizedDashboardPath(pathname, projectSlugs, projectsLoaded);
+    pathname != null && !isRecognizedAccountSettingsPath(pathname);
 
   const projectSlugFromPath = breadcrumbs[2]?.segment;
   const projectFromList =

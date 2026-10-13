@@ -14,7 +14,7 @@ export function OrganizationSettingsRedirect() {
 
   useEffect(() => {
     if (!isOrganizationsEnabledOnClient()) {
-      router.replace("/dashboard/settings" as Route);
+      router.replace("/dashboard" as Route);
       return;
     }
     if (!initialLoadDone || loading) return;

@@ -15,7 +15,7 @@ export function AccountSettingsHeaderActions() {
         size="sm"
         variant="outline"
         className="gap-2"
-        render={<Link href={"/settings?tab=export" as Route} />}
+        render={<Link href={"/settings/danger" as Route} />}
       >
         <AppIcon name="archiveRestore" className="text-current" />
         Export data

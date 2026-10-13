@@ -67,6 +67,7 @@ import { formatRelativeShort } from "@/lib/format-relative-short";
 import { initialsFromLabel } from "@/lib/initials";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { sessionDeviceLabel } from "@/lib/session-device";
+import { studioDashboardPath } from "@/lib/studio-url";
 import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";
 import { AccountSettingsSkeleton } from "./account-settings-skeleton";
@@ -109,7 +110,11 @@ function downloadJson(filename: string, data: unknown) {
   URL.revokeObjectURL(url);
 }
 
-export function AccountSettingsClient() {
+export function AccountSettingsClient({
+  section: forcedSection,
+}: {
+  section?: AccountTab;
+} = {}) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
@@ -119,10 +124,12 @@ export function AccountSettingsClient() {
 
   const [activeTab, setActiveTabState] = useState<AccountTab>("profile");
   const tabFromUrl = searchParams.get("tab");
+  const useRouteSections = forcedSection !== undefined;
 
   useEffect(() => {
+    if (useRouteSections) return;
     setActiveTabState(readTabFromSearch(tabFromUrl));
-  }, [tabFromUrl]);
+  }, [tabFromUrl, useRouteSections]);
 
   const setActiveTab = useCallback((tab: AccountTab) => {
     setActiveTabState(tab);
@@ -173,10 +180,11 @@ export function AccountSettingsClient() {
   }, []);
 
   useEffect(() => {
-    if (activeTab === "sessions") {
+    const tab = forcedSection ?? activeTab;
+    if (tab === "sessions") {
       void loadSessions();
     }
-  }, [activeTab, loadSessions]);
+  }, [forcedSection, activeTab, loadSessions]);
 
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -339,44 +347,47 @@ export function AccountSettingsClient() {
       {({ guardNavigation }) => (
         <>
           <SettingsTabs
-            value={activeTab}
+            value={useRouteSections ? (forcedSection as AccountTab) : activeTab}
             onValueChange={(value) => {
+              if (useRouteSections) return;
               if (!value || value === activeTab) return;
               guardNavigation(() => setActiveTab(value as AccountTab));
             }}
           >
-            <SettingsTabsList>
-              {canProfile.allowed ? (
-                <SettingsTabsTab value="profile" icon="user">
-                  Profile
-                </SettingsTabsTab>
-              ) : null}
-              {canSessions.allowed ? (
-                <SettingsTabsTab value="sessions" icon="lock">
-                  Sessions
-                </SettingsTabsTab>
-              ) : null}
-              {canAccounts.allowed ? (
-                <SettingsTabsTab value="accounts" icon="github">
-                  Connected accounts
-                </SettingsTabsTab>
-              ) : null}
-              {canExport.allowed ? (
-                <SettingsTabsTab value="export" icon="archiveRestore">
-                  Export
-                </SettingsTabsTab>
-              ) : null}
-              {canDelete.allowed ? (
-                <SettingsTabsTab value="delete" icon="danger">
-                  Delete account
-                </SettingsTabsTab>
-              ) : null}
-              {canTimeline.allowed ? (
-                <SettingsTabsTab value="timeline" icon="activity">
-                  Timeline
-                </SettingsTabsTab>
-              ) : null}
-            </SettingsTabsList>
+            {!useRouteSections ? (
+              <SettingsTabsList>
+                {canProfile.allowed ? (
+                  <SettingsTabsTab value="profile" icon="user">
+                    Profile
+                  </SettingsTabsTab>
+                ) : null}
+                {canSessions.allowed ? (
+                  <SettingsTabsTab value="sessions" icon="lock">
+                    Sessions
+                  </SettingsTabsTab>
+                ) : null}
+                {canAccounts.allowed ? (
+                  <SettingsTabsTab value="accounts" icon="github">
+                    Connected accounts
+                  </SettingsTabsTab>
+                ) : null}
+                {canExport.allowed ? (
+                  <SettingsTabsTab value="export" icon="archiveRestore">
+                    Export
+                  </SettingsTabsTab>
+                ) : null}
+                {canDelete.allowed ? (
+                  <SettingsTabsTab value="delete" icon="danger">
+                    Delete account
+                  </SettingsTabsTab>
+                ) : null}
+                {canTimeline.allowed ? (
+                  <SettingsTabsTab value="timeline" icon="activity">
+                    Timeline
+                  </SettingsTabsTab>
+                ) : null}
+              </SettingsTabsList>
+            ) : null}
 
             <SettingsTabsPanel value="profile" className="min-w-0">
               <SettingsPanel>
@@ -453,37 +464,19 @@ export function AccountSettingsClient() {
                       type="button"
                       size="sm"
                       className="w-fit gap-2"
-                      render={<Link href={"/settings/organization" as Route} />}
-                    >
-                      <AppIcon name="settings" className="text-current" />
-                      Organization settings
-                    </Button>
+                      render={
+                        <a
+                          href={studioDashboardPath("/dashboard/organizations")}
+                          rel="noopener noreferrer"
+                        >
+                          <AppIcon name="settings" className="text-current" />
+                          Organization settings
+                        </a>
+                      }
+                    />
                   </SettingsRow>
                 </SettingsPanel>
               ) : null}
-
-              <SettingsPanel className="mt-2">
-                <SettingsSectionHeader
-                  title="Production deploy"
-                  description="Feature flags, redeploy rules, and Vercel limits."
-                  icon="globe"
-                />
-                <SettingsRow
-                  label="Deploy runbook"
-                  description="Check server vs client flags for this build."
-                >
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="w-fit gap-2"
-                    render={<Link href={"/settings/deploy" as Route} />}
-                  >
-                    <AppIcon name="externalLink" className="text-current" />
-                    Open runbook
-                  </Button>
-                </SettingsRow>
-              </SettingsPanel>
             </SettingsTabsPanel>
 
             <SettingsTabsPanel value="sessions" className="min-w-0">

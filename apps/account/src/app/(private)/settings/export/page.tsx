@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default async function ExportSettingsPage() {
-  redirect("/settings?tab=export");
+export default function ExportSettingsPage() {
+  redirect("/settings/danger");
 }

@@ -6,7 +6,31 @@ const appOrigin = (
   process.env.NEXT_PUBLIC_ACCOUNT_URL ?? DEFAULT_ACCOUNT_URL
 ).replace(/\/$/, "");
 
+const LEGACY_TAB_PATHS: Record<string, string> = {
+  profile: "/settings/profile",
+  sessions: "/settings/sessions",
+  accounts: "/settings/accounts",
+  export: "/settings/danger",
+  delete: "/settings/danger",
+  timeline: "/settings/timeline",
+};
+
 export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (pathname === "/settings" || pathname.startsWith("/settings/")) {
+    const tab = request.nextUrl.searchParams.get("tab");
+    if (tab && LEGACY_TAB_PATHS[tab]) {
+      return NextResponse.redirect(new URL(LEGACY_TAB_PATHS[tab], request.url));
+    }
+    if (
+      pathname === "/settings/deploy" ||
+      pathname === "/settings/organization"
+    ) {
+      return NextResponse.redirect(new URL("/settings/profile", request.url));
+    }
+  }
+
   const gated = platformSessionMiddleware(request, {
     appOrigin,
     protectedPrefixes: ["/settings"],

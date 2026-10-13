@@ -6,7 +6,6 @@ import OrganizationDetailPage from "@/domain/organizations/components/organizati
 import { OrganizationsFeatureGate } from "@/domain/organizations/components/organizations-feature-gate";
 import { OrganizationDetailPageSkeleton } from "@/domain/organizations/components/skeletons";
 import { PermissionGate } from "@/domain/permissions/components/permission-gate";
-import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
 import { getServerSession } from "@/lib/server-auth";
 
 interface OrganizationHubPageProps {
@@ -33,10 +32,6 @@ export default async function OrganizationHubPage({
   if (!isOrganizationsEnabled()) {
     redirect("/dashboard");
   }
-  if (!isActionsAuditEnabledOnServer()) {
-    redirect("/dashboard/settings/organization");
-  }
-
   const { slug } = await params;
 
   return (

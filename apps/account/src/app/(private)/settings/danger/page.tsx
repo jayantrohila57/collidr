@@ -1,0 +1,33 @@
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { SettingsSectionShell } from "@/app/(private)/settings/_components/settings-section-shell";
+import { AccountSettingsClient } from "@/domain/settings/components/account-settings-client";
+import { AccountSettingsSkeleton } from "@/domain/settings/components/account-settings-skeleton";
+import { getServerSession } from "@/lib/server-auth";
+
+export const metadata: Metadata = {
+  title: "Danger zone",
+  description: "Export or delete your account.",
+};
+
+export default async function DangerZoneSettingsPage() {
+  const session = await getServerSession();
+  if (!session?.user) redirect("/");
+
+  return (
+    <SettingsSectionShell
+      title="Danger zone"
+      description="Export your data or permanently delete your account."
+    >
+      <div className="flex flex-col gap-4">
+        <Suspense fallback={<AccountSettingsSkeleton />}>
+          <AccountSettingsClient section="export" />
+        </Suspense>
+        <Suspense fallback={<AccountSettingsSkeleton />}>
+          <AccountSettingsClient section="delete" />
+        </Suspense>
+      </div>
+    </SettingsSectionShell>
+  );
+}

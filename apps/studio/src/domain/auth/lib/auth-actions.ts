@@ -2,6 +2,7 @@
 
 import type { QueryClient } from "@tanstack/react-query";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { accountSettingsUrl } from "@/lib/account-url";
 import { authClient } from "@/lib/auth-client";
 import { PUBLIC_HOME_PATH, resolvePostAuthPath } from "@/lib/auth-routes";
 
@@ -109,10 +110,7 @@ export async function revokeOtherAuthSessions() {
 }
 
 export async function linkGithubAccount() {
-  const callbackURL =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/dashboard/settings?tab=accounts`
-      : "/dashboard/settings?tab=accounts";
+  const callbackURL = accountSettingsUrl("/settings/accounts");
   const result = await authClient.$fetch("/link-social", {
     method: "POST",
     body: {

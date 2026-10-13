@@ -1,16 +1,10 @@
-import { auth } from "@env-manager/auth";
-import { headers } from "next/headers";
+import { DEFAULT_WWW_URL } from "@env-manager/auth";
 import { redirect } from "next/navigation";
-import HomeSplitLanding from "@/domain/home/components/home-split-landing";
 
-export default async function Home() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (session?.user) {
-    redirect("/dashboard");
-  }
-
-  return <HomeSplitLanding />;
+export default function Home() {
+  const www = (process.env.NEXT_PUBLIC_WWW_URL ?? DEFAULT_WWW_URL).replace(
+    /\/$/,
+    "",
+  );
+  redirect(www);
 }

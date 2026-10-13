@@ -26,9 +26,32 @@ export const platformNav: NavItem[] = [
   },
 ];
 
-/** Account settings — rendered in app sidebar footer, not `platformNav`. */
+/** Studio/web sidebar footer — links out to the account app. */
 export const sidebarFooterNav: NavItem = {
   href: "/dashboard/settings",
   label: "Settings",
   action: "profile.view",
 };
+
+/** Account app settings sidebar (`apps/account`). */
+export const accountSettingsNav: NavItem[] = [
+  { href: "/settings/profile", label: "Profile", action: "profile.view" },
+  { href: "/settings/security", label: "Security", action: "session.list" },
+  { href: "/settings/sessions", label: "Sessions", action: "session.list" },
+  {
+    href: "/settings/accounts",
+    label: "Connected accounts",
+    action: "account.list",
+  },
+  {
+    href: "/settings/notifications",
+    label: "Notifications",
+    action: "notification.list",
+  },
+  { href: "/settings/danger", label: "Danger zone", action: "account.delete" },
+  {
+    href: "/settings/timeline",
+    label: "Timeline",
+    action: "audit.timeline.view.self",
+  },
+];

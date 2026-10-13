@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default async function DeleteAccountSettingsPage() {
-  redirect("/settings?tab=delete");
+export default function DeleteSettingsPage() {
+  redirect("/settings/danger");
 }
