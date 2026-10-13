@@ -33,10 +33,9 @@ export function ProjectsPageClient() {
     <>
       <DashboardSection
         title="Projects"
-        description="Manage your projects and environment variables"
         action={
-          <Button variant="default" onClick={openCreate}>
-            New Project
+          <Button type="button" size="sm" onClick={openCreate}>
+            New project
           </Button>
         }
       >

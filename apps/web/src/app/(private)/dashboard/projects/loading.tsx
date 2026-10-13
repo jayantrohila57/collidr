@@ -3,12 +3,7 @@ import { ProjectsSkeleton } from "@/domain/projects/components/skeletons";
 
 export default function ProjectsLoading() {
   return (
-    <DashboardSection
-      title="Projects"
-      description="Manage your projects and environment variables"
-      actionLabel="New Project"
-      actionHref="/dashboard/projects/new"
-    >
+    <DashboardSection title="Projects">
       <ProjectsSkeleton />
     </DashboardSection>
   );

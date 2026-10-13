@@ -2,14 +2,10 @@ import { auth } from "@env-manager/auth";
 import { HydrationBoundary } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import DashboardStats from "@/components/dashboard-stats";
-import DashboardSection from "@/components/section-dashboard";
+import { Suspense } from "react";
+import { DashboardHome } from "@/domain/dashboard/components/dashboard-home";
+import { DashboardPageSkeleton } from "@/domain/dashboard/components/skeletons";
 import { dehydrateDashboardOverview } from "@/lib/dashboard-prefetch";
-
-const header = {
-  title: "Dashboard",
-  description: "Overview of your environment manager statistics",
-};
 
 export default async function DashboardPage() {
   const headerList = await headers();
@@ -25,9 +21,20 @@ export default async function DashboardPage() {
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <DashboardSection {...header} showBack={false}>
-        <DashboardStats />
-      </DashboardSection>
+      <Suspense
+        fallback={
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-4">
+              <h1 className="font-semibold text-lg tracking-tight">
+                Dashboard
+              </h1>
+            </div>
+            <DashboardPageSkeleton />
+          </div>
+        }
+      >
+        <DashboardHome />
+      </Suspense>
     </HydrationBoundary>
   );
 }

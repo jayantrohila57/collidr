@@ -1,54 +1,45 @@
-import {
-  Card,
-  CardAction,
-  CardHeader,
-  CardPanel,
-  CardTitle,
-} from "@/components/ui/card";
+"use client";
+
+import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
+import { DataTable } from "@/components/data-table/data-table";
 import { Skeleton } from "@/components/ui/skeleton";
+
+type DashboardProjectSkeletonRow = { id: string };
+
+const columnHelper = legacyCreateColumnHelper<DashboardProjectSkeletonRow>();
+const skeletonColumns = [
+  columnHelper.display({ id: "project", header: "Project", cell: () => null }),
+  columnHelper.display({ id: "status", header: "Status", cell: () => null }),
+  columnHelper.display({
+    id: "visibility",
+    header: "Visibility",
+    cell: () => null,
+  }),
+  columnHelper.display({ id: "updated", header: "Updated", cell: () => null }),
+  columnHelper.display({ id: "links", header: "Links", cell: () => null }),
+  columnHelper.display({ id: "actions", header: "Actions", cell: () => null }),
+];
 
 export function DashboardPageSkeleton() {
   return (
     <div
-      className="space-y-4"
+      className="flex flex-col gap-4"
       role="status"
       aria-live="polite"
       aria-busy="true"
     >
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <Skeleton className="h-7 w-64 max-w-full" />
-          </CardTitle>
-        </CardHeader>
-        <CardPanel>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <Skeleton className="size-14 rounded-full sm:size-20" />
-            <div className="flex flex-wrap gap-2">
-              <Skeleton className="h-6 w-24 rounded-md" />
-              <Skeleton className="h-6 w-20 rounded-md" />
-            </div>
-          </div>
-        </CardPanel>
-      </Card>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {["a", "b", "c", "d", "e", "f"].map((id) => (
-          <Card key={`dashboard-stat-skeleton-${id}`}>
-            <CardHeader>
-              <CardTitle>
-                <Skeleton className="h-4 w-24" />
-              </CardTitle>
-              <CardAction>
-                <Skeleton className="size-6 rounded-md" />
-              </CardAction>
-            </CardHeader>
-            <CardPanel>
-              <Skeleton className="h-8 w-16" />
-              <Skeleton className="h-3 w-32" />
-            </CardPanel>
-          </Card>
-        ))}
+      <div className="flex flex-wrap gap-x-6 gap-y-1">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-4 w-28" />
+        <Skeleton className="h-4 w-24" />
       </div>
+      <DataTable
+        columns={skeletonColumns}
+        data={[]}
+        isLoading
+        skeletonRowCount={5}
+        framed
+      />
     </div>
   );
 }
