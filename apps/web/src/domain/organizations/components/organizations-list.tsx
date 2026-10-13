@@ -4,7 +4,7 @@ import { useActiveOrganization } from "@/components/org/active-organization-cont
 import { EmptyState } from "@/components/patterns/empty-state";
 import { appIcons } from "@/lib/icons";
 import { OrganizationsListContent } from "./organizations-list-content";
-import { OrganizationsListSkeleton } from "./skeletons";
+import { OrganizationsListBodySkeleton } from "./skeletons";
 
 type OrganizationsListProps = {
   onCreateOrganization?: () => void;
@@ -16,7 +16,7 @@ export function OrganizationsList({
   const { orgs, loading, initialLoadDone } = useActiveOrganization();
 
   if (!initialLoadDone || loading) {
-    return <OrganizationsListSkeleton />;
+    return <OrganizationsListBodySkeleton />;
   }
 
   if (orgs.length === 0) {

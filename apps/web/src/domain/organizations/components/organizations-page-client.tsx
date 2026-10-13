@@ -2,9 +2,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { AppIcon } from "@/components/patterns/app-icon";
+import { PageHeaderActionButton } from "@/components/layout/app-layout";
 import DashboardSection from "@/components/section-dashboard";
-import { Button } from "@/components/ui/button";
 import { Can } from "@/domain/permissions/components/can";
 import { CreateOrganizationSheet } from "./create-organization-sheet";
 import { OrganizationsList } from "./organizations-list";
@@ -39,15 +38,10 @@ export function OrganizationsPageClient() {
         description="Workspaces you belong to, with members, teams, and access settings."
         action={
           <Can action="organization.create">
-            <Button
-              type="button"
-              size="sm"
-              className="gap-2 max-sm:size-8 max-sm:gap-0 max-sm:px-0"
+            <PageHeaderActionButton
+              label="New organization"
               onClick={openCreate}
-            >
-              <AppIcon name="plus" className="text-current" />
-              <span className="sr-only sm:not-sr-only">New organization</span>
-            </Button>
+            />
           </Can>
         }
         stats={<OrganizationsListStats />}

@@ -28,6 +28,7 @@ import {
   SettingsRow,
   SettingsSectionHeader,
 } from "@/components/patterns/settings-layout";
+import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import {
@@ -400,12 +401,7 @@ export function OrganizationSettingsForm({
   };
 
   if (loading) {
-    return (
-      <div className="flex flex-col gap-2" aria-busy="true">
-        <Skeleton className="h-24 w-full rounded-xl" />
-        <Skeleton className="h-32 w-full rounded-xl" />
-      </div>
-    );
+    return <SettingsPanelSkeleton rows={3} />;
   }
 
   if (error) {

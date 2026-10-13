@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton } from "@/components/ui/skeleton";
+import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { OrgSettingsStats } from "@/domain/settings/components/org-settings-stats";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { OrganizationSectionPage } from "./organization-section-page";
@@ -18,7 +18,7 @@ export function OrganizationSettingsPage({ slug }: { slug: string }) {
       <div className="flex flex-col gap-4">
         <OrgSettingsStats />
         {status === "loading" || !organization ? (
-          <Skeleton className="h-48 w-full rounded-xl" />
+          <SettingsPanelSkeleton rows={4} />
         ) : (
           <OrganizationSettingsForm
             key={organization.id}

@@ -3,10 +3,9 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AppIcon } from "@/components/patterns/app-icon";
+import { PageHeaderActionButton } from "@/components/layout/app-layout";
 import { ErrorState } from "@/components/patterns/error-state";
 import DashboardSection from "@/components/section-dashboard";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
@@ -58,15 +57,11 @@ export default function OrganizationDetailPage({ slug }: { slug: string }) {
       }
       stats={<OrganizationDetailStats slug={slug} />}
       action={
-        <Button
-          type="button"
-          size="sm"
-          className="gap-2 max-sm:size-8 max-sm:gap-0 max-sm:px-0"
+        <PageHeaderActionButton
+          label="Settings"
+          icon="settings"
           render={<Link href={settingsHref} />}
-        >
-          <AppIcon name="settings" className="text-current" />
-          <span className="sr-only sm:not-sr-only">Settings</span>
-        </Button>
+        />
       }
     >
       {status === "loading" ? (

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { OrganizationsFeatureGate } from "@/domain/organizations/components/organizations-feature-gate";
 import { OrganizationsPageClient } from "@/domain/organizations/components/organizations-page-client";
-import { OrganizationsListSkeleton } from "@/domain/organizations/components/skeletons";
+import { OrganizationsPageSkeleton } from "@/domain/organizations/components/skeletons";
 import { PermissionGate } from "@/domain/permissions/components/permission-gate";
 import { getServerSession } from "@/lib/server-auth";
 import { siteConfig } from "@/lib/siteConfig";
@@ -28,7 +28,7 @@ export default async function OrganizationsPage() {
   return (
     <OrganizationsFeatureGate>
       <PermissionGate action="organization.list">
-        <Suspense fallback={<OrganizationsListSkeleton />}>
+        <Suspense fallback={<OrganizationsPageSkeleton />}>
           <OrganizationsPageClient />
         </Suspense>
       </PermissionGate>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton } from "@/components/ui/skeleton";
+import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { OrganizationSectionPage } from "./organization-section-page";
 import { OrganizationSettingsForm } from "./organization-settings-form";
@@ -15,7 +15,7 @@ export function OrganizationMembersPage({ slug }: { slug: string }) {
       description="Invite teammates and manage organization roles."
     >
       {status === "loading" || !organization ? (
-        <Skeleton className="h-48 w-full rounded-xl" />
+        <SettingsPanelSkeleton rows={4} />
       ) : (
         <OrganizationSettingsForm
           key={organization.id}

@@ -1,38 +1,105 @@
 "use client";
 
+import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
+import type { Route } from "next";
+import { DataTable } from "@/components/data-table/data-table";
+import { ListToolbarSkeleton } from "@/components/layout/list-toolbar-skeleton";
+import type { OrgListItem } from "@/components/org/active-organization-context";
+import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
+import { StatCardRowSkeleton } from "@/components/patterns/stat-card";
+import DashboardSection from "@/components/section-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { layoutSectionStackClass } from "@/lib/layout-spacing";
+import { cn } from "@/lib/utils";
+import { OrganizationOverviewSectionsSkeleton } from "./organization-overview-sections";
 
-export function OrganizationsListSkeleton() {
+const columnHelper = legacyCreateColumnHelper<OrgListItem>();
+const organizationsTableSkeletonColumns = [
+  columnHelper.display({
+    id: "name",
+    header: "Organization",
+    cell: () => null,
+  }),
+  columnHelper.display({ id: "type", header: "Type", cell: () => null }),
+  columnHelper.display({ id: "slug", header: "Slug", cell: () => null }),
+  columnHelper.display({ id: "status", header: "Status", cell: () => null }),
+  columnHelper.display({ id: "actions", header: "Actions", cell: () => null }),
+];
+
+const organizationsPageActionSkeleton = (
+  <Skeleton className="size-8 rounded-md sm:h-8 sm:w-auto sm:min-w-[8.5rem]" />
+);
+
+export function OrganizationsListBodySkeleton() {
   return (
-    <div className="flex flex-col gap-3" aria-busy="true" aria-live="polite">
-      <Skeleton className="h-10 w-full max-w-md rounded-lg" />
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        <Skeleton className="h-36 rounded-2xl" />
-        <Skeleton className="h-36 rounded-2xl" />
-        <Skeleton className="h-36 rounded-2xl" />
-      </div>
+    <div
+      className={cn(layoutSectionStackClass)}
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <ListToolbarSkeleton />
+      <DataTable
+        columns={organizationsTableSkeletonColumns}
+        data={[]}
+        isLoading
+        skeletonRowCount={5}
+        framed
+      />
     </div>
   );
 }
 
-export function OrganizationDetailSkeleton() {
+export function OrganizationsPageSkeleton() {
   return (
-    <div className="flex flex-col gap-4" aria-busy="true">
-      <Skeleton className="h-8 w-48" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {(
-          [
-            "section-a",
-            "section-b",
-            "section-c",
-            "section-d",
-            "section-e",
-            "section-f",
-          ] as const
-        ).map((id) => (
-          <Skeleton key={id} className="h-[7.5rem] rounded-2xl" />
-        ))}
-      </div>
-    </div>
+    <DashboardSection
+      title="Organizations"
+      description="Workspaces you belong to, with members, teams, and access settings."
+      action={organizationsPageActionSkeleton}
+      stats={<StatCardRowSkeleton count={4} />}
+    >
+      <OrganizationsListBodySkeleton />
+    </DashboardSection>
   );
+}
+
+/** @deprecated Use `OrganizationsPageSkeleton` or `OrganizationsListBodySkeleton`. */
+export function OrganizationsListSkeleton() {
+  return <OrganizationsListBodySkeleton />;
+}
+
+export function OrganizationDetailPageSkeleton() {
+  return (
+    <DashboardSection
+      title="Organization"
+      description="Team workspace overview and administration."
+      back="/dashboard/organizations"
+      metadata={<Skeleton className="h-5 w-40 max-w-full" />}
+      stats={<StatCardRowSkeleton count={4} />}
+      action={
+        <Skeleton className="size-8 rounded-md sm:h-8 sm:w-auto sm:min-w-[8.5rem]" />
+      }
+    >
+      <OrganizationOverviewSectionsSkeleton />
+    </DashboardSection>
+  );
+}
+
+/** Generic shell for org sub-routes (members, settings, …) during route transitions. */
+export function OrganizationSectionRouteSkeleton() {
+  return (
+    <DashboardSection
+      title="Workspace"
+      description="Loading organization section…"
+      back={"/dashboard/organizations" as Route}
+      titleAccessory={<Skeleton className="h-5 w-32 max-w-full" />}
+    >
+      <SettingsPanelSkeleton rows={4} />
+    </DashboardSection>
+  );
+}
+
+/** @deprecated Use `OrganizationDetailPageSkeleton` or `OrganizationSectionRouteSkeleton`. */
+export function OrganizationDetailSkeleton() {
+  return <OrganizationDetailPageSkeleton />;
 }

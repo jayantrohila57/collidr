@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { authClient } from "@/lib/auth-client";
 import { appIcons } from "@/lib/icons";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
@@ -55,9 +55,9 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
       description="Group members into teams within this organization."
     >
       {orgStatus === "loading" || !organization ? (
-        <Skeleton className="h-48 w-full rounded-xl" />
+        <SettingsPanelSkeleton rows={3} />
       ) : loading ? (
-        <Skeleton className="h-32 w-full rounded-xl" />
+        <SettingsPanelSkeleton rows={2} />
       ) : !teamsEnabled ? (
         <EmptyState
           icon={appIcons.member}

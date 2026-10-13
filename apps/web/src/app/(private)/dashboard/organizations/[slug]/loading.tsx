@@ -1,5 +1,5 @@
-import { OrganizationDetailSkeleton } from "@/domain/organizations/components/skeletons";
+import { OrganizationSectionRouteSkeleton } from "@/domain/organizations/components/skeletons";
 
-export default function OrganizationDetailLoading() {
-  return <OrganizationDetailSkeleton />;
+export default function OrganizationSlugLoading() {
+  return <OrganizationSectionRouteSkeleton />;
 }
