@@ -31,6 +31,8 @@ import {
 import { useProjects } from "@/domain/projects/hooks/use-projects";
 import { initialsFromLabel } from "@/lib/initials";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+import { prefetchProjectDetail } from "@/lib/prefetch-project-detail";
+import { queryClient } from "@/utils/trpc";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
@@ -151,6 +153,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           <Link
                             href={
                               `/dashboard/projects/${project.slug}` as Route
+                            }
+                            onMouseEnter={() =>
+                              prefetchProjectDetail(queryClient, project.slug)
+                            }
+                            onFocus={() =>
+                              prefetchProjectDetail(queryClient, project.slug)
                             }
                           />
                         }

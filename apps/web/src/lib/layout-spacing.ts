@@ -17,9 +17,9 @@ export const layoutGutterClass = "p-2";
 /** Dashboard inset horizontal padding — aligns header and scrollable main */
 export const layoutInsetXClass = "px-4 md:px-6";
 
-/** Centered content columns inside the dashboard inset */
-export const layoutInsetContainerWideClass = "mx-auto w-full max-w-6xl";
-export const layoutInsetContainerNarrowClass = "mx-auto w-full max-w-3xl";
+/** Centered content columns inside the dashboard inset (header + main share this width) */
+export const layoutInsetContainerWideClass = "mx-auto w-full max-w-3xl";
+export const layoutInsetContainerNarrowClass = layoutInsetContainerWideClass;
 
 /** Default flex gap between blocks — SidebarContent */
 export const layoutGapClass = "gap-2";
@@ -40,7 +40,10 @@ export const layoutSectionStackClass = `flex min-w-0 flex-col ${layoutGapClass}`
 export const layoutContentClass = `flex flex-1 min-w-0 flex-col ${layoutGapClass} ${layoutGutterClass}`;
 
 /** Scrollable dashboard main below the inset header (single scroll container) */
-export const layoutDashboardScrollClass = `flex min-h-0 flex-1 min-w-0 flex-col ${layoutGapClass} overflow-x-hidden overflow-y-auto overscroll-y-contain py-2 [scrollbar-gutter:stable] ${layoutInsetXClass}`;
+export const layoutDashboardScrollClass = `flex min-h-0 flex-1 min-w-0 flex-col gap-4 overflow-x-hidden overflow-y-auto overscroll-y-contain pt-4 pb-2 [scrollbar-gutter:stable] ${layoutInsetXClass}`;
+
+/** Vertical rhythm for dashboard page sections (title → stats → body) */
+export const layoutDashboardPageStackClass = "flex min-w-0 flex-col gap-4";
 
 /** Fixed inset header shell — matches SidebarHeader vertical rhythm */
 export const layoutChromeClass = `flex shrink-0 flex-col ${layoutGapClass} py-2 ${layoutInsetXClass}`;

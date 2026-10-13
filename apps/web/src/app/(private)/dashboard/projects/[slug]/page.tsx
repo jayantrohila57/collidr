@@ -1,17 +1,11 @@
 import { auth } from "@env-manager/auth";
 import { getOwnedProjectBySlug } from "@env-manager/db";
+import { HydrationBoundary } from "@tanstack/react-query";
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
-
-const ProjectDetailPage = dynamic(
-  () => import("@/domain/projects/components/project-detail-page"),
-  {
-    loading: () => <ProjectDetailSkeleton />,
-  },
-);
+import ProjectDetailPage from "@/domain/projects/components/project-detail-page";
+import { dehydrateProjectDetail } from "@/lib/project-prefetch";
 
 interface ProjectPageProps {
   params: Promise<{
@@ -53,8 +47,9 @@ export async function generateMetadata({
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
 
+  const headerList = await headers();
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: headerList,
   });
 
   if (!session?.user) {
@@ -67,5 +62,15 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     notFound();
   }
 
-  return <ProjectDetailPage slug={slug} initialName={projectRecord.name} />;
+  const dehydratedState = await dehydrateProjectDetail(headerList, slug);
+
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <ProjectDetailPage
+        slug={slug}
+        initialName={projectRecord.name}
+        initialDescription={projectRecord.description?.trim() || undefined}
+      />
+    </HydrationBoundary>
+  );
 }

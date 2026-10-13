@@ -33,7 +33,7 @@ export function PageStack({
   );
 }
 
-/** Sticky app chrome — same padding/row height as SidebarHeader + team switcher */
+/** App chrome above the dashboard scroll region (not overlapping scroll content) */
 export function PageHeaderBar({
   className,
   children,
@@ -44,7 +44,7 @@ export function PageHeaderBar({
   return (
     <header
       className={cn(
-        "z-40 shrink-0 border-b bg-background",
+        "relative z-50 shrink-0 border-b bg-background",
         layoutChromeClass,
         className,
       )}

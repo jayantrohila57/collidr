@@ -5,7 +5,6 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { PageHeaderBar, PageHeaderRow } from "@/components/layout/app-layout";
 import { DashboardInsetContainer } from "@/components/layout/dashboard-inset-container";
-import { DashboardNarrowContent } from "@/components/layout/dashboard-narrow-content";
 import { ModeToggle } from "@/components/mode-toggle";
 import { ActiveOrganizationProvider } from "@/components/org/active-organization-context";
 import { OrgOnboardingGate } from "@/components/org/org-onboarding-gate";
@@ -18,10 +17,9 @@ import {
 } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { UserMenu } from "@/domain/auth/components/user-menu";
-import { getDashboardContentWidth } from "@/lib/dashboard-content-width";
 import {
   layoutContentClass,
-  layoutInsetContainerNarrowClass,
+  layoutInsetContainerWideClass,
 } from "@/lib/layout-spacing";
 
 interface OrganizationLayoutProps {
@@ -33,9 +31,6 @@ export default function OrganizationLayout({
 }: OrganizationLayoutProps) {
   const pathname = usePathname();
   const isOnboarding = pathname === "/dashboard/onboarding";
-  const contentWidth = getDashboardContentWidth(pathname);
-  const useNarrowColumn = contentWidth === "narrow";
-
   if (isOnboarding) {
     return (
       <Shell>
@@ -45,7 +40,7 @@ export default function OrganizationLayout({
               id="main-content"
               className={`min-h-svh min-w-0 bg-background ${layoutContentClass}`}
             >
-              <div className={layoutInsetContainerNarrowClass}>
+              <div className={layoutInsetContainerWideClass}>
                 <OrgOnboardingGate>{children}</OrgOnboardingGate>
               </div>
             </main>
@@ -92,18 +87,10 @@ export default function OrganizationLayout({
                 variant="dashboard"
                 padding="none"
                 scale="dashboard"
-                className="min-w-0 max-w-full"
+                className="isolate min-w-0 max-w-full"
               >
                 <DashboardInsetContainer width="wide" className="min-w-0 pb-2">
-                  <OrgOnboardingGate>
-                    {useNarrowColumn ? (
-                      <DashboardNarrowContent>
-                        {children}
-                      </DashboardNarrowContent>
-                    ) : (
-                      children
-                    )}
-                  </OrgOnboardingGate>
+                  <OrgOnboardingGate>{children}</OrgOnboardingGate>
                 </DashboardInsetContainer>
               </Shell.Main>
             </SidebarInset>

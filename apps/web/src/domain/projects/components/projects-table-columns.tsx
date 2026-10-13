@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/tooltip";
 import { formatDate } from "@/lib/format";
 import { initialsFromLabel } from "@/lib/initials";
+import { prefetchProjectDetail } from "@/lib/prefetch-project-detail";
+import { queryClient } from "@/utils/trpc";
 import { ProjectActions } from "./project-actions";
 
 const columnHelper = legacyCreateColumnHelper<ProjectOutput>();
@@ -66,7 +68,14 @@ export function createProjectsTableColumns(): DataTableColumnDef<ProjectOutput>[
             }
           >
             {href ? (
-              <Link href={href} className="block truncate font-medium">
+              <Link
+                href={href}
+                className="block truncate font-medium"
+                onMouseEnter={() =>
+                  prefetchProjectDetail(queryClient, project.slug)
+                }
+                onFocus={() => prefetchProjectDetail(queryClient, project.slug)}
+              >
                 {project.name}
               </Link>
             ) : (

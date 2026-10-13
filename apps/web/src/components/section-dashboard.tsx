@@ -7,6 +7,8 @@ import {
   type PageHeaderBackProp,
 } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
+import { layoutDashboardPageStackClass } from "@/lib/layout-spacing";
+import { cn } from "@/lib/utils";
 
 interface SectionProps {
   title?: string;
@@ -50,7 +52,7 @@ export default function DashboardSection({
     ) : null);
 
   return (
-    <PageStack>
+    <PageStack className={cn(layoutDashboardPageStackClass)}>
       {title ? (
         <PageHeader
           title={title}
@@ -60,8 +62,8 @@ export default function DashboardSection({
           back={back}
         />
       ) : null}
-      {stats}
-      {children}
+      {stats ? <div className="min-w-0">{stats}</div> : null}
+      {children ? <div className="min-w-0">{children}</div> : null}
     </PageStack>
   );
 }

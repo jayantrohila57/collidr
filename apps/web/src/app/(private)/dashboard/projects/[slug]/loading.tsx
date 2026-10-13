@@ -6,7 +6,6 @@ export default function ProjectDetailLoading() {
   return (
     <DashboardSection
       title="Project"
-      description="Loading project details…"
       titleAccessory={
         <div className="flex flex-wrap gap-2">
           <Skeleton className="h-5 w-16 rounded-md" />

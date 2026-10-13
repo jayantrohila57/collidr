@@ -140,11 +140,12 @@ export function SidebarProvider({
     const handleEscape = (event: KeyboardEvent): void => {
       if (event.key !== "Escape") return;
       event.preventDefault();
+      event.stopImmediatePropagation();
       setOpenMobile(false);
     };
 
-    window.addEventListener("keydown", handleEscape);
-    return () => window.removeEventListener("keydown", handleEscape);
+    window.addEventListener("keydown", handleEscape, true);
+    return () => window.removeEventListener("keydown", handleEscape, true);
   }, [isMobile, openMobile]);
 
   // We add a state so that we can do data-state="expanded" or "collapsed".

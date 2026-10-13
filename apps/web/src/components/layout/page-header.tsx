@@ -67,7 +67,7 @@ export function PageHeader({
             {titleAccessory}
           </div>
           {description ? (
-            <p className="line-clamp-2 text-muted-foreground text-xs">
+            <p className="line-clamp-2 pb-0.5 text-muted-foreground text-xs">
               {description}
             </p>
           ) : null}

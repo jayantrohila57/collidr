@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { projectDetailQueryStaleTime } from "@/lib/prefetch-project-detail";
 import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";
 
@@ -41,6 +42,8 @@ export function useEnvironments(projectSlug: string) {
   const projectQuery = useQuery({
     ...trpc.projects.getBySlug.queryOptions({ slug: projectSlug }),
     meta: { toastOnError: false },
+    staleTime: projectDetailQueryStaleTime,
+    gcTime: projectDetailQueryStaleTime * 2,
   });
 
   const projectData = projectQuery.data?.data ?? {
@@ -230,7 +233,8 @@ export function useEnvironments(projectSlug: string) {
     }),
   );
 
-  const status: "loading" | "error" | "success" = projectQuery.isLoading
+  const isLoading = projectQuery.isLoading && projectData.project === null;
+  const status: "loading" | "error" | "success" = isLoading
     ? "loading"
     : projectQuery.isError
       ? "error"
@@ -240,6 +244,7 @@ export function useEnvironments(projectSlug: string) {
     project: projectData.project,
     environments,
     status,
+    isLoading,
     activeTab,
     setActiveTab,
     createEnvironment: createEnvMutation.mutateAsync,

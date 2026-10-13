@@ -17,6 +17,7 @@ import { ProjectDetailStats } from "./project-detail-stats";
 interface ProjectDetailPageProps {
   slug: string;
   initialName: string;
+  initialDescription?: string;
 }
 
 function ProjectHeaderBadges({
@@ -44,11 +45,12 @@ function ProjectHeaderBadges({
 export default function ProjectDetailPage({
   slug,
   initialName,
+  initialDescription,
 }: ProjectDetailPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [editOpen, setEditOpen] = useState(false);
-  const { project, status } = useEnvironments(slug);
+  const { project, status, isLoading } = useEnvironments(slug);
 
   useEffect(() => {
     if (searchParams.get("edit") === "1" && status === "success" && project) {
@@ -63,10 +65,14 @@ export default function ProjectDetailPage({
     }
   };
 
-  if (status === "loading") {
+  const headerDescription =
+    project?.description?.trim() || initialDescription || undefined;
+
+  if (isLoading && !project) {
     return (
       <DashboardSection
         title={initialName}
+        description={initialDescription}
         titleAccessory={
           <div className="flex flex-wrap gap-2">
             <Skeleton className="h-5 w-16 rounded-md" />
@@ -98,7 +104,7 @@ export default function ProjectDetailPage({
     <>
       <DashboardSection
         title={project.name}
-        description={project.description?.trim() || undefined}
+        description={headerDescription}
         titleAccessory={
           <ProjectHeaderBadges
             isPublic={project.isPublic}

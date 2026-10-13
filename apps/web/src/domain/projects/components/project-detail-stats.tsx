@@ -8,6 +8,7 @@ import {
 } from "@/components/patterns/stat-card";
 import { useOrgQueryEnabled } from "@/hooks/use-org-query-enabled";
 import { formatRelativeShort } from "@/lib/format-relative-short";
+import { projectDetailQueryStaleTime } from "@/lib/prefetch-project-detail";
 import { trpc } from "@/utils/trpc";
 
 export function ProjectDetailStats({ slug }: { slug: string }) {
@@ -15,6 +16,8 @@ export function ProjectDetailStats({ slug }: { slug: string }) {
   const { data, isPending, isError } = useQuery({
     ...trpc.dashboard.getProjectDetailStats.queryOptions({ slug }),
     enabled: queryEnabled && Boolean(slug),
+    staleTime: projectDetailQueryStaleTime,
+    gcTime: projectDetailQueryStaleTime * 2,
   });
 
   if (isPending || !queryEnabled) {
