@@ -26,11 +26,14 @@ import { Textarea } from "@/components/ui/textarea";
 interface AddVariableSheetProps {
   onConfirm: (data: { key: string; value: string }) => Promise<void>;
   isPending: boolean;
+  /** Icon-only on narrow viewports (toolbar); show label in empty states. */
+  compactTrigger?: boolean;
 }
 
 export function AddVariableSheet({
   onConfirm,
   isPending,
+  compactTrigger = false,
 }: AddVariableSheetProps) {
   const [open, setOpen] = useState(false);
   const [key, setKey] = useState("");

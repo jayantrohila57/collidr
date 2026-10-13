@@ -283,6 +283,7 @@ export function VariablesTableView({
             <AddVariableSheet
               onConfirm={onAddVariable}
               isPending={isAddingVariable}
+              compactTrigger
             />
           ) : null
         }
