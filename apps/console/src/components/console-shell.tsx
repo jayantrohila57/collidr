@@ -71,7 +71,9 @@ export function ConsoleShell({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 className={
-                  pathname === item.href
+                  pathname === item.href ||
+                  (item.href !== "/dashboard" &&
+                    pathname.startsWith(`${item.href}/`))
                     ? "rounded-md bg-muted px-2 py-1 font-medium"
                     : "rounded-md px-2 py-1 hover:bg-muted"
                 }
