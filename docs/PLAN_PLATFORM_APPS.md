@@ -14,7 +14,7 @@
 | **`apps/auth`** | Single entry for **sign-in / sign-up / sign-out** for all products; **OAuth 2.1 authorization server**; **MCP authorization** (login + consent for MCP clients). Hosts Better Auth route handler only (+ minimal auth/consent/device pages). | coss ui (minimal) | **Issuer** — `BETTER_AUTH_URL` = auth origin |
 | **`apps/account`** | **Account management** moved out of studio: profile, sessions, connected accounts, export, delete, personal audit timeline. | coss ui | Session cookie (SSO) |
 | **`apps/studio`** | **Main product** — rename/migrate from `apps/web`: orgs, projects, environments, variables, org hub, notifications, onboarding. **No** account settings (link out to account). | coss ui | Session cookie (SSO) |
-| **`apps/console`** | **Platform admin** (`user.role = admin` + Better Auth admin plugin): users, orgs, projects, sessions, global audit, impersonation/ban, MCP OAuth clients/tokens, feature flags, health. | coss ui | Session cookie (SSO) + **Admin role** + **production IP allowlist** (Decision 11) |
+| **`apps/console`** | **Platform admin** (`user.role = admin` + Better Auth admin plugin): users, orgs, projects, sessions, global audit, impersonation/ban, MCP OAuth clients/tokens, feature flags, health. | coss ui | Session cookie (SSO) + **Admin role** + **email allowlist** (Decision 11) |
 | **`apps/mcp`** | **API-only** remote MCP server (stateless HTTP `POST`, MCP 2026-07-28). | none | OAuth access token (+ optional DPoP) |
 | **`apps/docs`** | Product + MCP documentation (**Fumadocs** + built-in search, Decision 9) with **our** chrome (`@env-manager/ui`). **Fully public** (Decision 10). | coss ui shell + Fumadocs primitives | Public read; optional “edit on GitHub”; optional sign-in link to studio |
 | **`apps/www`** | **Marketing landing** at apex / `www` (Decision 4) — product positioning, CTAs to auth/studio; not the signed-in app. | coss ui | Public; links to auth `sign-in` with `return_to` |
@@ -351,9 +351,9 @@ Each app’s tRPC context / middleware:
 ### 6.4 `apps/console`
 
 - Platform `platform.*` actions, admin plugin, MCP OAuth admin UI.
-- Sign-in: auth with `return_to=console`; middleware checks **`isPlatformAdmin()`** and **production IP allowlist** (Decision 11).
-- **Env:** `CONSOLE_IP_ALLOWLIST` — comma-separated IPs or CIDRs (e.g. `203.0.113.10,198.51.100.0/24`). **Required in production**; values are set by the operator in Vercel (not committed). Requests from non-allowlisted IPs are rejected before app logic (403), even for admins.
-- Validate allowlist in `@env-manager/env` when `apps/console` ships; empty/missing in production should fail deploy or refuse traffic (implementation choice — must not default to “allow all”).
+- Sign-in: auth with `return_to=console`; gate requires **platform Admin** (`isPlatformAdmin()`) **and** session user email ∈ **`CONSOLE_ALLOWED_EMAILS`** (Decision 11).
+- **Env:** `CONSOLE_ALLOWED_EMAILS` — comma-separated emails allowed to use console in production (operator-set in Vercel; not committed). Initial production value: **`jrohila55@gmail.com`**. No **IP** allowlist or network restriction for console v1.
+- Validate in `@env-manager/env` when `apps/console` ships; non-allowlisted emails get **403** before console routes/tRPC even if they have Admin role elsewhere.
 
 ### 6.5 `apps/mcp`
 
@@ -474,17 +474,17 @@ Target rollback decision time: **< 1 hour** from go/no-go.
 
 ## 9. Vercel: one project per app
 
-| Vercel project | Root | Production domain |
-|----------------|------|-------------------|
-| `env-manager-auth` | `apps/auth` | `auth.env-manager.com` |
-| `env-manager-studio` | `apps/studio` | `app.env-manager.com` |
-| `env-manager-account` | `apps/account` | `account.env-manager.com` |
-| `env-manager-console` | `apps/console` | `console.env-manager.com` |
-| `env-manager-mcp` | `apps/mcp` | `mcp.env-manager.com` |
-| `env-manager-docs` | `apps/docs` | `docs.env-manager.com` |
-| `env-manager-www` | `apps/www` | `env-manager.com` / `www` (Decision 4) |
+| Vercel project | Root | Phase 1 (`vercel.app`) | Apex (P4, §2.1) |
+|----------------|------|-------------------------|------------------|
+| `env-manager-auth` | `apps/auth` | `auth-env-manager.vercel.app` | `auth.env-manager.com` |
+| `env-manager-studio` | `apps/studio` | `studio-env-manager.vercel.app` | `app.env-manager.com` |
+| `env-manager-account` | `apps/account` | `account-env-manager.vercel.app` | `account.env-manager.com` |
+| `env-manager-console` | `apps/console` | `console-env-manager.vercel.app` | `console.env-manager.com` |
+| `env-manager-mcp` | `apps/mcp` | `mcp-env-manager.vercel.app` | `mcp.env-manager.com` |
+| `env-manager-docs` | `apps/docs` | `docs-env-manager.vercel.app` | `docs.env-manager.com` |
+| `env-manager-www` | `apps/www` | `www-env-manager.vercel.app` | `env-manager.com` / `www` (D4) |
 
-**Build:** `turbo build --filter=studio` (etc.). **Env:** duplicate DB secrets; per-app `NEXT_PUBLIC_*_URL` link graph; console **`CONSOLE_IP_ALLOWLIST`** (Decision 11). **Previews:** disabled — production **`main` only** (Decision 12); `trustedOrigins` / `allowedReturnOrigins` are explicit production URLs, no preview wildcard.
+**Build:** `turbo build --filter=studio` (etc.). **Env:** duplicate DB secrets; per-app `NEXT_PUBLIC_*_URL` link graph; console **`CONSOLE_ALLOWED_EMAILS`** (Decision 11). **Previews:** disabled — production **`main` only** (Decision 12); `trustedOrigins` / `allowedReturnOrigins` are explicit production URLs, no preview wildcard.
 
 **Legacy:** At cutover (§8.3), `env-manager-web.vercel.app` → **`studio-env-manager.vercel.app`** (Decision 5); web project removed same window.
 
@@ -508,7 +508,7 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 | SSO cookies | `httpOnly`, `secure`, scoped domain; [Cookies](https://www.better-auth.com/docs/concepts/cookies) |
 | `return_to` | Allowlist only — prevent open redirects |
 | MCP | PKCE, CIMD, scope step-up, `requireAction` per tool; rate limits in **Postgres** (Decision 14) |
-| Console | **Admin role** + **mandatory production IP allowlist** via `CONSOLE_IP_ALLOWLIST` (Decision 11) |
+| Console | **Admin role** + **`CONSOLE_ALLOWED_EMAILS`** gate (Decision 11); no IP restriction |
 | Auth origins | `trustedOrigins` / `allowedReturnOrigins` — **production URLs only**; no preview wildcard (Decision 12) |
 | Docs | **Fully public** (Decision 10); Fumadocs built-in search (Decision 9); no secrets in MDX |
 | CSRF | Auth routes on auth origin; sibling apps use SameSite=Lax cross-subdomain |
@@ -526,7 +526,7 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 | **P4** | [#98](https://github.com/jayantrohila57/env-manager/issues/98) | Custom apex DNS (D2) | §2.1 + `apps/www` apex ([#103](https://github.com/jayantrohila57/env-manager/issues/103)) |
 | **P5** | [#99](https://github.com/jayantrohila57/env-manager/issues/99) | `apps/docs` MVP (D9–D10) | Fumadocs + public docs |
 | **P6** | [#100](https://github.com/jayantrohila57/env-manager/issues/100) | `apps/mcp` OAuth E2E (D7–D8, D14–D15) | MCP client auth ([#87](https://github.com/jayantrohila57/env-manager/issues/87)) |
-| **P7** | [#101](https://github.com/jayantrohila57/env-manager/issues/101) | `apps/console` (D11, D19) | Admin + IP allowlist ([#88](https://github.com/jayantrohila57/env-manager/issues/88)) |
+| **P7** | [#101](https://github.com/jayantrohila57/env-manager/issues/101) | `apps/console` (D11, D19) | Admin + email allowlist ([#88](https://github.com/jayantrohila57/env-manager/issues/88)) |
 | **P8** | [#102](https://github.com/jayantrohila57/env-manager/issues/102) | MCP tool parity | Appendix A inventory |
 | **www** | [#103](https://github.com/jayantrohila57/env-manager/issues/103) | `apps/www` marketing (D4) | Apex landing; CTAs → auth |
 
@@ -562,7 +562,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 | 8 | Device authorization on auth v1 |
 | 9 | Fumadocs built-in search |
 | 10 | All docs public |
-| 11 | Console `CONSOLE_IP_ALLOWLIST` + Admin |
+| 11 | Console `CONSOLE_ALLOWED_EMAILS` + Admin (no IP gate) |
 | 12 | Prod-only deploys; no preview `trustedOrigins` wildcard |
 | 13 | `project.unarchive` action ([#92](https://github.com/jayantrohila57/env-manager/issues/92)) |
 | 14 | MCP rate limits in Postgres |
@@ -680,16 +680,16 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 
 **Implication:** Do not design docs RBAC or `requireAction` on MDX pages for v1.
 
-### Decision 11 — Console IP allowlist (accepted)
+### Decision 11 — Console email allowlist (accepted)
 
 | Topic | Choice |
 |-------|--------|
-| **Control** | **`apps/console` production** requires **both** platform **Admin** role (Better Auth admin plugin) **and** client IP ∈ allowlist. |
-| **Configuration** | Env var **`CONSOLE_IP_ALLOWLIST`** — comma-separated IPv4/IPv6 addresses or CIDR blocks; **values supplied by the operator** in Vercel (never committed to git). |
-| **Behavior** | Middleware (or edge) checks run **before** console routes/tRPC; non-allowlisted IPs get **403** regardless of admin session. |
-| **Non-prod** | Local dev may use `127.0.0.1/32` or disable via documented dev-only escape (e.g. unset only when `NODE_ENV=development`) — production must always set the allowlist. |
+| **Control** | **`apps/console` production** requires **both** platform **Admin** role (Better Auth admin plugin) **and** the signed-in user’s **email** ∈ allowlist. |
+| **Configuration** | Env var **`CONSOLE_ALLOWED_EMAILS`** — comma-separated email addresses (operator-set in Vercel; not committed). **Initial production:** `jrohila55@gmail.com`. |
+| **Behavior** | Middleware (or tRPC context) runs **before** console logic; users not on the list get **403** even if they would otherwise qualify as Admin. |
+| **Excluded** | **No IP allowlist**, CIDR checks, or edge geo blocking for console v1. |
 
-**Implication:** Console is never “admin login only”; network posture is part of the security model.
+**Implication:** Console access is Admin **plus** an explicit email bypass list — not open to all Admin users, and not tied to client IP.
 
 ### Decision 12 — No preview trusted origins (accepted)
 
