@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  describeMcpOAuthScopes,
   parseGrantedScopes,
   requiredOAuthScopesForAction,
   tokenHasScopes,
@@ -35,5 +36,14 @@ describe("MCP OAuth scopes", () => {
       tokenHasScopes(granted, ["mcp:tools", "projects:write"]),
       false,
     );
+  });
+
+  it("describes known scopes in plain language", () => {
+    const described = describeMcpOAuthScopes("mcp:tools variables:reveal");
+    assert.equal(
+      described[0]?.description,
+      "Use Env Manager tools through MCP clients",
+    );
+    assert.equal(described[1]?.description, "Reveal secret variable values");
   });
 });

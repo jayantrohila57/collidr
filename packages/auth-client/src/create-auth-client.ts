@@ -1,5 +1,10 @@
+import { oauthProviderClient } from "@better-auth/oauth-provider/client";
 import { orgAc, orgBetterAuthRoles } from "@env-manager/actions";
-import { adminClient, organizationClient } from "better-auth/client/plugins";
+import {
+  adminClient,
+  deviceAuthorizationClient,
+  organizationClient,
+} from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
 export type CreateEnvManagerAuthClientOptions = {
@@ -8,6 +13,8 @@ export type CreateEnvManagerAuthClientOptions = {
   organizationsEnabled?: boolean;
   /** Better Auth admin plugin (console impersonation, role management). */
   adminEnabled?: boolean;
+  /** OAuth provider + device authorization (apps/auth consent and /device UI). */
+  platformOAuth?: boolean;
 };
 
 export function createEnvManagerAuthClient(
@@ -17,11 +24,15 @@ export function createEnvManagerAuthClient(
     baseURL,
     organizationsEnabled = false,
     adminEnabled = true,
+    platformOAuth = false,
   } = options;
 
   const plugins = [];
   if (adminEnabled) {
     plugins.push(adminClient());
+  }
+  if (platformOAuth) {
+    plugins.push(oauthProviderClient(), deviceAuthorizationClient());
   }
   if (organizationsEnabled) {
     plugins.push(

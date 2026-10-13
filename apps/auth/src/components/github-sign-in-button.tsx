@@ -6,12 +6,22 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 
-export function GitHubSignInButton() {
+type GitHubSignInButtonProps = {
+  returnTo?: string;
+  label?: string;
+};
+
+export function GitHubSignInButton({
+  returnTo: returnToOverride,
+  label = "Continue with GitHub",
+}: GitHubSignInButtonProps = {}) {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
 
   const handleClick = () => {
-    const returnTo = validateReturnTo(searchParams.get("return_to"));
+    const returnTo = validateReturnTo(
+      returnToOverride ?? searchParams.get("return_to"),
+    );
     const finishUrl = new URL(
       "/api/auth/cross-app/finish",
       window.location.origin,
@@ -36,7 +46,7 @@ export function GitHubSignInButton() {
       disabled={loading}
       onClick={handleClick}
     >
-      {loading ? "Redirecting to GitHub…" : "Continue with GitHub"}
+      {loading ? "Redirecting to GitHub…" : label}
     </Button>
   );
 }

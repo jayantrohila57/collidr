@@ -11,6 +11,7 @@
     "./impersonation-banner": "./src/impersonation-banner.tsx"
   },
   "dependencies": {
+    "@better-auth/oauth-provider": "^1.7.7",
     "@env-manager/actions": "workspace:*",
     "@env-manager/ui": "workspace:*",
     "better-auth": "catalog:"

@@ -23,6 +23,43 @@ export const MCP_OAUTH_SCOPES = [
 
 export type McpOAuthScope = (typeof MCP_OAUTH_SCOPES)[number];
 
+/** Plain-language labels for OAuth consent (apps/auth). */
+export const MCP_OAUTH_SCOPE_DESCRIPTIONS: Record<McpOAuthScope, string> = {
+  openid: "Verify your identity",
+  profile: "View your name and profile picture",
+  offline_access: "Stay signed in and refresh access in the background",
+  "mcp:tools": "Use Env Manager tools through MCP clients",
+  "organizations:read": "View organizations you belong to",
+  "organizations:write": "Create and manage organizations",
+  "projects:read": "View projects and environments",
+  "projects:write": "Create and manage projects and environments",
+  "variables:read": "View environment variable names and metadata",
+  "variables:write": "Create and update environment variables",
+  "variables:reveal": "Reveal secret variable values",
+  "variables:export": "Export environment variables",
+  "audit:read": "View audit history",
+  "notifications:read": "View your notifications",
+  "notifications:write": "Manage notification preferences",
+};
+
+export function describeMcpOAuthScopes(
+  scopeClaim: string | null | undefined,
+): { scope: string; description: string }[] {
+  if (!scopeClaim?.trim()) {
+    return [];
+  }
+  return scopeClaim
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((scope) => ({
+      scope,
+      description:
+        scope in MCP_OAUTH_SCOPE_DESCRIPTIONS
+          ? MCP_OAUTH_SCOPE_DESCRIPTIONS[scope as McpOAuthScope]
+          : scope,
+    }));
+}
+
 const WRITE_VERBS = new Set([
   "create",
   "update",

@@ -1,12 +1,10 @@
-import { validateReturnTo } from "@env-manager/auth/return-to";
-import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { SignOutScreen } from "@/components/sign-out-screen";
 
-export default async function SignOutPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ return_to?: string }>;
-}) {
-  const { return_to } = await searchParams;
-  const returnTo = validateReturnTo(return_to);
-  redirect(`/api/auth/sign-out?return_to=${encodeURIComponent(returnTo)}`);
+export default function SignOutPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignOutScreen />
+    </Suspense>
+  );
 }

@@ -28,6 +28,9 @@ export default function SignInPage() {
           <Button variant="outline" render={<Link href="/device" />}>
             Device sign-in (CLI)
           </Button>
+          <Button variant="ghost" render={<Link href="/sign-up" />}>
+            Create an account
+          </Button>
         </CardPanel>
       </Card>
     </div>
