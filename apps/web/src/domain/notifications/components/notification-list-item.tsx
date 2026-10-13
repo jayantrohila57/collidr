@@ -3,6 +3,7 @@
 import { AppIcon } from "@/components/patterns/app-icon";
 import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import type { AppIconName } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
@@ -50,12 +51,13 @@ export function NotificationListItem({
   const unread = !item.readAt;
 
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex w-full min-w-0 gap-3 rounded-lg px-2 py-2 text-start transition-colors hover:bg-muted/60",
+        "h-auto w-full min-w-0 justify-start gap-3 text-start font-normal",
         unread && "bg-muted/30",
         compact ? "items-start" : "items-center",
       )}
@@ -95,6 +97,6 @@ export function NotificationListItem({
           </span>
         ) : null}
       </span>
-    </button>
+    </Button>
   );
 }
