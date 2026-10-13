@@ -1,4 +1,4 @@
--- Better Auth 1.7 organization plugin (teams enabled). Apply after 0008_platform_admin.
+-- Better Auth 1.7 organization plugin (teams enabled). Apply after 0009_platform_apps.
 -- Do NOT run on production until reviewed on a Neon branch.
 
 ALTER TABLE "session" ADD COLUMN IF NOT EXISTS "active_team_id" text;
