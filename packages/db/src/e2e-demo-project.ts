@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 
 import { db } from "./client";
+import { seedE2eDemoVariables } from "./e2e-demo-variables";
 import { user } from "./schema/auth";
 import { environment, project } from "./schema/projects";
 import {
@@ -59,7 +60,7 @@ export async function ensureE2eDemoProject() {
     await db.update(project).set(demoUrls).where(eq(project.id, projectRow.id));
   }
 
-  const [envRow] = await db
+  let [envRow] = await db
     .select({ id: environment.id })
     .from(environment)
     .where(
@@ -73,11 +74,15 @@ export async function ensureE2eDemoProject() {
     .limit(1);
 
   if (!envRow) {
+    const envId = crypto.randomUUID();
     await db.insert(environment).values({
-      id: crypto.randomUUID(),
+      id: envId,
       name: E2E_ENV_NAME,
       slug: E2E_ENV_SLUG,
       projectId: projectRow.id,
     });
+    envRow = { id: envId };
   }
+
+  await seedE2eDemoVariables(envRow.id, userRow.id);
 }

@@ -1,12 +1,10 @@
-import { encrypt } from "@env-manager/crypto";
 import { and, eq } from "drizzle-orm";
 
 import { db } from "./client";
-import { E2E_DEMO_VAR_KEY } from "./e2e-demo-project";
+import { seedE2eDemoVariables } from "./e2e-demo-variables";
 import { user } from "./schema/auth";
-import { environment, environmentVariable, project } from "./schema/projects";
+import { environment, project } from "./schema/projects";
 import {
-  activeEnvironmentVariableWhere,
   activeEnvironmentWhere,
   activeProjectWhere,
   activeUserWhere,
@@ -15,8 +13,8 @@ import {
 const E2E_EMAIL = "e2e-playwright@env-manager.local";
 const E2E_PROJECT_SLUG = "e2e-demo-project";
 const E2E_ENV_SLUG = "development";
-const E2E_DEMO_VAR_VALUE = "playwright-local-demo-value";
 
+/** @deprecated Prefer `ensureE2eDemoProject`, which also seeds variables. */
 export async function ensureE2eDemoVariable() {
   const [userRow] = await db
     .select({ id: user.id })
@@ -59,27 +57,5 @@ export async function ensureE2eDemoVariable() {
     return;
   }
 
-  const [existingVar] = await db
-    .select({ id: environmentVariable.id })
-    .from(environmentVariable)
-    .where(
-      activeEnvironmentVariableWhere(
-        and(
-          eq(environmentVariable.environmentId, envRow.id),
-          eq(environmentVariable.key, E2E_DEMO_VAR_KEY),
-        ),
-      ),
-    )
-    .limit(1);
-
-  if (existingVar) {
-    return;
-  }
-
-  await db.insert(environmentVariable).values({
-    id: crypto.randomUUID(),
-    key: E2E_DEMO_VAR_KEY,
-    encryptedValue: encrypt(E2E_DEMO_VAR_VALUE),
-    environmentId: envRow.id,
-  });
+  await seedE2eDemoVariables(envRow.id, userRow.id);
 }
