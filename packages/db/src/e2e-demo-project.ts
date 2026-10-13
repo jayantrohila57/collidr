@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { db } from "./client";
 import { user } from "./schema/auth";
@@ -7,42 +7,60 @@ import { environment, project } from "./schema/projects";
 const E2E_EMAIL = "e2e-playwright@env-manager.local";
 const E2E_PROJECT_NAME = "E2E Demo Project";
 const E2E_PROJECT_SLUG = "e2e-demo-project";
+const E2E_ENV_NAME = "Development";
+const E2E_ENV_SLUG = "development";
+
+export const E2E_DEMO_VAR_KEY = "E2E_DEMO_KEY";
 
 export async function ensureE2eDemoProject() {
-  const [row] = await db
+  const [userRow] = await db
     .select({ id: user.id })
     .from(user)
     .where(eq(user.email, E2E_EMAIL))
     .limit(1);
 
-  if (!row) {
+  if (!userRow) {
     return;
   }
 
-  const [existing] = await db
+  let [projectRow] = await db
     .select({ id: project.id })
     .from(project)
-    .where(eq(project.userId, row.id))
+    .where(
+      and(eq(project.userId, userRow.id), eq(project.slug, E2E_PROJECT_SLUG)),
+    )
     .limit(1);
 
-  if (existing) {
-    return;
+  if (!projectRow) {
+    const projectId = crypto.randomUUID();
+    await db.insert(project).values({
+      id: projectId,
+      name: E2E_PROJECT_NAME,
+      slug: E2E_PROJECT_SLUG,
+      description: "Seeded for Playwright local verification.",
+      userId: userRow.id,
+      organizationId: null,
+    });
+    projectRow = { id: projectId };
   }
 
-  const projectId = crypto.randomUUID();
-  await db.insert(project).values({
-    id: projectId,
-    name: E2E_PROJECT_NAME,
-    slug: E2E_PROJECT_SLUG,
-    description: "Seeded for Playwright local verification.",
-    userId: row.id,
-    organizationId: null,
-  });
+  const [envRow] = await db
+    .select({ id: environment.id })
+    .from(environment)
+    .where(
+      and(
+        eq(environment.projectId, projectRow.id),
+        eq(environment.slug, E2E_ENV_SLUG),
+      ),
+    )
+    .limit(1);
 
-  await db.insert(environment).values({
-    id: crypto.randomUUID(),
-    name: "Development",
-    slug: "development",
-    projectId,
-  });
+  if (!envRow) {
+    await db.insert(environment).values({
+      id: crypto.randomUUID(),
+      name: E2E_ENV_NAME,
+      slug: E2E_ENV_SLUG,
+      projectId: projectRow.id,
+    });
+  }
 }

@@ -1,5 +1,5 @@
 import { auth } from "@env-manager/auth";
-import { ensureE2eDemoProject } from "@env-manager/db";
+import { ensureE2eDemoProject, ensureE2eDemoVariable } from "@env-manager/db";
 import { NextResponse } from "next/server";
 import { isE2eAuthRouteAllowed } from "@/lib/e2e-auth-allowed";
 
@@ -42,6 +42,7 @@ export async function POST(request: Request) {
   });
 
   await ensureE2eDemoProject();
+  await ensureE2eDemoVariable();
 
   return response;
 }

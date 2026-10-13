@@ -1,9 +1,11 @@
 import { HydrationBoundary } from "@tanstack/react-query";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { Suspense } from "react";
 import ProjectDetailPage from "@/domain/projects/components/project-detail-page";
 import { loadProjectPageData } from "@/lib/project-page-loader";
 import { getServerSession } from "@/lib/server-auth";
+import ProjectDetailLoading from "./loading";
 
 interface ProjectPageProps {
   params: Promise<{
@@ -45,11 +47,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   return (
     <HydrationBoundary state={data.dehydratedState}>
-      <ProjectDetailPage
-        slug={slug}
-        initialName={data.name}
-        initialDescription={data.description}
-      />
+      <Suspense fallback={<ProjectDetailLoading />}>
+        <ProjectDetailPage
+          slug={slug}
+          initialName={data.name}
+          initialDescription={data.description}
+        />
+      </Suspense>
     </HydrationBoundary>
   );
 }

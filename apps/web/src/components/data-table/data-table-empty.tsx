@@ -10,6 +10,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { cn } from "@/lib/utils";
 
 export function DataTableEmpty({
   icon: Icon,
@@ -22,18 +23,26 @@ export function DataTableEmpty({
   title: string;
   description?: string;
   action?: ReactNode;
-  /** Tighter padding when rendered inside a table cell */
+  /** Flush inside a framed DataTable — no nested border or extra inset card. */
   compact?: boolean;
 }) {
   return (
-    <Empty className={compact ? "border-0 py-6" : "border border-dashed"}>
-      <EmptyHeader>
+    <Empty
+      className={cn(
+        compact
+          ? "w-full max-w-none gap-3 border-0 bg-transparent p-0 py-6 shadow-none"
+          : "border border-dashed",
+      )}
+    >
+      <EmptyHeader className={compact ? "max-w-none" : undefined}>
         {Icon ? (
-          <EmptyMedia variant="icon">
+          <EmptyMedia variant="icon" className={compact ? "mb-2" : undefined}>
             <Icon className="size-5" aria-hidden />
           </EmptyMedia>
         ) : null}
-        <EmptyTitle>{title}</EmptyTitle>
+        <EmptyTitle className={compact ? "text-base" : undefined}>
+          {title}
+        </EmptyTitle>
         {description ? (
           <EmptyDescription>{description}</EmptyDescription>
         ) : null}

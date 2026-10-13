@@ -76,8 +76,13 @@ function columnClassName<TData extends RowData>(
   pinActions: boolean,
   placement: "header" | "cell",
 ) {
-  const meta = columnDef.meta as { className?: string } | undefined;
-  const base = meta?.className;
+  const meta = columnDef.meta as
+    | { className?: string; headerClassName?: string }
+    | undefined;
+  const base =
+    placement === "header"
+      ? cn(meta?.headerClassName, meta?.className)
+      : meta?.className;
   if (isDataTableActionsColumn(columnDef)) {
     return cn(
       base,

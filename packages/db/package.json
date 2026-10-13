@@ -16,6 +16,7 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "@env-manager/crypto": "workspace:*",
     "@env-manager/env": "workspace:*",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",

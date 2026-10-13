@@ -294,6 +294,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@env-manager/crypto':
+        specifier: workspace:*
+        version: link:../crypto
       '@env-manager/env':
         specifier: workspace:*
         version: link:../env

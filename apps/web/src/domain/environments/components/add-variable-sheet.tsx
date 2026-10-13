@@ -26,15 +26,16 @@ import { Textarea } from "@/components/ui/textarea";
 interface AddVariableSheetProps {
   onConfirm: (data: { key: string; value: string }) => Promise<void>;
   isPending: boolean;
-  /** Icon-only on narrow viewports (toolbar); show label in empty states. */
-  compactTrigger?: boolean;
+  /** Toolbar: icon-only below `sm`. Table empty: always labeled. */
+  triggerLayout?: "toolbar" | "tableEmpty";
 }
 
 export function AddVariableSheet({
   onConfirm,
   isPending,
-  compactTrigger = false,
+  triggerLayout = "toolbar",
 }: AddVariableSheetProps) {
+  const isToolbar = triggerLayout === "toolbar";
   const [open, setOpen] = useState(false);
   const [key, setKey] = useState("");
   const [value, setValue] = useState("");
@@ -80,18 +81,20 @@ export function AddVariableSheet({
           <Button
             size="sm"
             className={
-              compactTrigger
+              isToolbar
                 ? "max-sm:size-8 max-sm:gap-0 max-sm:px-0 sm:gap-1.5"
                 : "gap-1.5"
             }
-            aria-label={compactTrigger ? "Add variable" : undefined}
+            aria-label={isToolbar ? "Add variable" : undefined}
           />
         }
       >
         <AppIcon name="plus" className="text-current" />
-        <span className={compactTrigger ? "sr-only sm:not-sr-only" : undefined}>
-          Add Variable
-        </span>
+        {isToolbar ? (
+          <span className="sr-only sm:not-sr-only">Add variable</span>
+        ) : (
+          "Add variable"
+        )}
       </SheetTrigger>
       <FormSheetPopup>
         <FormSheetHeader>

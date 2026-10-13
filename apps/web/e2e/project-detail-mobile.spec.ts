@@ -12,7 +12,11 @@ const VIEWPORTS = [
   { width: 1280, height: 800, name: "1280" },
 ] as const;
 
+const PROJECT_DETAIL_PATH = "/dashboard/projects/e2e-demo-project";
+
 test.describe("project detail layout", () => {
+  test.describe.configure({ mode: "serial" });
+
   test.beforeAll(() => {
     test.skip(!hasE2eAuth(), "E2E_TEST_MODE or E2E_SESSION_COOKIE required");
   });
@@ -23,7 +27,7 @@ test.describe("project detail layout", () => {
         width: viewport.width,
         height: viewport.height,
       });
-      await page.goto("/dashboard/projects/e2e-demo-project");
+      await page.goto(PROJECT_DETAIL_PATH);
       await page.waitForLoadState("domcontentloaded");
       await expect(page.locator("#main-content")).toBeVisible();
       await expect(
@@ -36,4 +40,43 @@ test.describe("project detail layout", () => {
       });
     });
   }
+
+  test("project detail @ 390px with seeded variable row", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(PROJECT_DETAIL_PATH);
+    await page.waitForLoadState("domcontentloaded");
+    await expect(
+      page.getByText("E2E_DEMO_KEY", { exact: true }).filter({ visible: true }),
+    ).toBeVisible();
+    await assertNoHorizontalOverflow(page);
+    await page.screenshot({
+      path: `${ARTIFACT_DIR}/project-detail-390-with-variable.png`,
+      fullPage: true,
+    });
+  });
+
+  test("project detail @ 390px empty variables table", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(PROJECT_DETAIL_PATH);
+    await page.waitForLoadState("domcontentloaded");
+
+    const demoKey = page
+      .getByText("E2E_DEMO_KEY", { exact: true })
+      .filter({ visible: true });
+    if (await demoKey.count()) {
+      await page.getByRole("button", { name: "Variable actions" }).click();
+      await page.getByRole("menuitem", { name: "Delete" }).click();
+      await page.getByRole("button", { name: "Delete" }).click();
+      await expect(demoKey).toHaveCount(0);
+    }
+
+    await expect(
+      page.getByRole("button", { name: "Add variable" }),
+    ).toBeVisible();
+    await assertNoHorizontalOverflow(page);
+    await page.screenshot({
+      path: `${ARTIFACT_DIR}/project-detail-390-empty.png`,
+      fullPage: true,
+    });
+  });
 });

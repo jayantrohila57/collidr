@@ -4,7 +4,6 @@ import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import { useCallback, useMemo, useState } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableActionsColumnHeader } from "@/components/data-table/data-table-actions-column";
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { variablesTableEmpty } from "@/components/data-table/data-table-empty-presets";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { AppIcon } from "@/components/patterns/app-icon";
@@ -119,12 +118,14 @@ export function VariablesTableView({
   const columns = useMemo(
     () => [
       columnHelper.accessor("key", {
+        enableSorting: false,
         meta: {
           className:
             "min-w-0 max-w-none w-auto py-2 ps-2 pe-1 sm:max-w-[12rem] sm:py-2.5 sm:ps-2.5 sm:pe-2.5",
+          headerClassName: "ps-2 sm:ps-2.5",
         },
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Key" />
+        header: () => (
+          <span className="font-medium text-muted-foreground text-xs">Key</span>
         ),
         cell: ({ row }) => {
           const variable = row.original;
@@ -276,6 +277,7 @@ export function VariablesTableView({
           <AddVariableSheet
             onConfirm={onAddVariable}
             isPending={isAddingVariable}
+            triggerLayout="tableEmpty"
           />,
         )}
         primaryAction={
@@ -283,7 +285,7 @@ export function VariablesTableView({
             <AddVariableSheet
               onConfirm={onAddVariable}
               isPending={isAddingVariable}
-              compactTrigger
+              triggerLayout="toolbar"
             />
           ) : null
         }

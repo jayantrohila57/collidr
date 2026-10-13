@@ -45,10 +45,11 @@ export function DataTableToolbar({
               aria-hidden
             />
             <Input
+              size="sm"
               value={searchValue ?? ""}
               onChange={(event) => onSearchChange(event.target.value)}
               placeholder={searchPlaceholder}
-              className="h-8 ps-8"
+              className="h-8 [&_[data-slot=input]]:ps-8"
               aria-label={searchPlaceholder}
             />
           </div>
