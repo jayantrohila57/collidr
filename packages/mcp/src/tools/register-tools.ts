@@ -1,9 +1,13 @@
 import { type ActionName, actionRegistry } from "@env-manager/actions";
-import { requireAction } from "@env-manager/api/actions/require-action";
+import { listMcpExposedActions, runMcpTool } from "@env-manager/api/mcp";
 import type { McpServer } from "@modelcontextprotocol/server";
 import type { JWTPayload } from "jose";
 import { z } from "zod";
-import { consumeRateLimit, mcpRateLimitKey } from "../rate-limit";
+import {
+  consumeRateLimit,
+  mcpRateLimitKey,
+  resolveMcpRateLimitConfig,
+} from "../rate-limit";
 import {
   assertTokenScopesForAction,
   getOAuthClientIdFromClaims,
@@ -11,40 +15,31 @@ import {
 } from "../resource-auth";
 import {
   actionFromMcpToolName,
+  MCP_BASE_SCOPE,
   mcpToolNameFromAction,
   parseGrantedScopes,
   requiredOAuthScopesForAction,
 } from "../scopes";
 
-const EXCLUDED_SCOPES = new Set<ActionName>([
-  "platform.user.list",
-  "platform.user.set_role",
-  "platform.user.impersonate",
-]);
-
 function listMcpActions(): ActionName[] {
-  return Object.values(actionRegistry)
-    .map((def) => def.name as ActionName)
-    .filter((name) => !name.startsWith("platform."))
-    .filter((name) => !name.startsWith("user."))
-    .filter((name) => !EXCLUDED_SCOPES.has(name))
-    .sort();
+  return listMcpExposedActions();
 }
+
+/** Tool args validated in `@env-manager/api/mcp` (Zod v3 handler schemas). */
+const mcpToolInputSchema = z.object({}).passthrough();
 
 async function runWithMcpGates(
   claims: JWTPayload,
   toolName: string,
   action: ActionName,
-  run: (ctx: {
-    userId: string;
-    oauthClientId: string | null;
-  }) => Promise<Record<string, unknown>>,
+  input: Record<string, unknown>,
 ): Promise<{ content: { type: "text"; text: string }[] }> {
   const userId = getUserIdFromClaims(claims);
   const oauthClientId = getOAuthClientIdFromClaims(claims);
 
   const limit = await consumeRateLimit(
     mcpRateLimitKey({ oauthClientId, userId, toolName }),
+    resolveMcpRateLimitConfig(action),
   );
   if (!limit.allowed) {
     throw new Error(
@@ -54,9 +49,14 @@ async function runWithMcpGates(
 
   assertTokenScopesForAction(claims, action);
 
-  await requireAction(action, { userId });
+  const result = await runMcpTool({
+    action,
+    toolName,
+    input,
+    userId,
+    oauthClientId,
+  });
 
-  const result = await run({ userId, oauthClientId });
   return {
     content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
   };
@@ -89,7 +89,7 @@ export function registerMcpTools(server: McpServer, claims: JWTPayload): void {
         );
       }
       const granted = parseGrantedScopes(claims.scope);
-      if (!granted.has("mcp:tools")) {
+      if (!granted.has(MCP_BASE_SCOPE)) {
         throw new Error("insufficient_scope: mcp:tools");
       }
       const actions = listMcpActions();
@@ -103,6 +103,7 @@ export function registerMcpTools(server: McpServer, claims: JWTPayload): void {
                   tool: mcpToolNameFromAction(action),
                   action,
                   scopes: requiredOAuthScopesForAction(action),
+                  description: actionRegistry[action]?.description,
                 })),
               },
               null,
@@ -122,16 +123,17 @@ export function registerMcpTools(server: McpServer, claims: JWTPayload): void {
       toolName,
       {
         title: toolName,
-        description: `MCP stub for ${action} — full handlers ship in P8 (#102).`,
-        inputSchema: emptyInput,
+        description:
+          actionRegistry[action]?.description ??
+          `Execute ${action} via env-manager MCP.`,
+        inputSchema: mcpToolInputSchema,
       },
-      async () => {
-        return runWithMcpGates(claims, toolName, action, async () => ({
-          status: "not_implemented",
-          action,
-          message:
-            "Tool wiring is registered; service implementation is tracked in platform P8.",
-        }));
+      async (input: Record<string, unknown>) => {
+        const payload =
+          input && typeof input === "object"
+            ? (input as Record<string, unknown>)
+            : {};
+        return runWithMcpGates(claims, toolName, action, payload);
       },
     );
   }

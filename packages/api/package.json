@@ -5,6 +5,9 @@
     ".": {
       "default": "./src/index.ts"
     },
+    "./mcp": {
+      "default": "./src/mcp/index.ts"
+    },
     "./*": {
       "default": "./src/*.ts"
     }

@@ -13,7 +13,7 @@
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "test": "SKIP_ENV_VALIDATION=1 node --import tsx --test src/mcp-auth.test.ts"
+    "test": "DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres SKIP_ENV_VALIDATION=1 node --import tsx --test src/mcp-auth.test.ts src/mcp-tools.test.ts"
   },
   "dependencies": {
     "@env-manager/actions": "workspace:*",

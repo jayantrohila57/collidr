@@ -1,0 +1,93 @@
+import { db } from "@env-manager/db";
+import {
+  environment,
+  environmentVariable,
+  project,
+} from "@env-manager/db/schema/projects";
+import { isSoftDeletesEnabled } from "@env-manager/env/soft-deletes";
+import { and, eq } from "drizzle-orm";
+import { requireAction } from "../actions/require-action";
+
+export async function mcpProjectRestore(
+  userId: string,
+  organizationId: string,
+  projectId: string,
+) {
+  await requireAction("project.restore", {
+    userId,
+    organizationId,
+    projectId,
+  });
+  if (!isSoftDeletesEnabled()) {
+    throw new Error("soft_deletes_disabled");
+  }
+  const [row] = await db
+    .update(project)
+    .set({ deletedAt: null, deletedBy: null })
+    .where(
+      and(
+        eq(project.id, projectId),
+        eq(project.organizationId, organizationId),
+      ),
+    )
+    .returning({ id: project.id, slug: project.slug });
+  if (!row) {
+    throw new Error("project_not_found");
+  }
+  return row;
+}
+
+export async function mcpEnvironmentRestore(
+  userId: string,
+  organizationId: string,
+  projectId: string,
+  environmentId: string,
+) {
+  await requireAction("environment.restore", {
+    userId,
+    organizationId,
+    projectId,
+  });
+  if (!isSoftDeletesEnabled()) {
+    throw new Error("soft_deletes_disabled");
+  }
+  const [row] = await db
+    .update(environment)
+    .set({ deletedAt: null, deletedBy: null })
+    .where(
+      and(
+        eq(environment.id, environmentId),
+        eq(environment.projectId, projectId),
+      ),
+    )
+    .returning({ id: environment.id, slug: environment.slug });
+  if (!row) {
+    throw new Error("environment_not_found");
+  }
+  return row;
+}
+
+export async function mcpVariableRestore(
+  userId: string,
+  organizationId: string,
+  projectId: string,
+  variableId: string,
+) {
+  await requireAction("variable.restore", {
+    userId,
+    organizationId,
+    projectId,
+  });
+  if (!isSoftDeletesEnabled()) {
+    throw new Error("soft_deletes_disabled");
+  }
+  const [row] = await db
+    .update(environmentVariable)
+    .set({ deletedAt: null, deletedBy: null })
+    .where(eq(environmentVariable.id, variableId))
+    .returning({ id: environmentVariable.id, key: environmentVariable.key });
+  if (!row) {
+    throw new Error("variable_not_found");
+  }
+  return row;
+}

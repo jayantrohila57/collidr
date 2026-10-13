@@ -23,6 +23,8 @@ Remote MCP (HTTP `POST /api/mcp`, MCP 2026-07-28) on Vercel project **`env-manag
 | `NEXT_PUBLIC_MCP_URL` | yes | MCP app origin without path |
 | `MCP_RATE_LIMIT_WINDOW_MS` | optional | Default `60000` |
 | `MCP_RATE_LIMIT_MAX_REQUESTS` | optional | Default `120` |
+| `MCP_RATE_LIMIT_MAX_WRITE` | optional | Default `60` (mutations per window) |
+| `MCP_RATE_LIMIT_MAX_REVEAL` | optional | Default `30` (`variable.reveal` / export) |
 | `SKIP_ENV_VALIDATION` | build only | `1` for CI/build without secrets |
 
 Shared platform flags (`ORGANIZATIONS_ENABLED`, `ACTIONS_AUDIT_ENABLED`, etc.) match studio when MCP tools call `@env-manager/api`.

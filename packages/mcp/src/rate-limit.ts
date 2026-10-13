@@ -1,3 +1,4 @@
+import type { ActionName } from "@env-manager/actions";
 import { db } from "@env-manager/db";
 import { rateLimitBucket } from "@env-manager/db/schema/rate-limit-bucket";
 import { sql } from "drizzle-orm";
@@ -12,7 +13,83 @@ const DEFAULT_MCP_RATE_LIMIT: RateLimitConfig = {
   maxRequests: 120,
 };
 
-export function resolveMcpRateLimitConfig(): RateLimitConfig {
+const DEFAULT_MCP_WRITE_RATE_LIMIT: RateLimitConfig = {
+  windowMs: 60_000,
+  maxRequests: 60,
+};
+
+const DEFAULT_MCP_REVEAL_RATE_LIMIT: RateLimitConfig = {
+  windowMs: 60_000,
+  maxRequests: 30,
+};
+
+function actionVerb(action: string): string {
+  const parts = action.split(".");
+  return parts[parts.length - 1] ?? "read";
+}
+
+/** Per-action limits for MCP hardening (P8): stricter on write/reveal/export. */
+export function resolveMcpRateLimitConfig(
+  action?: ActionName,
+): RateLimitConfig {
+  const base = resolveMcpRateLimitConfigFromEnv();
+  if (!action) {
+    return base;
+  }
+  const verb = actionVerb(action);
+  if (verb === "reveal" || verb === "export") {
+    return {
+      windowMs: base.windowMs,
+      maxRequests: Math.min(
+        base.maxRequests,
+        readIntEnv(
+          "MCP_RATE_LIMIT_MAX_REVEAL",
+          DEFAULT_MCP_REVEAL_RATE_LIMIT.maxRequests,
+        ),
+      ),
+    };
+  }
+  const writeVerbs = new Set([
+    "create",
+    "update",
+    "delete",
+    "restore",
+    "archive",
+    "unarchive",
+    "grant",
+    "invite",
+    "remove",
+    "accept",
+    "reject",
+    "cancel",
+    "import",
+    "toggle",
+    "change",
+    "assign",
+    "mark",
+    "transfer",
+  ]);
+  if (writeVerbs.has(verb)) {
+    return {
+      windowMs: base.windowMs,
+      maxRequests: Math.min(
+        base.maxRequests,
+        readIntEnv(
+          "MCP_RATE_LIMIT_MAX_WRITE",
+          DEFAULT_MCP_WRITE_RATE_LIMIT.maxRequests,
+        ),
+      ),
+    };
+  }
+  return base;
+}
+
+function readIntEnv(key: string, fallback: number): number {
+  const parsed = Number.parseInt(process.env[key] ?? "", 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function resolveMcpRateLimitConfigFromEnv(): RateLimitConfig {
   const windowMs = Number.parseInt(
     process.env.MCP_RATE_LIMIT_WINDOW_MS ?? "",
     10,
