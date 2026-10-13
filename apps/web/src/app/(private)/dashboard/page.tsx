@@ -7,6 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardHome } from "@/domain/dashboard/components/dashboard-home";
 import { DashboardPageSkeleton } from "@/domain/dashboard/components/skeletons";
 import { loadDashboardPage } from "@/lib/dashboard-prefetch";
+import { layoutDashboardPageStackClass } from "@/lib/layout-spacing";
+import { cn } from "@/lib/utils";
 
 export default async function DashboardPage() {
   const { session, dehydratedState } = await loadDashboardPage();
@@ -19,7 +21,7 @@ export default async function DashboardPage() {
     <HydrationBoundary state={dehydratedState}>
       <Suspense
         fallback={
-          <PageStack>
+          <PageStack className={cn(layoutDashboardPageStackClass)}>
             <PageTitleRow
               title="Dashboard"
               description="Workspace overview and recent projects."

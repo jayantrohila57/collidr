@@ -18,6 +18,8 @@ import { ProjectsTableView } from "@/domain/projects/components/projects-table-v
 import { useProjects } from "@/domain/projects/hooks/use-projects";
 import { getClientErrorMessage } from "@/lib/errors/client-errors";
 import { appIcons } from "@/lib/icons";
+import { layoutDashboardPageStackClass } from "@/lib/layout-spacing";
+import { cn } from "@/lib/utils";
 import { useDashboard } from "../hooks/use-dashboard";
 import { DashboardOverviewStats } from "./dashboard-overview-stats";
 import { DashboardPageSkeleton } from "./skeletons";
@@ -59,7 +61,7 @@ export function DashboardHome() {
 
   return (
     <>
-      <PageStack>
+      <PageStack className={cn(layoutDashboardPageStackClass)}>
         <PageTitleRow
           title="Dashboard"
           description="Workspace overview and recent projects."

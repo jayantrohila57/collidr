@@ -106,7 +106,6 @@ export function ProjectsListContent({
             onViewChange={params.setView}
           />
         }
-        primaryAction={newProjectButton}
       />
 
       {filtered.length === 0 ? (
