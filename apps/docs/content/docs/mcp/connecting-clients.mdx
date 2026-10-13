@@ -1,0 +1,95 @@
+---
+title: Connect MCP clients
+description: Step-by-step connection for Cursor, Claude Desktop, Claude Code, VS Code, Windsurf, and generic HTTP MCP clients.
+---
+
+Use the production MCP URL unless your administrator gave you a different deployment:
+
+<McpHttpUrl />
+
+OAuth discovery and consent run on <AuthAppUrl />. Local development defaults: MCP `http://localhost:3004/api/mcp`, auth `http://localhost:3000` (`pnpm dev:mcp` / `pnpm dev:auth` with `PLATFORM_AUTH_ENABLE_MCP=1`).
+
+After saving config, restart the client if required, then complete **OAuth** or **device code** sign-in when prompted (see [Using MCP](/docs/mcp/usage)).
+
+## Cursor
+
+1. Open **Cursor Settings → MCP** (or edit your MCP config file).
+2. Add a **remote HTTP** server pointing at the endpoint above.
+3. On first use, approve scopes on the auth **Authorize application** screen.
+
+```json
+{
+  "mcpServers": {
+    "env-manager": {
+      "url": "https://mcp-env-manager.vercel.app/api/mcp"
+    }
+  }
+}
+```
+
+Replace the URL with <McpHttpUrl /> if your environment uses a custom `NEXT_PUBLIC_MCP_URL`.
+
+## Claude Desktop
+
+Edit `claude_desktop_config.json` (location depends on OS — see Anthropic docs). Add:
+
+```json
+{
+  "mcpServers": {
+    "env-manager": {
+      "url": "https://mcp-env-manager.vercel.app/api/mcp"
+    }
+  }
+}
+```
+
+Restart Claude Desktop and complete browser OAuth when the Env Manager tools are first used.
+
+## Claude Code (CLI)
+
+Claude Code supports remote MCP servers with OAuth. Configure the same HTTP URL as above in your project's MCP settings or CLI config per [Anthropic's Claude Code MCP documentation](https://docs.anthropic.com/en/docs/claude-code/mcp).
+
+When the CLI prints a **device code**, open the auth app **Device sign-in** page (`/device` on <AuthAppUrl />), sign in if needed, enter the code, and approve on **Approve device**.
+
+## VS Code / GitHub Copilot
+
+VS Code MCP uses `mcp.json` (user or workspace). Add an HTTP server entry:
+
+```json
+{
+  "servers": {
+    "env-manager": {
+      "type": "http",
+      "url": "https://mcp-env-manager.vercel.app/api/mcp"
+    }
+  }
+}
+```
+
+Exact schema may vary by VS Code version; use the **HTTP** / **remote** MCP option and paste <McpHttpUrl /> when the UI asks for a server URL. Sign in through the embedded or system browser when prompted.
+
+## Windsurf
+
+In Windsurf MCP settings, add a remote server with URL <McpHttpUrl />. Windsurf uses OAuth-capable MCP clients similar to Cursor; follow the browser consent flow on <AuthAppUrl />.
+
+## Generic / custom clients
+
+Env Manager implements **MCP over HTTP** (`POST /api/mcp`, protocol `mcp-2026-07-28` per `apps/mcp` `GET /api/mcp` discovery).
+
+| Requirement | Value |
+| --- | --- |
+| Resource URL | <McpHttpUrl /> |
+| Authorization | OAuth 2.1 bearer access token |
+| Required scope | At least `mcp:tools` |
+| Token validation | Issuer <AuthAppUrl />, audience = MCP resource URL, JWKS at `<auth>/api/auth/jwks` |
+
+Unauthenticated `POST` requests receive **401** with a JSON-RPC body and `WWW-Authenticate` challenge (`createMcpProtectedRequestHandler`).
+
+Dynamic client registration is enabled on the auth app (`allowDynamicClientRegistration: true`); clients may also use **CIMD** (`mcp-2026-07-28` metadata profile) per `create-platform-auth.ts`.
+
+## Verify the connection
+
+1. Call tool **`permissions_snapshot`** with an empty object `{}` — should return JSON listing tools and scopes.
+2. Call **`organization_list`** — should return organizations you belong to.
+
+If either fails, see [Troubleshooting](/docs/mcp/troubleshooting).

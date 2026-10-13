@@ -1,0 +1,154 @@
+---
+title: Using MCP
+description: End-user guide to Env Manager MCP — what it does, signing in, scopes, and everyday tasks with AI clients.
+---
+
+Env Manager exposes a **remote MCP server** so AI assistants (Cursor, Claude, VS Code, and others) can work with your organizations, projects, environments, and variables using the same permissions as the studio dashboard.
+
+- **MCP endpoint:** <McpHttpUrl />
+- **OAuth issuer (sign-in & consent):** <AuthAppUrl />
+
+Technical deployment notes live in [MCP setup](/docs/mcp/setup). This page focuses on **using** MCP as an end user.
+
+## What MCP can do
+
+Tools are registered in `@env-manager/mcp` and map one-to-one to canonical actions in `@env-manager/actions`. Each call runs `requireAction` for your user, organization, and project grants.
+
+Typical capabilities (when your role, grants, and token scopes allow):
+
+| You want to… | MCP tool (example) |
+| --- | --- |
+| List organizations | `organization_list` |
+| List or create projects | `project_read`, `project_create` |
+| Manage environments | `environment_read`, `environment_create` |
+| Create or update variables (metadata) | `variable_create`, `variable_update` |
+| Reveal a secret value | `variable_reveal` (needs `variables:reveal`) |
+| Invite a teammate | `member_invite` |
+| Read audit timeline | `audit_timeline_view_org` |
+
+See the full [tool index](/docs/mcp/tools) with inputs and OAuth scopes per tool. Call `permissions_snapshot` (only needs `mcp:tools`) to list tools and scopes from a connected client.
+
+User-scoped actions (for example in-app notifications) are **not** registered as MCP tools even when handlers exist in the API package.
+
+## How authorization works (two layers)
+
+1. **OAuth scopes** on your access token — coarse gates enforced before a tool runs (`insufficient_scope: …` if missing).
+2. **Org role and project grants** — the same rules as the studio (`requireAction`). A token with `projects:write` still cannot mutate a project you cannot access.
+
+Always pass **organization context** on org-scoped tools: `organizationId` or `organizationSlug`. MCP bearer tokens do not carry the studio “active organization” cookie.
+
+## OAuth sign-in and consent (graphical clients)
+
+Most desktop and IDE clients open a browser for OAuth 2.1 against <AuthAppUrl />.
+
+### Flow
+
+1. Your MCP client starts authorization and sends you to the auth app.
+2. If you are not signed in, you see **Sign in** (GitHub OAuth).
+3. On **`/consent`**, the **Authorize application** screen shows:
+   - **Title:** “Authorize application”
+   - **Application name** loaded via `oauth2.publicClient` for the requesting `client_id`
+   - **Requested access** — bullet list from `describeMcpOAuthScopes` (human-readable labels from `@env-manager/actions`, plus scope ids in parentheses)
+   - **Approve** / **Deny** — calls `oauth2.consent`; on success the browser redirects back to the client
+4. If the consent link is invalid or expired, you see **Authorization request invalid** with a link back to sign-in.
+
+Deny if you do not recognize the application or the scopes are broader than you need.
+
+## Device code flow (CLI and headless)
+
+Better Auth **device authorization** is enabled with verification URI **`/device`** on the auth app.
+
+### Steps
+
+1. Your CLI or headless client displays a **user code** (often eight characters, with or without a dash).
+2. Open <AuthAppUrl /> and go to **Device sign-in** (`/device`), linked from the sign-in page.
+3. On **Device sign-in**, enter the code. The form normalizes formatting via `formatDeviceUserCode`.
+4. If you are not signed in, use **Sign in with GitHub** first (return URL preserves your code).
+5. After verification, you land on **Approve device** (`/device/approve`):
+   - Shows the formatted code and asks you to confirm it matches your terminal
+   - Shows **client id**, optional **resource** URL(s), and requested scopes (same descriptions as consent)
+   - **Approve** calls `device.approve` — success message: “Device approved. You can return to your terminal or device.”
+   - **Deny** calls `device.deny` — “Request denied. The device will not be signed in.”
+6. Invalid or expired codes show: “Invalid or expired code…” or “This code is invalid or expired.”
+
+Only approve codes you started on a machine you control.
+
+## Choosing scopes (least privilege)
+
+Every tool needs **`mcp:tools`** plus a resource scope. Labels shown on consent/device screens come from `MCP_OAUTH_SCOPE_DESCRIPTIONS` in `@env-manager/actions`.
+
+| Scope | When you need it |
+| --- | --- |
+| `organizations:read` | List/view orgs, members, teams |
+| `organizations:write` | Invites, team changes, org updates |
+| `projects:read` | Projects and environments (read) |
+| `projects:write` | Create/update/delete projects and environments |
+| `variables:read` | Variable keys and metadata (not secret values) |
+| `variables:write` | Create/update/delete variables |
+| `variables:reveal` | `variable_reveal` only — request separately from write |
+| `variables:export` | Bulk export |
+| `audit:read` | Timeline tools |
+
+Prefer **read** scopes until you need mutations. Add **`variables:reveal`** only for assistants that must read secret values.
+
+Full matrix: [OAuth scopes](/docs/mcp/scopes).
+
+## Example prompts and tools
+
+Use natural language in your client; the model should call the right tool with JSON arguments.
+
+| Prompt idea | Tool | Notes |
+| --- | --- | --- |
+| “List my organizations” | `organization_list` | No org ref required |
+| “List projects in acme-corp” | `project_read` | `organizationSlug: "acme-corp"` |
+| “Create a staging environment on project X” | `environment_create` | Org ref + project id/slug per schema |
+| “Set API_KEY in production” | `variable_create` or `variable_update` | `variables:write`; value encrypted server-side |
+| “What is the DATABASE_URL secret?” | `variable_reveal` | `variables:reveal`; org role + grants |
+| “Invite jane@example.com as member” | `member_invite` | `organizations:write`; manager+ |
+| “Show recent audit events for this org” | `audit_timeline_view_org` | `audit:read` |
+
+Inputs must match the Zod schemas on each [tool page](/docs/mcp/tools).
+
+## Revealing secrets safely
+
+- Grant **`variables:reveal`** only when necessary; it is listed explicitly on consent/device screens.
+- Reveal is **rate-limited more strictly** than reads (default 30 requests per 60s window per user/client/tool, configurable via `MCP_RATE_LIMIT_MAX_REVEAL`).
+- Prefer showing metadata with `variable_read` when the secret value is not required.
+- Audit entries for MCP reveals record `source: "mcp"`, `oauth_client_id`, and `mcp_tool` when `ACTIONS_AUDIT_ENABLED` is on.
+
+## Audit timeline (`source = mcp`)
+
+`runMcpTool` wraps execution in `runWithMcpAuditContext` with `source: "mcp"`. Successful and denied `requireAction` paths that write `audit_event` include:
+
+- `source` — `"mcp"` (studio browser traffic uses `"trpc"`)
+- `oauth_client_id` — from the token (`client_id` / `azp` claim)
+- `mcp_tool` — snake_case tool name
+
+Org owners/managers can inspect timeline via studio or MCP `audit_timeline_view_*` tools when audit is enabled.
+
+## Rate limits
+
+Per user, OAuth client, and tool name, `@env-manager/mcp` uses a Postgres-backed fixed window (`rate_limit_bucket`). Defaults (per 60s unless `MCP_RATE_LIMIT_WINDOW_MS` is set):
+
+| Class | Default max |
+| --- | --- |
+| Read | 120 (`MCP_RATE_LIMIT_MAX_REQUESTS`) |
+| Write verbs | 60 (`MCP_RATE_LIMIT_MAX_WRITE`) |
+| Reveal / export | 30 (`MCP_RATE_LIMIT_MAX_REVEAL`) |
+
+When exceeded, tools throw: `rate_limit_exceeded: retry after Ns`.
+
+## Revoking access
+
+| Action | What it does |
+| --- | --- |
+| **Deny** on consent or device approval | Client never receives tokens |
+| **Account → Settings → Sessions** | Revokes Better Auth **browser sessions** for the account app (`revokeAuthSession`) |
+| **Sign out / revoke other sessions** | Ends other studio/account sessions; does not list MCP OAuth clients in the UI today |
+
+There is no dedicated “authorized MCP applications” screen in the account app yet. OAuth refresh tokens are stored in `oauth_refresh_token` (with optional `session_id`); revoking a session may not invalidate every MCP token. If you approved a client by mistake, deny future consent and contact your org owner; operators can revoke rows in the OAuth tables for incidents.
+
+## Next steps
+
+- [Connect your client](/docs/mcp/connecting-clients) — copy-paste configs for Cursor, Claude, VS Code, and more
+- [Troubleshooting & FAQ](/docs/mcp/troubleshooting) — 401, scope errors, rate limits, expired tokens

@@ -1,0 +1,78 @@
+---
+title: MCP troubleshooting & FAQ
+description: Errors, rate limits, token issues, security practices, and frequently asked questions.
+---
+
+## HTTP status and tool errors
+
+| Symptom | Likely cause | What to do |
+| --- | --- | --- |
+| **401** on `POST /api/mcp`, `WWW-Authenticate` header | Missing or invalid bearer token | Re-authenticate in the client; confirm clock skew is minimal |
+| `insufficient_scope: mcp:tools` | Base MCP scope not granted | Re-consent with `mcp:tools` |
+| `insufficient_scope: variables:reveal` (etc.) | Token missing resource scope | Approve the listed scope on consent/device screen or re-run OAuth with broader scopes |
+| `rate_limit_exceeded: retry after Ns` | MCP rate limit (`rate_limit_bucket`) | Wait `N` seconds; reduce reveal/write volume |
+| `organization_required` | Org-scoped tool without `organizationId` / `organizationSlug` | Add organization fields to tool input |
+| `invalid_input: …` | Zod validation failed | Match the schema on the [tool page](/docs/mcp/tools) |
+| `Action blocked` / permission errors from `requireAction` | Role, grant, or `action_block` | Fix org membership or project grants in studio — scopes alone are not enough |
+| **Authorization request invalid** (consent page) | Tampered or expired OAuth query | Restart connect flow from the MCP client |
+| **Invalid or expired code** (device) | Device code timeout or typo | Request a new code from the CLI; re-enter on `/device` |
+
+The MCP resource handler returns **401** JSON-RPC for unauthenticated requests (see `packages/mcp/src/mcp-auth.test.ts`). Scope failures surface as tool errors with `insufficient_scope:` prefixes from `assertTokenScopesForAction`.
+
+## Expired or stale tokens
+
+- Clients with **`offline_access`** may refresh tokens in the background (scope label: “Stay signed in and refresh access in the background”).
+- If refresh fails, disconnect and reconnect the MCP server in your client to trigger a new OAuth or device flow.
+- Browser **session** expiry on the auth app is separate from MCP access tokens; signing out of GitHub or revoking account sessions does not automatically list or revoke every MCP OAuth grant in the UI.
+
+## Rate limits (defaults)
+
+Configured in `@env-manager/mcp` (`rate-limit.ts`) and documented in [MCP setup](/docs/mcp/setup):
+
+- **120** read-class calls per **60s** per user + client + tool (default)
+- **60** write-class calls per window
+- **30** reveal/export-class calls per window
+
+Operators can tune `MCP_RATE_LIMIT_WINDOW_MS`, `MCP_RATE_LIMIT_MAX_REQUESTS`, `MCP_RATE_LIMIT_MAX_WRITE`, and `MCP_RATE_LIMIT_MAX_REVEAL` on the MCP deployment.
+
+## Security best practices
+
+- Approve only clients and scopes you recognize; use **Deny** on consent and device screens when unsure.
+- Request **`variables:reveal`** only for tasks that truly need secret values.
+- Prefer org **manager/owner** review of [timeline](/docs/guides/timeline) entries with `source: mcp` when audit is enabled.
+- Do not paste production secrets into prompts that log to third-party model providers unless your security policy allows it.
+- Use device codes only on trusted machines; codes are short-lived.
+
+## FAQ
+
+### Does MCP bypass studio permissions?
+
+No. OAuth scopes are necessary but not sufficient. `requireAction` enforces org role and project grants on every tool.
+
+### Can I use MCP without GitHub?
+
+Production sign-in uses **GitHub OAuth** on the auth app. E2E email/password may exist in development only (`sharedE2eEmailPassword`); production users should use GitHub.
+
+### Where is the MCP server hosted?
+
+Default phase-1 hostname: `https://mcp-env-manager.vercel.app` (`DEFAULT_MCP_URL` in `@env-manager/auth`). Your admin may override `NEXT_PUBLIC_MCP_URL` / `MCP_RESOURCE_URL`.
+
+### How do I see which tools exist?
+
+Use `permissions_snapshot` or the [tool index](/docs/mcp/tools). Generated from `listMcpExposedActions()` in `@env-manager/api/mcp`.
+
+### Why are notification tools missing?
+
+`notification.*` actions are `scope: "user"` and are excluded from `listMcpExposedActions()`. Use the studio for notifications.
+
+### How do MCP actions appear in audit?
+
+`writeAuditEvent` sets `source` to `"mcp"` when `runWithMcpAuditContext` is active, and stores `oauth_client_id` and `mcp_tool` on the row.
+
+### How do I revoke an MCP client?
+
+Use **Deny** during authorization. The account app exposes **Sessions** and **Connected accounts** for Better Auth login sessions and linked GitHub — not a per-client MCP revoke list. There is no end-user UI yet to revoke a single OAuth `client_id` while keeping others.
+
+### Local testing fails with auth errors
+
+Ensure `PLATFORM_AUTH_ENABLE_MCP=1` on `apps/auth`, migrations through `0009_platform_apps.sql` applied, and `MCP_RESOURCE_URL` matches your local MCP URL (`http://localhost:3004/api/mcp`). See [MCP deploy runbook](https://github.com/jayantrohila57/env-manager/blob/main/docs/MCP_DEPLOY.md).
