@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
 import { TimelinePageClient } from "@/domain/timeline/components/timeline-page-client";
-import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
+import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
 
 export const metadata: Metadata = {
   title: "Timeline",
   description: "Organization audit timeline.",
 };
 
-export default function TimelinePage() {
-  if (!isActionsAuditEnabledOnClient()) {
+export default async function TimelinePage() {
+  if (!isActionsAuditEnabledOnServer()) {
     redirect("/dashboard/activity");
   }
 

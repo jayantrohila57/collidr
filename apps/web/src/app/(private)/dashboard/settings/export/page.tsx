@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function ExportSettingsPage() {
+export default async function ExportSettingsPage() {
   redirect("/dashboard/settings?tab=export");
 }
