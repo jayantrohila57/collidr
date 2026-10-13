@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { DataTableClearFiltersButton } from "@/components/data-table/data-table-clear-filters-button";
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
+import { DataTableFilterSelect } from "@/components/data-table/data-table-filter-select";
 import type { OrgListItem } from "@/components/org/active-organization-context";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { layoutGapClass } from "@/lib/layout-spacing";
@@ -34,22 +35,22 @@ const TYPE_OPTIONS: { value: OrgTypeFacet; icon: ReactNode }[] = [
 const SORT_OPTIONS: {
   value: OrganizationsSort;
   label: string;
-  icon: ReactNode;
+  icon: "listView";
 }[] = [
   {
     value: "name-asc",
     label: "Name (A–Z)",
-    icon: <AppIcon name="listView" className="size-4" />,
+    icon: "listView",
   },
   {
     value: "name-desc",
     label: "Name (Z–A)",
-    icon: <AppIcon name="listView" className="size-4" />,
+    icon: "listView",
   },
   {
     value: "slug-asc",
     label: "Slug (A–Z)",
-    icon: <AppIcon name="listView" className="size-4" />,
+    icon: "listView",
   },
 ];
 
@@ -68,8 +69,6 @@ export function OrganizationsListFiltersBar({
   const typeApplied: OrgTypeFacet[] =
     type === "all" ? [] : ([type] as OrgTypeFacet[]);
 
-  const sortApplied: OrganizationsSort[] = sort === "name-asc" ? [] : [sort];
-
   return (
     <div className={cn("flex flex-wrap items-center", layoutGapClass)}>
       <DataTableFacetedFilter<OrgTypeFacet>
@@ -86,21 +85,14 @@ export function OrganizationsListFiltersBar({
           count: typeCounts[option.value],
         }))}
       />
-      <DataTableFacetedFilter<OrganizationsSort>
-        title="Sort"
-        filterIcon="listView"
+      <DataTableFilterSelect
+        value={sort}
+        onValueChange={(next) => void onSortChange(next as OrganizationsSort)}
+        options={SORT_OPTIONS}
+        triggerIcon="listView"
+        placeholder="Sort"
         ariaLabel="Sort organizations"
-        multiple={false}
-        searchable={false}
-        value={sortApplied}
-        onValueChange={async (next) => {
-          await onSortChange(next[0] ?? "name-asc");
-        }}
-        options={SORT_OPTIONS.map(({ value, label, icon }) => ({
-          value,
-          label,
-          icon,
-        }))}
+        disabled={tableLoading}
       />
 
       {filtersActive ? (

@@ -4,6 +4,7 @@ import type { ProjectOutput } from "@env-manager/api/types";
 import type { ReactNode } from "react";
 import { DataTableClearFiltersButton } from "@/components/data-table/data-table-clear-filters-button";
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
+import { DataTableFilterSelect } from "@/components/data-table/data-table-filter-select";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { layoutGapClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
@@ -60,27 +61,27 @@ const VISIBILITY_OPTIONS: {
 const SORT_OPTIONS: {
   value: ProjectsSort;
   label: string;
-  icon: ReactNode;
+  icon: "calendar" | "listView";
 }[] = [
   {
     value: "updated-desc",
     label: "Updated (newest)",
-    icon: <AppIcon name="calendar" className="size-4" />,
+    icon: "calendar",
   },
   {
     value: "updated-asc",
     label: "Updated (oldest)",
-    icon: <AppIcon name="calendar" className="size-4" />,
+    icon: "calendar",
   },
   {
     value: "name-asc",
     label: "Name (A–Z)",
-    icon: <AppIcon name="listView" className="size-4" />,
+    icon: "listView",
   },
   {
     value: "name-desc",
     label: "Name (Z–A)",
-    icon: <AppIcon name="listView" className="size-4" />,
+    icon: "listView",
   },
 ];
 
@@ -98,11 +99,6 @@ export function ProjectsListFiltersBar({
 }: ProjectsListFiltersProps) {
   const statusCounts = countProjectsByStatus(projects);
   const visibilityCounts = countProjectsByVisibility(projects);
-
-  const sortApplied =
-    sort !== "updated-desc"
-      ? ([sort] as ProjectsSort[])
-      : ([] as ProjectsSort[]);
 
   return (
     <div className={cn("flex flex-wrap items-center", layoutGapClass)}>
@@ -128,21 +124,14 @@ export function ProjectsListFiltersBar({
           count: visibilityCounts[option.value],
         }))}
       />
-      <DataTableFacetedFilter<ProjectsSort>
-        title="Sort"
-        filterIcon="calendar"
+      <DataTableFilterSelect
+        value={sort}
+        onValueChange={(next) => void onSortChange(next as ProjectsSort)}
+        options={SORT_OPTIONS}
+        triggerIcon="calendar"
+        placeholder="Sort"
         ariaLabel="Sort projects"
-        multiple={false}
-        searchable={false}
-        value={sortApplied}
-        onValueChange={async (next) => {
-          await onSortChange(next[0] ?? "updated-desc");
-        }}
-        options={SORT_OPTIONS.map(({ value, label, icon }) => ({
-          value,
-          label,
-          icon,
-        }))}
+        disabled={tableLoading}
       />
 
       {filtersActive ? (
