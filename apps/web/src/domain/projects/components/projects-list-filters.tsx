@@ -1,8 +1,16 @@
 "use client";
 
 import type { ProjectOutput } from "@env-manager/api/types";
+import {
+  ArrowDownAZ,
+  ArrowUpAZ,
+  CalendarArrowDown,
+  CalendarArrowUp,
+} from "lucide-react";
+import type { ReactNode } from "react";
 import { DataTableClearFiltersButton } from "@/components/data-table/data-table-clear-filters-button";
-import { DataTableFilterSelect } from "@/components/data-table/data-table-filter-select";
+import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { layoutGapClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 import {
@@ -15,19 +23,72 @@ import {
 
 type ProjectsListFiltersProps = {
   projects: ProjectOutput[];
-  status: ProjectsStatusFilter;
-  visibility: ProjectsVisibilityFilter;
+  status: ProjectsStatusFilter[];
+  visibility: ProjectsVisibilityFilter[];
   sort: ProjectsSort;
-  onStatusChange: (value: ProjectsStatusFilter) => void;
-  onVisibilityChange: (value: ProjectsVisibilityFilter) => void;
-  onSortChange: (value: ProjectsSort) => void;
+  onStatusChange: (value: ProjectsStatusFilter[]) => void | Promise<void>;
+  onVisibilityChange: (
+    value: ProjectsVisibilityFilter[],
+  ) => void | Promise<void>;
+  onSortChange: (value: ProjectsSort) => void | Promise<void>;
   onClear: () => void;
   filtersActive: boolean;
+  tableLoading?: boolean;
 };
 
-function countLabel(count: number) {
-  return ` (${count})`;
-}
+const STATUS_OPTIONS: {
+  value: ProjectsStatusFilter;
+  icon: ReactNode;
+}[] = [
+  { value: "active", icon: <AppIcon name="statusActive" className="size-4" /> },
+  {
+    value: "inactive",
+    icon: <AppIcon name="statusInactive" className="size-4" />,
+  },
+  {
+    value: "maintenance",
+    icon: <AppIcon name="statusMaintenance" className="size-4" />,
+  },
+  {
+    value: "archived",
+    icon: <AppIcon name="statusArchived" className="size-4" />,
+  },
+];
+
+const VISIBILITY_OPTIONS: {
+  value: ProjectsVisibilityFilter;
+  icon: ReactNode;
+}[] = [
+  { value: "private", icon: <AppIcon name="lock" className="size-4" /> },
+  { value: "public", icon: <AppIcon name="globe" className="size-4" /> },
+];
+
+const SORT_OPTIONS: {
+  value: ProjectsSort;
+  label: string;
+  icon: ReactNode;
+}[] = [
+  {
+    value: "updated-desc",
+    label: "Updated (newest)",
+    icon: <CalendarArrowDown className="size-4 opacity-80" aria-hidden />,
+  },
+  {
+    value: "updated-asc",
+    label: "Updated (oldest)",
+    icon: <CalendarArrowUp className="size-4 opacity-80" aria-hidden />,
+  },
+  {
+    value: "name-asc",
+    label: "Name (A–Z)",
+    icon: <ArrowDownAZ className="size-4 opacity-80" aria-hidden />,
+  },
+  {
+    value: "name-desc",
+    label: "Name (Z–A)",
+    icon: <ArrowUpAZ className="size-4 opacity-80" aria-hidden />,
+  },
+];
 
 export function ProjectsListFiltersBar({
   projects,
@@ -39,105 +100,60 @@ export function ProjectsListFiltersBar({
   onSortChange,
   onClear,
   filtersActive,
+  tableLoading = false,
 }: ProjectsListFiltersProps) {
   const statusCounts = countProjectsByStatus(projects);
   const visibilityCounts = countProjectsByVisibility(projects);
 
+  const sortApplied =
+    sort !== "updated-desc" ? ([sort] as ProjectsSort[]) : ([] as ProjectsSort[]);
+
   return (
     <div className={cn("flex flex-wrap items-center", layoutGapClass)}>
-      <DataTableFilterSelect
-        value={status}
-        onValueChange={(value) => onStatusChange(value as ProjectsStatusFilter)}
-        triggerIcon="activity"
-        placeholder="Status"
+      <DataTableFacetedFilter<ProjectsStatusFilter>
+        title="Status"
+        filterIcon="statusActive"
         ariaLabel="Filter by status"
-        options={[
-          {
-            value: "all",
-            label: "All statuses",
-            icon: "activity",
-            suffix: countLabel(statusCounts.all),
-          },
-          {
-            value: "active",
-            label: "Active",
-            icon: "statusActive",
-            suffix: countLabel(statusCounts.active),
-          },
-          {
-            value: "inactive",
-            label: "Inactive",
-            icon: "statusInactive",
-            suffix: countLabel(statusCounts.inactive),
-          },
-          {
-            value: "maintenance",
-            label: "Maintenance",
-            icon: "statusMaintenance",
-            suffix: countLabel(statusCounts.maintenance),
-          },
-          {
-            value: "archived",
-            label: "Archived",
-            icon: "statusArchived",
-            suffix: countLabel(statusCounts.archived),
-          },
-        ]}
+        value={status}
+        onValueChange={onStatusChange}
+        options={STATUS_OPTIONS.map((option) => ({
+          ...option,
+          count: statusCounts[option.value],
+        }))}
       />
-
-      <DataTableFilterSelect
-        value={visibility}
-        onValueChange={(value) =>
-          onVisibilityChange(value as ProjectsVisibilityFilter)
-        }
-        triggerIcon="globe"
-        placeholder="Visibility"
+      <DataTableFacetedFilter<ProjectsVisibilityFilter>
+        title="Visibility"
+        filterIcon="globe"
         ariaLabel="Filter by visibility"
-        options={[
-          {
-            value: "all",
-            label: "All visibility",
-            icon: "globe",
-            suffix: countLabel(visibilityCounts.all),
-          },
-          {
-            value: "private",
-            label: "Private",
-            icon: "lock",
-            suffix: countLabel(visibilityCounts.private),
-          },
-          {
-            value: "public",
-            label: "Public",
-            icon: "globe",
-            suffix: countLabel(visibilityCounts.public),
-          },
-        ]}
+        value={visibility}
+        onValueChange={onVisibilityChange}
+        options={VISIBILITY_OPTIONS.map((option) => ({
+          ...option,
+          count: visibilityCounts[option.value],
+        }))}
       />
-
-      <DataTableFilterSelect
-        value={sort}
-        onValueChange={(value) => onSortChange(value as ProjectsSort)}
-        triggerIcon="listView"
-        placeholder="Sort"
+      <DataTableFacetedFilter<ProjectsSort>
+        title="Sort"
+        filterIcon={CalendarArrowDown}
         ariaLabel="Sort projects"
-        options={[
-          {
-            value: "updated-desc",
-            label: "Updated (newest)",
-            icon: "calendar",
-          },
-          {
-            value: "updated-asc",
-            label: "Updated (oldest)",
-            icon: "calendar",
-          },
-          { value: "name-asc", label: "Name (A–Z)", icon: "listView" },
-          { value: "name-desc", label: "Name (Z–A)", icon: "listView" },
-        ]}
+        multiple={false}
+        value={sortApplied}
+        onValueChange={async (next) => {
+          await onSortChange(next[0] ?? "updated-desc");
+        }}
+        options={SORT_OPTIONS.map(({ value, label, icon }) => ({
+          value,
+          label,
+          icon,
+        }))}
       />
 
-      {filtersActive ? <DataTableClearFiltersButton onClick={onClear} /> : null}
+      {filtersActive ? (
+        <DataTableClearFiltersButton
+          onClick={onClear}
+          disabled={tableLoading}
+        />
+      ) : null}
     </div>
   );
 }

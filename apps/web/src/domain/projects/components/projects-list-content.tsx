@@ -1,8 +1,9 @@
 "use client";
 
 import type { ProjectOutput } from "@env-manager/api/types";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { projectsTableEmpty } from "@/components/data-table/data-table-empty-presets";
+import { waitForClientTableRefresh } from "@/components/data-table/data-table-filter-refetch";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";
@@ -27,6 +28,20 @@ export function ProjectsListContent({
   onCreateProject,
 }: ProjectsListContentProps) {
   const params = useProjectsListParams();
+  const [filterTableLoading, setFilterTableLoading] = useState(false);
+
+  const withFilterApply = useCallback(
+    async (apply: () => void | Promise<void>) => {
+      setFilterTableLoading(true);
+      try {
+        await apply();
+        await waitForClientTableRefresh();
+      } finally {
+        setFilterTableLoading(false);
+      }
+    },
+    [],
+  );
 
   const filtered = useMemo(
     () =>
@@ -68,11 +83,18 @@ export function ProjectsListContent({
             status={params.status}
             visibility={params.visibility}
             sort={params.sort}
-            onStatusChange={params.setStatus}
-            onVisibilityChange={params.setVisibility}
-            onSortChange={params.setSort}
+            onStatusChange={(value) =>
+              withFilterApply(() => params.setStatus(value))
+            }
+            onVisibilityChange={(value) =>
+              withFilterApply(() => params.setVisibility(value))
+            }
+            onSortChange={(value) =>
+              withFilterApply(() => params.setSort(value))
+            }
             onClear={params.clearFilters}
             filtersActive={params.filtersActive}
+            tableLoading={filterTableLoading}
           />
         }
         trailing={
@@ -95,6 +117,7 @@ export function ProjectsListContent({
           caption="All projects"
           captionSrOnly
           searchable={false}
+          isLoading={filterTableLoading}
           filterActive={params.filtersActive}
           onCreateProject={onCreateProject}
           empty={projectsTableEmpty(newProjectButton ?? undefined)}

@@ -1,12 +1,13 @@
 import type { ProjectOutput } from "@env-manager/api/types";
 
 export type ProjectsStatusFilter =
+  | "all"
   | "active"
   | "inactive"
   | "maintenance"
   | "archived";
 
-export type ProjectsVisibilityFilter = "public" | "private";
+export type ProjectsVisibilityFilter = "all" | "public" | "private";
 
 export type ProjectsSort =
   | "updated-desc"
@@ -16,8 +17,8 @@ export type ProjectsSort =
 
 export type ProjectsListFilters = {
   search: string;
-  status: ProjectsStatusFilter[];
-  visibility: ProjectsVisibilityFilter[];
+  status: ProjectsStatusFilter;
+  visibility: ProjectsVisibilityFilter;
   sort: ProjectsSort;
 };
 
@@ -37,22 +38,18 @@ export function filterAndSortProjects(
     });
   }
 
-  if (filters.status.length > 0) {
+  if (filters.status !== "all") {
     result = result.filter((project) => {
-      const key: ProjectsStatusFilter = project.isArchived
-        ? "archived"
-        : (project.status as ProjectsStatusFilter);
-      return filters.status.includes(key);
+      if (filters.status === "archived") return project.isArchived;
+      if (project.isArchived) return false;
+      return project.status === filters.status;
     });
   }
 
-  if (filters.visibility.length > 0) {
-    result = result.filter((project) => {
-      const key: ProjectsVisibilityFilter = project.isPublic
-        ? "public"
-        : "private";
-      return filters.visibility.includes(key);
-    });
+  if (filters.visibility !== "all") {
+    result = result.filter((project) =>
+      filters.visibility === "public" ? project.isPublic : !project.isPublic,
+    );
   }
 
   const sorted = [...result];

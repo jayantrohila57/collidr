@@ -1,46 +1,79 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
 import { auditLogEmpty } from "@/components/data-table/data-table-empty-presets";
-import { DataTableFilterSelect } from "@/components/data-table/data-table-filter-select";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { ErrorState } from "@/components/patterns/error-state";
 import { useAudit } from "../hooks/use-audit";
 import { AuditLogTableView } from "./audit-log-table-view";
 
+const ALL_PROJECTS = "__all__" as const;
+type ProjectFilterValue = typeof ALL_PROJECTS | string;
+
 export default function AuditLogs() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedProjectId, setSelectedProjectId] = useState<string>("ALL");
+  const [selectedProjectId, setSelectedProjectId] =
+    useState<ProjectFilterValue>(ALL_PROJECTS);
 
-  const { logs, projects, status, error, revealedIds, toggleReveal, refetch } =
-    useAudit({
-      search: searchTerm,
-      projectId: selectedProjectId === "ALL" ? undefined : selectedProjectId,
-    });
+  const {
+    logs,
+    projects,
+    status,
+    error,
+    revealedIds,
+    toggleReveal,
+    refetch,
+    isFetching,
+  } = useAudit({
+    search: searchTerm,
+    projectId:
+      selectedProjectId === ALL_PROJECTS ? undefined : selectedProjectId,
+  });
 
   const filterActive =
-    Boolean(searchTerm.trim()) || selectedProjectId !== "ALL";
+    Boolean(searchTerm.trim()) || selectedProjectId !== ALL_PROJECTS;
 
   const clearFilters = useCallback(() => {
     setSearchTerm("");
-    setSelectedProjectId("ALL");
+    setSelectedProjectId(ALL_PROJECTS);
   }, []);
 
+  const projectOptions = useMemo(
+    () =>
+      projects.map((project) => ({
+        value: project.id,
+        label: project.name,
+        icon: (
+          <AppIcon name="projectFolder" className="size-4 text-muted-foreground" />
+        ),
+      })),
+    [projects],
+  );
+
   const projectFilter = (
-    <DataTableFilterSelect
-      value={selectedProjectId}
-      onValueChange={setSelectedProjectId}
-      triggerIcon="project"
-      placeholder="All projects"
+    <DataTableFacetedFilter<ProjectFilterValue>
+      title="Project"
+      filterIcon="projectFolder"
       ariaLabel="Filter by project"
-      className="w-full sm:w-48"
-      disabled={status === "loading" && projects.length === 0}
+      multiple={false}
+      isLoading={status === "loading" && projects.length === 0}
+      value={
+        selectedProjectId === ALL_PROJECTS ? [] : [selectedProjectId]
+      }
+      badgeCount={selectedProjectId === ALL_PROJECTS ? 0 : 1}
+      onValueChange={async (next) => {
+        setSelectedProjectId(next[0] ?? ALL_PROJECTS);
+      }}
       options={[
-        { value: "ALL", label: "All projects", icon: "projectFolder" },
-        ...projects.map((project) => ({
-          value: project.id,
-          label: project.name,
-          icon: "project" as const,
-        })),
+        {
+          value: ALL_PROJECTS,
+          label: "All projects",
+          icon: (
+            <AppIcon name="project" className="size-4 text-muted-foreground" />
+          ),
+        },
+        ...projectOptions,
       ]}
     />
   );
@@ -57,10 +90,12 @@ export default function AuditLogs() {
     );
   }
 
+  const tableLoading = status === "loading" || isFetching;
+
   return (
     <AuditLogTableView
       logs={logs}
-      isLoading={status === "loading"}
+      isLoading={tableLoading}
       revealedIds={revealedIds}
       onToggleReveal={toggleReveal}
       searchValue={searchTerm}
