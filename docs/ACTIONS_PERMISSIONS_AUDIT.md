@@ -13,7 +13,7 @@ The product is **organization-level only** today: there is **no admin dashboard*
 | **OWNER**, **MANAGER**, **MEMBER** within the active organization | **ADMIN** (platform super admin) behavior, UI, and routes |
 | Org + project permissions, teams, timeline, `requireAction` for tRPC | Better Auth **admin** plugin, `user.role`, impersonation, ban UI |
 | `action_block` at **organization**, **project**, **user** scope | `action_block` at **platform** scope (schema may reserve `scope_type`) |
-| Registry entries for org/project actions | Wiring `platform.*` actions (reserved names only) |
+| Registry entries for org/project/**user** actions; account settings + Organizations module routes | Wiring `platform.*` actions (reserved names only) |
 
 **ADMIN** remains in the **registry and permission model** (action names, evaluation order stub, matrix column) so a future platform phase can plug in without renaming. Phase 1 **`requireAction` must not treat any user as ADMIN** (`isPlatformAdmin()` always false; no admin plugin).
 
@@ -27,9 +27,12 @@ This spec introduces:
 
 1. **`@env-manager/actions` registry** — single source of truth for action metadata, Better Auth organization statements/roles, project-level grants, audit payloads, notification triggers, and UI `requiredAction`.
 2. **`requireAction(action, ctx)`** — server gate used by tRPC (and Better Auth hooks where applicable): **(reserved: platform admin)** → block list → org role → project grant; **always** writes `audit_event` (`success` | `failure` | `denied`). Phase 1 skips the admin step.
-3. **`audit_event`** — replaces `audit_log` and powers **org-wide Timeline** (replaces `/dashboard/activity`) plus **user Timeline** in settings; **OWNER** (and later ADMIN) can view any member’s timeline — Phase 1 implements OWNER only.
-4. **Role model** — **OWNER** / **MANAGER** / **MEMBER** (org + project), aligned with Better Auth organization + **teams**. **ADMIN** is documented and reserved in the registry; not implemented in Phase 1.
-5. **Project scope** — Better Auth is org/team-native; **project permissions are app tables** (`project_manager`, `project_team`, `project_member_grant`) evaluated after org role.
+3. **`audit_event`** — replaces `audit_log` and powers **org-wide Timeline** (replaces `/dashboard/activity`), **per-org hub Timeline**, and **account Timeline** in user settings; **OWNER** (and later ADMIN) can view any member’s timeline — Phase 1 implements OWNER only.
+4. **Account settings (`/dashboard/settings`)** — **user scope only**: profile, sessions, connected accounts, export, delete, own timeline. **Org management is removed** from settings and lives in the **Organizations** module.
+5. **Organizations module** — `/dashboard/organizations` list + `/dashboard/organizations/[slug]` hub (Members, Teams, Invitations, Roles & access, Settings, Timeline), parallel to Projects.
+6. **Role model** — **OWNER** / **MANAGER** / **MEMBER** (org + project), aligned with Better Auth organization + **teams**. **ADMIN** is documented and reserved in the registry; not implemented in Phase 1.
+7. **Project scope** — Better Auth is org/team-native; **project permissions are app tables** (`project_manager`, `project_team`, `project_member_grant`) evaluated after org role.
+8. **`user` action scope** — self-service account actions use `scope: "user"`; **`requireAction` does not require an active organization** (org id in `audit_event` optional when absent).
 
 ---
 
@@ -67,7 +70,7 @@ This spec introduces:
 | `auditLogs` | `list`, `stats` |
 | `notifications` | `unreadCount`, `list`, `markRead`, `markUnread`, `markAllRead`, sync helpers |
 | `dashboard` | stats including audit aggregates |
-| Better Auth (client) | org CRUD, members, invitations, (future) teams |
+| Better Auth (client) | org CRUD, members, invitations, (future) teams; **account**: `updateUser`, `changeEmail`, `listSessions`, `revokeSession`, `revokeOtherSessions`, `listUserAccounts`, `linkSocial`, `unlinkAccount`, `deleteUser` |
 
 ### 2.4 Notifications (cross-link)
 
@@ -160,21 +163,28 @@ Registry entry example:
 `<resource>.<verb>` lowercase, dot-separated. Use specific verbs (`reveal` not `read` for secret material). Group by domain:
 
 - `platform.*` — **reserved** for future ADMIN (not registered in Phase 1 route map)  
-- `organization.*`, `member.*`, `invitation.*`, `team.*` — **Phase 1**  
+- `profile.*` — **user scope** — name, avatar, email (`updateUser`, `changeEmail`)  
+- `session.*` — **user scope** — `listSessions`, `revokeSession`, `revokeOtherSessions`, `revokeSessions`  
+- `account.*` — **user scope** — OAuth link/unlink, delete, export (`listUserAccounts`, `linkSocial` / `linkSocialAccount`, `unlinkAccount`, `deleteUser`, `accountInfo` optional)  
+- `organization.*`, `member.*`, `invitation.*`, `team.*` — **Phase 1** (Organizations module + BA org plugin)  
 - `project.*`, `environment.*`, `variable.*`  
 - `audit.*`, `notification.*`  
-- `settings.*`
+
+**Migration from legacy names:** `settings.profile.*` → **`profile.*`**; **`settings.organization.*` removed** — use **`organization.*`** on org hub routes only.
 
 ### 4.2 Registry record shape (TypeScript)
 
 ```ts
-export type ActionScope = "platform" | "organization" | "project";
+export type ActionScope = "platform" | "organization" | "project" | "user";
 
 export type ActionDefinition = {
   /** Stable id, e.g. variable.reveal */
   name: string;
   scope: ActionScope;
   description: string;
+
+  /** scope `user`: actor must be the session user (self-service). No active org required. */
+  selfOnly?: boolean;
 
   /** Minimum org role if scope is organization or project (before project grant) */
   orgRoles?: Array<"owner" | "manager" | "member">;
@@ -253,6 +263,16 @@ async function requireAction(
       return { allowed: true };
     }
 
+    if (def.scope === "user") {
+      const decision = await evaluateUserScope(action, ctx);
+      if (!decision.allowed) {
+        denialReason = decision.reason;
+        throw forbidden();
+      }
+      result = "success";
+      return { allowed: true };
+    }
+
     const decision = await evaluateOrgAndProject(action, ctx);
     if (!decision.allowed) {
       denialReason = decision.reason;
@@ -287,13 +307,32 @@ async function requireAction(
 
 1. **Block list** (`action_block`) — Phase 1: `organization` \| `project` \| `user` only (platform scope reserved in schema)  
 2. **Platform ADMIN** — **reserved**; no bypass in Phase 1  
-3. **Org context** — require active org when action scope needs it  
-4. **Org OWNER** — all org actions + all projects in org  
-5. **Org MANAGER** — org actions allowed by `manager` org role; project actions only if `project_manager` row exists for `projectId`  
-6. **Project MEMBER** — user in team linked via `project_team` → `project_member_grant` must include `projectGrantKey`  
-7. **Legacy owner** — during migration, `project.userId === actor` treated as OWNER-equivalent for that project until backfill completes  
+3. **User scope** — authenticated session; **self-only** unless future ADMIN; **no active org required**  
+4. **Org context** — require active org (or org slug on route) when scope is `organization` or `project`  
+5. **Org OWNER** — all org actions + all projects in org  
+6. **Org MANAGER** — org actions allowed by `manager` org role; project actions only if `project_manager` row exists for `projectId`  
+7. **Project MEMBER** — user in team linked via `project_team` → `project_member_grant` must include `projectGrantKey`  
+8. **Legacy owner** — during migration, `project.userId === actor` treated as OWNER-equivalent for that project until backfill completes  
 
 Deny by default.
+
+### 4.5 User-scoped registry entries (account settings)
+
+All audited via `audit_event` (`success` \| `failure` \| `denied`). Better Auth calls run behind tRPC or auth hooks that invoke `requireAction` first.
+
+| Action | BA / app API | Notes |
+|--------|----------------|-------|
+| `profile.view` | session user read | UI gate for settings shell |
+| `profile.update` | `updateUser`, `changeEmail` | Name, avatar, email |
+| `session.list` | `listSessions` | IP, UA, last active, current badge |
+| `session.revoke` | `revokeSession` | Single device |
+| `session.revoke_others` | `revokeOtherSessions` (+ `revokeSessions` if needed) | All except current |
+| `account.list` | `listUserAccounts`, `accountInfo` | Connected providers metadata |
+| `account.link` | `linkSocial` / `linkSocialAccount` | e.g. GitHub OAuth |
+| `account.unlink` | `unlinkAccount` | Deny if last login method |
+| `account.export` | app export assembler | JSON download of user-owned data |
+| `account.delete` | `deleteUser` | Typed confirmation; block if sole org owner |
+| `audit.timeline.view.self` | `audit_event` query | Settings → Timeline tab |
 
 ---
 
@@ -315,7 +354,13 @@ Deny by default.
 | Org timeline | ✓ | ✓ | ✓ (assigned projects filter) | — |
 | Any user timeline | ✓ | ✓ | — | — |
 | Own user timeline | ✓ | ✓ | ✓ | ✓ |
+| Account settings (profile, sessions, accounts, export) | ✓ | ✓ (self) | ✓ (self) | ✓ (self) |
+| Delete own account | ✓ | ✓* | ✓* | ✓* |
+| Organizations list & hub | ✓ | ✓ | ✓ | ✓ |
+| Org danger zone (transfer, delete org) | ✓ | ✓ | — | — |
 | Notifications | ✓ | ✓ | ✓ | ✓ (own) |
+
+\*Delete denied while **sole OWNER** of any organization (transfer or delete org first).
 
 ---
 
@@ -338,7 +383,12 @@ Legend:
 | `organization.create` | Y | Y | — | — |
 | `organization.update` | Y | Y | — | — |
 | `organization.delete` | Y | Y | — | — |
+| `organization.list` | Y | Y | Y | Y |
 | `organization.view` | Y | Y | Y | Y |
+| `organization.hub.view` | Y | Y | Y | Y |
+| `organization.transfer_ownership` | Y | Y | — | — |
+| `organization.settings.view` | Y | Y | Y | — |
+| `organization.settings.update` | Y | Y | — | — |
 | `member.list` | Y | Y | Y | — |
 | `member.invite` | Y | Y | — | — |
 | `member.remove` | Y | Y | — | — |
@@ -378,12 +428,24 @@ Legend:
 | `audit.timeline.view.self` | Y | Y | Y | Y |
 | `notification.list` | Y | Y | Y | Y |
 | `notification.mark_read` | Y | Y | Y | Y |
-| `settings.profile.view` | Y | Y | Y | Y |
-| `settings.profile.update` | Y | Y | Y | Y |
-| `settings.organization.view` | Y | Y | Y | — |
+| `profile.view` | Y | Y | Y | Y |
+| `profile.update` | Y | Y | Y | Y |
+| `session.list` | Y | Y | Y | Y |
+| `session.revoke` | Y | Y | Y | Y |
+| `session.revoke_others` | Y | Y | Y | Y |
+| `account.list` | Y | Y | Y | Y |
+| `account.link` | Y | Y | Y | Y |
+| `account.unlink` | Y | Y* | Y* | Y* |
+| `account.export` | Y | Y | Y | Y |
+| `account.delete` | Y | Y† | Y† | Y† |
 
 **MANAGER “G” rows:** requires row in `project_manager` for that `project_id`.  
 **MEMBER “G” rows:** requires team membership for a team linked in `project_team` **and** grant bit in `project_member_grant`.
+
+**User-scope rows (`profile.*`, `session.*`, `account.*`, `audit.timeline.view.self`):** allowed for **any authenticated user on their own account** — matrix **OWNER / MANAGER / MEMBER** columns all **Y**; enforcement is **self-only**, not org role. No active org required.
+
+\* **`account.unlink`:** deny if unlinking would remove the **last** login method.  
+† **`account.delete`:** deny while user is **sole owner** of any org; otherwise allow after typed confirmation.
 
 ### 6.1 Default project member grant template
 
@@ -411,7 +473,7 @@ tRPC `permissions.snapshot` (org + optional project):
 }
 ```
 
-Cached in React Query; invalidated on org switch, project navigation, role/grant mutations.
+Cached in React Query; invalidated on org switch, project navigation, role/grant mutations. **`user`-scoped actions** (`profile.*`, `session.*`, `account.*`) evaluate from session alone — snapshot may omit `orgRole` requirement for those keys.
 
 ### 7.2 `useCan(action, { projectId? })`
 
@@ -429,15 +491,34 @@ Render children only when allowed; use for buttons, menu items, sheets.
 export const platformNav = [
   { href: "/dashboard", label: "Dashboard", action: null },
   { href: "/dashboard/projects", label: "Projects", action: "project.read" },
-  { href: "/dashboard/timeline", label: "Timeline", action: "audit.timeline.view.org" },
+  {
+    href: "/dashboard/organizations",
+    label: "Organizations",
+    action: "organization.list", // or organization.view — one canonical nav gate
+  },
+  {
+    href: "/dashboard/timeline",
+    label: "Timeline",
+    action: "audit.timeline.view.org",
+  },
   { href: "/dashboard/notifications", label: "Notifications", action: "notification.list" },
-  { href: "/dashboard/settings", label: "Settings", action: "settings.profile.view" },
+  { href: "/dashboard/settings", label: "Settings", action: "profile.view" },
 ] satisfies NavItem[];
 ```
 
+- **Org switcher** remains at the **top of the sidebar** (unchanged); **Organizations** is a separate list/hub nav item.
+- **Settings** gates on **`profile.view`** — account tabs only (no org management link).
+
 Project sidebar (`sidebar-project-nav.ts`) adds `action: "project.read"` per project link. Hide item if `useCan` false.
 
-**Route rename:** `/dashboard/activity` → `/dashboard/timeline` (redirect old URL).
+**Redirects / route migration:**
+
+| From | To |
+|------|-----|
+| `/dashboard/activity` | `/dashboard/timeline` (see global timeline behavior below) |
+| `/dashboard/settings/organization` | `/dashboard/organizations/[slug]` (matching org) or org list |
+
+**Global `/dashboard/timeline`:** When orgs are enabled, show **active org** feed (`audit.timeline.view.org`). If no active org, redirect to **`/dashboard/organizations/[slug]/timeline`** for a sensible default org or to the org list. **Personal** activity: **Settings → Timeline** (`audit.timeline.view.self`).
 
 ---
 
@@ -472,11 +553,40 @@ Indexes: `(organization_id, created_at DESC)`, `(actor_user_id, created_at DESC)
 
 ### 8.2 UI surfaces
 
+#### Account settings (`/dashboard/settings`) — user scope only
+
+| Tab / area | Route (suggested) | Action gate | Behavior |
+|------------|-------------------|-------------|----------|
+| **Profile** | `/dashboard/settings` | `profile.view`, `profile.update` | Name, avatar, email |
+| **Sessions** | `/dashboard/settings/sessions` | `session.list`, `session.revoke`, `session.revoke_others` | Devices: IP, UA, last active, current-session badge |
+| **Connected accounts** | `/dashboard/settings/accounts` | `account.list`, `account.link`, `account.unlink` | GitHub: provider, account id, scopes, linked date; prevent unlink of last login method |
+| **Export my data** | `/dashboard/settings/export` | `account.export` | JSON download (sync OK) |
+| **Delete account** | `/dashboard/settings/delete` | `account.delete` | Typed confirmation; block or require transfer if sole org owner |
+| **Timeline** | `/dashboard/settings/timeline` | `audit.timeline.view.self` | Own rows from `audit_event` |
+
+**Remove** org management from this surface (`/dashboard/settings/organization` → Organizations module).
+
+#### Organizations module
+
+| Surface | Action gate | Data / notes |
+|---------|-------------|--------------|
+| `/dashboard/organizations` | `organization.list` | Grid/list, stats, filters (Projects-like) |
+| `/dashboard/organizations/[slug]` | `organization.hub.view` | Hub overview; cards → child sections |
+| `.../members` | `member.list`, `member.*` | Members |
+| `.../teams` | `team.*` | Teams |
+| `.../invitations` | `invitation.*` | Invitations |
+| `.../roles` | `member.role.update`, org AC | Roles & access |
+| `.../settings` | `organization.settings.*`, `organization.update`, `organization.delete`, `organization.transfer_ownership` | Settings; danger zone |
+| `.../timeline` | `audit.timeline.view.org` | Org-scoped `audit_event` feed |
+
+#### Timeline (org + cross-user)
+
 | Surface | Action gate | Data |
 |---------|-------------|------|
-| `/dashboard/timeline` | `audit.timeline.view.org` | Org-wide feed; MANAGER filtered to assigned projects |
-| Settings → **Timeline** tab | `audit.timeline.view.self` | Actor = self |
-| Settings → view another user (OWNER+) | `audit.timeline.view.user` | `targetUserId` param |
+| `/dashboard/timeline` | `audit.timeline.view.org` | Active-org feed (redirect rules §7.4); MANAGER project filter |
+| Org hub → Timeline | `audit.timeline.view.org` | Feed for hub `slug` |
+| Settings → Timeline | `audit.timeline.view.self` | Actor = self |
+| Org → view member (OWNER+) | `audit.timeline.view.user` | `targetUserId` param |
 
 Reuses list component; filters by action, result, project, actor.
 
@@ -606,7 +716,34 @@ CREATE TABLE audit_event (
 | `audit_log` rows | Map `CREATE`+`PROJECT` → `project.create`, etc.; `result = 'success'` |
 | Platform admins | **Deferred** — no `user.role` seed in Phase 1 |
 
-### 9.7 Feature flags
+### 9.7 User data export (optional async)
+
+**Phase 1 default:** synchronous JSON response from `account.export` (no new table).
+
+If export payloads are large, add optional:
+
+```sql
+CREATE TABLE user_data_export_job (
+  id text PRIMARY KEY,
+  user_id text NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+  status text NOT NULL, -- pending | ready | failed
+  storage_key text, -- blob path when ready
+  error_message text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  completed_at timestamptz
+);
+
+CREATE INDEX user_data_export_job_user_idx ON user_data_export_job (user_id, created_at DESC);
+```
+
+### 9.8 Route redirects (app config)
+
+Document in migration notes / Next redirects:
+
+- `/dashboard/settings/organization` → `/dashboard/organizations/[slug]` or `/dashboard/organizations`
+- `/dashboard/activity` → `/dashboard/timeline` (or org hub timeline per §7.4)
+
+### 9.9 Feature flags
 
 ```env
 ACTIONS_AUDIT_ENABLED=true
@@ -626,12 +763,14 @@ Gate registry, `requireAction`, and Timeline UI until migration applied.
 | **W3** | `requireAction` + audit writer | `packages/api/src/actions/**`, retrofit routers | W1, W2 |
 | **W4** | Better Auth config | `packages/auth/**`, team enablement, org role migrate (`admin`→`manager`) — **no admin plugin** | W1, W2 |
 | **W4b** | Platform admin (later) | admin plugin, `platform.*` wiring, operator UI | Post–Phase 1 |
-| **W5** | Timeline UI | `apps/web/.../timeline/**`, remove/replace `activity/**`, settings tab | W3 list API |
-| **W6** | Client `useCan` + sidebar | `apps/web/src/lib/nav/**`, `components/app-sidebar.tsx` | W3 snapshot endpoint |
+| **W5** | Timeline UI | `apps/web/.../timeline/**`, remove/replace `activity/**`, account settings timeline tab, org hub timeline | W3 list API, **W9** (settings shell), **W10** (org hub routes) |
+| **W6** | Client `useCan` + sidebar | `apps/web/src/lib/nav/**`, `components/app-sidebar.tsx`, Organizations nav + timeline redirect behavior | W3 snapshot endpoint, **W10** (`organization.list` gate) |
 | **W7** | Notifications bridge | `packages/notifications/**`, registry `notifyOn` | W3 audit insert hook |
-| **W8** | E2E + backfill scripts | `apps/web/e2e/**`, `packages/db/scripts/**` | W3–W6 |
+| **W8** | E2E + backfill scripts | `apps/web/e2e/**`, `packages/db/scripts/**` | W3–W7, W9, W10 |
+| **W9** | Account settings UI + BA wrappers | `apps/web/.../settings/**`, `packages/auth/**` hooks for sessions/accounts/delete/export | W1 (`user` scope actions), W3 |
+| **W10** | Organizations module UI + route migration | `apps/web/.../organizations/**`, remove `settings/organization`, redirects | W1, W4, W6 |
 
-**Suggested order:** W1 → (W2 ∥ W4) → W3 → (W5 ∥ W6 ∥ W7) → W8.
+**Suggested order:** W1 → (W2 ∥ W4) → W3 → (W9 ∥ W10) → (W5 ∥ W6 ∥ W7) → W8.
 
 **Do not merge** until user approves combined migration (0005 + 0006 bundle).
 
@@ -639,11 +778,18 @@ Gate registry, `requireAction`, and Timeline UI until migration applied.
 
 ## 11. Open questions (for confirmation)
 
-1. **Org `member` vs project MEMBER:** Should org-level `member` see any org timeline entries, or only after first team/project grant?  
-2. **MANAGER invite:** Can managers invite users to org or only to teams? (Matrix assumes no.)  
-3. **Variable reveal:** Always audit as `variable.reveal` even when failed — confirm retention period.  
-4. **Block list precedence (future):** When ADMIN exists, should platform block override ADMIN? (Recommended: yes for compliance.)  
-5. **0005 + 0006:** One prod migration PR or two sequential with single flag flip?
+| # | Question | Status |
+|---|----------|--------|
+| 1 | **Account settings scope** — `/dashboard/settings` is account-only; org UI moves to Organizations module | **Resolved** (user confirmed) |
+| 2 | **User action scope** — `profile.*`, `session.*`, `account.*`; `requireAction` without active org | **Resolved** (user confirmed) |
+| 3 | **Organizations module** — list + `[slug]` hub sections, sidebar nav, settings org route migration | **Resolved** (user confirmed) |
+| 4 | **Global `/dashboard/timeline`** — redirect to active org or org hub timeline | **Resolved** (user confirmed) |
+| 5 | **Org `member` vs project MEMBER:** Should org-level `member` see any org timeline entries, or only after first team/project grant? | Open |
+| 6 | **MANAGER invite:** Can managers invite users to org or only to teams? (Matrix assumes no.) | Open |
+| 7 | **Variable reveal:** Always audit as `variable.reveal` even when failed — confirm retention period. | Open |
+| 8 | **Block list precedence (future):** When ADMIN exists, should platform block override ADMIN? (Recommended: yes for compliance.) | Open |
+| 9 | **0005 + 0006:** One prod migration PR or two sequential with single flag flip? | Open |
+| 10 | **`account.export`:** Sync JSON only in Phase 1, or require `user_data_export_job` table? | Open (sync OK per user; table optional §9.7) |
 
 ---
 
