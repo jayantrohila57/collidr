@@ -353,34 +353,74 @@ Each app’s tRPC context / middleware:
 
 ---
 
-## 8. Migration: `apps/web` → auth + account + studio (zero-downtime)
+## 8. Migration: `apps/web` → auth + account + studio
+
+**Cutover style:** **Decision 5 (§14)** — one **big-bang** production switch. No beta hostname, no gradual traffic split, no dual-run of `apps/web` + studio in prod.
 
 ### 8.1 Principles
 
-- **Strangler fig:** introduce new apps alongside `apps/web`; cut traffic per hostname.
-- **No session invalidation** on cutover if cookie domain + `BETTER_AUTH_SECRET` unchanged.
-- **Database:** no destructive migration required for app split (routing-only until MCP/console schema).
+- **Single window:** `apps/auth`, `apps/account`, and `apps/studio` go live together; `apps/web` Vercel project is retired in the same change set.
+- **SSO (phase 1):** Per **Decision 1**, users sign in via auth-app redirects; expect **one re-login** at cutover (session cookies move off the monolithic web origin).
+- **Database:** App split is routing/deploy only until MCP/console schema (`0008`); use a **Neon test branch** for full-stack verification before prod (see §8.2).
+- **Prep in repo:** Feature freeze on `apps/web` while studio/account/auth reach parity; avoid long-lived production shims.
 
-### 8.2 Phased cutover
+### 8.2 Pre-cutover verification (required)
 
-| Step | Action | User impact |
-|------|--------|-------------|
-| **M0** | Ship `apps/auth` on `auth.*`; clone auth handler from `packages/auth`; point **staging** studio at auth URL | Staging only |
-| **M1** | Enable `crossSubDomainCookies`; deploy `apps/studio` to `app.*` **beta**; Vercel gradual rollout or DNS weight | Beta users |
-| **M2** | Deploy `apps/account`; studio replaces settings links with account URLs | Settings URL change (communicate) |
-| **M3** | Move `/api/auth` off `apps/web` — `apps/web` rewrites to auth OR decommission web project | **Critical:** update GitHub OAuth callback to auth domain |
-| **M4** | Redirect `env-manager-web.vercel.app` → `app.env-manager.com`; alias old paths `/dashboard/settings/*` → account | SEO/bookmarks |
-| **M5** | Remove `apps/web` from production Vercel; keep package renamed to `studio` in repo | None if DNS stable |
+Complete on a **Neon branch** (and matching Vercel **staging** hostnames or local multi-port setup) **before** touching production default.
 
-### 8.3 Compatibility shims (during M1–M4)
+| Area | Verification |
+|------|----------------|
+| **Schema** | Branch at or beyond required platform SQL; flags on (`ORGANIZATIONS_ENABLED`, `ACTIONS_AUDIT_ENABLED`, etc. as needed). |
+| **Auth** | GitHub OAuth on auth hostname; `return_to` allowlist for studio + account origins. |
+| **Studio** | E2E parity with current web: orgs, projects, envs, variables, notifications, onboarding, timelines. |
+| **Account** | Profile, sessions, accounts, export, delete, personal timeline — no `/dashboard/settings` on studio. |
+| **Cross-app** | Sign-in on auth → studio dashboard; studio links to account settings; sign-out returns to expected origin. |
+| **Data** | Optional `pnpm db:reset-seed` on branch only ([DB_RESET.md](./DB_RESET.md)); owner `KEEP_USER_EMAIL` sign-in still works. |
+| **Automated** | `pnpm build`, `pnpm check-types`, Playwright/a11y suites green against staging URLs. |
 
-- **`apps/web` middleware:** if `NEXT_PUBLIC_AUTH_URL` set, redirect `/sign-in` → auth with `return_to`.
-- **Studio:** `vercel.json` redirects: `/dashboard/settings/:path*` → `https://account.../settings/:path*`.
-- **Cookies:** if issuer moves from `app` → `auth`, issue dual cookies once (migration window) — prefer **big-bang** on auth subdomain with 24h maintenance comms if dual-cookie too heavy (open decision).
+#### Pre-cutover checklist (prod gate)
+
+- [ ] Neon **backup branch** from current production default created and named (e.g. `backup-before-app-split-YYYY-MM-DD`).
+- [ ] All §8.2 verification rows signed off on Neon branch + staging URLs.
+- [ ] GitHub OAuth app: **new callback URL** on auth hostname tested; old web callback removal planned for cutover instant.
+- [ ] Vercel env: `BETTER_AUTH_URL`, `NEXT_PUBLIC_AUTH_URL`, studio/account URL graph, shared `BETTER_AUTH_SECRET` / `DATABASE_URL` aligned across three projects.
+- [ ] Redirect map drafted: `env-manager-web.vercel.app` → studio; `/dashboard/settings/*` → account paths.
+- [ ] Owner comms: maintenance window + “sign in again once” (OIDC redirect model).
+- [ ] Rollback owner identified; §8.4 steps reviewed.
+
+### 8.3 Big-bang cutover (single maintenance window)
+
+Execute in order during one coordinated change (no beta cohort).
+
+| Step | Action |
+|------|--------|
+| **C1** | Freeze merges to `main` except cutover fixes; final `git pull --rebase` + green CI. |
+| **C2** | Deploy **`apps/auth`**, **`apps/account`**, **`apps/studio`** to production `*.vercel.app` hostnames (§2.0). |
+| **C3** | Update GitHub OAuth callback to auth URL only; remove web callback. |
+| **C4** | Point **studio** production alias to primary product URL (`env-manager-web.vercel.app` → studio project, or new studio URL + redirect from old). |
+| **C5** | Enable `vercel.json` redirects: legacy `/sign-in` on old web → auth; `/dashboard/settings/*` → account app. |
+| **C6** | **Disable / remove** `apps/web` Vercel production deployment; repo renames package to `apps/studio` when code lands. |
+| **C7** | Smoke test prod checklist (subset of §8.2) on live URLs within 30 minutes. |
+
+**Not in scope for this cutover:** `apps/console`, `apps/mcp`, `apps/docs` (later milestones).
 
 ### 8.4 Rollback
 
-- DNS revert to single `apps/web` project; `BETTER_AUTH_URL` back to app origin; disable cross-subdomain cookies.
+If critical failure before C6 completes:
+
+1. **Stop** cutover; leave `apps/web` production serving if not yet removed.
+2. Revert GitHub OAuth callback to web origin if already switched.
+3. Revert Vercel aliases / env vars to pre-cutover snapshot (document values in cutover runbook).
+4. If only new apps were deployed but web still live, disable auth/studio/account projects and route users to web.
+
+If failure **after** web decommission:
+
+1. **Redeploy last known-good `apps/web`** build from git tag/commit recorded in cutover runbook.
+2. Restore `BETTER_AUTH_URL` to web origin; restore OAuth callback.
+3. Point `env-manager-web.vercel.app` back to web project.
+4. Use Neon **backup branch** only if a bad migration ran (not required for routing-only split); follow [DB_RESET.md](./DB_RESET.md) / [PLATFORM_MIGRATION_COMBINED.md](./PLATFORM_MIGRATION_COMBINED.md) if schema was touched.
+
+Target rollback decision time: **< 1 hour** from go/no-go.
 
 ---
 
@@ -397,7 +437,7 @@ Each app’s tRPC context / middleware:
 
 **Build:** `turbo build --filter=studio` (etc.). **Env:** duplicate DB secrets; per-app `NEXT_PUBLIC_*_URL` link graph. **Previews:** `trustedOrigins` / `allowedReturnOrigins` strategy (open decision).
 
-**Legacy:** `env-manager-web` → alias to studio until M5.
+**Legacy:** At cutover (§8.3), `env-manager-web.vercel.app` aliases to **studio** (Decision 5); web project removed same window.
 
 ---
 
@@ -431,14 +471,13 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 |-------|-------------|------------|
 | **P0** | This plan approved | Open decisions closed |
 | **P1** | `@env-manager/ui`, `@env-manager/auth-client`, Better Auth 1.7 upgrade | Storybook or visual snapshot; client gets session from auth |
-| **P2** | `apps/auth` production + cross-subdomain cookies | Sign-in on auth; session visible on studio staging |
-| **P3** | `apps/studio` beta (copy web) | E2E parity with current web |
-| **P4** | `apps/account` + link migration | Account routes 404 on studio |
-| **P5** | DNS cutover + decommission web Vercel | No `/api/auth` on studio |
-| **P6** | `apps/docs` MVP | Fumadocs content + coss shell; MCP scope page |
-| **P7** | `apps/mcp` + OAuth consent on auth | MCP client auth E2E |
-| **P8** | `apps/console` | Admin-only cross-tenant |
-| **P9** | MCP tool parity + hardening | See Appendix A |
+| **P2** | Auth + account + studio ready on staging / Neon branch | §8.2 verification complete |
+| **P3** | **Big-bang cutover** (Decision 5) — auth + account + studio prod; decommission `apps/web` | §8.3 smoke tests pass; no `/api/auth` on studio |
+| **P4** | Custom apex DNS (optional, later) | §2.1 hostnames when approved |
+| **P5** | `apps/docs` MVP | Fumadocs content + coss shell; MCP scope page |
+| **P6** | `apps/mcp` + OAuth consent on auth | MCP client auth E2E |
+| **P7** | `apps/console` | Admin-only cross-tenant |
+| **P8** | MCP tool parity + hardening | See Appendix A |
 
 ---
 
@@ -451,7 +490,8 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 | Safari ITP | Shared parent domain or rewrites ([Cookies — Safari](https://www.better-auth.com/docs/concepts/cookies#safari-itp-and-cross-domain-setups)) |
 | Six Vercel projects env drift | `@env-manager/env` + deployment matrix doc |
 | Fumadocs + coss integration cost | Headless Fumadocs; timebox P6 |
-| Duplicate code during web/studio parallel | Short M1–M4 window; feature freeze on web |
+| Big-bang cutover failure | §8.2 checklist + §8.4 rollback; Neon backup before window |
+| Duplicate code during prep | Feature freeze on web until Decision 5 cutover |
 
 ---
 
@@ -469,6 +509,18 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 **Implication:** Do not plan “sign in once, cookie works on every `*.vercel.app` app.” Implement auth-app redirects and registered callback URLs per app.
 
+### Decision 5 — App split cutover (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Style** | **Big-bang** — `apps/auth` + `apps/account` + `apps/studio` production **at once**; retire `apps/web` in the **same** maintenance window. |
+| **Excluded** | No beta hostname, no gradual traffic percentage, no long dual-run of web + studio in production. |
+| **Proof** | Full §8.2 verification on **Neon test branch** + staging URLs; §8.2 checklist signed off before C1. |
+| **Sessions** | Expect users to **sign in again once** after cutover (auth redirect model + new origins); no dual-cookie migration window. |
+| **Runbook** | §8.3 steps C1–C7; rollback §8.4. |
+
+**Implication:** Implementation work happens off prod until parity is proven; production changes once, completely.
+
 ---
 
 ## 15. Open decisions (numbered)
@@ -476,22 +528,20 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 1. **Cookie domain** (custom apex) — `env-manager.com` vs `.env-manager.com` vs per-subdomain only?
 2. **Auth proxy vs cookie-only** (custom apex) — rewrites on every sibling app or only `crossSubDomainCookies`?
 3. **Marketing site** — `www` → docs, studio landing, or separate?
-4. **Cutover style** — big-bang DNS vs gradual beta vs dual-run `apps/web` + studio?
-5. **Session migration** — single cutover (users re-login once) vs dual-cookie window?
-6. **CIMD vs DCR** — [MCP optional DCR](https://www.better-auth.com/docs/plugins/mcp#optional-dcr-fallback)?
-7. **Device authorization** — ship on auth for CLI v1?
-8. **Fumadocs version / search** — built-in search vs external (Algolia)?
-9. **Docs auth** — public-only vs gated sections for enterprise?
-10. **Console IP allowlist** — required in prod?
-11. **Preview `trustedOrigins`** — policy for non-prod (prod: **no branch previews** per [AGENTS.md](../AGENTS.md))?
-12. **`project.unarchive` canonical action** — add to registry?
-13. **Rate limit store** for MCP — KV vs Postgres?
-14. **MCP transport** — `@modelcontextprotocol/server` + `requireMcpAuth` vs `@vercel/mcp-adapter`?
-15. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
-16. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
-17. **Account app URL in emails** — branding and link targets?
-18. **Impersonation banner** — show on studio, account, or all apps?
-19. **Better Auth upgrade** — before P2 or as part of P2?
+4. **CIMD vs DCR** — [MCP optional DCR](https://www.better-auth.com/docs/plugins/mcp#optional-dcr-fallback)?
+5. **Device authorization** — ship on auth for CLI v1?
+6. **Fumadocs version / search** — built-in search vs external (Algolia)?
+7. **Docs auth** — public-only vs gated sections for enterprise?
+8. **Console IP allowlist** — required in prod?
+9. **Preview `trustedOrigins`** — policy for non-prod (prod: **no branch previews** per [AGENTS.md](../AGENTS.md))?
+10. **`project.unarchive` canonical action** — add to registry?
+11. **Rate limit store** for MCP — KV vs Postgres?
+12. **MCP transport** — `@modelcontextprotocol/server` + `requireMcpAuth` vs `@vercel/mcp-adapter`?
+13. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
+14. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
+15. **Account app URL in emails** — branding and link targets?
+16. **Impersonation banner** — show on studio, account, or all apps?
+17. **Better Auth upgrade** — before P2 or as part of P2?
 
 ---
 
