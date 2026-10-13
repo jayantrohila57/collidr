@@ -19,7 +19,10 @@
     },
     "./layout-spacing": "./src/lib/layout-spacing.ts",
     "./page-header-grid-classes": "./src/lib/page-header-grid-classes.ts",
-    "./patterns/impersonation-banner": "./src/patterns/impersonation-banner.tsx"
+    "./patterns/impersonation-banner": "./src/patterns/impersonation-banner.tsx",
+    "./utils": {
+      "default": "./src/lib/utils.ts"
+    }
   },
   "scripts": {
     "check-types": "tsc --noEmit",

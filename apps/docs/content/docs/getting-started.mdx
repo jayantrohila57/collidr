@@ -1,0 +1,42 @@
+---
+title: Getting started
+description: Product concepts and where to run Env Manager locally.
+---
+
+## Prerequisites
+
+- Node.js 20+
+- pnpm 10.13.1 (Corepack)
+- PostgreSQL (`DATABASE_URL`)
+- GitHub OAuth credentials
+
+## Run the dashboard locally
+
+From the repository root:
+
+```bash
+pnpm install
+# configure apps/web/.env — see README.md
+pnpm dev:web
+```
+
+The dashboard runs at `http://localhost:3000`.
+
+## Run the docs site locally
+
+```bash
+pnpm --filter docs dev
+```
+
+Docs default to `http://localhost:3001` and redirect `/` → `/docs`.
+
+## Core concepts
+
+| Concept | Description |
+| --- | --- |
+| **Organization** | Workspace boundary for members, teams, and projects |
+| **Project** | Container for environments and variables |
+| **Environment** | Named slice (e.g. development, staging, production) |
+| **Actions** | Canonical permission names in `@env-manager/actions` |
+
+Deep dives: [Actions & audit](https://github.com/jayantrohila57/env-manager/blob/main/docs/ACTIONS_PERMISSIONS_AUDIT.md), [Design system](https://github.com/jayantrohila57/env-manager/blob/main/docs/DESIGN_SYSTEM.md).

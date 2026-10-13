@@ -1,0 +1,18 @@
+---
+title: MCP tool reference
+description: Planned MCP tools mapped to canonical actions in @env-manager/actions.
+---
+
+The MCP server (`apps/mcp`, milestone P8) will expose tools that call the same services as tRPC, each gated by `requireAction` and OAuth scopes issued by **`apps/auth`**.
+
+## Inventory (from actions registry)
+
+The table below lists product-scoped actions (platform-admin-only entries are omitted from MCP v1). Tool names follow the `snake_case` convention described in [PLAN_PLATFORM_APPS.md](https://github.com/jayantrohila57/env-manager/blob/main/docs/PLAN_PLATFORM_APPS.md) Appendix A.
+
+<McpToolsTable />
+
+## Related
+
+- [OAuth scopes](/docs/mcp/scopes)
+- [Better Auth MCP plugin](https://www.better-auth.com/docs/plugins/mcp)
+- [Platform MCP plan](https://github.com/jayantrohila57/env-manager/blob/main/docs/PLAN_MCP_AND_CONSOLE.md)

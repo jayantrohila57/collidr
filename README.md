@@ -17,6 +17,7 @@ Env Manager is a web dashboard and **pnpm/Turbo monorepo** for storing and organ
 | ---- | ------- |
 | `apps/web` | Next.js studio UI, tRPC client, Better Auth routes |
 | `apps/www` | Public marketing landing (Decision 4); CTAs → auth `sign-in` with `return_to` studio |
+| `apps/docs` | Public Fumadocs site (product guides, API overview, MCP reference) |
 | `packages/api` | tRPC routers (projects, orgs, access, audit, notifications, account, …) |
 | `packages/actions` | Canonical action registry, org roles, `requireAction` evaluation |
 | `packages/auth` | Better Auth (GitHub OAuth, organizations, teams) |

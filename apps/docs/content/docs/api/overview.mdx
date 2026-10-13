@@ -1,0 +1,28 @@
+---
+title: API overview
+description: How Env Manager exposes server APIs today and where docs will expand.
+---
+
+## tRPC (current product app)
+
+The live dashboard (`apps/web`) mounts a tRPC router at `/api/trpc`. Procedures live in `@env-manager/api` and enforce permissions via `requireAction` and organization/project membership.
+
+Typical client usage is through the React Query integration in `apps/web` — there is no separate public REST surface for product CRUD in v1.
+
+## Authentication
+
+Sessions use **Better Auth** with GitHub OAuth. Browser clients call `/api/auth/*` on the app origin.
+
+As the platform split lands, authentication moves to **`apps/auth`** with SSO across studio and account apps. Set `NEXT_PUBLIC_AUTH_URL` in the docs deployment to point the header **Sign in** link at your auth hostname.
+
+## Studio link
+
+Set `NEXT_PUBLIC_STUDIO_URL` for the docs header **Studio** button. Until studio ships, this can remain the current web dashboard URL (`https://env-manager-web.vercel.app`).
+
+## Future surfaces
+
+| Surface | App | Notes |
+| --- | --- | --- |
+| MCP tools | `apps/mcp` | OAuth 2.1 + MCP plugin; same action layer as tRPC |
+| Operator console | `apps/console` | Platform admin + email allowlist |
+| Public HTTP docs | `apps/docs` | This site — MDX + search only |

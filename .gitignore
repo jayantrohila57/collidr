@@ -37,6 +37,9 @@ lerna-debug.log*
 # Turbo
 .turbo
 
+# Fumadocs MDX (generated at build)
+apps/docs/.source
+
 # Better-T-Stack
 .alchemy
 
