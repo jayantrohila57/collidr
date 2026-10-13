@@ -147,7 +147,6 @@ export function ActiveOrganizationProvider({
         await refetchSession();
 
         await invalidateAfterOrganizationChange(queryClient);
-        void router.refresh();
 
         const [listResult] = await Promise.all([
           queryClient.fetchQuery(trpc.projects.list.queryOptions()),
@@ -172,6 +171,7 @@ export function ActiveOrganizationProvider({
         if (redirectTo) {
           router.replace(redirectTo);
         }
+        void router.refresh();
       } finally {
         setIsSwitching(false);
       }
