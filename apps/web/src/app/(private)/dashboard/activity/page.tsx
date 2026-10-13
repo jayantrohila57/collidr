@@ -23,7 +23,6 @@ export default async function ActivityPage() {
     <DashboardSection
       title="Activity"
       description="Audit log of changes across your projects."
-      showBack={false}
     >
       <AuditLogs />
     </DashboardSection>

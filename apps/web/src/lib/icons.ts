@@ -5,6 +5,7 @@ import {
   ArchiveRestore,
   Building2,
   Calendar,
+  ChevronLeft,
   Circle,
   Copy,
   ExternalLink,
@@ -74,6 +75,7 @@ export const appIcons = {
   statusArchived: Archive,
   power: Power,
   archiveRestore: ArchiveRestore,
+  back: ChevronLeft,
 } as const satisfies Record<string, LucideIcon>;
 
 export type AppIconName = keyof typeof appIcons;

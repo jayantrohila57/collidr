@@ -1,8 +1,11 @@
 import type { Route } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import GoBackButton from "@/components/go-back";
-import { PageStack, PageTitleRow } from "@/components/layout/app-layout";
+import { PageStack } from "@/components/layout/app-layout";
+import {
+  PageHeader,
+  type PageHeaderBackProp,
+} from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 
 interface SectionProps {
@@ -15,7 +18,8 @@ interface SectionProps {
   /** @deprecated use actionLabel */
   actionUrl?: string;
   children: React.ReactNode;
-  showBack?: boolean;
+  /** `auto` shows back on non-root routes; `false` hides; string sets parent href */
+  back?: PageHeaderBackProp;
 }
 
 export default function DashboardSection({
@@ -27,7 +31,7 @@ export default function DashboardSection({
   actionHref,
   actionUrl,
   children,
-  showBack = false,
+  back = "auto",
 }: SectionProps) {
   const resolvedActionHref = actionHref ?? actionUrl;
   const trailingAction =
@@ -44,13 +48,13 @@ export default function DashboardSection({
 
   return (
     <PageStack>
-      {showBack ? <GoBackButton /> : null}
       {title ? (
-        <PageTitleRow
+        <PageHeader
           title={title}
           titleAccessory={titleAccessory}
           description={description}
           action={trailingAction}
+          back={back}
         />
       ) : null}
       {children}
