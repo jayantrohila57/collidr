@@ -52,7 +52,7 @@ export function useDataTableFacetedFilter<T extends string>(
               }
             })(),
             {
-              loading: "Clearing filters…",
+              loading: "Applying filters…",
               success: "Filters cleared",
               error: "Failed to clear filters",
             },

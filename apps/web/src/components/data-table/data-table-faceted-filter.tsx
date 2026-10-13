@@ -1,7 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { ListFilter, Search } from "lucide-react";
+import { ListFilter } from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
@@ -9,14 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-  InputGroupText,
-} from "@/components/ui/input-group";
-import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
+  Combobox,
+  ComboboxInput,
+  ComboboxPopup,
+  ComboboxTrigger,
+} from "@/components/ui/combobox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { SelectButton } from "@/components/ui/select";
+import { selectTriggerVariants } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
@@ -127,45 +126,37 @@ export function DataTableFacetedFilter<T extends string = string>({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
-        render={
-          <SelectButton
-            size="sm"
-            className={cn(
-              "h-8 w-full min-w-[8.5rem] gap-2 sm:w-auto",
-              className,
-            )}
-            aria-label={ariaLabel ?? title}
-          >
-            <FilterTriggerIcon filterIcon={filterIcon} />
-            <span className="truncate">{title}</span>
-            {selectedCount > 0 ? (
-              <Badge variant="secondary" size="sm" className="ms-0.5">
-                {selectedCount}
-              </Badge>
-            ) : null}
-          </SelectButton>
-        }
-      />
-      <PopoverPopup align="start" className="w-64 p-0">
+    <Combobox
+      open={open}
+      onOpenChange={setOpen}
+      inputValue={query}
+      onInputValueChange={setQuery}
+    >
+      <ComboboxTrigger
+        className={cn(
+          selectTriggerVariants({ size: "sm" }),
+          "h-8 w-full min-w-[8.5rem] gap-2 sm:w-auto",
+          className,
+        )}
+        aria-label={ariaLabel ?? title}
+      >
+        <FilterTriggerIcon filterIcon={filterIcon} />
+        <span className="truncate">{title}</span>
+        {selectedCount > 0 ? (
+          <Badge variant="secondary" size="sm" className="ms-0.5">
+            {selectedCount}
+          </Badge>
+        ) : null}
+      </ComboboxTrigger>
+      <ComboboxPopup align="start" className="w-64 p-0">
         <div className="flex flex-col gap-0">
           <div className="border-b p-2">
-            <InputGroup className="h-8" data-size="sm">
-              <InputGroupAddon>
-                <InputGroupText>
-                  <Search className="size-4 shrink-0" aria-hidden />
-                </InputGroupText>
-              </InputGroupAddon>
-              <InputGroupInput
-                size="sm"
-                placeholder={`Search ${title.toLowerCase()}…`}
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                aria-label={`Search ${title}`}
-                className="h-8"
-              />
-            </InputGroup>
+            <ComboboxInput
+              size="sm"
+              showTrigger={false}
+              placeholder={`Search ${title.toLowerCase()}…`}
+              aria-label={`Search ${title}`}
+            />
           </div>
           <ScrollArea
             overscrollContain
@@ -260,7 +251,7 @@ export function DataTableFacetedFilter<T extends string = string>({
             </Button>
           </div>
         </div>
-      </PopoverPopup>
-    </Popover>
+      </ComboboxPopup>
+    </Combobox>
   );
 }
