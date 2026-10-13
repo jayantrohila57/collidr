@@ -40,3 +40,59 @@ export function pendingOrganizationInvitations(
     isPendingInvitationStatus(invite.status),
   );
 }
+
+export function sortOrganizationInvitations(
+  invitations: readonly OrganizationInvitationRow[],
+): OrganizationInvitationRow[] {
+  return [...invitations].sort((a, b) => {
+    if (a.status === b.status) return 0;
+    if (isPendingInvitationStatus(a.status)) return -1;
+    if (isPendingInvitationStatus(b.status)) return 1;
+    return 0;
+  });
+}
+
+export type OrganizationInviteRole = "member" | "owner" | "manager";
+
+export function toOrganizationInviteRole(role: string): OrganizationInviteRole {
+  const normalized = role.trim().toLowerCase();
+  if (normalized === "owner" || normalized === "manager") {
+    return normalized;
+  }
+  return "member";
+}
+
+export async function cancelOrganizationInvitation(
+  client: {
+    cancelInvitation?: (input: { invitationId: string }) => Promise<unknown>;
+  },
+  invitationId: string,
+): Promise<void> {
+  if (!client.cancelInvitation) {
+    throw new Error("Revoke is not available for this workspace.");
+  }
+  await client.cancelInvitation({ invitationId });
+}
+
+export async function resendOrganizationInvitation(
+  client: {
+    inviteMember: (input: {
+      email: string;
+      role: OrganizationInviteRole;
+      organizationId: string;
+      resend?: boolean;
+    }) => Promise<unknown>;
+  },
+  input: {
+    organizationId: string;
+    email: string;
+    role: string;
+  },
+): Promise<void> {
+  await client.inviteMember({
+    email: input.email,
+    role: toOrganizationInviteRole(input.role),
+    organizationId: input.organizationId,
+    resend: true,
+  });
+}

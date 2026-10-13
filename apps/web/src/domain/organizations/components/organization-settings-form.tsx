@@ -10,6 +10,7 @@ import {
 } from "@/components/data-table/data-table-empty-presets";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
+import { OrganizationInvitationsTable } from "@/components/org/organization-invitations-table";
 import { OrganizationMembersTable } from "@/components/org/organization-members-table";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
@@ -36,7 +37,6 @@ import {
   SettingsTabsTab,
 } from "@/components/patterns/settings-tabs";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
-import { RoleBadge } from "@/components/patterns/status-badge";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import {
   AlertDialog,
@@ -66,19 +66,10 @@ import {
 } from "@/components/ui/select";
 import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
 import { authClient } from "@/lib/auth-client";
 import { isInviteMemberFormDirty } from "@/lib/form-dirty";
-import { formatDateTime } from "@/lib/format";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { isPersonalOrganization } from "@/lib/org-personal";
@@ -87,9 +78,11 @@ import {
   resolveOrgSlugForSave,
 } from "@/lib/org-slug";
 import {
+  cancelOrganizationInvitation,
   type OrganizationInvitationRow,
   parseOrganizationInvitations,
   pendingOrganizationInvitations,
+  resendOrganizationInvitation,
 } from "@/lib/organization-invitations";
 import { toast } from "@/lib/toast";
 
@@ -175,6 +168,8 @@ export function OrganizationSettingsForm({
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<string>("member");
   const [invitePending, setInvitePending] = useState(false);
+  const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [resendingId, setResendingId] = useState<string | null>(null);
   const [rolePendingId, setRolePendingId] = useState<string | null>(null);
   const [savePending, setSavePending] = useState(false);
   const [editOrgOpen, setEditOrgOpen] = useState(false);
@@ -255,6 +250,57 @@ export function OrganizationSettingsForm({
       cancelled = true;
     };
   }, [organizationId, loadOrganization]);
+
+  const revokeInvitation = async (invitationId: string) => {
+    setRevokingId(invitationId);
+    try {
+      await toast.promise(
+        cancelOrganizationInvitation(authClient.organization, invitationId),
+        {
+          loading: "Revoking invitation…",
+          success: "Invitation revoked",
+          error: "Could not revoke invitation",
+        },
+      );
+      await loadOrganization(organizationId);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "Revoke is not available for this workspace."
+      ) {
+        toast.error(error.message);
+      }
+    } finally {
+      setRevokingId(null);
+    }
+  };
+
+  const resendInvitation = async (invite: OrganizationInvitationRow) => {
+    setResendingId(invite.id);
+    try {
+      await toast.promise(
+        resendOrganizationInvitation(authClient.organization, {
+          organizationId,
+          email: invite.email,
+          role: invite.role,
+        }),
+        {
+          loading: "Resending invitation…",
+          success: "Invitation resent",
+          error: "Could not resend invitation",
+        },
+      );
+      await loadOrganization(organizationId);
+      if (isNotificationsEnabledOnClient() && currentUserId) {
+        void syncInvitationReceived.mutate({
+          organizationId,
+          email: invite.email,
+        });
+      }
+    } finally {
+      setResendingId(null);
+    }
+  };
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -633,36 +679,24 @@ export function OrganizationSettingsForm({
                     </EmptyContent>
                   </Empty>
                 ) : (
-                  <div className="min-w-0 overflow-x-auto rounded-xl border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="px-4">Email</TableHead>
-                          <TableHead className="px-4">Role</TableHead>
-                          <TableHead className="px-4">Status</TableHead>
-                          <TableHead className="px-4">Expires</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {pendingInvitations.map((invite) => (
-                          <TableRow key={invite.id}>
-                            <TableCell className="px-4 font-medium">
-                              {invite.email}
-                            </TableCell>
-                            <TableCell className="px-4">
-                              <RoleBadge role={invite.role} />
-                            </TableCell>
-                            <TableCell className="px-4 capitalize">
-                              {invite.status}
-                            </TableCell>
-                            <TableCell className="px-4 text-muted-foreground text-xs">
-                              {formatDateTime(String(invite.expiresAt))}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
+                  <OrganizationInvitationsTable
+                    invitations={pendingInvitations}
+                    empty={invitationsEmpty(
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => setInviteOpen(true)}
+                      >
+                        <AppIcon name="invite" className="text-current" />
+                        Invite member
+                      </Button>,
+                    )}
+                    revokingId={revokingId}
+                    resendingId={resendingId}
+                    onRevoke={(id) => void revokeInvitation(id)}
+                    onResend={(invite) => void resendInvitation(invite)}
+                  />
                 )}
               </div>
             </SettingsPanel>

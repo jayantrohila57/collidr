@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { invitationsEmpty } from "@/components/data-table/data-table-empty-presets";
+import { OrganizationInvitationsTable } from "@/components/org/organization-invitations-table";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { RoleBadge } from "@/components/patterns/status-badge";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -14,21 +14,17 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useSession } from "@/domain/auth/lib/auth-actions";
+import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
 import { Can } from "@/domain/permissions/components/can";
 import { authClient } from "@/lib/auth-client";
-import { formatDateTime } from "@/lib/format";
+import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import {
-  isPendingInvitationStatus,
+  cancelOrganizationInvitation,
   type OrganizationInvitationRow,
   parseOrganizationInvitations,
+  resendOrganizationInvitation,
+  sortOrganizationInvitations,
 } from "@/lib/organization-invitations";
 import { toast } from "@/lib/toast";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
@@ -37,12 +33,16 @@ import { OrganizationSectionPage } from "./organization-section-page";
 
 export function OrganizationInvitationsPage({ slug }: { slug: string }) {
   const { organization, status: orgStatus } = useOrganizationBySlug(slug);
+  const { data: session } = useSession();
+  const { syncInvitationReceived } = useNotificationMutations();
+  const currentUserId = session?.user?.id;
   const [invitations, setInvitations] = useState<OrganizationInvitationRow[]>(
     [],
   );
   const [loading, setLoading] = useState(true);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [resendingId, setResendingId] = useState<string | null>(null);
 
   const loadInvitations = useCallback(async (organizationId: string) => {
     setLoading(true);
@@ -79,51 +79,75 @@ export function OrganizationInvitationsPage({ slug }: { slug: string }) {
     if (!organization?.id) return;
     setRevokingId(invitationId);
     try {
-      const client = authClient.organization as {
-        cancelInvitation?: (input: {
-          invitationId: string;
-        }) => Promise<unknown>;
-      };
-      if (!client.cancelInvitation) {
-        toast.error("Revoke is not available for this workspace.");
-        return;
-      }
-      await toast.promise(client.cancelInvitation({ invitationId }), {
-        loading: "Revoking invitation…",
-        success: "Invitation revoked",
-        error: "Could not revoke invitation",
-      });
+      await toast.promise(
+        cancelOrganizationInvitation(authClient.organization, invitationId),
+        {
+          loading: "Revoking invitation…",
+          success: "Invitation revoked",
+          error: "Could not revoke invitation",
+        },
+      );
       await loadInvitations(organization.id);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "Revoke is not available for this workspace."
+      ) {
+        toast.error(error.message);
+      }
     } finally {
       setRevokingId(null);
     }
   };
 
-  const sorted = [...invitations].sort((a, b) => {
-    if (a.status === b.status) return 0;
-    if (isPendingInvitationStatus(a.status)) return -1;
-    if (isPendingInvitationStatus(b.status)) return 1;
-    return 0;
-  });
+  const resendInvitation = async (invite: OrganizationInvitationRow) => {
+    if (!organization?.id) return;
+    setResendingId(invite.id);
+    try {
+      await toast.promise(
+        resendOrganizationInvitation(authClient.organization, {
+          organizationId: organization.id,
+          email: invite.email,
+          role: invite.role,
+        }),
+        {
+          loading: "Resending invitation…",
+          success: "Invitation resent",
+          error: "Could not resend invitation",
+        },
+      );
+      await loadInvitations(organization.id);
+      if (isNotificationsEnabledOnClient() && currentUserId) {
+        void syncInvitationReceived.mutate({
+          organizationId: organization.id,
+          email: invite.email,
+        });
+      }
+    } finally {
+      setResendingId(null);
+    }
+  };
+
+  const sorted = sortOrganizationInvitations(invitations);
+
+  const inviteAction = (
+    <Button
+      type="button"
+      size="sm"
+      className="gap-2"
+      onClick={() => setInviteOpen(true)}
+    >
+      <AppIcon name="invite" className="text-current" />
+      Invite member
+    </Button>
+  );
 
   return (
     <OrganizationSectionPage
       slug={slug}
       title="Invitations"
       description="Pending and recent email invitations for this workspace."
-      action={
-        <Can action="member.invite">
-          <Button
-            type="button"
-            size="sm"
-            className="gap-2"
-            onClick={() => setInviteOpen(true)}
-          >
-            <AppIcon name="invite" className="text-current" />
-            Invite member
-          </Button>
-        </Can>
-      }
+      action={<Can action="member.invite">{inviteAction}</Can>}
     >
       {orgStatus === "loading" || !organization ? (
         <Skeleton className="h-48 w-full rounded-xl" />
@@ -140,65 +164,17 @@ export function OrganizationInvitationsPage({ slug }: { slug: string }) {
               {invitationsEmpty().empty.description}
             </EmptyDescription>
           </EmptyHeader>
-          <EmptyContent>
-            <Button
-              type="button"
-              size="sm"
-              className="gap-2"
-              onClick={() => setInviteOpen(true)}
-            >
-              <AppIcon name="invite" className="text-current" />
-              Invite member
-            </Button>
-          </EmptyContent>
+          <EmptyContent>{inviteAction}</EmptyContent>
         </Empty>
       ) : (
-        <div className="min-w-0 overflow-x-auto rounded-xl border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="px-4">Email</TableHead>
-                <TableHead className="px-4">Role</TableHead>
-                <TableHead className="px-4">Status</TableHead>
-                <TableHead className="px-4">Expires</TableHead>
-                <TableHead className="px-4 text-end">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sorted.map((invite) => (
-                <TableRow key={invite.id}>
-                  <TableCell className="px-4 font-medium">
-                    {invite.email}
-                  </TableCell>
-                  <TableCell className="px-4">
-                    <RoleBadge role={invite.role} />
-                  </TableCell>
-                  <TableCell className="px-4 capitalize">
-                    {invite.status}
-                  </TableCell>
-                  <TableCell className="px-4 text-muted-foreground text-xs">
-                    {formatDateTime(String(invite.expiresAt))}
-                  </TableCell>
-                  <TableCell className="px-4 text-end">
-                    {isPendingInvitationStatus(invite.status) ? (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={revokingId === invite.id}
-                        onClick={() => void revokeInvitation(invite.id)}
-                      >
-                        Revoke
-                      </Button>
-                    ) : (
-                      <span className="text-muted-foreground text-xs">—</span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <OrganizationInvitationsTable
+          invitations={sorted}
+          empty={invitationsEmpty(inviteAction)}
+          revokingId={revokingId}
+          resendingId={resendingId}
+          onRevoke={(id) => void revokeInvitation(id)}
+          onResend={(invite) => void resendInvitation(invite)}
+        />
       )}
 
       {organization ? (
