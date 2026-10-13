@@ -1,4 +1,6 @@
 import { evaluatePermission, normalizeOrgRole } from "@env-manager/actions";
+import type { AuthSession } from "@env-manager/auth";
+import { getSessionActiveOrganizationId } from "@env-manager/auth";
 import { activeMemberWhere, activeProjectWhere, db } from "@env-manager/db";
 import { member } from "@env-manager/db/schema/organization";
 import { project } from "@env-manager/db/schema/projects";
@@ -8,17 +10,12 @@ import { and, eq, isNull, type SQL } from "drizzle-orm";
 import { loadProjectAccessContext } from "./actions/project-access";
 import { listAccessibleProjectIds, projectIdsFilter } from "./project-list";
 
-type SessionLike = {
-  user: { id: string };
-  session: { activeOrganizationId?: string | null };
-};
-
-export function getActiveOrganizationId(ctx: SessionLike): string | null {
-  return ctx.session.activeOrganizationId ?? null;
+export function getActiveOrganizationId(ctx: AuthSession): string | null {
+  return getSessionActiveOrganizationId(ctx);
 }
 
 export async function requireActiveOrganization(
-  ctx: SessionLike,
+  ctx: AuthSession,
 ): Promise<string> {
   if (!isOrganizationsEnabled()) {
     throw new TRPCError({
@@ -94,7 +91,7 @@ export async function resolveProjectScopeWhere(
   );
 }
 
-export async function resolveOrgContext(auth: SessionLike) {
+export async function resolveOrgContext(auth: AuthSession) {
   const userId = auth.user.id;
   if (!isOrganizationsEnabled()) {
     return { userId, organizationId: null as string | null };

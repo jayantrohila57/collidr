@@ -306,9 +306,9 @@ export function AccountSettingsClient() {
     }
   };
 
-  const handleUnlinkGithub = async () => {
+  const handleUnlinkGithub = async (accountId: string) => {
     try {
-      await unlinkProviderAccount("github");
+      await unlinkProviderAccount(accountId);
       toast.success("GitHub unlinked");
       await connectedQuery.refetch();
     } catch (err) {
@@ -666,7 +666,9 @@ export function AccountSettingsClient() {
                                 variant="outline"
                                 className="w-fit"
                                 disabled={!canUnlinkGithub}
-                                onClick={() => void handleUnlinkGithub()}
+                                onClick={() =>
+                                  void handleUnlinkGithub(row.accountId)
+                                }
                               >
                                 Unlink
                               </Button>

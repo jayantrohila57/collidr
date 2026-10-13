@@ -126,8 +126,8 @@ export async function linkGithubAccount() {
   return result.data;
 }
 
-export async function unlinkProviderAccount(providerId: string) {
-  const result = await authClient.unlinkAccount({ providerId });
+export async function unlinkProviderAccount(accountId: string) {
+  const result = await authClient.unlinkAccount({ accountId });
   if (result.error) {
     throw new Error(result.error.message ?? "Could not unlink account");
   }
