@@ -50,6 +50,8 @@ export const appIcons = {
   project: FolderKanban,
   projectFolder: Folder,
   environment: Layers,
+  layoutGrid: LayoutGrid,
+  listView: List,
   variable: KeyRound,
   member: Users,
   user: User,

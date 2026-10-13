@@ -3,12 +3,8 @@
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { PageBackButton } from "@/components/layout/page-back-button";
+import { PageHeaderDescription } from "@/components/layout/page-header-description";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { layoutGapClass, layoutPageTitleClass } from "@/lib/layout-spacing";
 import {
   getPageBackFallback,
@@ -96,23 +92,7 @@ function TitleBlock({
         <h1 className={cn(layoutPageTitleClass, "truncate")}>{title}</h1>
         {titleAccessory}
       </div>
-      {description ? (
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <p
-                className="line-clamp-3 pb-0.5 text-muted-foreground text-xs"
-                title={description}
-              />
-            }
-          >
-            {description}
-          </TooltipTrigger>
-          <TooltipContent className="max-w-sm text-pretty">
-            {description}
-          </TooltipContent>
-        </Tooltip>
-      ) : null}
+      {description ? <PageHeaderDescription text={description} /> : null}
     </div>
   );
 }
@@ -221,11 +201,16 @@ function PageHeaderWithMetadata({
         mobileAreas,
         desktopCols,
         desktopAreas,
-        "md:items-center",
+        description ? "md:items-start" : "md:items-center",
       )}
     >
       {hasBack ? (
-        <div className="self-center [grid-area:leading]">
+        <div
+          className={cn(
+            "self-center [grid-area:leading]",
+            description && "md:mt-1 md:self-start",
+          )}
+        >
           <PageBackButton
             href={resolved?.href}
             fallbackHref={resolved?.fallbackHref ?? "/dashboard"}
@@ -236,7 +221,10 @@ function PageHeaderWithMetadata({
       {hasBack ? (
         <Separator
           orientation="vertical"
-          className="h-8 shrink-0 self-center [grid-area:leading-sep]"
+          className={cn(
+            "h-8 shrink-0 self-center [grid-area:leading-sep]",
+            description && "md:mt-1 md:self-start",
+          )}
         />
       ) : null}
 
@@ -249,15 +237,32 @@ function PageHeaderWithMetadata({
 
       <Separator className="[grid-area:div] md:hidden" />
 
-      <div className="min-w-0 [grid-area:meta] md:self-center">{metadata}</div>
+      <div
+        className={cn(
+          "min-w-0 [grid-area:meta]",
+          description ? "md:mt-1 md:self-start" : "md:self-center",
+        )}
+      >
+        {metadata}
+      </div>
 
       <Separator
         orientation="vertical"
-        className="hidden h-8 shrink-0 self-center [grid-area:meta-sep] md:block"
+        className={cn(
+          "hidden h-8 shrink-0 [grid-area:meta-sep] md:block",
+          description ? "md:mt-1 md:self-start" : "md:self-center",
+        )}
       />
 
       {action ? (
-        <div className="shrink-0 self-center [grid-area:action]">{action}</div>
+        <div
+          className={cn(
+            "shrink-0 self-center [grid-area:action]",
+            description && "md:mt-1 md:self-start",
+          )}
+        >
+          {action}
+        </div>
       ) : null}
     </div>
   );

@@ -132,6 +132,33 @@ test.describe("project detail layout", () => {
     });
   });
 
+  test("page header description collapsed and expanded @ 1280", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(PROJECT_DETAIL_LONG_DESC_PATH);
+    await page.waitForLoadState("networkidle");
+    await setColorScheme(page, "dark");
+    const description = page.locator('[data-slot="page-header-description"]');
+    await expect(description).toHaveAttribute("data-expanded", "false");
+    await expect(
+      description.getByRole("button", { name: "… more" }),
+    ).toBeVisible();
+    await page.screenshot({
+      path: `${ARTIFACT_DIR}/project-detail-header-desc-collapsed.png`,
+      fullPage: false,
+    });
+    await description.getByRole("button", { name: "… more" }).click();
+    await expect(description).toHaveAttribute("data-expanded", "true");
+    await expect(
+      description.getByRole("button", { name: "less" }),
+    ).toBeVisible();
+    await page.screenshot({
+      path: `${ARTIFACT_DIR}/project-detail-header-desc-expanded.png`,
+      fullPage: false,
+    });
+  });
+
   test("project detail @ 390px empty variables table", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(PROJECT_DETAIL_PATH);
