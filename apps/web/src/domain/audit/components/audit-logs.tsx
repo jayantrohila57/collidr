@@ -2,14 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { auditLogEmpty } from "@/components/data-table/data-table-empty-presets";
+import { DataTableFilterSelect } from "@/components/data-table/data-table-filter-select";
 import { ErrorState } from "@/components/patterns/error-state";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useAudit } from "../hooks/use-audit";
 import { AuditLogTableView } from "./audit-log-table-view";
 
@@ -32,31 +26,23 @@ export default function AuditLogs() {
   }, []);
 
   const projectFilter = (
-    <Select
+    <DataTableFilterSelect
       value={selectedProjectId}
-      items={[
-        { value: "ALL", label: "All Projects" },
+      onValueChange={setSelectedProjectId}
+      triggerIcon="project"
+      placeholder="All projects"
+      ariaLabel="Filter by project"
+      className="w-full sm:w-48"
+      disabled={status === "loading" && projects.length === 0}
+      options={[
+        { value: "ALL", label: "All projects", icon: "projectFolder" },
         ...projects.map((project) => ({
           value: project.id,
           label: project.name,
+          icon: "project" as const,
         })),
       ]}
-      onValueChange={(value) => {
-        if (value) setSelectedProjectId(value);
-      }}
-    >
-      <SelectTrigger className="w-full sm:w-48" aria-label="Filter by project">
-        <SelectValue placeholder="Filter by Project" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="ALL">All Projects</SelectItem>
-        {projects.map((project) => (
-          <SelectItem key={project.id} value={project.id}>
-            {project.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    />
   );
 
   if (status === "error") {

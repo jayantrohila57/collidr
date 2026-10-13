@@ -1,15 +1,8 @@
 "use client";
 
 import type { ProjectOutput } from "@env-manager/api/types";
-import { AppIcon } from "@/components/patterns/app-icon";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { DataTableClearFiltersButton } from "@/components/data-table/data-table-clear-filters-button";
+import { DataTableFilterSelect } from "@/components/data-table/data-table-filter-select";
 import { layoutGapClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 import {
@@ -52,94 +45,99 @@ export function ProjectsListFiltersBar({
 
   return (
     <div className={cn("flex flex-wrap items-center", layoutGapClass)}>
-      <Select
+      <DataTableFilterSelect
         value={status}
-        onValueChange={(value) => {
-          if (value) onStatusChange(value as ProjectsStatusFilter);
-        }}
-      >
-        <SelectTrigger
-          className="h-8 w-full min-w-[8.5rem] sm:w-auto"
-          aria-label="Filter by status"
-        >
-          <SelectValue placeholder="Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">
-            All statuses{countLabel(statusCounts.all)}
-          </SelectItem>
-          <SelectItem value="active">
-            Active{countLabel(statusCounts.active)}
-          </SelectItem>
-          <SelectItem value="inactive">
-            Inactive{countLabel(statusCounts.inactive)}
-          </SelectItem>
-          <SelectItem value="maintenance">
-            Maintenance{countLabel(statusCounts.maintenance)}
-          </SelectItem>
-          <SelectItem value="archived">
-            Archived{countLabel(statusCounts.archived)}
-          </SelectItem>
-        </SelectContent>
-      </Select>
+        onValueChange={(value) => onStatusChange(value as ProjectsStatusFilter)}
+        triggerIcon="activity"
+        placeholder="Status"
+        ariaLabel="Filter by status"
+        options={[
+          {
+            value: "all",
+            label: "All statuses",
+            icon: "activity",
+            suffix: countLabel(statusCounts.all),
+          },
+          {
+            value: "active",
+            label: "Active",
+            icon: "statusActive",
+            suffix: countLabel(statusCounts.active),
+          },
+          {
+            value: "inactive",
+            label: "Inactive",
+            icon: "statusInactive",
+            suffix: countLabel(statusCounts.inactive),
+          },
+          {
+            value: "maintenance",
+            label: "Maintenance",
+            icon: "statusMaintenance",
+            suffix: countLabel(statusCounts.maintenance),
+          },
+          {
+            value: "archived",
+            label: "Archived",
+            icon: "statusArchived",
+            suffix: countLabel(statusCounts.archived),
+          },
+        ]}
+      />
 
-      <Select
+      <DataTableFilterSelect
         value={visibility}
-        onValueChange={(value) => {
-          if (value) onVisibilityChange(value as ProjectsVisibilityFilter);
-        }}
-      >
-        <SelectTrigger
-          className="h-8 w-full min-w-[8.5rem] sm:w-auto"
-          aria-label="Filter by visibility"
-        >
-          <SelectValue placeholder="Visibility" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">
-            All visibility{countLabel(visibilityCounts.all)}
-          </SelectItem>
-          <SelectItem value="private">
-            Private{countLabel(visibilityCounts.private)}
-          </SelectItem>
-          <SelectItem value="public">
-            Public{countLabel(visibilityCounts.public)}
-          </SelectItem>
-        </SelectContent>
-      </Select>
+        onValueChange={(value) =>
+          onVisibilityChange(value as ProjectsVisibilityFilter)
+        }
+        triggerIcon="globe"
+        placeholder="Visibility"
+        ariaLabel="Filter by visibility"
+        options={[
+          {
+            value: "all",
+            label: "All visibility",
+            icon: "globe",
+            suffix: countLabel(visibilityCounts.all),
+          },
+          {
+            value: "private",
+            label: "Private",
+            icon: "lock",
+            suffix: countLabel(visibilityCounts.private),
+          },
+          {
+            value: "public",
+            label: "Public",
+            icon: "globe",
+            suffix: countLabel(visibilityCounts.public),
+          },
+        ]}
+      />
 
-      <Select
+      <DataTableFilterSelect
         value={sort}
-        onValueChange={(value) => {
-          if (value) onSortChange(value as ProjectsSort);
-        }}
-      >
-        <SelectTrigger
-          className="h-8 w-full min-w-[8.5rem] sm:w-auto"
-          aria-label="Sort projects"
-        >
-          <SelectValue placeholder="Sort" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="updated-desc">Updated (newest)</SelectItem>
-          <SelectItem value="updated-asc">Updated (oldest)</SelectItem>
-          <SelectItem value="name-asc">Name (A–Z)</SelectItem>
-          <SelectItem value="name-desc">Name (Z–A)</SelectItem>
-        </SelectContent>
-      </Select>
+        onValueChange={(value) => onSortChange(value as ProjectsSort)}
+        triggerIcon="listView"
+        placeholder="Sort"
+        ariaLabel="Sort projects"
+        options={[
+          {
+            value: "updated-desc",
+            label: "Updated (newest)",
+            icon: "calendar",
+          },
+          {
+            value: "updated-asc",
+            label: "Updated (oldest)",
+            icon: "calendar",
+          },
+          { value: "name-asc", label: "Name (A–Z)", icon: "listView" },
+          { value: "name-desc", label: "Name (Z–A)", icon: "listView" },
+        ]}
+      />
 
-      {filtersActive ? (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-8 px-2"
-          onClick={onClear}
-        >
-          <AppIcon name="searchEmpty" className="me-1 size-3.5 text-current" />
-          Clear filters
-        </Button>
-      ) : null}
+      {filtersActive ? <DataTableClearFiltersButton onClick={onClear} /> : null}
     </div>
   );
 }
