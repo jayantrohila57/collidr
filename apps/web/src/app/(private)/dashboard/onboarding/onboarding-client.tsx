@@ -145,7 +145,11 @@ export default function OnboardingClient() {
                 </EmptyHeader>
               </Empty>
             </Frame>
-            <FormSheet open onOpenChange={() => {}}>
+            <FormSheet
+              open
+              isDirty={form.formState.isDirty}
+              onOpenChange={() => {}}
+            >
               <FormSheetPopup showCloseButton={false}>
                 <FormSheetHeader>
                   <SheetTitleWithIcon icon="organization">

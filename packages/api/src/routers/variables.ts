@@ -14,6 +14,11 @@ import {
 import { TRPCError } from "@trpc/server";
 import { and, count, eq, inArray } from "drizzle-orm";
 import { z } from "zod/v3";
+import { actionGuard } from "../actions/action-guard";
+import {
+  projectIdForEnvironmentInput,
+  projectIdForVariableInput,
+} from "../actions/guard-resolve";
 import { createAuditLog, getProjectEnvironmentIds } from "../audit";
 import { throwFriendlyError } from "../errors";
 import { protectedProcedure, router } from "../index";
@@ -38,6 +43,7 @@ import { isVariablesV2Enabled } from "../variables-v2";
 export const environmentVariablesRouter = router({
   // List variables for an environment (metadata only)
   list: protectedProcedure
+    .use(actionGuard("variable.read", projectIdForEnvironmentInput))
     .input(z.object({ environmentId: z.string().uuid() }))
     .output(makeResponseSchema(z.array(variableOutput)))
     .query(async ({ ctx, input }) => {
@@ -97,6 +103,7 @@ export const environmentVariablesRouter = router({
     }),
 
   countsByEnvironment: protectedProcedure
+    .use(actionGuard("variable.read", projectIdForVariableInput))
     .input(
       z.object({
         environmentIds: z.array(z.string().uuid()).max(64),
@@ -150,6 +157,7 @@ export const environmentVariablesRouter = router({
 
   // Get a single variable with decrypted value
   get: protectedProcedure
+    .use(actionGuard("variable.reveal", projectIdForVariableInput))
     .input(getVariableInput)
     .output(makeResponseSchema(variableWithDecryptedValueOutput.nullable()))
     .query(async ({ ctx, input }) => {
@@ -239,6 +247,7 @@ export const environmentVariablesRouter = router({
 
   // Create a new variable
   create: protectedProcedure
+    .use(actionGuard("variable.create", projectIdForEnvironmentInput))
     .input(createVariableInput)
     .output(makeResponseSchema(variableOutput.nullable()))
     .mutation(async ({ ctx, input }) => {
@@ -346,6 +355,7 @@ export const environmentVariablesRouter = router({
     }),
 
   createBatch: protectedProcedure
+    .use(actionGuard("variable.create", projectIdForVariableInput))
     .input(createVariablesBatchInput)
     .output(makeResponseSchema(createVariablesBatchOutput))
     .mutation(async ({ ctx, input }) => {
@@ -450,6 +460,7 @@ export const environmentVariablesRouter = router({
 
   // Update a variable
   update: protectedProcedure
+    .use(actionGuard("variable.update", projectIdForVariableInput))
     .input(updateVariableInput)
     .output(makeResponseSchema(variableOutput.nullable()))
     .mutation(async ({ ctx, input }) => {
@@ -584,6 +595,7 @@ export const environmentVariablesRouter = router({
 
   // Delete a variable
   delete: protectedProcedure
+    .use(actionGuard("variable.delete", projectIdForVariableInput))
     .input(getVariableInput)
     .output(z.object({ success: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
@@ -644,6 +656,7 @@ export const environmentVariablesRouter = router({
 
   // Bulk import variables (supports .env file style imports)
   bulkImport: protectedProcedure
+    .use(actionGuard("variable.bulk_import", projectIdForEnvironmentInput))
     .input(bulkImportVariablesInput)
     .output(makeResponseSchema(bulkImportResultOutput))
     .mutation(async ({ ctx, input }) => {
@@ -735,6 +748,7 @@ export const environmentVariablesRouter = router({
 
   // Export variables as .env format string
   export: protectedProcedure
+    .use(actionGuard("variable.export", projectIdForEnvironmentInput))
     .input(exportVariablesInput)
     .output(makeResponseSchema(exportVariablesOutput))
     .query(async ({ ctx, input }) => {

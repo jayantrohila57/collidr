@@ -13,6 +13,11 @@ import {
 import { TRPCError } from "@trpc/server";
 import { and, eq, ne, sql } from "drizzle-orm";
 import { z } from "zod/v3";
+import { actionGuard } from "../actions/action-guard";
+import {
+  projectIdForEnvironmentInput,
+  projectIdFromInput,
+} from "../actions/guard-resolve";
 import { createAuditLog } from "../audit";
 import {
   assertValidEnvironmentName,
@@ -40,6 +45,7 @@ import { isVariablesV2Enabled } from "../variables-v2";
 export const environmentsRouter = router({
   // List all environments for a project
   list: protectedProcedure
+    .use(actionGuard("environment.read", projectIdFromInput))
     .input(listEnvironmentsInput)
     .output(makeResponseSchema(z.array(environmentOutput)))
     .query(async ({ ctx, input }) => {
@@ -110,6 +116,7 @@ export const environmentsRouter = router({
 
   // Get a single environment with its variables
   get: protectedProcedure
+    .use(actionGuard("environment.read", projectIdForEnvironmentInput))
     .input(getEnvironmentInput)
     .output(
       makeResponseSchema(
@@ -233,6 +240,7 @@ export const environmentsRouter = router({
 
   // Create a new environment
   create: protectedProcedure
+    .use(actionGuard("environment.create", projectIdFromInput))
     .input(createEnvironmentInput)
     .output(makeResponseSchema(environmentOutput.nullable()))
     .mutation(async ({ ctx, input }) => {
@@ -329,6 +337,7 @@ export const environmentsRouter = router({
 
   // Update an environment
   update: protectedProcedure
+    .use(actionGuard("environment.update", projectIdForEnvironmentInput))
     .input(updateEnvironmentInput)
     .output(makeResponseSchema(environmentOutput.nullable()))
     .mutation(async ({ ctx, input }) => {
@@ -432,6 +441,7 @@ export const environmentsRouter = router({
 
   // Delete an environment (and all its variables)
   delete: protectedProcedure
+    .use(actionGuard("environment.delete", projectIdForEnvironmentInput))
     .input(getEnvironmentInput)
     .output(z.object({ success: z.boolean() }))
     .mutation(async ({ ctx, input }) => {

@@ -194,6 +194,7 @@ export const notificationsRouter = router({
     }),
 
   markUnread: protectedProcedure
+    .use(actionGuard("notification.mark_read"))
     .input(z.object({ id: z.string() }))
     .output(makeResponseSchema(z.boolean()))
     .mutation(async ({ ctx, input }) => {
@@ -239,6 +240,7 @@ export const notificationsRouter = router({
     }),
 
   syncInvitationReceived: protectedProcedure
+    .use(actionGuard("member.invite"))
     .input(
       z.object({
         organizationId: z.string(),
@@ -257,6 +259,7 @@ export const notificationsRouter = router({
     }),
 
   syncInvitationAccepted: protectedProcedure
+    .use(actionGuard("invitation.accept"))
     .input(
       z.object({
         organizationId: z.string(),

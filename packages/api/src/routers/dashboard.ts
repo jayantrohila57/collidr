@@ -20,6 +20,7 @@ import { TRPCError } from "@trpc/server";
 import { and, count, eq, gte, or, sql } from "drizzle-orm";
 import { z } from "zod/v3";
 import type { Context } from "../context";
+import { actionGuard } from "../actions/action-guard";
 import {
   orgAwareProcedure,
   orgProcedure,
@@ -434,7 +435,9 @@ async function fetchActivitySummary(ctx: OrgCtx) {
 }
 
 export const dashboardRouter = router({
-  getOverview: orgProcedure.query(async ({ ctx }) => {
+  getOverview: orgProcedure
+    .use(actionGuard("organization.hub.view"))
+    .query(async ({ ctx }) => {
     const [stats, activity] = await Promise.all([
       fetchDashboardStats(ctx),
       fetchRecentActivity(ctx),
@@ -442,13 +445,17 @@ export const dashboardRouter = router({
     return { stats, activity };
   }),
 
-  getStats: orgProcedure.query(async ({ ctx }) => fetchDashboardStats(ctx)),
+  getStats: orgProcedure
+    .use(actionGuard("organization.hub.view"))
+    .query(async ({ ctx }) => fetchDashboardStats(ctx)),
 
-  getRecentActivity: orgProcedure.query(async ({ ctx }) =>
-    fetchRecentActivity(ctx),
-  ),
+  getRecentActivity: orgProcedure
+    .use(actionGuard("audit.timeline.view.org"))
+    .query(async ({ ctx }) => fetchRecentActivity(ctx)),
 
-  getProjectsListStats: orgProcedure.query(async ({ ctx }) => {
+  getProjectsListStats: orgProcedure
+    .use(actionGuard("organization.list"))
+    .query(async ({ ctx }) => {
     const stats = await fetchDashboardStats(ctx);
     const scope = projectScope(ctx.session.user.id, ctx.activeOrganizationId);
     const sevenDaysAgo = new Date();
@@ -476,18 +483,35 @@ export const dashboardRouter = router({
   }),
 
   getProjectDetailStats: orgProcedure
+    .use(
+      actionGuard("project.read", async (input) => {
+        const slug =
+          input && typeof input === "object" && "slug" in input
+            ? String((input as { slug: string }).slug)
+            : null;
+        if (!slug) return {};
+        const row = await db
+          .select({ id: project.id })
+          .from(project)
+          .where(eq(project.slug, slug))
+          .limit(1);
+        return { projectId: row[0]?.id ?? null };
+      }),
+    )
     .input(z.object({ slug: z.string().min(1) }))
     .query(async ({ ctx, input }) => fetchProjectDetailStats(ctx, input.slug)),
 
-  getOrgSettingsStats: orgProcedure.query(async ({ ctx }) =>
-    fetchOrgSettingsStats(ctx),
-  ),
+  getOrgSettingsStats: orgProcedure
+    .use(actionGuard("organization.settings.view"))
+    .query(async ({ ctx }) => fetchOrgSettingsStats(ctx)),
 
-  getUserAccountStats: protectedProcedure.query(async ({ ctx }) =>
-    fetchUserAccountStats(ctx.session.user.id),
-  ),
+  getUserAccountStats: protectedProcedure
+    .use(actionGuard("profile.view"))
+    .query(async ({ ctx }) => fetchUserAccountStats(ctx.session.user.id)),
 
-  getActivitySummary: orgAwareProcedure.query(async ({ ctx }) =>
+  getActivitySummary: orgAwareProcedure
+    .use(actionGuard("audit.timeline.view.self"))
+    .query(async ({ ctx }) =>
     fetchActivitySummary({
       session: ctx.session,
       activeOrganizationId: ctx.activeOrganizationId,

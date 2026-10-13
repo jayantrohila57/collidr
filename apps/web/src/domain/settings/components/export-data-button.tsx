@@ -2,12 +2,15 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Can } from "@/domain/permissions/components/can";
+import { accountSettingsActions } from "@/domain/permissions/org-section-actions";
 import { trpc } from "@/utils/trpc";
 
 export function ExportDataButton() {
   const mutation = useMutation(trpc.account.exportData.mutationOptions());
 
   return (
+    <Can action={accountSettingsActions.export}>
     <Button
       type="button"
       disabled={mutation.isPending}
@@ -26,5 +29,6 @@ export function ExportDataButton() {
     >
       {mutation.isPending ? "Preparing…" : "Download JSON"}
     </Button>
+    </Can>
   );
 }

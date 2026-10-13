@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { PageHeaderActionButton } from "@/components/layout/app-layout";
 import DashboardSection from "@/components/section-dashboard";
+import { Can } from "@/domain/permissions/components/can";
 import { CreateProjectSheet } from "./create-project-sheet";
 import ProjectList from "./project-list";
 import { ProjectsListStats } from "./projects-list-stats";
@@ -36,7 +37,9 @@ export function ProjectsPageClient() {
         title="Projects"
         description="All workspace projects in one searchable list."
         action={
-          <PageHeaderActionButton label="New project" onClick={openCreate} />
+          <Can action="project.create">
+            <PageHeaderActionButton label="New project" onClick={openCreate} />
+          </Can>
         }
         stats={<ProjectsListStats />}
       >

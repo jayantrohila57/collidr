@@ -39,7 +39,11 @@ export const projectAccessRouter = router({
 
   assignManager: orgProcedure
     .input(z.object({ projectId: z.string(), userId: z.string() }))
-    .use(actionGuard("project.assign_manager"))
+    .use(
+      actionGuard("project.assign_manager", (input) => ({
+        projectId: (input as { projectId: string }).projectId,
+      })),
+    )
     .mutation(async ({ ctx, input }) => {
       const organizationId = ctx.activeOrganizationId;
       if (!organizationId) {

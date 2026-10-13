@@ -14,6 +14,7 @@ import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod/v3";
+import { actionGuard } from "../actions/action-guard";
 import { requireAction } from "../actions/require-action";
 import { protectedProcedure, router } from "../index";
 import {
@@ -64,6 +65,7 @@ async function findSoleOwnerOrganizations(userId: string) {
 
 export const accountRouter = router({
   listConnectedAccounts: protectedProcedure
+    .use(actionGuard("account.list"))
     .output(makeResponseSchema(z.array(accountConnectedOutput)))
     .query(async ({ ctx }) => {
       const rows = await db
@@ -94,6 +96,7 @@ export const accountRouter = router({
     }),
 
   getDeleteBlockers: protectedProcedure
+    .use(actionGuard("account.delete"))
     .output(makeResponseSchema(accountDeleteBlockerOutput))
     .query(async ({ ctx }) => {
       const soleOwnerOrgs = await findSoleOwnerOrganizations(
@@ -108,12 +111,10 @@ export const accountRouter = router({
       });
     }),
 
-  exportData: protectedProcedure.mutation(async ({ ctx }) => {
+  exportData: protectedProcedure
+    .use(actionGuard("account.export"))
+    .mutation(async ({ ctx }) => {
     const userId = ctx.session.user.id;
-
-    if (isActionsAuditEnabled()) {
-      await requireAction("account.export", { userId });
-    }
 
     const [
       profileRow,
@@ -243,6 +244,7 @@ export const accountRouter = router({
   }),
 
   softDelete: protectedProcedure
+    .use(actionGuard("account.delete"))
     .output(makeResponseSchema(z.object({ success: z.literal(true) })))
     .mutation(async ({ ctx }) => {
       const userId = ctx.session.user.id;

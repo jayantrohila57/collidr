@@ -9,13 +9,16 @@
       "default": "./src/*.ts"
     }
   },
-  "scripts": {},
+  "scripts": {
+    "test": "node --import tsx --test src/evaluate.test.ts"
+  },
   "dependencies": {
     "better-auth": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@env-manager/config": "workspace:*",
+    "tsx": "^4.19.4",
     "typescript": "catalog:"
   }
 }

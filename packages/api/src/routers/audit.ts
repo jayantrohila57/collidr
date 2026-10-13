@@ -3,6 +3,7 @@ import { auditLog } from "@env-manager/db/schema/audit";
 import { and, desc, eq, ilike, or, type SQL } from "drizzle-orm";
 import { z } from "zod/v3";
 
+import { actionGuard } from "../actions/action-guard";
 import { protectedProcedure, router } from "../index";
 import {
   auditLogOutput,
@@ -13,6 +14,7 @@ import {
 
 export const auditLogsRouter = router({
   list: protectedProcedure
+    .use(actionGuard("audit.timeline.view.self"))
     .input(listAuditLogsInput)
     .output(makeResponseSchema(z.array(auditLogOutput)))
     .query(async ({ ctx, input }) => {
@@ -78,6 +80,7 @@ export const auditLogsRouter = router({
 
   // Get audit log statistics for dashboard
   stats: protectedProcedure
+    .use(actionGuard("audit.timeline.view.self"))
     .input(z.object({ projectId: z.string().uuid().optional() }))
     .output(
       makeResponseSchema(

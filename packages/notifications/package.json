@@ -17,6 +17,10 @@
   },
   "devDependencies": {
     "@env-manager/config": "workspace:*",
+    "tsx": "^4.19.4",
     "typescript": "catalog:"
+  },
+  "scripts": {
+    "test": "node --import tsx --test src/from-audit.test.ts"
   }
 }

@@ -10,7 +10,10 @@ type GuardCtx = {
 
 export function actionGuard(
   action: ActionName,
-  resolve?: (input: unknown, ctx: GuardCtx) => Partial<RequireActionContext>,
+  resolve?: (
+    input: unknown,
+    ctx: GuardCtx,
+  ) => Partial<RequireActionContext> | Promise<Partial<RequireActionContext>>,
 ) {
   return t.middleware(async (opts) => {
     const { ctx, next } = opts;
@@ -20,7 +23,7 @@ export function actionGuard(
 
     const input = "input" in opts ? opts.input : undefined;
     const guardCtx = ctx as GuardCtx;
-    const partial = resolve?.(input, guardCtx) ?? {};
+    const partial = await Promise.resolve(resolve?.(input, guardCtx) ?? {});
 
     await requireAction(action, {
       userId: guardCtx.session.user.id,

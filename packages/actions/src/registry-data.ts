@@ -181,6 +181,7 @@ const rows: MatrixRow[] = [
     description: "Accept invitation",
     member: true,
     entityType: "invitation",
+    notifyOn: ["invitation.accepted"],
   },
   {
     name: "invitation.reject",
@@ -497,6 +498,22 @@ const rows: MatrixRow[] = [
     description: "Update profile",
     selfOnly: true,
     entityType: "user",
+  },
+  {
+    name: "session.sign_in",
+    scope: "user",
+    description: "Sign in",
+    selfOnly: true,
+    entityType: "session",
+    severity: "security",
+  },
+  {
+    name: "session.sign_out",
+    scope: "user",
+    description: "Sign out",
+    selfOnly: true,
+    entityType: "session",
+    severity: "security",
   },
   {
     name: "session.list",
