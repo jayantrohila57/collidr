@@ -1,6 +1,6 @@
 "use client";
 
-import { FileKey, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useMemo } from "react";
 import { HorizontalScrollRail } from "@/components/patterns/horizontal-scroll-rail";
 import {
@@ -84,19 +84,6 @@ export function EnvironmentsTabsView({
 
   return (
     <section className="flex min-w-0 flex-col gap-4">
-      <div className="flex min-w-0 items-center justify-between gap-4">
-        <h2 className="flex min-w-0 items-center gap-2 font-semibold text-lg tracking-tight">
-          <FileKey className="size-5 shrink-0 text-muted-foreground" />
-          <span className="truncate">Environments</span>
-        </h2>
-        <CreateEnvironmentSheet
-          onConfirm={onCreate}
-          isPending={isCreating}
-          triggerText="Add Environment"
-          compactOnMobile
-        />
-      </div>
-
       <Tabs
         value={resolvedActive}
         onValueChange={onTabChange}

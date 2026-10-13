@@ -2,11 +2,13 @@
 
 import { ErrorState } from "@/components/patterns/error-state";
 import {
-  Frame,
-  FrameHeader,
-  FramePanel,
-  FrameTitle,
-} from "@/components/ui/frame";
+  Card,
+  CardAction,
+  CardDescription,
+  CardHeader,
+  CardPanel,
+  CardTitle,
+} from "@/components/ui/card";
 import { useVariables } from "../hooks/use-variables";
 import { AddVariableSheet } from "./add-variable-sheet";
 import { VariablesSkeleton } from "./skeletons";
@@ -60,14 +62,17 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
 
   if (status === "loading") {
     return (
-      <Frame>
-        <FrameHeader>
-          <FrameTitle>Variables</FrameTitle>
-        </FrameHeader>
-        <FramePanel>
+      <Card>
+        <CardHeader>
+          <CardTitle>Variables</CardTitle>
+          <CardDescription>
+            Secrets and configuration for this environment.
+          </CardDescription>
+        </CardHeader>
+        <CardPanel className="pt-0">
           <VariablesSkeleton />
-        </FramePanel>
-      </Frame>
+        </CardPanel>
+      </Card>
     );
   }
 
@@ -82,12 +87,17 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
   }
 
   return (
-    <Frame>
-      <FrameHeader>
-        <FrameTitle>Variables</FrameTitle>
-        <AddVariableSheet onConfirm={handleCreate} isPending={isCreating} />
-      </FrameHeader>
-      <FramePanel>
+    <Card>
+      <CardHeader>
+        <CardTitle>Variables</CardTitle>
+        <CardDescription>
+          Secrets and configuration for this environment.
+        </CardDescription>
+        <CardAction>
+          <AddVariableSheet onConfirm={handleCreate} isPending={isCreating} />
+        </CardAction>
+      </CardHeader>
+      <CardPanel className="min-w-0 pt-0">
         <VariablesTableView
           variables={variablesWithValues}
           revealedIds={revealedIds}
@@ -100,7 +110,7 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
           isAddingVariable={isCreating}
           isUpdating={isUpdating}
         />
-      </FramePanel>
-    </Frame>
+      </CardPanel>
+    </Card>
   );
 }

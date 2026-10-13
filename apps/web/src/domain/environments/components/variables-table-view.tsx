@@ -268,6 +268,7 @@ export function VariablesTableView({
           columns={columns}
           data={variables}
           caption="Environment variables"
+          framed
         />
       </div>
 
