@@ -52,10 +52,13 @@ export function OrganizationsListContent({
         onSearchChange={params.setSearch}
         filter={
           <OrganizationsListFiltersBar
+            orgs={orgs}
             type={params.type}
             sort={params.sort}
             onTypeChange={params.setType}
             onSortChange={params.setSort}
+            onClear={params.clearFilters}
+            filtersActive={params.filtersActive}
           />
         }
         trailing={

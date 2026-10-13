@@ -5,6 +5,16 @@ export type OrganizationsSort = "name-asc" | "name-desc" | "slug-asc";
 
 export type OrganizationsTypeFilter = "all" | "personal" | "team";
 
+export function countOrganizationsByType(orgs: OrgListItem[]) {
+  let team = 0;
+  let personal = 0;
+  for (const org of orgs) {
+    if (isPersonalOrganization(org)) personal += 1;
+    else team += 1;
+  }
+  return { team, personal };
+}
+
 export function filterAndSortOrganizations(
   orgs: OrgListItem[],
   {
