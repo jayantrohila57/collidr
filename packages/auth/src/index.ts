@@ -1,3 +1,4 @@
+import { orgAc, orgBetterAuthRoles } from "@env-manager/actions";
 import { activeUserWhere, db } from "@env-manager/db";
 import { assertOrganizationCanBeDeleted } from "@env-manager/db/org-delete-policy";
 import * as authSchema from "@env-manager/db/schema/auth";
@@ -13,10 +14,10 @@ import {
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { orgAc, orgBetterAuthRoles } from "@env-manager/actions";
 import { organization } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { writeAuthAuditEvent } from "./audit-event";
+import { resolveDefaultActiveOrganizationId } from "./bootstrap-active-organization";
 
 const e2eTestMode = process.env.E2E_TEST_MODE === "1";
 
@@ -24,8 +25,24 @@ export const auth = betterAuth({
   databaseHooks: {
     session: {
       create: {
+        before: async (session) => {
+          if (!isOrganizationsEnabled() || session.activeOrganizationId) {
+            return;
+          }
+          const organizationId = await resolveDefaultActiveOrganizationId(
+            session.userId,
+          );
+          if (!organizationId) {
+            return;
+          }
+          return {
+            data: {
+              activeOrganizationId: organizationId,
+            },
+          };
+        },
         after: async (session) => {
-          await writeAuthAuditEvent({
+          void writeAuthAuditEvent({
             action: "session.sign_in",
             result: "success",
             actorUserId: session.userId,
@@ -36,14 +53,19 @@ export const auth = betterAuth({
           if (!isNotificationsEnabled()) {
             return;
           }
-          const [record] = await db
-            .select({ email: user.email })
-            .from(user)
-            .where(activeUserWhere(eq(user.id, session.userId)))
-            .limit(1);
-          if (record?.email) {
-            await linkPendingNotificationsForUser(session.userId, record.email);
-          }
+          void (async () => {
+            const [record] = await db
+              .select({ email: user.email })
+              .from(user)
+              .where(activeUserWhere(eq(user.id, session.userId)))
+              .limit(1);
+            if (record?.email) {
+              await linkPendingNotificationsForUser(
+                session.userId,
+                record.email,
+              );
+            }
+          })();
         },
       },
       delete: {
@@ -111,10 +133,7 @@ export const auth = betterAuth({
                   payload: { name: org.name },
                 });
               },
-              afterUpdateOrganization: async ({
-                organization: org,
-                user,
-              }) => {
+              afterUpdateOrganization: async ({ organization: org, user }) => {
                 if (!org) return;
                 await writeAuthAuditEvent({
                   action: "organization.update",
@@ -125,7 +144,10 @@ export const auth = betterAuth({
                   entitySlug: org.slug,
                 });
               },
-              afterCreateInvitation: async ({ invitation: invite, inviter }) => {
+              afterCreateInvitation: async ({
+                invitation: invite,
+                inviter,
+              }) => {
                 await writeAuthAuditEvent({
                   action: "member.invite",
                   result: "success",
