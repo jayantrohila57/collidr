@@ -27,21 +27,49 @@
 
 Each app = **one Vercel project** with its own root directory. Production deploys from **`main` only** (no branch previews).
 
-### 2.0 Phase 1 — `*.vercel.app` (Decision 1, §14)
+### 2.0 Phase 1 — `*.vercel.app` subdomains (Decision 1, §14)
 
-Until custom DNS is approved, use **separate Vercel default hostnames**. Browser SSO between apps uses **auth OAuth/OIDC redirects** and **per-app session cookies** — not `crossSubDomainCookies` on `vercel.app`.
+Until custom DNS is approved, **every app** is deployed on its own hostname under **`vercel.app`**, using a **fixed naming pattern** (one Vercel project per app):
 
-| App | Phase 1 hostname (example) | `BETTER_AUTH_URL` (auth app only) |
-|-----|----------------------------|-----------------------------------|
-| auth | `https://env-manager-auth.vercel.app` | **self** |
-| studio | `https://env-manager-web.vercel.app` (today’s `apps/web`) | auth URL |
-| account | `https://env-manager-account.vercel.app` | auth URL |
-| console | `https://env-manager-console.vercel.app` | auth URL |
-| mcp | `https://env-manager-mcp.vercel.app` | JWKS/issuer → auth |
-| docs | `https://env-manager-docs.vercel.app` | auth URL (nav only) |
-| www | `https://env-manager-www.vercel.app` (until apex) | links to auth |
+**Pattern:** `https://<app>-env-manager.vercel.app`
 
-**GitHub OAuth callback (phase 1):** `https://env-manager-auth.vercel.app/api/auth/callback/github` after auth app cutover.
+| App | Planned production hostname | `BETTER_AUTH_URL` (auth app only) |
+|-----|-----------------------------|-----------------------------------|
+| **`apps/auth`** | `https://auth-env-manager.vercel.app` | **self** |
+| **`apps/studio`** | `https://studio-env-manager.vercel.app` | `https://auth-env-manager.vercel.app` |
+| **`apps/account`** | `https://account-env-manager.vercel.app` | `https://auth-env-manager.vercel.app` |
+| **`apps/console`** | `https://console-env-manager.vercel.app` | `https://auth-env-manager.vercel.app` |
+| **`apps/mcp`** | `https://mcp-env-manager.vercel.app` | issuer/JWKS → auth |
+| **`apps/docs`** | `https://docs-env-manager.vercel.app` | auth URL (nav only) |
+| **`apps/www`** | `https://www-env-manager.vercel.app` | links to auth |
+
+**Legacy (today):** `https://env-manager-web.vercel.app` (`apps/web`) → at P3 cutover, alias or redirect to **`studio-env-manager.vercel.app`** (§8.3).
+
+**GitHub OAuth callback (phase 1):** `https://auth-env-manager.vercel.app/api/auth/callback/github` after auth app cutover.
+
+#### Public Suffix List (why cookies cannot span apps)
+
+`vercel.app` is on the [Public Suffix List](https://publicsuffix.org/) (PSL). Browsers treat each `*-env-manager.vercel.app` host as a **separate site** for cookies — you **cannot** set `Domain=.vercel.app` or share a session cookie across `auth-env-manager` and `studio-env-manager`. **`crossSubDomainCookies` does not work on `vercel.app`** (Decision 1).
+
+#### SSO on `vercel.app` (redirect / OIDC)
+
+- Relying parties redirect to **`apps/auth`** for sign-in (authorization code + PKCE).
+- After auth, user returns to the target app with a **session cookie scoped to that hostname only**.
+- **First visit to each app** in a session: expect a **short auth-app round-trip** (OIDC **silent re-auth** / `prompt=none` when the user already has an auth-app session) to mint the **per-app** cookie without showing login again when possible.
+- This is normal on PSL hostnames; it is **not** “broken SSO.”
+
+#### Custom apex later — config-only (Decision 2)
+
+Implement URLs and cookie policy so **P4** is **configuration**, not a rewrite of app code:
+
+| Concern | Phase 1 (`vercel.app`) | After P4 (custom apex) |
+|---------|------------------------|-------------------------|
+| Public URLs | `@env-manager/env` — `BETTER_AUTH_URL`, `NEXT_PUBLIC_*_URL` per app (§2.1 hostnames) | Same env keys; swap values to `https://auth.env-manager.com`, etc. |
+| `trustedOrigins` / `allowedReturnOrigins` | Explicit list of §2.0 hostnames (Decision 12) | Replace list with §2.1 production origins |
+| Session cookies | Per-app origin only; **no** `crossSubDomainCookies` | Optionally enable `crossSubDomainCookies` with `domain: ".env-manager.com"` (Decision 2) after security review |
+| SSO UX | Redirect + silent re-auth per app | May reduce round-trips if shared cookie enabled |
+
+No separate “vercel mode” vs “apex mode” code paths in product routers — only env + Better Auth `advanced.crossSubDomainCookies` toggles.
 
 ### 2.1 Future — custom apex (deferred)
 
@@ -167,7 +195,7 @@ Implement **`apps/auth`** strictly from Better Auth **≥ 1.7.x** docs (**Decisi
 | Enterprise SSO | [SSO plugin](https://www.better-auth.com/docs/plugins/sso) | **Deferred** (Decision 17) — post platform split / MCP; v1 auth = GitHub OAuth + device flow only |
 | Legacy | Avoid deprecated in-repo `oidcProvider` / old `mcp` plugin — use **`@better-auth/mcp`** per [MCP plugin](https://www.better-auth.com/docs/plugins/mcp) |
 
-**MCP resource URL:** `mcp({ resource: "https://mcp.env-manager.com/api/mcp" })` on auth; `apps/mcp` protects route with `requireMcpAuth` / `createMcpProtectedRequestHandler` ([MCP plugin — Protecting an MCP Route](https://www.better-auth.com/docs/plugins/mcp#protecting-an-mcp-route)).
+**MCP resource URL:** phase 1 `mcp({ resource: "https://mcp-env-manager.vercel.app/api/mcp" })`; apex `https://mcp.env-manager.com/api/mcp` (§2.1). `apps/mcp` protects route with `requireMcpAuth` / `createMcpProtectedRequestHandler` ([MCP plugin — Protecting an MCP Route](https://www.better-auth.com/docs/plugins/mcp#protecting-an-mcp-route)).
 
 **Vercel MCP hosting (Decision 15):** [`mcp-handler`](https://github.com/vercel-labs/mcp-handler) on `apps/mcp` per [Deploy MCP servers](https://vercel.com/docs/mcp/deploy-mcp-servers-to-vercel); auth via Better Auth **`requireMcpAuth`** / `createMcpProtectedRequestHandler` — not raw `@modelcontextprotocol/server` HTTP alone.
 
@@ -175,7 +203,7 @@ Implement **`apps/auth`** strictly from Better Auth **≥ 1.7.x** docs (**Decisi
 
 ## 5. SSO: session sharing and return-to
 
-**Phase 1 (§14 Decision 1):** On `*.vercel.app`, sibling apps **cannot** share a session cookie. Implement **authorization-code + PKCE** (or Better Auth MCP/OAuth provider) on **`apps/auth`**: relying parties redirect to auth for login/consent, then return to an allowlisted `return_to` origin with a session established **on that origin** (or Bearer tokens for MCP). Skip §5.1 until a **custom apex** is live.
+**Phase 1 (§14 Decision 1, §2.0):** `vercel.app` is on the **PSL** — **no cross-subdomain cookies**. SSO is **auth-app redirect + OIDC** (authorization code + PKCE; **silent re-auth** on first hit to each sibling app when the user already has an auth session). Each app holds its **own** session cookie on its `*-env-manager.vercel.app` origin. MCP uses **Bearer tokens** from auth, not browser cookies. **§5.1** (`crossSubDomainCookies`) applies only after **custom apex** (config flip per §2.0).
 
 ### 5.1 Future: shared parent domain + cross-subdomain cookies (custom apex only)
 
@@ -186,7 +214,7 @@ When all apps sit under one registrable apex (e.g. `*.env-manager.com`), per [Cr
 advanced: {
   crossSubDomainCookies: {
     enabled: true,
-    domain: "env-manager.com", // apex — see open decision on dot-prefix
+    domain: ".env-manager.com", // Decision 2 — enable only at P4 via config
   },
 },
 trustedOrigins: [
@@ -341,7 +369,7 @@ Each app’s tRPC context / middleware:
 - **Approach:** Fumadocs headless patterns + custom `docs/layout.tsx` wrapping coss `Sidebar`, `Breadcrumb`, `Button`; map Fumadocs `pageTree` to our nav components.
 - Sections: product guides, API/tRPC overview, MCP tool reference (generated from registry), OAuth scopes, console (admin-only note).
 - **Access:** **All documentation is public** — no gated or enterprise-only sections (Decision 10). Optional header link to product sign-in is cosmetic only.
-- Deploy: `docs.env-manager.com` (phase 1: `env-manager-docs.vercel.app` per §2.0).
+- Deploy: `docs.env-manager.com` (phase 1: `docs-env-manager.vercel.app` per §2.0).
 
 ---
 
@@ -404,7 +432,7 @@ Complete on a **Neon branch** (and matching Vercel **staging** hostnames or loca
 - [ ] All §8.2 verification rows signed off on Neon branch + staging URLs.
 - [ ] GitHub OAuth app: **new callback URL** on auth hostname tested; old web callback removal planned for cutover instant.
 - [ ] Vercel env: `BETTER_AUTH_URL`, `NEXT_PUBLIC_AUTH_URL`, studio/account URL graph, shared `BETTER_AUTH_SECRET` / `DATABASE_URL` aligned across three projects.
-- [ ] Redirect map drafted: `env-manager-web.vercel.app` → studio; `/dashboard/settings/*` → account paths.
+- [ ] Redirect map drafted: `env-manager-web.vercel.app` → `studio-env-manager.vercel.app`; `/dashboard/settings/*` → account paths.
 - [ ] Owner comms: maintenance window + **one-time re-login** (Decision 6); no promise of seamless session continuity.
 - [ ] Rollback owner identified; §8.4 steps reviewed.
 
@@ -417,7 +445,7 @@ Execute in order during one coordinated change (no beta cohort).
 | **C1** | Freeze merges to `main` except cutover fixes; final `git pull --rebase` + green CI. |
 | **C2** | Deploy **`apps/auth`**, **`apps/account`**, **`apps/studio`** to production `*.vercel.app` hostnames (§2.0). |
 | **C3** | Update GitHub OAuth callback to auth URL only; remove web callback. |
-| **C4** | Point **studio** production alias to primary product URL (`env-manager-web.vercel.app` → studio project, or new studio URL + redirect from old). |
+| **C4** | Point **studio** alias to `studio-env-manager.vercel.app`; redirect legacy `env-manager-web.vercel.app`. |
 | **C5** | Enable `vercel.json` redirects: legacy `/sign-in` on old web → auth; `/dashboard/settings/*` → account app. |
 | **C6** | **Disable / remove** `apps/web` Vercel production deployment; repo renames package to `apps/studio` when code lands. |
 | **C7** | Smoke test prod checklist (subset of §8.2) on live URLs within 30 minutes. |
@@ -458,7 +486,7 @@ Target rollback decision time: **< 1 hour** from go/no-go.
 
 **Build:** `turbo build --filter=studio` (etc.). **Env:** duplicate DB secrets; per-app `NEXT_PUBLIC_*_URL` link graph; console **`CONSOLE_IP_ALLOWLIST`** (Decision 11). **Previews:** disabled — production **`main` only** (Decision 12); `trustedOrigins` / `allowedReturnOrigins` are explicit production URLs, no preview wildcard.
 
-**Legacy:** At cutover (§8.3), `env-manager-web.vercel.app` aliases to **studio** (Decision 5); web project removed same window.
+**Legacy:** At cutover (§8.3), `env-manager-web.vercel.app` → **`studio-env-manager.vercel.app`** (Decision 5); web project removed same window.
 
 ---
 
@@ -524,7 +552,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 
 | # | Summary |
 |---|---------|
-| 1 | `*.vercel.app` per app; auth-app OIDC (no shared apex cookies in phase 1) |
+| 1 | `*-env-manager.vercel.app` per app; PSL → no shared cookies; auth OIDC + silent re-auth; apex later config-only |
 | 2 | Custom apex: `.env-manager.com` cookie domain if cookie SSO approved (P4) |
 | 3 | OIDC-first; no per-app auth rewrites at v1 (ITP fallback only later) |
 | 4 | Separate marketing app **`apps/www`** for apex / www |
@@ -549,13 +577,14 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 
 | Topic | Choice |
 |-------|--------|
-| **Hostnames (now)** | One **`*.vercel.app`** URL per Vercel project (see §2.0). |
-| **Hostnames (later)** | Optional custom apex/subdomains when DNS and projects are stable. |
-| **SSO (now)** | **`apps/auth`** as OAuth/OIDC issuer; relying parties use **redirects** and **per-origin** sessions — **not** shared apex cookies on `vercel.app`. |
-| **SSO (later)** | With custom apex, prefer **still using OIDC redirects**; evaluate `crossSubDomainCookies` only after security review (§5.1). |
+| **Hostnames (now)** | Fixed **`https://<app>-env-manager.vercel.app`** per project (§2.0 table). |
+| **PSL** | `vercel.app` is a **public suffix** — **cross-subdomain cookies are impossible**; do not enable `crossSubDomainCookies` on phase 1 hostnames. |
+| **SSO (now)** | **`apps/auth`** OAuth/OIDC issuer; sibling apps redirect for login; **silent re-auth** when opening another app with an existing auth session; **per-host** session cookies. |
+| **Hostnames (later)** | §2.1 custom apex — **config-only** URL + cookie domain swap (§2.0). |
+| **SSO (later)** | Optional `crossSubDomainCookies` on `.env-manager.com` (Decision 2) after review; OIDC redirects remain valid. |
 | **MCP / machines** | Bearer tokens from auth issuer; no cross-subdomain browser cookies. |
 
-**Implication:** Do not plan “sign in once, cookie works on every `*.vercel.app` app.” Implement auth-app redirects and registered callback URLs per app.
+**Implication:** Do not plan one shared browser cookie across `auth-env-manager` and `studio-env-manager`; plan redirect + per-app cookies and env-driven apex migration.
 
 ### Decision 2 — Custom apex cookie domain (accepted)
 
@@ -584,7 +613,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 | **Excluded** | Studio product UI, Fumadocs docs site, and signed-in dashboard are **not** the marketing homepage. |
 | **Content** | Public marketing pages (hero, features, pricing if any, CTAs); primary CTA → auth `sign-in` with `return_to` studio. |
 | **Chrome** | `@env-manager/ui` / coss ui consistent with Decision 9–10 visual language. |
-| **Phase 1** | May ship on `env-manager-www.vercel.app` until apex (§2.0); alias apex to www project at P4. |
+| **Phase 1** | `https://www-env-manager.vercel.app` (§2.0); alias apex to www project at P4. |
 
 **Implication:** Remove marketing `(public)/(site)` from studio during split; track build-out in a dedicated feature issue.
 
@@ -730,7 +759,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 
 | Topic | Choice |
 |-------|--------|
-| **Link host** | All transactional auth links (**email verification**, **password reset** if enabled, **organization invitations**, and similar Better Auth / org emails) use **`BETTER_AUTH_URL`** on **`apps/auth`** (e.g. `https://env-manager-auth.vercel.app/...`). |
+| **Link host** | All transactional auth links (**email verification**, **password reset** if enabled, **organization invitations**, and similar Better Auth / org emails) use **`BETTER_AUTH_URL`** on **`apps/auth`** (e.g. `https://auth-env-manager.vercel.app/...`). |
 | **Flow** | Auth app completes the token/callback step, then **redirects** to an allowlisted destination (`return_to` / configured default) on studio, account, or onboarding — links do **not** deep-link directly to studio/account hosts for verify/reset/invite. |
 | **Excluded** | Do not embed `account.*` or `app.*` origins as the primary click target in email templates for auth-sensitive actions. |
 | **Config** | `packages/auth` + email templates reference auth origin only; sibling apps receive users only after redirect validation (§5.4). |
