@@ -3,8 +3,7 @@
 import * as React from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { MenuItem } from "@/components/ui/menu";
-import { Spinner } from "@/components/ui/spinner";
-import { toast } from "@/lib/toast";
+import { actionToast } from "@/lib/action-toast";
 import { cn } from "@/lib/utils";
 import { signOut } from "../lib/auth-actions";
 
@@ -18,16 +17,23 @@ export const SignOutDropdownMenuItem = React.forwardRef<
 
   const handleSignOut = () => {
     startTransition(async () => {
-      const toastId = toast.loading("Signing out...");
-      await signOut(
-        () => {
-          toast.success("Sign out successful", { id: toastId });
-        },
-        (error) => {
-          console.error("Sign out failed", error);
-          toast.error("Sign out failed", { id: toastId });
-        },
-      );
+      try {
+        await actionToast(
+          new Promise<void>((resolve, reject) => {
+            void signOut(
+              () => resolve(),
+              (error) => reject(error),
+            );
+          }),
+          {
+            loading: "Signing out…",
+            success: "Sign out successful",
+            error: "Sign out failed",
+          },
+        );
+      } catch {
+        // Toast handled by actionToast
+      }
     });
   };
 
@@ -39,8 +45,8 @@ export const SignOutDropdownMenuItem = React.forwardRef<
       className={cn(inset && "ps-8", className)}
       {...props}
     >
-      {isLoading ? <Spinner /> : <AppIcon name="logOut" className="size-4" />}
-      {isLoading ? "Signing out..." : "Sign out"}
+      <AppIcon name="logOut" className="size-4" />
+      {isLoading ? "Signing out…" : "Sign out"}
     </MenuItem>
   );
 });

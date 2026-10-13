@@ -2,9 +2,8 @@
 
 import { useTransition } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { toast } from "@/lib/toast";
+import { LoadingButton } from "@/components/patterns/loading-button";
+import { actionToast } from "@/lib/action-toast";
 import { cn } from "@/lib/utils";
 import { signInWithGithub } from "../lib/auth-actions";
 
@@ -21,31 +20,36 @@ export function GitHubLoginButton({
 
   const handleSignIn = () => {
     startTransition(async () => {
-      const toastId = toast.loading("Signing in...");
       try {
-        await signInWithGithub(
-          () => {
-            toast.success("Sign in successful", { id: toastId });
-          },
-          () => {
-            toast.error("Sign in failed", { id: toastId });
+        await actionToast(
+          new Promise<void>((resolve, reject) => {
+            void signInWithGithub(
+              () => resolve(),
+              (error) => reject(error),
+            );
+          }),
+          {
+            loading: "Signing in…",
+            success: "Sign in successful",
+            error: "Sign in failed",
           },
         );
       } catch {
-        toast.error("Sign in failed", { id: toastId });
+        // Toast handled by actionToast
       }
     });
   };
 
   return (
-    <Button
+    <LoadingButton
       onClick={handleSignIn}
-      disabled={isLoading}
+      loading={isLoading}
+      loadingLabel="Signing in…"
       size={size}
       className={cn("gap-2", className)}
     >
-      {isLoading ? <Spinner /> : <AppIcon name="github" className="size-4" />}
+      <AppIcon name="github" className="size-4" />
       {label}
-    </Button>
+    </LoadingButton>
   );
 }

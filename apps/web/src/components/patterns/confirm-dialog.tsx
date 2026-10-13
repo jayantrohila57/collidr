@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingButton } from "@/components/patterns/loading-button";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -10,7 +11,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -63,21 +63,15 @@ export function ConfirmDialog({
           >
             {cancelLabel}
           </AlertDialogClose>
-          <Button
+          <LoadingButton
             type="button"
             variant={variant === "destructive" ? "destructive" : "default"}
-            disabled={isPending}
+            loading={isPending}
+            loadingLabel="Processing…"
             onClick={() => void handleConfirm()}
           >
-            {isPending ? (
-              <>
-                <Spinner className="me-2" />
-                Processing…
-              </>
-            ) : (
-              confirmLabel
-            )}
-          </Button>
+            {confirmLabel}
+          </LoadingButton>
         </AlertDialogFooter>
       </AlertDialogPopup>
     </AlertDialog>

@@ -40,10 +40,12 @@ export function NotificationListItem({
   item,
   onClick,
   compact = false,
+  disabled = false,
 }: {
   item: NotificationListItemData;
   onClick?: () => void;
   compact?: boolean;
+  disabled?: boolean;
 }) {
   const unread = !item.readAt;
 
@@ -51,6 +53,7 @@ export function NotificationListItem({
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       className={cn(
         "flex w-full min-w-0 gap-3 rounded-lg px-2 py-2 text-start transition-colors hover:bg-muted/60",
         unread && "bg-muted/30",

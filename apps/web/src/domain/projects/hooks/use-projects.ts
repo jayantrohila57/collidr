@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
-import { toast } from "@/lib/toast";
+import { actionToast } from "@/lib/action-toast";
 import { trpc } from "@/utils/trpc";
 
 // Interface for API response before transformation
@@ -474,19 +474,19 @@ export function useProjects() {
       : projectsQuery.error,
     refetch: projectsQuery.refetch,
     createProject: (input: Parameters<typeof createMutation.mutateAsync>[0]) =>
-      toast.promise(createMutation.mutateAsync(input), {
+      actionToast(createMutation.mutateAsync(input), {
         loading: "Creating project…",
         success: "Project created successfully",
       }),
     isCreating: createMutation.isPending,
     updateProject: (input: Parameters<typeof updateMutation.mutateAsync>[0]) =>
-      toast.promise(updateMutation.mutateAsync(input), {
+      actionToast(updateMutation.mutateAsync(input), {
         loading: "Saving project…",
         success: "Project updated successfully",
       }),
     isUpdating: updateMutation.isPending,
     deleteProject: (input: Parameters<typeof deleteMutation.mutateAsync>[0]) =>
-      toast.promise(deleteMutation.mutateAsync(input), {
+      actionToast(deleteMutation.mutateAsync(input), {
         loading: "Deleting project…",
         success: "Project deleted successfully",
       }),
@@ -494,7 +494,7 @@ export function useProjects() {
     archiveProject: (
       input: Parameters<typeof archiveMutation.mutateAsync>[0],
     ) =>
-      toast.promise(archiveMutation.mutateAsync(input), {
+      actionToast(archiveMutation.mutateAsync(input), {
         loading: "Archiving project…",
         success: "Project archived successfully",
       }),
@@ -502,7 +502,7 @@ export function useProjects() {
     unarchiveProject: (
       input: Parameters<typeof unarchiveMutation.mutateAsync>[0],
     ) =>
-      toast.promise(unarchiveMutation.mutateAsync(input), {
+      actionToast(unarchiveMutation.mutateAsync(input), {
         loading: "Unarchiving project…",
         success: "Project unarchived successfully",
       }),
@@ -510,7 +510,7 @@ export function useProjects() {
     changeProjectStatus: (
       input: Parameters<typeof changeStatusMutation.mutateAsync>[0],
     ) =>
-      toast.promise(changeStatusMutation.mutateAsync(input), {
+      actionToast(changeStatusMutation.mutateAsync(input), {
         loading: "Updating status…",
         success: "Project status updated",
       }),
@@ -518,7 +518,7 @@ export function useProjects() {
     toggleProjectPublic: (
       input: Parameters<typeof togglePublicMutation.mutateAsync>[0],
     ) =>
-      toast.promise(togglePublicMutation.mutateAsync(input), {
+      actionToast(togglePublicMutation.mutateAsync(input), {
         loading: "Updating visibility…",
         success: "Project visibility updated",
       }),

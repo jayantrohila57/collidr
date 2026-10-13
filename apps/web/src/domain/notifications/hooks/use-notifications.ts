@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { actionToast } from "@/lib/action-toast";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { trpc } from "@/utils/trpc";
 import { NOTIFICATIONS_POLL_MS } from "../constants";
@@ -76,10 +77,28 @@ export function useNotificationMutations() {
     }),
   );
 
+  const markReadWithToast = (input: { id: string }) =>
+    actionToast(markRead.mutateAsync(input), {
+      loading: "Updating notification…",
+      success: "Marked as read",
+      error: "Could not update notification",
+    });
+
+  const markAllReadWithToast = () =>
+    actionToast(markAllRead.mutateAsync(), {
+      loading: "Marking all as read…",
+      success: "All notifications marked read",
+      error: "Could not mark notifications read",
+    });
+
   return {
     markRead,
     markAllRead,
+    markReadWithToast,
+    markAllReadWithToast,
     syncInvitationReceived,
     syncInvitationAccepted,
+    isMarkingRead: markRead.isPending,
+    isMarkingAllRead: markAllRead.isPending,
   };
 }

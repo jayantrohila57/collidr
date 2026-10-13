@@ -1,12 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { cn } from "@/lib/utils";
+import { LoadingButton, type LoadingButtonProps } from "./loading-button";
 
-interface SubmitButtonProps extends React.ComponentProps<typeof Button> {
+interface SubmitButtonProps extends LoadingButtonProps {
   isLoading?: boolean;
-  loadingLabel?: string;
 }
 
 export function SubmitButton({
@@ -18,20 +15,15 @@ export function SubmitButton({
   ...props
 }: SubmitButtonProps) {
   return (
-    <Button
+    <LoadingButton
       type="submit"
-      disabled={disabled || isLoading}
-      className={cn("min-w-28", className)}
+      loading={isLoading}
+      loadingLabel={loadingLabel}
+      disabled={disabled}
+      className={className}
       {...props}
     >
-      {isLoading ? (
-        <>
-          <Spinner className="me-2" />
-          {loadingLabel}
-        </>
-      ) : (
-        children
-      )}
-    </Button>
+      {children}
+    </LoadingButton>
   );
 }

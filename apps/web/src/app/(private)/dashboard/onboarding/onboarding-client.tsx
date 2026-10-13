@@ -30,12 +30,12 @@ import {
 import { Frame } from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
 import { SheetDescription } from "@/components/ui/sheet";
+import { actionToast } from "@/lib/action-toast";
 import { authClient } from "@/lib/auth-client";
 import {
   formatOrganizationCreateError,
   slugifyOrganizationName,
 } from "@/lib/org-slug";
-import { toast } from "@/lib/toast";
 
 const schema = z.object({
   name: z
@@ -82,29 +82,40 @@ export default function OnboardingClient() {
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
     form.clearErrors("slug");
-    const created = await authClient.organization.create({
-      name: data.name,
-      slug: data.slug,
-    });
+    try {
+      const created = await actionToast(
+        (async () => {
+          const result = await authClient.organization.create({
+            name: data.name,
+            slug: data.slug,
+          });
+          if (result.error) {
+            const message = formatOrganizationCreateError(result.error.message);
+            if (message.toLowerCase().includes("slug")) {
+              form.setError("slug", { message });
+            }
+            throw new Error(message);
+          }
+          return result;
+        })(),
+        {
+          loading: "Creating organization…",
+          success: "Organization created",
+          error: "Could not create organization",
+        },
+      );
 
-    if (created.error) {
-      const message = formatOrganizationCreateError(created.error.message);
-      if (message.toLowerCase().includes("slug")) {
-        form.setError("slug", { message });
+      const orgId = created.data?.id;
+      setNavigating(true);
+
+      if (orgId) {
+        await afterOrganizationCreated(orgId);
       }
-      toast.error(message);
-      return;
+
+      router.replace("/dashboard");
+    } catch {
+      // Toast handled by actionToast
     }
-
-    const orgId = created.data?.id;
-    toast.success("Organization created");
-    setNavigating(true);
-
-    if (orgId) {
-      await afterOrganizationCreated(orgId);
-    }
-
-    router.replace("/dashboard");
   };
 
   return (

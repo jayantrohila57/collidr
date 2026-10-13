@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { toast } from "@/lib/toast";
+import { actionToast } from "@/lib/action-toast";
 import { trpc } from "@/utils/trpc";
 
 type VariableOutput = {
@@ -314,25 +314,25 @@ export function useVariables(environmentId: string) {
     revealingIds,
     toggleReveal,
     createVariable: (input: Parameters<typeof createMutation.mutateAsync>[0]) =>
-      toast.promise(createMutation.mutateAsync(input), {
+      actionToast(createMutation.mutateAsync(input), {
         loading: "Adding variable…",
         success: "Variable added",
       }),
     isCreating: createMutation.isPending,
     updateVariable: (input: Parameters<typeof updateMutation.mutateAsync>[0]) =>
-      toast.promise(updateMutation.mutateAsync(input), {
+      actionToast(updateMutation.mutateAsync(input), {
         loading: "Saving variable…",
         success: "Variable updated",
       }),
     isUpdating: updateMutation.isPending,
     deleteVariable: (input: Parameters<typeof deleteMutation.mutateAsync>[0]) =>
-      toast.promise(deleteMutation.mutateAsync(input), {
+      actionToast(deleteMutation.mutateAsync(input), {
         loading: "Deleting variable…",
         success: "Variable deleted",
       }),
     isDeleting: deleteMutation.isPending,
     bulkImport: (input: Parameters<typeof bulkImportMutation.mutateAsync>[0]) =>
-      toast.promise(bulkImportMutation.mutateAsync(input), {
+      actionToast(bulkImportMutation.mutateAsync(input), {
         loading: "Importing variables…",
         success: "Variables imported",
       }),

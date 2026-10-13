@@ -15,7 +15,7 @@ import {
   MenuTrigger,
 } from "@/components/ui/menu";
 import { Spinner } from "@/components/ui/spinner";
-import { toast } from "@/lib/toast";
+import { actionToast } from "@/lib/action-toast";
 import { signOut, useSession } from "../lib/auth-actions";
 
 export function UserMenu() {
@@ -30,18 +30,22 @@ export function UserMenu() {
 
   const handleSignOut = () => {
     startTransition(async () => {
-      const toastId = toast.loading("Signing out...");
       try {
-        await signOut(
-          () => {
-            toast.success("Signed out successfully", { id: toastId });
-          },
-          () => {
-            toast.error("Sign out failed", { id: toastId });
+        await actionToast(
+          new Promise<void>((resolve, reject) => {
+            void signOut(
+              () => resolve(),
+              (error) => reject(error),
+            );
+          }),
+          {
+            loading: "Signing out…",
+            success: "Signed out successfully",
+            error: "Sign out failed",
           },
         );
       } catch {
-        toast.error("Sign out failed", { id: toastId });
+        // Toast handled by actionToast
       }
     });
   };
@@ -97,7 +101,7 @@ export function UserMenu() {
         <MenuSeparator />
         <MenuItem onClick={handleSignOut} disabled={isLoading}>
           <AppIcon name="logOut" className="me-2 size-4" />
-          <span>Log out</span>
+          <span>{isLoading ? "Signing out…" : "Log out"}</span>
         </MenuItem>
       </MenuPopup>
     </Menu>

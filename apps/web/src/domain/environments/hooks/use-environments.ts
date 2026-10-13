@@ -5,8 +5,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { actionToast } from "@/lib/action-toast";
 import { projectDetailQueryStaleTime } from "@/lib/prefetch-project-detail";
-import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";
 
 interface ProjectData {
@@ -248,7 +248,7 @@ export function useEnvironments(projectSlug: string) {
     createEnvironment: (
       input: Parameters<typeof createEnvMutation.mutateAsync>[0],
     ) =>
-      toast.promise(createEnvMutation.mutateAsync(input), {
+      actionToast(createEnvMutation.mutateAsync(input), {
         loading: "Creating environment…",
         success: "Environment created",
       }),
@@ -256,7 +256,7 @@ export function useEnvironments(projectSlug: string) {
     updateEnvironment: (
       input: Parameters<typeof updateEnvMutation.mutateAsync>[0],
     ) =>
-      toast.promise(updateEnvMutation.mutateAsync(input), {
+      actionToast(updateEnvMutation.mutateAsync(input), {
         loading: "Saving environment…",
         success: "Environment updated",
       }),
@@ -264,7 +264,7 @@ export function useEnvironments(projectSlug: string) {
     deleteEnvironment: (
       input: Parameters<typeof deleteEnvMutation.mutateAsync>[0],
     ) =>
-      toast.promise(deleteEnvMutation.mutateAsync(input), {
+      actionToast(deleteEnvMutation.mutateAsync(input), {
         loading: "Deleting environment…",
         success: "Environment deleted",
       }),

@@ -4,6 +4,7 @@ import type { ProjectOutput } from "@env-manager/api/types";
 import { useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
+import { LoadingButton } from "@/components/patterns/loading-button";
 import {
   SettingsPanel,
   SettingsRow,
@@ -13,7 +14,6 @@ import {
   StatusBadge,
   VisibilityBadge,
 } from "@/components/patterns/status-badge";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { ProjectDangerZone } from "./project-danger-zone";
@@ -95,12 +95,13 @@ export function ProjectSettingsSection({
         >
           <div className="flex flex-col items-start gap-2 sm:items-end">
             <VisibilityBadge isPublic={project.isPublic} />
-            <Button
+            <LoadingButton
               type="button"
               variant="outline"
               size="sm"
               className="w-fit gap-2"
-              disabled={isTogglingPublic}
+              loading={isTogglingPublic}
+              loadingLabel="Updating…"
               onClick={() => setVisibilityDialogOpen(true)}
             >
               {project.isPublic ? (
@@ -114,7 +115,7 @@ export function ProjectSettingsSection({
                   Make public
                 </>
               )}
-            </Button>
+            </LoadingButton>
           </div>
         </SettingsRow>
       </SettingsPanel>

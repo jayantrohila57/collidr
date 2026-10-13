@@ -23,6 +23,7 @@ import {
   FormSheetHeader,
   FormSheetPopup,
 } from "@/components/patterns/form-sheet";
+import { LoadingButton } from "@/components/patterns/loading-button";
 import {
   SettingsPanel,
   SettingsRow,
@@ -58,10 +59,10 @@ import {
 } from "@/components/ui/select";
 import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
+import { actionToast } from "@/lib/action-toast";
 import { authClient } from "@/lib/auth-client";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
@@ -70,7 +71,6 @@ import {
   formatOrganizationCreateError,
   resolveOrgSlugForSave,
 } from "@/lib/org-slug";
-import { toast } from "@/lib/toast";
 
 type MemberRow = {
   id: string;
@@ -200,7 +200,7 @@ export function OrganizationSettingsForm({
     if (!email) return;
     setInvitePending(true);
     try {
-      await toast.promise(
+      await actionToast(
         authClient.organization.inviteMember({
           email,
           role: inviteRole as "member" | "admin" | "owner",
@@ -222,7 +222,7 @@ export function OrganizationSettingsForm({
         });
       }
     } catch {
-      // Toast handled by toast.promise
+      // Toast handled by actionToast
     } finally {
       setInvitePending(false);
     }
@@ -238,7 +238,7 @@ export function OrganizationSettingsForm({
     const { memberId, role } = pendingRoleChange;
     setRolePendingId(memberId);
     try {
-      await toast.promise(
+      await actionToast(
         authClient.organization.updateMemberRole({
           memberId,
           role: role as "member" | "admin" | "owner",
@@ -254,7 +254,7 @@ export function OrganizationSettingsForm({
       setPendingRoleChange(null);
       await loadOrganization(organizationId);
     } catch {
-      // Toast handled by toast.promise
+      // Toast handled by actionToast
     } finally {
       setRolePendingId(null);
     }
@@ -266,7 +266,7 @@ export function OrganizationSettingsForm({
     setSavePending(true);
     try {
       const slugToSave = resolveOrgSlugForSave(orgSlug, initialSlug);
-      await toast.promise(
+      await actionToast(
         (async () => {
           const result = await authClient.organization.update({
             organizationId,
@@ -293,7 +293,7 @@ export function OrganizationSettingsForm({
       await loadOrganization(organizationId);
       await refreshOrganizations();
     } catch {
-      // Toast handled by toast.promise
+      // Toast handled by actionToast
     } finally {
       setSavePending(false);
     }
@@ -311,7 +311,7 @@ export function OrganizationSettingsForm({
     void invalidateAfterOrganizationChange(queryClient);
 
     try {
-      await toast.promise(
+      await actionToast(
         (async () => {
           const result = await authClient.organization.delete({
             organizationId: deletedId,
@@ -335,7 +335,7 @@ export function OrganizationSettingsForm({
       }
       router.refresh();
     } catch {
-      // Toast handled by toast.promise
+      // Toast handled by actionToast
     } finally {
       setDeletePending(false);
     }
@@ -350,7 +350,7 @@ export function OrganizationSettingsForm({
     void invalidateAfterOrganizationChange(queryClient);
 
     try {
-      await toast.promise(
+      await actionToast(
         (async () => {
           const result = await authClient.organization.leave({
             organizationId: leftId,
@@ -374,7 +374,7 @@ export function OrganizationSettingsForm({
       }
       router.refresh();
     } catch {
-      // Toast handled by toast.promise
+      // Toast handled by actionToast
     } finally {
       setLeavePending(false);
     }
@@ -601,23 +601,17 @@ export function OrganizationSettingsForm({
                 label="Leave organization"
                 description="You will lose access to its projects."
               >
-                <Button
+                <LoadingButton
                   type="button"
                   variant="outline"
                   size="sm"
                   className="w-fit"
-                  disabled={leavePending}
+                  loading={leavePending}
+                  loadingLabel="Leaving…"
                   onClick={() => setLeaveConfirmOpen(true)}
                 >
-                  {leavePending ? (
-                    <>
-                      <Spinner className="me-2" />
-                      Leaving…
-                    </>
-                  ) : (
-                    "Leave organization"
-                  )}
-                </Button>
+                  Leave organization
+                </LoadingButton>
               </SettingsRow>
             )}
           </SettingsPanel>
@@ -798,21 +792,16 @@ export function OrganizationSettingsForm({
             >
               Cancel
             </AlertDialogClose>
-            <Button
+            <LoadingButton
               type="button"
               variant="destructive"
-              disabled={deletePending || deleteConfirmName !== orgName}
+              loading={deletePending}
+              loadingLabel="Deleting…"
+              disabled={deleteConfirmName !== orgName}
               onClick={() => void handleDelete()}
             >
-              {deletePending ? (
-                <>
-                  <Spinner className="me-2" />
-                  Deleting…
-                </>
-              ) : (
-                "Delete"
-              )}
-            </Button>
+              Delete
+            </LoadingButton>
           </AlertDialogFooter>
         </AlertDialogPopup>
       </AlertDialog>

@@ -24,10 +24,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { actionToast } from "@/lib/action-toast";
 import { initialsFromLabel } from "@/lib/initials";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
-import { toast } from "@/lib/toast";
 
 function orgSubtitle(org: OrgListItem | undefined): string {
   if (!org) return "Workspace";
@@ -57,13 +57,13 @@ export function OrgSwitcher() {
   const onSelectOrg = async (organizationId: string) => {
     if (organizationId === activeOrganizationId) return;
     try {
-      await toast.promise(setActiveOrganization(organizationId), {
+      await actionToast(setActiveOrganization(organizationId), {
         loading: "Switching organization…",
         success: "Organization switched",
         error: "Could not switch organization",
       });
     } catch {
-      // Toast handled by toast.promise
+      // Toast handled by actionToast
     }
   };
 

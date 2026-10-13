@@ -3,8 +3,8 @@
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { LoadingButton } from "@/components/patterns/loading-button";
 import DashboardSection from "@/components/section-dashboard";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import {
   useNotificationMutations,
@@ -23,7 +23,12 @@ export function NotificationsPageClient() {
     poll: true,
   });
   const unreadQuery = useNotificationsUnreadCount();
-  const { markRead, markAllRead } = useNotificationMutations();
+  const {
+    markReadWithToast,
+    markAllReadWithToast,
+    isMarkingAllRead,
+    isMarkingRead,
+  } = useNotificationMutations();
 
   const items = listQuery.data?.data.items ?? [];
   const unreadCount = unreadQuery.data?.data ?? 0;
@@ -35,17 +40,18 @@ export function NotificationsPageClient() {
       back="/dashboard"
       action={
         unreadCount > 0 ? (
-          <Button
+          <LoadingButton
             type="button"
             variant="outline"
             size="sm"
             className="max-sm:px-2.5"
-            disabled={markAllRead.isPending}
-            onClick={() => void markAllRead.mutateAsync()}
+            loading={isMarkingAllRead}
+            loadingLabel="Updating…"
+            onClick={() => void markAllReadWithToast()}
           >
             <span className="sm:hidden">Read all</span>
             <span className="hidden sm:inline">Mark all read</span>
-          </Button>
+          </LoadingButton>
         ) : null
       }
     >
@@ -82,11 +88,16 @@ export function NotificationsPageClient() {
                   onClick={() => {
                     void (async () => {
                       if (!item.readAt) {
-                        await markRead.mutateAsync({ id: item.id });
+                        try {
+                          await markReadWithToast({ id: item.id });
+                        } catch {
+                          return;
+                        }
                       }
                       router.push(item.href as Route);
                     })();
                   }}
+                  disabled={isMarkingRead}
                 />
               ))}
             </div>

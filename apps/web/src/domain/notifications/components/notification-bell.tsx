@@ -4,6 +4,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppIcon } from "@/components/patterns/app-icon";
+import { LoadingButton } from "@/components/patterns/loading-button";
 import { Button } from "@/components/ui/button";
 import {
   Menu,
@@ -40,7 +41,12 @@ export function NotificationBell() {
   const enabled = isNotificationsEnabledOnClient();
   const unreadQuery = useNotificationsUnreadCount();
   const listQuery = useNotificationsList({ limit: 10, poll: true });
-  const { markRead, markAllRead } = useNotificationMutations();
+  const {
+    markReadWithToast,
+    markAllReadWithToast,
+    isMarkingAllRead,
+    isMarkingRead,
+  } = useNotificationMutations();
 
   if (!enabled) {
     return null;
@@ -71,15 +77,17 @@ export function NotificationBell() {
         <div className="flex items-center justify-between gap-2 px-1 pb-2">
           <span className="font-medium text-sm">Notifications</span>
           {unread > 0 ? (
-            <Button
+            <LoadingButton
               type="button"
               variant="ghost"
               size="sm"
               className="h-7 text-xs"
-              onClick={() => void markAllRead.mutateAsync()}
+              loading={isMarkingAllRead}
+              loadingLabel="Updating…"
+              onClick={() => void markAllReadWithToast()}
             >
               Mark all read
-            </Button>
+            </LoadingButton>
           ) : null}
         </div>
         <div className="max-h-80 space-y-0.5 overflow-y-auto">
@@ -96,11 +104,16 @@ export function NotificationBell() {
                 onClick={() => {
                   void (async () => {
                     if (!item.readAt) {
-                      await markRead.mutateAsync({ id: item.id });
+                      try {
+                        await markReadWithToast({ id: item.id });
+                      } catch {
+                        return;
+                      }
                     }
                     router.push(item.href as Route);
                   })();
                 }}
+                disabled={isMarkingRead}
               />
             ))
           )}
