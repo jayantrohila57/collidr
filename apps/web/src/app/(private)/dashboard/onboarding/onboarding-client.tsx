@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Building2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -9,7 +8,9 @@ import { z } from "zod/v3";
 import { PageStack } from "@/components/layout/app-layout";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";
+import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import {
   Empty,
@@ -27,7 +28,6 @@ import {
   SheetHeader,
   SheetPanel,
   SheetPopup,
-  SheetTitle,
 } from "@/components/ui/sheet";
 import { authClient } from "@/lib/auth-client";
 import { layoutSheetPanelClass } from "@/lib/layout-spacing";
@@ -113,7 +113,7 @@ export default function OnboardingClient() {
         <Empty className="border border-dashed py-10">
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <Building2 className="size-6" aria-hidden />
+              <AppIcon name="organization" className="size-6" />
             </EmptyMedia>
             <EmptyTitle>Create your organization</EmptyTitle>
             <EmptyDescription>
@@ -125,7 +125,9 @@ export default function OnboardingClient() {
       <Sheet open onOpenChange={() => {}}>
         <SheetPopup variant="inset" showCloseButton={false}>
           <SheetHeader>
-            <SheetTitle>Create your organization</SheetTitle>
+            <SheetTitleWithIcon icon="organization">
+              Create your organization
+            </SheetTitleWithIcon>
             <SheetDescription>
               This name appears in the sidebar team switcher.
             </SheetDescription>

@@ -1,9 +1,10 @@
 "use client";
 
 import { variableKeySchema } from "@env-manager/api/validation";
-import { Plus } from "lucide-react";
 import { useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";
+import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,6 @@ import {
   SheetHeader,
   SheetPanel,
   SheetPopup,
-  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
@@ -70,13 +70,15 @@ export function AddVariableSheet({
         if (!next) reset();
       }}
     >
-      <SheetTrigger render={<Button size="sm" className="max-sm:min-h-11" />}>
-        <Plus className="me-2 h-4 w-4" />
+      <SheetTrigger
+        render={<Button size="sm" className="gap-2 max-sm:min-h-11" />}
+      >
+        <AppIcon name="plus" className="text-current" />
         Add Variable
       </SheetTrigger>
       <SheetPopup variant="inset">
         <SheetHeader>
-          <SheetTitle>Add Variable</SheetTitle>
+          <SheetTitleWithIcon icon="variable">Add Variable</SheetTitleWithIcon>
           <SheetDescription>Add a new environment variable.</SheetDescription>
         </SheetHeader>
         <form className="contents" onSubmit={handleSubmit}>

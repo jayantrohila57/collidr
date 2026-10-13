@@ -1,17 +1,18 @@
 "use client";
 
-import { Plus } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageStack, PageTitleRow } from "@/components/layout/app-layout";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { ErrorState } from "@/components/patterns/error-state";
 import { Button } from "@/components/ui/button";
 import { CreateProjectSheet } from "@/domain/projects/components/create-project-sheet";
 import { ProjectsTableView } from "@/domain/projects/components/projects-table-view";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
+import { appIcons } from "@/lib/icons";
 import { useDashboard } from "../hooks/use-dashboard";
 import { DashboardStatRow } from "./dashboard-stat-row";
 import { DashboardPageSkeleton } from "./skeletons";
@@ -62,7 +63,13 @@ export function DashboardHome() {
           title="Dashboard"
           description="Workspace overview and recent projects."
           action={
-            <Button type="button" size="sm" onClick={openCreate}>
+            <Button
+              type="button"
+              size="sm"
+              className="gap-2"
+              onClick={openCreate}
+            >
+              <AppIcon name="plus" className="text-current" />
               New project
             </Button>
           }
@@ -91,7 +98,7 @@ export function DashboardHome() {
 
             {status === "empty" ? (
               <EmptyState
-                icon={Plus}
+                icon={appIcons.project}
                 title="No projects yet"
                 description="Create a project to manage environments and variables."
                 actionLabel="New project"

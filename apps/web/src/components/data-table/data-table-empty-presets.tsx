@@ -1,13 +1,6 @@
-import {
-  Activity,
-  FolderKanban,
-  KeyRound,
-  SearchX,
-  UserPlus,
-  Users,
-} from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { appIcons } from "@/lib/icons";
 import type { DataTableEmptyConfig } from "./data-table-empty-types";
 
 export function noResultsWithClearSearch(
@@ -15,12 +8,12 @@ export function noResultsWithClearSearch(
 ): DataTableEmptyConfig {
   return {
     empty: {
-      icon: SearchX,
+      icon: appIcons.searchEmpty,
       title: "No results",
       description: "Try a different search term.",
     },
     noResults: {
-      icon: SearchX,
+      icon: appIcons.searchEmpty,
       title: "No results",
       description: "Nothing matches your search.",
       action: (
@@ -35,13 +28,13 @@ export function noResultsWithClearSearch(
 export function projectsTableEmpty(action?: ReactNode): DataTableEmptyConfig {
   return {
     empty: {
-      icon: FolderKanban,
+      icon: appIcons.project,
       title: "No projects yet",
       description: "Create a project to manage environments and variables.",
       action,
     },
     noResults: {
-      icon: SearchX,
+      icon: appIcons.searchEmpty,
       title: "No matching projects",
       description: "Try another name or clear your search.",
     },
@@ -51,13 +44,13 @@ export function projectsTableEmpty(action?: ReactNode): DataTableEmptyConfig {
 export function variablesTableEmpty(action?: ReactNode): DataTableEmptyConfig {
   return {
     empty: {
-      icon: KeyRound,
+      icon: appIcons.variable,
       title: "No variables yet",
       description: "Add secrets and config for this environment.",
       action,
     },
     noResults: {
-      icon: SearchX,
+      icon: appIcons.searchEmpty,
       title: "No matching variables",
       description: "Try another key or clear your search.",
     },
@@ -67,13 +60,13 @@ export function variablesTableEmpty(action?: ReactNode): DataTableEmptyConfig {
 export function membersTableEmpty(action?: ReactNode): DataTableEmptyConfig {
   return {
     empty: {
-      icon: Users,
+      icon: appIcons.member,
       title: "You're the only member",
       description: "Invite teammates to collaborate on projects.",
       action,
     },
     noResults: {
-      icon: SearchX,
+      icon: appIcons.searchEmpty,
       title: "No matching members",
       description: "Try another name or email.",
     },
@@ -85,12 +78,12 @@ export function auditLogEmpty(
 ): DataTableEmptyConfig {
   return {
     empty: {
-      icon: Activity,
+      icon: appIcons.activity,
       title: "No activity yet",
       description: "Changes to variables and projects will appear here.",
     },
     noResults: {
-      icon: SearchX,
+      icon: appIcons.searchEmpty,
       title: "No matching events",
       description: "Adjust search or filters.",
       action: onClearFilters ? (
@@ -110,13 +103,13 @@ export function auditLogEmpty(
 export function invitationsEmpty(action?: ReactNode): DataTableEmptyConfig {
   return {
     empty: {
-      icon: UserPlus,
+      icon: appIcons.invite,
       title: "No pending invitations",
       description: "Invited members will appear here until they accept.",
       action,
     },
     noResults: {
-      icon: SearchX,
+      icon: appIcons.searchEmpty,
       title: "No matching invitations",
       description: "Try another email.",
     },

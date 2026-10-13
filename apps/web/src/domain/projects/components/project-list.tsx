@@ -1,8 +1,8 @@
 "use client";
 
-import { Plus } from "lucide-react";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { ErrorState } from "@/components/patterns/error-state";
+import { appIcons } from "@/lib/icons";
 import { useProjects } from "../hooks/use-projects";
 import { ProjectsTableView } from "./projects-table-view";
 import { ProjectsSkeleton } from "./skeletons";
@@ -31,7 +31,7 @@ export default function ProjectList({ onCreateProject }: ProjectListProps) {
     case "empty":
       return (
         <EmptyState
-          icon={Plus}
+          icon={appIcons.project}
           title="No projects yet"
           description="Create a project to manage environments and variables."
           actionLabel="New project"

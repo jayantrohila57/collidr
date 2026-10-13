@@ -1,14 +1,15 @@
 "use client";
 
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
-import { Copy, Eye, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { variablesTableEmpty } from "@/components/data-table/data-table-empty-presets";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { SecretValue } from "@/components/patterns/secret-value";
+import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/toast";
 import { AddVariableSheet } from "./add-variable-sheet";
@@ -127,11 +128,11 @@ export function VariablesTableView({
           const variable = row.original;
           const isRevealed = revealedIds.has(variable.id);
           return (
-            <div className="min-w-0">
+            <TableLeadingCell leading={<AppIcon name="variable" />}>
               <span className="block truncate font-medium font-mono text-xs sm:text-sm">
                 {variable.key}
               </span>
-              <div className="mt-1 flex min-w-0 items-center gap-1 sm:hidden">
+              <div className="mt-1 flex min-w-0 items-center gap-2 sm:hidden">
                 <SecretValue
                   revealed={isRevealed}
                   value={variable.value}
@@ -145,14 +146,13 @@ export function VariablesTableView({
                   disabled={revealingIds?.has(variable.id)}
                   onClick={() => onReveal(variable.id)}
                 >
-                  {isRevealed ? (
-                    <EyeOff className="size-4" aria-hidden />
-                  ) : (
-                    <Eye className="size-4" aria-hidden />
-                  )}
+                  <AppIcon
+                    name={isRevealed ? "hide" : "reveal"}
+                    className="text-foreground"
+                  />
                 </Button>
               </div>
-            </div>
+            </TableLeadingCell>
           );
         },
       }),
@@ -210,17 +210,20 @@ export function VariablesTableView({
                 actions={[
                   {
                     label: isRevealed ? "Hide value" : "Reveal value",
-                    icon: isRevealed ? (
-                      <EyeOff className="me-2 size-4" aria-hidden />
-                    ) : (
-                      <Eye className="me-2 size-4" aria-hidden />
+                    icon: (
+                      <AppIcon
+                        name={isRevealed ? "hide" : "reveal"}
+                        className="me-2 text-foreground"
+                      />
                     ),
                     disabled: revealingIds?.has(variable.id),
                     onSelect: () => onReveal(variable.id),
                   },
                   {
                     label: "Copy value",
-                    icon: <Copy className="me-2 size-4" aria-hidden />,
+                    icon: (
+                      <AppIcon name="copy" className="me-2 text-foreground" />
+                    ),
                     disabled: !isRevealed || !variable.value,
                     onSelect: () => {
                       void navigator.clipboard.writeText(variable.value ?? "");
@@ -229,12 +232,16 @@ export function VariablesTableView({
                   },
                   {
                     label: "Edit",
-                    icon: <Pencil className="me-2 size-4" aria-hidden />,
+                    icon: (
+                      <AppIcon name="edit" className="me-2 text-foreground" />
+                    ),
                     onSelect: () => handleEdit(variable),
                   },
                   {
                     label: "Delete",
-                    icon: <Trash2 className="me-2 size-4" aria-hidden />,
+                    icon: (
+                      <AppIcon name="delete" className="me-2 text-foreground" />
+                    ),
                     destructive: true,
                     onSelect: () => handleDelete(variable),
                   },

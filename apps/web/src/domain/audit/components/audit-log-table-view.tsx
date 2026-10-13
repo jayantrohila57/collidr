@@ -2,11 +2,11 @@
 
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import { format } from "date-fns";
-import { Eye, EyeOff } from "lucide-react";
 import type { ReactNode } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import type { DataTableEmptyConfig } from "@/components/data-table/data-table-empty-types";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -123,11 +123,10 @@ export function AuditLogTableView({
                   revealedIds.has(log.id) ? "Hide details" : "Reveal details"
                 }
               >
-                {revealedIds.has(log.id) ? (
-                  <EyeOff className="size-4" />
-                ) : (
-                  <Eye className="size-4" />
-                )}
+                <AppIcon
+                  name={revealedIds.has(log.id) ? "hide" : "reveal"}
+                  className="text-foreground"
+                />
               </Button>
             </div>
           );

@@ -1,7 +1,6 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Mail, Users } from "lucide-react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -12,6 +11,7 @@ import {
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { OrganizationMembersTable } from "@/components/org/organization-members-table";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { ErrorState } from "@/components/patterns/error-state";
 import { FormField } from "@/components/patterns/form-field";
 import {
@@ -19,6 +19,7 @@ import {
   SettingsRow,
   SettingsSectionHeader,
 } from "@/components/patterns/settings-layout";
+import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import {
   AlertDialog,
@@ -54,7 +55,6 @@ import {
   SheetHeader,
   SheetPanel,
   SheetPopup,
-  SheetTitle,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
@@ -356,6 +356,7 @@ export function OrganizationSettingsForm({
             <SettingsSectionHeader
               title="Profile"
               description="Name and slug for this workspace."
+              icon="organization"
             />
             <SettingsRow label="Name" description="Organization display name.">
               <span className="text-sm">{orgName}</span>
@@ -373,9 +374,10 @@ export function OrganizationSettingsForm({
               <Button
                 type="button"
                 size="sm"
-                className="w-fit"
+                className="w-fit gap-2"
                 onClick={() => setEditOrgOpen(true)}
               >
+                <AppIcon name="edit" className="text-current" />
                 Edit organization
               </Button>
             </SettingsRow>
@@ -387,14 +389,16 @@ export function OrganizationSettingsForm({
             <SettingsSectionHeader
               title="Members"
               description="Invite teammates and manage roles."
+              icon="member"
             />
             <SettingsRow label="Invite" description="Add someone by email.">
               <Button
                 type="button"
                 size="sm"
-                className="w-fit"
+                className="w-fit gap-2"
                 onClick={() => setInviteOpen(true)}
               >
+                <AppIcon name="invite" className="text-current" />
                 Invite member
               </Button>
             </SettingsRow>
@@ -403,7 +407,7 @@ export function OrganizationSettingsForm({
                 <Empty className="border border-dashed py-8">
                   <EmptyHeader>
                     <EmptyMedia variant="icon">
-                      <Users className="size-5" aria-hidden />
+                      <AppIcon name="member" className="size-5" />
                     </EmptyMedia>
                     <EmptyTitle>You're the only member</EmptyTitle>
                     <EmptyDescription>
@@ -414,8 +418,10 @@ export function OrganizationSettingsForm({
                     <Button
                       type="button"
                       size="sm"
+                      className="gap-2"
                       onClick={() => setInviteOpen(true)}
                     >
+                      <AppIcon name="invite" className="text-current" />
                       Invite member
                     </Button>
                   </EmptyContent>
@@ -435,8 +441,10 @@ export function OrganizationSettingsForm({
                     <Button
                       type="button"
                       size="sm"
+                      className="gap-2"
                       onClick={() => setInviteOpen(true)}
                     >
+                      <AppIcon name="invite" className="text-current" />
                       Invite member
                     </Button>,
                   )}
@@ -449,12 +457,13 @@ export function OrganizationSettingsForm({
             <SettingsSectionHeader
               title="Invitations"
               description="Pending email invites."
+              icon="mail"
             />
             <div className="px-4 py-6">
               <Empty className="border border-dashed py-8">
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
-                    <Mail className="size-5" aria-hidden />
+                    <AppIcon name="mail" className="size-5" />
                   </EmptyMedia>
                   <EmptyTitle>{invitationsEmpty().empty.title}</EmptyTitle>
                   <EmptyDescription>
@@ -465,8 +474,10 @@ export function OrganizationSettingsForm({
                   <Button
                     type="button"
                     size="sm"
+                    className="gap-2"
                     onClick={() => setInviteOpen(true)}
                   >
+                    <AppIcon name="invite" className="text-current" />
                     Invite member
                   </Button>
                 </EmptyContent>
@@ -480,6 +491,7 @@ export function OrganizationSettingsForm({
             <SettingsSectionHeader
               title="Danger zone"
               description="Irreversible organization actions."
+              icon="danger"
             />
             {isOwner ? (
               isPersonal ? (
@@ -547,7 +559,9 @@ export function OrganizationSettingsForm({
       <Sheet open={editOrgOpen} onOpenChange={setEditOrgOpen}>
         <SheetPopup variant="inset">
           <SheetHeader>
-            <SheetTitle>Edit organization</SheetTitle>
+            <SheetTitleWithIcon icon="organization">
+              Edit organization
+            </SheetTitleWithIcon>
             <SheetDescription>
               Update the name and URL slug for this workspace.
             </SheetDescription>
@@ -601,7 +615,7 @@ export function OrganizationSettingsForm({
       <Sheet open={inviteOpen} onOpenChange={setInviteOpen}>
         <SheetPopup variant="inset">
           <SheetHeader>
-            <SheetTitle>Invite member</SheetTitle>
+            <SheetTitleWithIcon icon="invite">Invite member</SheetTitleWithIcon>
             <SheetDescription>
               Send an email invitation with a role for this organization.
             </SheetDescription>

@@ -1,8 +1,8 @@
 "use client";
 
 import { useQueries } from "@tanstack/react-query";
-import { MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { HorizontalScrollRail } from "@/components/patterns/horizontal-scroll-rail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -95,7 +95,7 @@ export function EnvironmentsTabsView({
       <Empty className="h-full w-full border border-dashed">
         <EmptyHeader>
           <EmptyMedia variant="icon">
-            <Plus className="h-6 w-6" />
+            <AppIcon name="environment" className="size-6" />
           </EmptyMedia>
           <EmptyTitle>No environments yet</EmptyTitle>
           <EmptyDescription>
@@ -160,20 +160,20 @@ export function EnvironmentsTabsView({
                       />
                     }
                   >
-                    <MoreVertical className="size-4" aria-hidden />
+                    <AppIcon name="rowActions" className="text-foreground" />
                   </TooltipTrigger>
                   <TooltipContent>Environment actions</TooltipContent>
                 </Tooltip>
                 <MenuPopup align="end">
                   <MenuItem onClick={() => setEditOpen(true)}>
-                    <Pencil className="me-2 size-4" aria-hidden />
+                    <AppIcon name="edit" className="me-2 text-foreground" />
                     Rename
                   </MenuItem>
                   <MenuItem
                     variant="destructive"
                     onClick={() => setDeleteOpen(true)}
                   >
-                    <Trash2 className="me-2 size-4" aria-hidden />
+                    <AppIcon name="delete" className="me-2 text-foreground" />
                     Delete
                   </MenuItem>
                 </MenuPopup>

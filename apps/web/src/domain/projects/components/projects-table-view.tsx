@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { projectsTableEmpty } from "@/components/data-table/data-table-empty-presets";
 import type { DataTableEmptyConfig } from "@/components/data-table/data-table-empty-types";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { Button } from "@/components/ui/button";
 import { createProjectsTableColumns } from "./projects-table-columns";
 
@@ -40,7 +41,13 @@ export function ProjectsTableView({
     empty ??
     projectsTableEmpty(
       onCreateProject ? (
-        <Button type="button" size="sm" onClick={onCreateProject}>
+        <Button
+          type="button"
+          size="sm"
+          className="gap-2"
+          onClick={onCreateProject}
+        >
+          <AppIcon name="plus" className="text-current" />
           New project
         </Button>
       ) : undefined,

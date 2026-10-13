@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
+import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +18,6 @@ import {
   SheetHeader,
   SheetPanel,
   SheetPopup,
-  SheetTitle,
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -77,7 +77,9 @@ export function CreateProjectSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetPopup variant="inset">
         <SheetHeader>
-          <SheetTitle>Create New Project</SheetTitle>
+          <SheetTitleWithIcon icon="project">
+            Create New Project
+          </SheetTitleWithIcon>
           <SheetDescription>
             Add a new project to organize your environment variables.
           </SheetDescription>

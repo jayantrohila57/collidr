@@ -1,7 +1,7 @@
 "use client";
 
 import type { ProjectOutput } from "@env-manager/api/types";
-import { Eye, EyeOff, Power, Wrench } from "lucide-react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import {
   SettingsPanel,
   SettingsRow,
@@ -9,6 +9,7 @@ import {
 } from "@/components/patterns/settings-layout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
+import type { AppIconName } from "@/lib/icons";
 import { toast } from "@/lib/toast";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { ProjectDangerZone } from "./project-danger-zone";
@@ -20,11 +21,11 @@ interface ProjectSettingsSectionProps {
 const STATUS_OPTIONS: {
   value: "active" | "inactive" | "maintenance";
   label: string;
-  icon: typeof Power;
+  icon: AppIconName;
 }[] = [
-  { value: "active", label: "Active", icon: Power },
-  { value: "inactive", label: "Inactive", icon: EyeOff },
-  { value: "maintenance", label: "Maintenance", icon: Wrench },
+  { value: "active", label: "Active", icon: "statusActive" },
+  { value: "inactive", label: "Inactive", icon: "statusInactive" },
+  { value: "maintenance", label: "Maintenance", icon: "statusMaintenance" },
 ];
 
 export function ProjectSettingsSection({
@@ -55,10 +56,12 @@ export function ProjectSettingsSection({
         <SettingsSectionHeader
           title="Project settings"
           description="Status, visibility, and runtime behavior."
+          icon="settings"
         />
         <SettingsRow
           label="Status"
           description="Operational state for this project."
+          icon="statusActive"
         >
           <Tabs
             value={project.status}
@@ -75,10 +78,13 @@ export function ProjectSettingsSection({
                 <TabsTab
                   key={option.value}
                   value={option.value}
-                  className="gap-1.5"
+                  className="gap-2"
                   disabled={isChangingStatus}
                 >
-                  <option.icon className="size-3.5" aria-hidden />
+                  <AppIcon
+                    name={option.icon}
+                    className="size-3.5 text-current"
+                  />
                   {option.label}
                 </TabsTab>
               ))}
@@ -87,6 +93,7 @@ export function ProjectSettingsSection({
         </SettingsRow>
         <SettingsRow
           label="Visibility"
+          icon="globe"
           description={
             project.isPublic
               ? "Visible to anyone with the link."
@@ -97,18 +104,18 @@ export function ProjectSettingsSection({
             type="button"
             variant="outline"
             size="sm"
-            className="w-fit"
+            className="w-fit gap-2"
             disabled={isTogglingPublic}
             onClick={() => void toggleProjectPublic()}
           >
             {project.isPublic ? (
               <>
-                <EyeOff className="me-2 size-4" aria-hidden />
+                <AppIcon name="lock" className="text-current" />
                 Make private
               </>
             ) : (
               <>
-                <Eye className="me-2 size-4" aria-hidden />
+                <AppIcon name="globe" className="text-current" />
                 Make public
               </>
             )}

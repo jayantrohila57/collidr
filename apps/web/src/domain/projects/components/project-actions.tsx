@@ -1,18 +1,8 @@
 "use client";
 
 import type { ProjectOutput } from "@env-manager/api/types";
-import {
-  Archive,
-  ArchiveRestore,
-  Delete,
-  Edit,
-  Eye,
-  EyeOff,
-  MoreHorizontal,
-  Power,
-  RefreshCw,
-} from "lucide-react";
 import { useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { Button } from "@/components/ui/button";
 import {
   Menu,
@@ -23,6 +13,11 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from "@/components/ui/menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from "@/lib/toast";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { EditProjectSheet } from "./edit-project-sheet";
@@ -32,6 +27,8 @@ interface ProjectActionsProps {
   project: ProjectOutput;
   onUpdate?: () => void;
 }
+
+const menuIconClass = "me-2 text-foreground";
 
 export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -74,10 +71,25 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
   return (
     <>
       <Menu open={menuOpen} onOpenChange={setMenuOpen}>
-        <MenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
-          <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">Actions</span>
-        </MenuTrigger>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <MenuTrigger
+                render={
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Project actions"
+                  />
+                }
+              />
+            }
+          >
+            <AppIcon name="rowActionsAlt" />
+          </TooltipTrigger>
+          <TooltipContent>Project actions</TooltipContent>
+        </Tooltip>
         <MenuPopup align="end" className="w-80">
           <MenuGroup>
             <MenuGroupLabel>Project Actions</MenuGroupLabel>
@@ -87,7 +99,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
                 setEditOpen(true);
               }}
             >
-              <Edit className="me-2 h-4 w-4" />
+              <AppIcon name="edit" className={menuIconClass} />
               Edit Project
             </MenuItem>
           </MenuGroup>
@@ -98,21 +110,21 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             onClick={() => void handleStatusChange("active")}
             disabled={isChangingStatus || project.status === "active"}
           >
-            <Power className="me-2 h-4 w-4" />
+            <AppIcon name="power" className={menuIconClass} />
             Set Active
           </MenuItem>
           <MenuItem
             onClick={() => void handleStatusChange("inactive")}
             disabled={isChangingStatus || project.status === "inactive"}
           >
-            <RefreshCw className="me-2 h-4 w-4" />
+            <AppIcon name="statusInactive" className={menuIconClass} />
             Set Inactive
           </MenuItem>
           <MenuItem
             onClick={() => void handleStatusChange("maintenance")}
             disabled={isChangingStatus || project.status === "maintenance"}
           >
-            <RefreshCw className="me-2 h-4 w-4" />
+            <AppIcon name="statusMaintenance" className={menuIconClass} />
             Set Maintenance
           </MenuItem>
 
@@ -127,12 +139,12 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
           >
             {project.isPublic ? (
               <>
-                <EyeOff className="me-2 h-4 w-4" />
+                <AppIcon name="hide" className={menuIconClass} />
                 Make Private
               </>
             ) : (
               <>
-                <Eye className="me-2 h-4 w-4" />
+                <AppIcon name="reveal" className={menuIconClass} />
                 Make Public
               </>
             )}
@@ -148,7 +160,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
               }}
               disabled={isUnarchiving}
             >
-              <ArchiveRestore className="me-2 h-4 w-4" />
+              <AppIcon name="archiveRestore" className={menuIconClass} />
               Unarchive Project
             </MenuItem>
           ) : (
@@ -159,7 +171,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
               }}
               disabled={isArchiving}
             >
-              <Archive className="me-2 h-4 w-4" />
+              <AppIcon name="statusArchived" className={menuIconClass} />
               Archive Project
             </MenuItem>
           )}
@@ -174,7 +186,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             variant="destructive"
             disabled={isDeleting}
           >
-            <Delete className="me-2 h-4 w-4" />
+            <AppIcon name="delete" className={menuIconClass} />
             Delete Project
           </MenuItem>
         </MenuPopup>

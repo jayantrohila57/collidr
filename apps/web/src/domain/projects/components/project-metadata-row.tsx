@@ -1,9 +1,9 @@
 "use client";
 
 import type { ProjectOutput } from "@env-manager/api/types";
-import { Github, Globe } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { TruncatedText } from "@/components/patterns/truncated-text";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,6 +49,7 @@ export function ProjectMetadataRow({
                   <Button
                     variant="outline"
                     size="sm"
+                    className="gap-2"
                     render={
                       <Link
                         href={project.repositoryUrl as Route}
@@ -59,7 +60,7 @@ export function ProjectMetadataRow({
                   />
                 }
               >
-                <Github className="size-4" aria-hidden />
+                <AppIcon name="github" className="text-current" />
                 Repository
               </TooltipTrigger>
               <TooltipContent>Open repository</TooltipContent>
@@ -72,6 +73,7 @@ export function ProjectMetadataRow({
                   <Button
                     variant="outline"
                     size="sm"
+                    className="gap-2"
                     render={
                       <Link
                         href={project.websiteUrl as Route}
@@ -82,7 +84,7 @@ export function ProjectMetadataRow({
                   />
                 }
               >
-                <Globe className="size-4" aria-hidden />
+                <AppIcon name="externalLink" className="text-current" />
                 Website
               </TooltipTrigger>
               <TooltipContent>Open website</TooltipContent>

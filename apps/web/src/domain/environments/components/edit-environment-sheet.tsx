@@ -1,8 +1,9 @@
 "use client";
 
-import { Edit } from "lucide-react";
 import { useEffect, useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";
+import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,6 @@ import {
   SheetHeader,
   SheetPanel,
   SheetPopup,
-  SheetTitle,
 } from "@/components/ui/sheet";
 import {
   Tooltip,
@@ -107,7 +107,7 @@ export function EditEnvironmentSheet({
               />
             }
           >
-            <Edit className="h-3.5 w-3.5" aria-hidden />
+            <AppIcon name="edit" className="size-3.5 text-foreground" />
           </TooltipTrigger>
           <TooltipContent side="bottom" align="end">
             Edit environment
@@ -117,7 +117,9 @@ export function EditEnvironmentSheet({
       <Sheet open={open} onOpenChange={handleOpenChange}>
         <SheetPopup variant="inset">
           <SheetHeader>
-            <SheetTitle>Edit Environment</SheetTitle>
+            <SheetTitleWithIcon icon="environment">
+              Edit Environment
+            </SheetTitleWithIcon>
             <SheetDescription>
               Update the environment name. This will change how it appears in
               the tabs.

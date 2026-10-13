@@ -7,6 +7,8 @@ import {
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import type { DataTableEmptyConfig } from "@/components/data-table/data-table-empty-types";
+import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -14,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { initialsFromLabel } from "@/lib/initials";
 
 export type OrganizationMemberRow = {
   id: string;
@@ -48,14 +51,28 @@ export function OrganizationMembersTable({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Member" />
       ),
-      cell: ({ row }) => (
-        <span>
-          {row.original.user.name}{" "}
-          <span className="text-muted-foreground">
-            ({row.original.user.email})
-          </span>
-        </span>
-      ),
+      cell: ({ row }) => {
+        const member = row.original;
+        const label = member.user.name || member.user.email;
+        return (
+          <TableLeadingCell
+            leading={
+              <Avatar className="size-7">
+                <AvatarFallback className="bg-muted font-medium text-[10px]">
+                  {initialsFromLabel(label, "MB")}
+                </AvatarFallback>
+              </Avatar>
+            }
+          >
+            <span className="block truncate font-medium">
+              {member.user.name}
+            </span>
+            <span className="block truncate text-muted-foreground text-xs">
+              {member.user.email}
+            </span>
+          </TableLeadingCell>
+        );
+      },
     }),
     columnHelper.accessor("role", {
       header: ({ column }) => (

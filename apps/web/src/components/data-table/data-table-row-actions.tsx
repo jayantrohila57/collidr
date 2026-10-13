@@ -1,7 +1,7 @@
 "use client";
 
-import { MoreVertical } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { Button } from "@/components/ui/button";
 import {
   Menu,
@@ -10,6 +10,11 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from "@/components/ui/menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type DataTableRowAction = {
   label: string;
@@ -30,18 +35,25 @@ export function DataTableRowActions({
 
   return (
     <Menu>
-      <MenuTrigger
-        render={
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label={label}
-          />
-        }
-      >
-        <MoreVertical className="size-4" aria-hidden />
-      </MenuTrigger>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <MenuTrigger
+              render={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={label}
+                />
+              }
+            />
+          }
+        >
+          <AppIcon name="rowActions" />
+        </TooltipTrigger>
+        <TooltipContent>{label}</TooltipContent>
+      </Tooltip>
       <MenuPopup align="end">
         {actions.map((action, index) => {
           const showSeparator =

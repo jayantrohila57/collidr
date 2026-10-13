@@ -10,7 +10,7 @@ Env Manager uses [coss ui](https://coss.com/ui) on [Base UI](https://base-ui.com
 | Registry | `@coss` → `https://coss.com/ui/r/{name}.json` in `apps/web/components.json` |
 | Styling | Default coss **neutral** tokens from `@coss/style` in `apps/web/src/index.css` |
 | Fonts | **Inter** (`--font-sans`, `--font-heading`) + **Geist Mono** (`--font-mono`) via `next/font/google` in `apps/web/src/app/layout.tsx` |
-| Icons | Lucide (`lucide-react`) |
+| Icons | Lucide via canonical map (`apps/web/src/lib/icons.ts`) |
 | Toasts | coss `ToastProvider` + `toastManager` (wrapper: `apps/web/src/lib/toast.ts`) |
 | Dark mode | `next-themes` + semantic CSS variables |
 | RTL | `DirectionProvider` (`@base-ui/react/direction-provider`); logical utilities in app code |
@@ -80,6 +80,23 @@ Card, Frame, Table, and Dialog **internals** keep coss defaults (`p-6` on `CardH
 | `Sidebar*` | `apps/web/src/components/ui/sidebar.tsx` |
 
 Use coss defaults for control density and visuals—avoid custom overrides on generated `ui/*` primitives except where `layout-spacing` documents app-level composition.
+
+## Icons
+
+Product concepts map to a single Lucide glyph in `apps/web/src/lib/icons.ts` (`appIcons`, `AppIconName`). Feature code should import icons through **`AppIcon`** (`components/patterns/app-icon.tsx`) or `appIcons` / `getAppIcon`, not ad-hoc `lucide-react` imports (exceptions: coss `ui/*` primitives, marketing pages, and spinners).
+
+| Rule | Value |
+|------|--------|
+| Size | `size-4` (`iconMutedClassName`) |
+| Tone | `text-muted-foreground` for inline/decorative icons |
+| Spacing | Pair with labels using coss default **`gap-2`** on flex rows (buttons, sheet titles, settings rows) |
+| Tables | Leading avatar or `AppIcon` in the primary column (`TableLeadingCell`); row menus use `rowActions` + tooltip |
+| Status | `StatusBadge` + status keys in the map; visibility uses `lock` / `globe` (`VisibilityBadge`) |
+| Links | `github`, `externalLink` with tooltips on outline buttons |
+| Settings | `SettingsSectionHeader` / `SettingsRow` optional `icon` prop; danger sections use `danger` |
+| Sheets | `SheetTitleWithIcon` for create/edit flows |
+
+When an icon sits on a filled button, pass `className="text-current"` on `AppIcon` so it inherits button foreground color.
 
 ## Charts
 

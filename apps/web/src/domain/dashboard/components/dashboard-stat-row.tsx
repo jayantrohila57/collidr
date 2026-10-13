@@ -2,6 +2,7 @@
 
 import type { Route } from "next";
 import Link from "next/link";
+import { AppIcon } from "@/components/patterns/app-icon";
 import {
   Card,
   CardDescription,
@@ -9,6 +10,7 @@ import {
   CardPanel,
   CardTitle,
 } from "@/components/ui/card";
+import type { AppIconName } from "@/lib/icons";
 import { layoutGapClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 
@@ -19,24 +21,33 @@ type DashboardStats = {
 };
 
 export function DashboardStatRow({ stats }: { stats: DashboardStats }) {
-  const items = [
+  const items: {
+    label: string;
+    value: number;
+    href: Route;
+    hint: string;
+    icon: AppIconName;
+  }[] = [
     {
       label: "Projects",
       value: stats.totalProjects,
-      href: "/dashboard/projects" as Route,
+      href: "/dashboard/projects",
       hint: "View all projects",
+      icon: "project",
     },
     {
       label: "Environments",
       value: stats.totalEnvironments,
-      href: "/dashboard/projects" as Route,
+      href: "/dashboard/projects",
       hint: "Across all projects",
+      icon: "environment",
     },
     {
       label: "Variables",
       value: stats.totalVariables,
-      href: "/dashboard/activity" as Route,
+      href: "/dashboard/activity",
       hint: "Across all environments",
+      icon: "variable",
     },
   ];
 
@@ -46,7 +57,10 @@ export function DashboardStatRow({ stats }: { stats: DashboardStats }) {
         <Link key={item.label} href={item.href} className="min-w-0">
           <Card className="h-full transition-colors hover:bg-muted/40">
             <CardHeader className="pb-1">
-              <CardDescription>{item.label}</CardDescription>
+              <div className="flex items-start justify-between gap-2">
+                <CardDescription>{item.label}</CardDescription>
+                <AppIcon name={item.icon} />
+              </div>
               <CardTitle className="text-2xl tabular-nums">
                 {item.value}
               </CardTitle>

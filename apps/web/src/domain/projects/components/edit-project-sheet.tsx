@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
+import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,6 @@ import {
   SheetHeader,
   SheetPanel,
   SheetPopup,
-  SheetTitle,
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -92,7 +92,7 @@ export function EditProjectSheet({
         className="flex max-h-[min(90vh,720px)] flex-col"
       >
         <SheetHeader>
-          <SheetTitle>Edit Project</SheetTitle>
+          <SheetTitleWithIcon icon="edit">Edit Project</SheetTitleWithIcon>
           <SheetDescription>
             Update details for &quot;{project.name}&quot;. Changes are saved
             when you submit.

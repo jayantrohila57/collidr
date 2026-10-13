@@ -2,6 +2,7 @@
 
 import type { ProjectOutput } from "@env-manager/api/types";
 import { useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import {
   SettingsPanel,
   SettingsRow,
@@ -35,6 +36,7 @@ export function ProjectDangerZone({ project }: ProjectDangerZoneProps) {
         <SettingsSectionHeader
           title="Danger zone"
           description="Archive or permanently delete this project and all of its environments."
+          icon="danger"
         />
         {project.isArchived ? (
           <SettingsRow
@@ -45,10 +47,11 @@ export function ProjectDangerZone({ project }: ProjectDangerZoneProps) {
               type="button"
               variant="outline"
               size="sm"
-              className="w-fit"
+              className="w-fit gap-2"
               disabled={isUnarchiving}
               onClick={() => setUnarchiveDialogOpen(true)}
             >
+              <AppIcon name="archiveRestore" className="text-current" />
               Unarchive project
             </Button>
           </SettingsRow>
@@ -61,10 +64,11 @@ export function ProjectDangerZone({ project }: ProjectDangerZoneProps) {
               type="button"
               variant="outline"
               size="sm"
-              className="w-fit"
+              className="w-fit gap-2"
               disabled={isArchiving}
               onClick={() => setArchiveDialogOpen(true)}
             >
+              <AppIcon name="statusArchived" className="text-current" />
               Archive project
             </Button>
           </SettingsRow>
@@ -77,10 +81,11 @@ export function ProjectDangerZone({ project }: ProjectDangerZoneProps) {
             type="button"
             variant="destructive"
             size="sm"
-            className="w-fit"
+            className="w-fit gap-2"
             disabled={isDeleting}
             onClick={() => setDeleteDialogOpen(true)}
           >
+            <AppIcon name="delete" className="text-current" />
             Delete project
           </Button>
         </SettingsRow>

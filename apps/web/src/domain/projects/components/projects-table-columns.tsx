@@ -2,14 +2,23 @@
 
 import type { ProjectOutput } from "@env-manager/api/types";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
-import { Calendar, Github, Globe } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import type { DataTableColumnDef } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { Badge } from "@/components/ui/badge";
+import { AppIcon } from "@/components/patterns/app-icon";
+import { StatusBadge } from "@/components/patterns/status-badge";
+import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
+import { VisibilityBadge } from "@/components/patterns/visibility-badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { formatDate } from "@/lib/format";
+import { initialsFromLabel } from "@/lib/initials";
 import { ProjectActions } from "./project-actions";
 
 const columnHelper = legacyCreateColumnHelper<ProjectOutput>();
@@ -26,7 +35,7 @@ function projectStatusLabel(project: ProjectOutput) {
 const col = {
   project: "w-[40%] min-w-0 max-w-[14rem] sm:max-w-none",
   status: "hidden w-24 md:table-cell",
-  visibility: "hidden w-24 lg:table-cell",
+  visibility: "hidden w-28 lg:table-cell",
   updated: "hidden w-28 xl:table-cell",
   links: "hidden w-20 2xl:table-cell",
   actions:
@@ -47,7 +56,15 @@ export function createProjectsTableColumns(): DataTableColumnDef<ProjectOutput>[
           : null;
         const description = project.description?.trim() || "No description";
         return (
-          <div className="min-w-0">
+          <TableLeadingCell
+            leading={
+              <Avatar className="size-7">
+                <AvatarFallback className="bg-muted font-medium text-[10px]">
+                  {initialsFromLabel(project.name, "PR")}
+                </AvatarFallback>
+              </Avatar>
+            }
+          >
             {href ? (
               <Link href={href} className="block truncate font-medium">
                 {project.name}
@@ -61,7 +78,7 @@ export function createProjectsTableColumns(): DataTableColumnDef<ProjectOutput>[
             >
               {description}
             </span>
-          </div>
+          </TableLeadingCell>
         );
       },
     }),
@@ -71,23 +88,16 @@ export function createProjectsTableColumns(): DataTableColumnDef<ProjectOutput>[
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Status" />
       ),
-      cell: ({ getValue }) => (
-        <Badge variant="outline" className="capitalize">
-          {String(getValue())}
-        </Badge>
-      ),
+      cell: ({ getValue }) => <StatusBadge status={String(getValue())} />,
     }),
     columnHelper.accessor("isPublic", {
       meta: { className: col.visibility },
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Visibility" />
       ),
-      cell: ({ getValue }) =>
-        getValue() ? (
-          <Badge variant="outline">Public</Badge>
-        ) : (
-          <Badge variant="secondary">Private</Badge>
-        ),
+      cell: ({ getValue }) => (
+        <VisibilityBadge isPublic={Boolean(getValue())} />
+      ),
     }),
     columnHelper.accessor("updatedAt", {
       meta: { className: col.updated },
@@ -95,8 +105,8 @@ export function createProjectsTableColumns(): DataTableColumnDef<ProjectOutput>[
         <DataTableColumnHeader column={column} title="Updated" />
       ),
       cell: ({ getValue }) => (
-        <span className="flex items-center gap-1 text-muted-foreground text-xs">
-          <Calendar className="size-3 shrink-0" aria-hidden />
+        <span className="flex items-center gap-2 text-muted-foreground text-xs">
+          <AppIcon name="calendar" />
           <span className="truncate">{formatDate(String(getValue()))}</span>
         </span>
       ),
@@ -111,28 +121,42 @@ export function createProjectsTableColumns(): DataTableColumnDef<ProjectOutput>[
         return (
           <div className="flex items-center gap-0.5">
             {project.repositoryUrl ? (
-              <Link
-                href={project.repositoryUrl as Route}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Open ${project.name} repository`}
-              >
-                <Button variant="ghost" size="icon-sm">
-                  <Github className="size-4" aria-hidden />
-                </Button>
-              </Link>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Link
+                      href={project.repositoryUrl as Route}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Open ${project.name} repository`}
+                    >
+                      <Button variant="ghost" size="icon-sm" type="button">
+                        <AppIcon name="github" />
+                      </Button>
+                    </Link>
+                  }
+                />
+                <TooltipContent>GitHub repository</TooltipContent>
+              </Tooltip>
             ) : null}
             {project.websiteUrl ? (
-              <Link
-                href={project.websiteUrl as Route}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Open ${project.name} website`}
-              >
-                <Button variant="ghost" size="icon-sm">
-                  <Globe className="size-4" aria-hidden />
-                </Button>
-              </Link>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Link
+                      href={project.websiteUrl as Route}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Open ${project.name} website`}
+                    >
+                      <Button variant="ghost" size="icon-sm" type="button">
+                        <AppIcon name="externalLink" />
+                      </Button>
+                    </Link>
+                  }
+                />
+                <TooltipContent>Website</TooltipContent>
+              </Tooltip>
             ) : null}
           </div>
         );

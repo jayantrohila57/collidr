@@ -2,11 +2,12 @@
 
 import { createEnvironmentInput } from "@env-manager/api/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";
+import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,6 @@ import {
   SheetHeader,
   SheetPanel,
   SheetPopup,
-  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { layoutSheetPanelClass } from "@/lib/layout-spacing";
@@ -61,16 +61,16 @@ export function CreateEnvironmentSheet({
             size={triggerText === "Add Environment" ? "sm" : "default"}
             className={
               compactOnMobile
-                ? "max-sm:size-11 max-sm:shrink-0 max-sm:px-0"
-                : undefined
+                ? "max-sm:size-11 max-sm:shrink-0 max-sm:gap-0 max-sm:px-0"
+                : "gap-2"
             }
             aria-label={compactOnMobile ? "Add environment" : undefined}
           />
         }
       >
-        <Plus
-          className={compactOnMobile ? "size-4 sm:me-2" : "me-2 h-4 w-4"}
-          aria-hidden
+        <AppIcon
+          name="plus"
+          className={compactOnMobile ? "text-current" : "text-current"}
         />
         <span className={compactOnMobile ? "hidden sm:inline" : undefined}>
           {triggerText}
@@ -78,7 +78,9 @@ export function CreateEnvironmentSheet({
       </SheetTrigger>
       <SheetPopup variant="inset">
         <SheetHeader>
-          <SheetTitle>Create Environment</SheetTitle>
+          <SheetTitleWithIcon icon="environment">
+            Create Environment
+          </SheetTitleWithIcon>
           <SheetDescription>
             Add a new environment (e.g., development, staging, production).
           </SheetDescription>

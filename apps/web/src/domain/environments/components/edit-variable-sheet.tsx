@@ -3,6 +3,7 @@
 import { variableKeySchema } from "@env-manager/api/validation";
 import { useEffect, useState } from "react";
 import { FormField } from "@/components/patterns/form-field";
+import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,6 @@ import {
   SheetHeader,
   SheetPanel,
   SheetPopup,
-  SheetTitle,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -85,7 +85,7 @@ export function EditVariableSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetPopup variant="inset">
         <SheetHeader>
-          <SheetTitle>Edit Variable</SheetTitle>
+          <SheetTitleWithIcon icon="variable">Edit Variable</SheetTitleWithIcon>
           <SheetDescription>
             Update the key and value. The current value loads when you open this
             sheet.
