@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod/v3";
 import { PageStack } from "@/components/layout/app-layout";
+import { UnsavedChangesPageGuard } from "@/components/patterns/unsaved-changes-page-guard";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { AppIcon } from "@/components/patterns/app-icon";
@@ -80,45 +81,55 @@ export default function OnboardingClient() {
 
   const isBusy = form.formState.isSubmitting || navigating;
 
-  const onSubmit = async (data: z.infer<typeof schema>) => {
-    form.clearErrors("slug");
-    try {
-      const created = await actionToast(
-        (async () => {
-          const result = await authClient.organization.create({
-            name: data.name,
-            slug: data.slug,
-          });
-          if (result.error) {
-            const message = formatOrganizationCreateError(result.error.message);
-            if (message.toLowerCase().includes("slug")) {
-              form.setError("slug", { message });
-            }
-            throw new Error(message);
-          }
-          return result;
-        })(),
-        {
-          loading: "Creating organization…",
-          success: "Organization created",
-          error: "Could not create organization",
-        },
-      );
-
-      const orgId = created.data?.id;
-      setNavigating(true);
-
-      if (orgId) {
-        await afterOrganizationCreated(orgId);
-      }
-
-      router.replace("/dashboard");
-    } catch {
-      // Toast handled by actionToast
-    }
-  };
-
   return (
+    <UnsavedChangesPageGuard
+      isDirty={form.formState.isDirty}
+      onDiscard={() => form.reset()}
+    >
+      {({ allowNextNavigationWithoutPrompt }) => {
+        const onSubmit = async (data: z.infer<typeof schema>) => {
+          form.clearErrors("slug");
+          try {
+            const created = await actionToast(
+              (async () => {
+                const result = await authClient.organization.create({
+                  name: data.name,
+                  slug: data.slug,
+                });
+                if (result.error) {
+                  const message = formatOrganizationCreateError(
+                    result.error.message,
+                  );
+                  if (message.toLowerCase().includes("slug")) {
+                    form.setError("slug", { message });
+                  }
+                  throw new Error(message);
+                }
+                return result;
+              })(),
+              {
+                loading: "Creating organization…",
+                success: "Organization created",
+                error: "Could not create organization",
+              },
+            );
+
+            const orgId = created.data?.id;
+            setNavigating(true);
+
+            if (orgId) {
+              await afterOrganizationCreated(orgId);
+            }
+
+            form.reset();
+            allowNextNavigationWithoutPrompt();
+            router.replace("/dashboard");
+          } catch {
+            // Toast handled by actionToast
+          }
+        };
+
+        return (
     <PageStack className="min-h-svh flex-1">
       <Frame className="w-full flex-1">
         <Empty className="border border-dashed py-10">
@@ -197,5 +208,8 @@ export default function OnboardingClient() {
         </FormSheetPopup>
       </FormSheet>
     </PageStack>
+        );
+      }}
+    </UnsavedChangesPageGuard>
   );
 }

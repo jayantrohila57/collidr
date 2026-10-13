@@ -4,6 +4,7 @@ import type { ProjectOutput } from "@env-manager/api/types";
 import { updateProjectInput } from "@env-manager/api/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
+import { UnsavedChangesPageGuard } from "@/components/patterns/unsaved-changes-page-guard";
 import type { z } from "zod/v3";
 import {
   SettingsField,
@@ -52,7 +53,10 @@ export function EditProject({
 
   const descriptionLength = form.watch("description")?.length ?? 0;
 
-  const onSubmit = async (data: z.infer<typeof updateProjectInput>) => {
+  const onSubmit = async (
+    data: z.infer<typeof updateProjectInput>,
+    allowNextNavigationWithoutPrompt: () => void,
+  ) => {
     try {
       await updateProject({
         id: data.id,
@@ -63,6 +67,8 @@ export function EditProject({
         isPublic: data.isPublic,
       });
 
+      form.reset(data);
+      allowNextNavigationWithoutPrompt();
       onSuccess?.();
     } catch (error) {
       console.error("Failed to update project:", error);
@@ -71,7 +77,7 @@ export function EditProject({
 
   const fieldInputClass = embedded ? settingsControlWidthClass : undefined;
 
-  const formBody = (
+  const formBody = (guardNavigation: (action: () => void) => void) => (
     <>
       <Controller
         name="name"
@@ -337,7 +343,7 @@ export function EditProject({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={onCancel}
+                onClick={() => guardNavigation(onCancel)}
                 disabled={isUpdating}
               >
                 Cancel
@@ -359,14 +365,16 @@ export function EditProject({
             <span className="text-destructive">*</span> Required fields
           </div>
           <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isUpdating}
-            >
-              Cancel
-            </Button>
+            {onCancel ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => guardNavigation(onCancel)}
+                disabled={isUpdating}
+              >
+                Cancel
+              </Button>
+            ) : null}
             <SubmitButton
               isLoading={isUpdating}
               loadingLabel="Updating…"
@@ -380,25 +388,60 @@ export function EditProject({
     </>
   );
 
+  const revertForm = () =>
+    form.reset({
+      id: project.id,
+      name: project.name,
+      description: project.description || "",
+      repositoryUrl: project.repositoryUrl || "",
+      websiteUrl: project.websiteUrl || "",
+      isPublic: project.isPublic,
+    });
+
   if (embedded) {
     return (
-      <SettingsPanel>
-        <SettingsSectionHeader
-          title="Project details"
-          description="Name, links, and visibility."
-        />
-        <form onSubmit={form.handleSubmit(onSubmit)}>{formBody}</form>
-      </SettingsPanel>
+      <UnsavedChangesPageGuard
+        isDirty={form.formState.isDirty}
+        onDiscard={revertForm}
+      >
+        {({ guardNavigation, allowNextNavigationWithoutPrompt }) => (
+          <SettingsPanel>
+            <SettingsSectionHeader
+              title="Project details"
+              description="Name, links, and visibility."
+            />
+            <form
+              onSubmit={form.handleSubmit((data) =>
+                onSubmit(data, allowNextNavigationWithoutPrompt),
+              )}
+            >
+              {formBody(guardNavigation)}
+            </form>
+          </SettingsPanel>
+        )}
+      </UnsavedChangesPageGuard>
     );
   }
 
   return (
-    <Card>
-      <CardPanel>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {formBody}
-        </form>
-      </CardPanel>
-    </Card>
+    <UnsavedChangesPageGuard
+      isDirty={form.formState.isDirty}
+      onDiscard={revertForm}
+    >
+      {({ guardNavigation, allowNextNavigationWithoutPrompt }) => (
+        <Card>
+          <CardPanel>
+            <form
+              onSubmit={form.handleSubmit((data) =>
+                onSubmit(data, allowNextNavigationWithoutPrompt),
+              )}
+              className="space-y-4"
+            >
+              {formBody(guardNavigation)}
+            </form>
+          </CardPanel>
+        </Card>
+      )}
+    </UnsavedChangesPageGuard>
   );
 }

@@ -1,11 +1,12 @@
+"use client";
+
 import type { ComponentProps, FormHTMLAttributes, ReactNode } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Sheet,
-  SheetFooter,
-  SheetHeader,
-  SheetPopup,
-} from "@/components/ui/sheet";
+  GuardedSheet,
+  type GuardedSheetProps,
+} from "@/components/patterns/guarded-sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { SheetFooter, SheetHeader, SheetPopup } from "@/components/ui/sheet";
 import { layoutFormStackClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 
@@ -26,8 +27,24 @@ export const formSheetPanelClassName = "min-h-0 flex-1";
 /** Vertical stack for fields inside the panel (no extra horizontal padding). */
 export const formSheetFieldsClassName = layoutFormStackClass;
 
-export function FormSheet(props: ComponentProps<typeof Sheet>) {
-  return <Sheet {...props} />;
+export type { GuardedSheetProps as FormSheetProps };
+
+export function FormSheet({
+  isDirty = false,
+  onDiscard,
+  onClosed,
+  closeWithoutPromptRef,
+  ...props
+}: GuardedSheetProps) {
+  return (
+    <GuardedSheet
+      isDirty={isDirty}
+      onDiscard={onDiscard}
+      onClosed={onClosed}
+      closeWithoutPromptRef={closeWithoutPromptRef}
+      {...props}
+    />
+  );
 }
 
 export function FormSheetPopup({

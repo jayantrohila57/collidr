@@ -3,7 +3,7 @@
 import type { ProjectOutput } from "@env-manager/api/types";
 import { updateProjectInput } from "@env-manager/api/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
 import {
@@ -37,6 +37,7 @@ export function EditProjectSheet({
   onOpenChange,
   onSuccess,
 }: EditProjectSheetProps) {
+  const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const { updateProject, isUpdating } = useProjects();
 
   const form = useForm({
@@ -77,6 +78,7 @@ export function EditProjectSheet({
         websiteUrl: data.websiteUrl?.trim() || undefined,
         isPublic: data.isPublic,
       });
+      closeWithoutPromptRef.current?.();
       onOpenChange(false);
       onSuccess?.();
     } catch (error) {
@@ -85,7 +87,22 @@ export function EditProjectSheet({
   };
 
   return (
-    <FormSheet open={open} onOpenChange={onOpenChange}>
+    <FormSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      isDirty={form.formState.isDirty}
+      onDiscard={() =>
+        form.reset({
+          id: project.id,
+          name: project.name,
+          description: project.description || "",
+          repositoryUrl: project.repositoryUrl || "",
+          websiteUrl: project.websiteUrl || "",
+          isPublic: project.isPublic,
+        })
+      }
+      closeWithoutPromptRef={closeWithoutPromptRef}
+    >
       <FormSheetPopup>
         <FormSheetHeader>
           <SheetTitleWithIcon icon="edit">Edit Project</SheetTitleWithIcon>

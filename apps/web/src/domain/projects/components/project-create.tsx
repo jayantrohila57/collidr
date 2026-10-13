@@ -4,6 +4,7 @@ import { createProjectInput } from "@env-manager/api/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
+import { UnsavedChangesPageGuard } from "@/components/patterns/unsaved-changes-page-guard";
 import type { z } from "zod/v3";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
@@ -32,29 +33,36 @@ export function CreateProject() {
 
   const descriptionLength = form.watch("description")?.length ?? 0;
 
-  const onSubmit = async (data: z.infer<typeof createProjectInput>) => {
-    try {
-      const result = await createProject({
-        name: data.name.trim(),
-        description: data.description?.trim() || undefined,
-        repositoryUrl: data.repositoryUrl?.trim() || undefined,
-        websiteUrl: data.websiteUrl?.trim() || undefined,
-        isPublic: data.isPublic,
-      });
-
-      form.reset();
-      const slug = result?.data?.slug;
-      if (slug) {
-        router.push(`/dashboard/projects/${slug}`);
-      } else {
-        router.push("/dashboard/projects");
-      }
-    } catch (error) {
-      console.error("Failed to create project:", error);
-    }
-  };
-
   return (
+    <UnsavedChangesPageGuard
+      isDirty={form.formState.isDirty}
+      onDiscard={() => form.reset()}
+    >
+      {({ guardNavigation, allowNextNavigationWithoutPrompt }) => {
+        const onSubmit = async (data: z.infer<typeof createProjectInput>) => {
+          try {
+            const result = await createProject({
+              name: data.name.trim(),
+              description: data.description?.trim() || undefined,
+              repositoryUrl: data.repositoryUrl?.trim() || undefined,
+              websiteUrl: data.websiteUrl?.trim() || undefined,
+              isPublic: data.isPublic,
+            });
+
+            form.reset();
+            allowNextNavigationWithoutPrompt();
+            const slug = result?.data?.slug;
+            if (slug) {
+              router.push(`/dashboard/projects/${slug}`);
+            } else {
+              router.push("/dashboard/projects");
+            }
+          } catch (error) {
+            console.error("Failed to create project:", error);
+          }
+        };
+
+        return (
     <Card>
       <CardPanel>
         <form
@@ -207,7 +215,7 @@ export function CreateProject() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => form.reset()}
+                onClick={() => guardNavigation(() => form.reset())}
                 disabled={isCreating}
               >
                 Clear
@@ -224,5 +232,8 @@ export function CreateProject() {
         </form>
       </CardPanel>
     </Card>
+        );
+      }}
+    </UnsavedChangesPageGuard>
   );
 }
