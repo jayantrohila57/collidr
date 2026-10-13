@@ -8,7 +8,7 @@ import { Sheet } from "@/components/ui/sheet";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 
 export type GuardedSheetProps = ComponentProps<typeof Sheet> & {
-  isDirty: boolean;
+  isDirty?: boolean;
   onDiscard?: () => void;
   onClosed?: () => void;
   closeWithoutPromptRef?: RefObject<(() => void) | null>;
@@ -16,7 +16,7 @@ export type GuardedSheetProps = ComponentProps<typeof Sheet> & {
 };
 
 export function GuardedSheet({
-  isDirty,
+  isDirty = false,
   onDiscard,
   onClosed,
   closeWithoutPromptRef,
@@ -45,9 +45,9 @@ export function GuardedSheet({
     >
       <Sheet
         open={open}
-        onOpenChange={(next) =>
+        onOpenChange={(next, eventDetails) =>
           guard.handleOpenChange(next, (applied) => {
-            onOpenChange?.(applied);
+            onOpenChange?.(applied, eventDetails);
             if (!applied) onClosed?.();
           })
         }

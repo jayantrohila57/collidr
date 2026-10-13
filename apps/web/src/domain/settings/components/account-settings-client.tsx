@@ -41,7 +41,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { AuditLogTableView } from "@/domain/audit/components/audit-log-table-view";
-import { TimelinePageClient } from "@/domain/timeline/components/timeline-page-client";
 import {
   linkGithubAccount,
   listAuthSessions,
@@ -52,14 +51,15 @@ import {
   updateProfile,
   useSession,
 } from "@/domain/auth/lib/auth-actions";
+import { TimelinePageClient } from "@/domain/timeline/components/timeline-page-client";
+import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { formatDateTime } from "@/lib/format";
 import { formatRelativeShort } from "@/lib/format-relative-short";
 import { initialsFromLabel } from "@/lib/initials";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+import { PermissionGate } from "@/domain/permissions/components/permission-gate";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { accountSettingsActions } from "@/domain/permissions/org-section-actions";
-import { PermissionGate } from "@/domain/permissions/components/permission-gate";
-import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { sessionDeviceLabel } from "@/lib/session-device";
 import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";

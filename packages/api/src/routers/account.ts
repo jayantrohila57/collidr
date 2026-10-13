@@ -38,8 +38,7 @@ async function findSoleOwnerOrganizations(userId: string) {
     .innerJoin(organization, eq(member.organizationId, organization.id))
     .where(and(eq(member.userId, userId), eq(member.role, "owner")));
 
-  const blockers: { organizationId: string; name: string; slug: string }[] =
-    [];
+  const blockers: { organizationId: string; name: string; slug: string }[] = [];
 
   for (const row of owned) {
     const owners = await db
@@ -229,8 +228,7 @@ export const accountRouter = router({
 
     return {
       exportedAt: new Date().toISOString(),
-      note:
-        "Variable values are omitted from exports; only keys and metadata are included.",
+      note: "Variable values are omitted from exports; only keys and metadata are included.",
       profile,
       connectedAccounts: accounts,
       sessions: sessionRows,

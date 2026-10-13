@@ -345,7 +345,7 @@ export function useVariables(environmentId: string) {
     createVariablesBatch: (
       input: Parameters<typeof createBatchMutation.mutateAsync>[0],
     ) =>
-      toast.promise(createBatchMutation.mutateAsync(input), {
+      actionToast(createBatchMutation.mutateAsync(input), {
         loading: "Saving variables…",
         success: "Variables saved",
       }),

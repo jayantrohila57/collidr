@@ -8,7 +8,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 
 export type GuardedDialogProps = ComponentProps<typeof Dialog> & {
-  isDirty: boolean;
+  isDirty?: boolean;
   onDiscard?: () => void;
   onClosed?: () => void;
   closeWithoutPromptRef?: RefObject<(() => void) | null>;
@@ -16,7 +16,7 @@ export type GuardedDialogProps = ComponentProps<typeof Dialog> & {
 };
 
 export function GuardedDialog({
-  isDirty,
+  isDirty = false,
   onDiscard,
   onClosed,
   closeWithoutPromptRef,
@@ -45,9 +45,9 @@ export function GuardedDialog({
     >
       <Dialog
         open={open}
-        onOpenChange={(next) =>
+        onOpenChange={(next, eventDetails) =>
           guard.handleOpenChange(next, (applied) => {
-            onOpenChange?.(applied);
+            onOpenChange?.(applied, eventDetails);
             if (!applied) onClosed?.();
           })
         }
