@@ -21,13 +21,27 @@ Delete the test branch when finished reviewing.
 ## Feature flags (after prod migration)
 
 ```env
+ORGANIZATIONS_ENABLED=true
 VARIABLES_V2_ENABLED=true
 NOTIFICATIONS_ENABLED=true
 ACTIONS_AUDIT_ENABLED=true
+SOFT_DELETES_ENABLED=true
+NEXT_PUBLIC_ORGANIZATIONS_ENABLED=true
 NEXT_PUBLIC_VARIABLES_V2_ENABLED=true
 NEXT_PUBLIC_NOTIFICATIONS_ENABLED=true
 NEXT_PUBLIC_ACTIONS_AUDIT_ENABLED=true
 ```
+
+Redeploy after changing `NEXT_PUBLIC_*` (inlined at build).
+
+## Production cut policy
+
+1. **Neon backup branch** from current default.
+2. Apply `0007_platform_combined_for_prod.sql` (or reviewed `db:push` on a test branch first).
+3. Enable flags above on Vercel.
+4. Optional **`pnpm db:reset-seed`** — only with owner `KEEP_USER_EMAIL` and `RESET_CONFIRM=yes`; see [DB_RESET.md](./DB_RESET.md). Requires explicit human approval.
+
+Deploy code from **`main` only** ([AGENTS.md](../AGENTS.md)).
 
 ## Drizzle schema source of truth
 

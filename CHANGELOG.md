@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Documentation**: README, AGENTS.md, platform plan (PLAN_PLATFORM_APPS §14 SSO), and doc index aligned with orgs, actions, flags, main-only deploy, and db:reset-seed policy
+
 - **Project Management**: Complete project editing functionality
   - Added project edit dialog with form validation
   - Implemented project edit page with client-side state management

@@ -1,7 +1,7 @@
 # Actions, permissions & audit timeline — research & design spec
 
-**Status:** Design only (no implementation in this phase).  
-**Bundles with:** pending platform migration train (after approved `0005`; proposed **`0006_actions_permissions_audit`**).  
+**Status:** **Implemented in codebase** behind `ACTIONS_AUDIT_ENABLED` (and related migrations `0006` / combined `0007`). This document remains the **authoritative spec** for action names, roles, and timeline behavior; update the spec when adding actions.  
+**Bundles with:** platform migration train (`0005`, `0006`, combined **`0007_platform_combined_for_prod.sql`** for prod).  
 **Authoritative intent:** one canonical action name per user-visible or security-sensitive operation; that name drives audit logging, authorization, block lists, and UI gating.
 
 ### Phase 1 implementation scope (confirmed)

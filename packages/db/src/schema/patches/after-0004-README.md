@@ -8,4 +8,4 @@ Historical reference for what was added:
 - `project.organizationId` → FK to `organization` with `onDelete: "set null"`
 - Index name **`project_organization_id_idx`** (matches `0004_organizations.sql`)
 
-Production schema is kept in sync via **`drizzle-kit push`** — see `packages/db/DATABASE.md`.
+Production schema is kept in sync via **`drizzle-kit push`** — see `packages/db/DATABASE.md`. Platform-wide SQL bundles and reset-seed: `docs/PLATFORM_MIGRATION_COMBINED.md`, `docs/DB_RESET.md`.

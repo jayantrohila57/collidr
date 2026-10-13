@@ -3,7 +3,7 @@
 **Status:** Planning only (no implementation).  
 **Supersedes:** [`docs/PLAN_MCP_AND_CONSOLE.md`](./PLAN_MCP_AND_CONSOLE.md) (MCP + console scope is folded in here).  
 **Baseline:** Monorepo today with product app **`apps/web`** (orgs/projects/envs/variables, account settings under `/dashboard/settings`, sign-in at `/sign-in`, auth at `/api/auth/*` on the same host).  
-**Related:** [`docs/ACTIONS_PERMISSIONS_AUDIT.md`](./ACTIONS_PERMISSIONS_AUDIT.md), [`docs/DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md).
+**Related:** [`docs/ACTIONS_PERMISSIONS_AUDIT.md`](./ACTIONS_PERMISSIONS_AUDIT.md), [`docs/DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md), [`AGENTS.md`](../AGENTS.md) (issue workflow, **main-only** deploy).
 
 ---
 
@@ -24,22 +24,41 @@
 
 ## 2. Domains and subdomains (production)
 
-Example apex: **`env-manager.com`** (or current Vercel custom domain). Each app = **one Vercel project** with its own root directory.
+Each app = **one Vercel project** with its own root directory. Production deploys from **`main` only** (no branch previews).
 
-| App | Subdomain | `BETTER_AUTH_URL` (auth app only) | Public role |
-|-----|-----------|-----------------------------------|-------------|
-| auth | `https://auth.env-manager.com` | **self** | Login, OAuth `/oauth2/*`, well-known |
-| account | `https://account.env-manager.com` | points to auth | Account settings |
-| studio | `https://app.env-manager.com` | points to auth | Product (replaces `env-manager-web.vercel.app`) |
-| console | `https://console.env-manager.com` | points to auth | Platform admin |
-| mcp | `https://mcp.env-manager.com` | JWKS/issuer → auth | MCP `POST /api/mcp` |
-| docs | `https://docs.env-manager.com` | points to auth (for “signed in” nav only) | Documentation |
+### 2.0 Phase 1 — `*.vercel.app` (Decision 1, §14)
 
-**Marketing / www:** optional `https://env-manager.com` → docs or studio (open decision).
+Until custom DNS is approved, use **separate Vercel default hostnames**. Browser SSO between apps uses **auth OAuth/OIDC redirects** and **per-app session cookies** — not `crossSubDomainCookies` on `vercel.app`.
 
-**GitHub OAuth callback:** `https://auth.env-manager.com/api/auth/callback/github` (single callback after cutover).
+| App | Phase 1 hostname (example) | `BETTER_AUTH_URL` (auth app only) |
+|-----|----------------------------|-----------------------------------|
+| auth | `https://env-manager-auth.vercel.app` | **self** |
+| studio | `https://env-manager-web.vercel.app` (today’s `apps/web`) | auth URL |
+| account | `https://env-manager-account.vercel.app` | auth URL |
+| console | `https://env-manager-console.vercel.app` | auth URL |
+| mcp | `https://env-manager-mcp.vercel.app` | JWKS/issuer → auth |
+| docs | `https://env-manager-docs.vercel.app` | auth URL (nav only) |
 
-### 2.1 Local development
+**GitHub OAuth callback (phase 1):** `https://env-manager-auth.vercel.app/api/auth/callback/github` after auth app cutover.
+
+### 2.1 Future — custom apex (deferred)
+
+Example apex: **`env-manager.com`**.
+
+| App | Subdomain | Public role |
+|-----|-----------|-------------|
+| auth | `https://auth.env-manager.com` | Login, OAuth `/oauth2/*`, well-known |
+| account | `https://account.env-manager.com` | Account settings |
+| studio | `https://app.env-manager.com` | Product |
+| console | `https://console.env-manager.com` | Platform admin |
+| mcp | `https://mcp.env-manager.com` | MCP `POST /api/mcp` |
+| docs | `https://docs.env-manager.com` | Documentation |
+
+**Marketing / www:** optional `https://env-manager.com` → docs or studio (open decision in §15).
+
+**GitHub OAuth callback (apex):** `https://auth.env-manager.com/api/auth/callback/github` (single callback after cutover).
+
+### 2.2 Local development
 
 | App | Port | Host hint |
 |-----|------|-----------|
@@ -152,9 +171,11 @@ Implement **`apps/auth`** strictly from current Better Auth docs (target **≥ 1
 
 ## 5. SSO: session sharing and return-to
 
-### 5.1 Recommended: shared parent domain + cross-subdomain cookies
+**Phase 1 (§14 Decision 1):** On `*.vercel.app`, sibling apps **cannot** share a session cookie. Implement **authorization-code + PKCE** (or Better Auth MCP/OAuth provider) on **`apps/auth`**: relying parties redirect to auth for login/consent, then return to an allowlisted `return_to` origin with a session established **on that origin** (or Bearer tokens for MCP). Skip §5.1 until a **custom apex** is live.
 
-Per [Cross Subdomain Cookies](https://www.better-auth.com/docs/concepts/cookies#cross-subdomain-cookies):
+### 5.1 Future: shared parent domain + cross-subdomain cookies (custom apex only)
+
+When all apps sit under one registrable apex (e.g. `*.env-manager.com`), per [Cross Subdomain Cookies](https://www.better-auth.com/docs/concepts/cookies#cross-subdomain-cookies):
 
 ```ts
 // packages/auth — used only by apps/auth
@@ -434,28 +455,43 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 ---
 
-## 14. Open decisions (numbered)
+## 14. Recorded decisions
 
-1. **Apex domain** — `env-manager.com` vs keep `*.vercel.app` until DNS ready?
-2. **Cookie domain** — `env-manager.com` vs `.env-manager.com` vs per-subdomain `app.env-manager.com` only?
-3. **Auth proxy vs cookie-only** — rewrites on every sibling app or only `crossSubDomainCookies`?
-4. **Marketing site** — `www` → docs, studio landing, or separate?
-5. **Cutover style** — big-bang DNS vs gradual beta vs dual-run `apps/web` + studio?
-6. **Session migration** — single cutover (users re-login once) vs dual-cookie window?
-7. **CIMD vs DCR** — [MCP optional DCR](https://www.better-auth.com/docs/plugins/mcp#optional-dcr-fallback)?
-8. **Device authorization** — ship on auth for CLI v1?
-9. **Fumadocs version / search** — built-in search vs external (Algolia)?
-10. **Docs auth** — public-only vs gated sections for enterprise?
-11. **Console IP allowlist** — required in prod?
-12. **Preview `trustedOrigins`** — `*.vercel.app` wildcard?
-13. **`project.unarchive` canonical action** — add to registry?
-14. **Rate limit store** for MCP — KV vs Postgres?
-15. **MCP transport** — `@modelcontextprotocol/server` + `requireMcpAuth` vs `@vercel/mcp-adapter`?
-16. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
-17. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
-18. **Account app URL in emails** — branding and link targets?
-19. **Impersonation banner** — show on studio, account, or all apps?
-20. **Better Auth upgrade** — before P2 or as part of P2?
+### Decision 1 — Hosting & SSO (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Hostnames (now)** | One **`*.vercel.app`** URL per Vercel project (see §2.0). |
+| **Hostnames (later)** | Optional custom apex/subdomains when DNS and projects are stable. |
+| **SSO (now)** | **`apps/auth`** as OAuth/OIDC issuer; relying parties use **redirects** and **per-origin** sessions — **not** shared apex cookies on `vercel.app`. |
+| **SSO (later)** | With custom apex, prefer **still using OIDC redirects**; evaluate `crossSubDomainCookies` only after security review (§5.1). |
+| **MCP / machines** | Bearer tokens from auth issuer; no cross-subdomain browser cookies. |
+
+**Implication:** Do not plan “sign in once, cookie works on every `*.vercel.app` app.” Implement auth-app redirects and registered callback URLs per app.
+
+---
+
+## 15. Open decisions (numbered)
+
+1. **Cookie domain** (custom apex) — `env-manager.com` vs `.env-manager.com` vs per-subdomain only?
+2. **Auth proxy vs cookie-only** (custom apex) — rewrites on every sibling app or only `crossSubDomainCookies`?
+3. **Marketing site** — `www` → docs, studio landing, or separate?
+4. **Cutover style** — big-bang DNS vs gradual beta vs dual-run `apps/web` + studio?
+5. **Session migration** — single cutover (users re-login once) vs dual-cookie window?
+6. **CIMD vs DCR** — [MCP optional DCR](https://www.better-auth.com/docs/plugins/mcp#optional-dcr-fallback)?
+7. **Device authorization** — ship on auth for CLI v1?
+8. **Fumadocs version / search** — built-in search vs external (Algolia)?
+9. **Docs auth** — public-only vs gated sections for enterprise?
+10. **Console IP allowlist** — required in prod?
+11. **Preview `trustedOrigins`** — policy for non-prod (prod: **no branch previews** per [AGENTS.md](../AGENTS.md))?
+12. **`project.unarchive` canonical action** — add to registry?
+13. **Rate limit store** for MCP — KV vs Postgres?
+14. **MCP transport** — `@modelcontextprotocol/server` + `requireMcpAuth` vs `@vercel/mcp-adapter`?
+15. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
+16. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
+17. **Account app URL in emails** — branding and link targets?
+18. **Impersonation banner** — show on studio, account, or all apps?
+19. **Better Auth upgrade** — before P2 or as part of P2?
 
 ---
 

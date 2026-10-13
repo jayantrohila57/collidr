@@ -1,141 +1,63 @@
-# Environment Manager - Project Summary
+# Environment Manager — project summary
 
-## **Project Overview**
-Secure web app for managing environment variables across multiple projects/environments with AES-256-GCM encryption. Developer-focused single source of truth for configuration management.
+**Last updated:** October 2026 · **Version:** 1.8.0 (see root `package.json`)
 
-## **Tech Stack**
-- **Frontend**: Next.js 16, React 19, TypeScript
-- **Styling**: Tailwind CSS, shadcn/ui
-- **Auth**: Better Auth
-- **Database**: Neon + Prisma
-- **Build**: Turbo monorepo with pnpm
-- **Deployment**: Vercel
+## Overview
 
-## **Current Status (45% Complete)**
+Secure, organization-aware dashboard for managing environment variables across projects and environments. AES-256-GCM encryption at rest, GitHub OAuth, and a **canonical actions** layer for permissions and audit.
 
-### **✅ Completed**
-- Authentication system with Better Auth
-- Database schema (Projects, Environments, Variables)
-- Core API endpoints (CRUD operations)
-- AES-256-GCM encryption for security
-- shadcn/ui component system
-- Domain-driven architecture
-- Project management UI
-- Environment management (dev/staging/prod)
-- Variable CRUD operations
-- Bulk import/export .env files
-- Audit logging
-- Session security
-- Input validation with Zod
+## Tech stack
 
-### **🚧 Missing**
-- Variable groups organization
-- Global search functionality
-- Recent activity dashboard
-- CLI tool for developers
-- Git integration
-- CI/CD platform integrations
-- IDE extensions
+| Layer | Choice |
+|-------|--------|
+| Frontend | Next.js, React, TypeScript, coss ui (Base UI) |
+| API | tRPC, TanStack Query |
+| Auth | Better Auth — GitHub, organizations, teams |
+| Database | PostgreSQL (Neon) + Drizzle ORM |
+| Monorepo | pnpm workspaces + Turborepo |
+| Deploy | Vercel — **`main` only** → `env-manager-web.vercel.app` |
 
-## **Architecture Rules**
-- All pages = server components
-- Logic lives in hooks only
-- Client components dynamically imported
-- Domain-driven structure
-- Never modify `components/ui/` folder
-- No cross-domain imports (except config/lib/ui)
+## Monorepo packages
 
-## **UI Structure**
-```
-src/
-├── domains/
-│   ├── projects/     # Project management
-│   ├── environments/ # Environment management
-│   ├── templates/    # Environment templates
-│   └── audit/        # Audit logs
-├── app/              # Next.js pages (server only)
-├── components/ui/    # shadcn/ui (DO NOT MODIFY)
-└── lib/              # Shared utilities
-```
+- **`apps/web`** — product UI
+- **`packages/api`** — tRPC
+- **`packages/actions`** — action registry & role evaluation
+- **`packages/auth`**, **`packages/db`**, **`packages/crypto`**, **`packages/env`**, **`packages/notifications`**, **`packages/config`**
 
-## **Required UI Improvements**
+## Implemented capabilities
 
-### **Phase 1: Core Enhancements (1-2 weeks)**
-1. **Enhanced Dashboard** - Project stats, quick actions, recent activity
-2. **Advanced Variable Editor** - Inline editing, validation, auto-save
-3. **Global Search** - Search across all variables with filters
-4. **Variable Groups** - Organize related variables
+- Projects, environments, variables (import/export, variables v2 types behind flag)
+- Organizations module: members, teams, invitations, roles, settings, org timeline
+- Account settings: profile, sessions, linked accounts, export, delete, personal timeline
+- Per-project managers, team links, member CRUD grants
+- Notifications center (flagged)
+- Audit timeline via `audit_event` (flagged)
+- Soft deletes on core entities (flagged)
+- Onboarding for users without org membership
 
-### **Phase 2: Enhanced UX (2-3 weeks)**
-1. **Bulk Operations** - Multi-select with batch actions
-2. **Audit Log Viewer** - Change tracking timeline
-3. **Environment Templates** - Quick setup wizards
-4. **Mobile Responsive** - Full mobile optimization
+## Role model
 
-### **Phase 3: Advanced Features (4-6 weeks)**
-1. **CLI Integration** - Developer tooling
-2. **Security Dashboard** - Access control UI
-3. **Webhook Configuration** - Change notifications
-4. **Advanced Analytics** - Usage insights
+| Role | Scope |
+|------|--------|
+| **Owner** | Full org control; timeline visibility for all members |
+| **Manager** | Org operations + project access per grants |
+| **Member** | Project access via explicit grants |
+| **Admin** (platform) | Reserved — future `apps/console`; not enabled in web today |
 
-## **Key Features to Implement**
+Legacy Better Auth `admin` org role is normalized to **Manager** in `@env-manager/actions`.
 
-### **Variable Management**
-- Inline editing with validation
-- Bulk operations (copy, move, delete)
-- Variable history and diff view
-- Environment-specific overrides
-- Copy to clipboard functionality
+## Workflow
 
-### **Search & Discovery**
-- Global search across all projects
-- Advanced filtering (type, environment, date)
-- Saved search queries
-- Quick access favorites
+- Tasks and bugs → **GitHub issues** on env-manager; commits **`Fixes #N`**
+- Agents: see [AGENTS.md](./AGENTS.md)
+- UI rules: [UI.md](./UI.md) + [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md)
 
-### **Security & Compliance**
-- Audit log viewer with filtering
-- Access control management
-- Security indicators
-- Compliance reports
+## Platform roadmap
 
-### **Developer Experience**
-- CLI tool integration guide
-- API documentation explorer
-- Environment templates
-- Import/export multiple formats
+- Multi-app hosting on separate `*.vercel.app` subdomains; SSO via future **auth-app** OIDC redirects — [docs/PLAN_PLATFORM_APPS.md](./docs/PLAN_PLATFORM_APPS.md) §14
+- MCP + operator console — [docs/PLAN_MCP_AND_CONSOLE.md](./docs/PLAN_MCP_AND_CONSOLE.md)
 
-## **Technical Considerations**
+## Database operations
 
-### **Must-Follow Rules**
-1. Server components for pages only
-2. All logic in hooks
-3. Dynamic imports for client components
-4. Use shadcn variants, don't modify ui folder
-5. Maintain domain separation
-6. Handle all loading/error states
-
-### **Performance Requirements**
-- Skeleton screens for all async operations
-- Code splitting with dynamic imports
-- Optimized database queries
-- Efficient state management
-
-### **Accessibility Standards**
-- Full keyboard navigation
-- Screen reader support
-- ARIA labels and descriptions
-- Focus management
-- Color contrast compliance
-
-## **Success Metrics**
-- Users can manage projects efficiently
-- Environment variables are securely stored
-- Import/export works seamlessly
-- UI is intuitive and responsive
-- All data is properly isolated per user
-- Performance meets accessibility standards
-
----
-*Last Updated: February 2026*
-*Version: 1.5.0*
+- Day-to-day: `pnpm db:push` per [packages/db/DATABASE.md](./packages/db/DATABASE.md)
+- Prod schema cut + optional demo seed: [docs/PLATFORM_MIGRATION_COMBINED.md](./docs/PLATFORM_MIGRATION_COMBINED.md), [docs/DB_RESET.md](./docs/DB_RESET.md)

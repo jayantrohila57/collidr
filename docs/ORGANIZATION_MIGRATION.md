@@ -40,7 +40,8 @@ Users with **no** organization membership are sent to `/dashboard/onboarding`. U
 
 - **List/create projects:** Scoped to `user_id` + active `organization_id`.
 - **New projects:** `organization_id` set from the active org on create.
-- **Org switcher / settings:** Better Auth organization client (`/dashboard/settings/organization`).
+- **Org switcher:** Sidebar org switcher; hub at **`/dashboard/organizations`** (members, teams, invitations, roles, settings, timeline).
+- **Legacy org settings path:** `/dashboard/settings/organization` may remain for compatibility; prefer the Organizations module for admin tasks.
 
 ---
 

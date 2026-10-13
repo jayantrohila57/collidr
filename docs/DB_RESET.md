@@ -2,6 +2,8 @@
 
 Use this workflow when applying the combined platform migration (`0007`) to **production**: keep the owner’s GitHub login, wipe application data, then load realistic **fake** sample data for demos and QA.
 
+**Policy:** On intentional prod schema change, use **Neon backup first**, one **combined migration** approved by the owner, then optional reset-seed keeping the owner account (`KEEP_USER_EMAIL`). See [PLATFORM_MIGRATION_COMBINED.md](./PLATFORM_MIGRATION_COMBINED.md) and [AGENTS.md](../AGENTS.md).
+
 **Never run `db:reset-seed` against the production Neon default branch until you intend to wipe prod data.** Always validate on a Neon branch first.
 
 ## Prerequisites

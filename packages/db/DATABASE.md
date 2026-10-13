@@ -19,3 +19,17 @@ pnpm --filter @env-manager/db db:studio  # browse data
 ```
 
 `db:generate` / `db:migrate` remain available for teams that use migration journals; this repo’s production source of truth is **push + reviewed SQL** for major releases.
+
+## Reset + seed (production)
+
+When a platform migration intentionally wipes application data but must **keep the owner’s login**:
+
+1. Neon **backup branch** first.
+2. Apply combined migration ([docs/PLATFORM_MIGRATION_COMBINED.md](../../docs/PLATFORM_MIGRATION_COMBINED.md)).
+3. Run from repo root with explicit env — full procedure in [docs/DB_RESET.md](../../docs/DB_RESET.md):
+
+```bash
+RESET_CONFIRM=yes KEEP_USER_EMAIL=owner@example.com DATABASE_URL='…' pnpm db:reset-seed
+```
+
+Never run `db:reset-seed` against production default without approval and backup.

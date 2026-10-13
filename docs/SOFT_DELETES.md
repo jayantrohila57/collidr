@@ -15,7 +15,7 @@ Applied in schema for: `project`, `environment`, `environment_variable`, `organi
 
 Global unique constraints on slugs/emails are replaced with **partial unique indexes** `WHERE deleted_at IS NULL` so active rows stay unique while deleted rows retain history.
 
-The permissions agent ships the **combined SQL migration** (see `docs/ACTIONS_PERMISSIONS_AUDIT.md` §9.8). Do not run `db:generate` / `db:migrate` from feature branches.
+The **combined SQL migration** is the approved prod vehicle (see `docs/ACTIONS_PERMISSIONS_AUDIT.md` §9.8 and `docs/PLATFORM_MIGRATION_COMBINED.md`). Do not apply ad-hoc `db:generate` / `db:migrate` on production without the same review process as `0007`.
 
 ## Feature flag
 

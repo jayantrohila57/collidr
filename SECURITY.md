@@ -1,21 +1,33 @@
 # Security Policy
 
-## Supported Versions
+## Supported versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Security fixes are applied on the **`main`** branch and released via Vercel deploys from `main`. Use the latest production deployment at [env-manager-web.vercel.app](https://env-manager-web.vercel.app).
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| Version (package.json) | Supported |
+| ---------------------- | --------- |
+| 1.8.x (current)        | Yes       |
+| Older tagged releases  | No        |
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
-Use this section to tell people how to report a vulnerability.
+**Please do not open public GitHub issues for security vulnerabilities.**
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+1. Email the repository owner via the contact on their [GitHub profile](https://github.com/jayantrohila57) with:
+   - Description of the issue and impact
+   - Steps to reproduce
+   - Affected routes or components (if known)
+2. Allow reasonable time for a fix before public disclosure.
+3. We will acknowledge receipt and share expected timelines when possible.
+
+## Scope
+
+In scope: authentication/session handling, authorization (`requireAction`), encryption of secret values, tRPC/API exposure, and data isolation between organizations and projects.
+
+Out of scope: third-party services (GitHub OAuth, Neon, Vercel) except where this repo misconfigures them.
+
+## Secure development practices
+
+- Secrets live in environment variables — never commit `.env` files or real `ENCRYPTION_KEY` / `BETTER_AUTH_SECRET` values.
+- Production schema changes require reviewed SQL, Neon backup branches, and explicit approval before `db:reset-seed` ([docs/DB_RESET.md](./docs/DB_RESET.md)).
+- Deploy only from **`main`** after review ([AGENTS.md](./AGENTS.md)).

@@ -1,8 +1,9 @@
 # COSS UI migration plan (Radix → Base UI / coss ui)
 
-**Status:** Planning only — no implementation until approved.  
+**Status:** **Completed** for `apps/web` — Radix removed; primitives are coss ui (Base UI). This file is kept as a **migration reference map**.  
+**Current guidance:** [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) (spacing, layout, icons).  
 **Scope:** `apps/web` UI layer (`src/components/ui/*`, consumers, theme, dependencies).  
-**Goal:** Zero Radix (`radix-ui`, `@radix-ui/*`) in the repo; primitives from [coss ui](https://coss.com/ui) (Base UI) with shadcn Base UI fallbacks only where coss has no equivalent.
+**Goal (achieved):** Zero Radix in the repo; primitives from [coss ui](https://coss.com/ui) (Base UI).
 
 **References**
 

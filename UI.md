@@ -5,6 +5,10 @@
 This document defines **non-negotiable rules** for UI, component architecture, data flow, and page structure.
 Every new feature, page, hook, or component **must comply** with this document.
 
+**Spacing, coss ui primitives, layout tokens, and shadcn composition** are specified in [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md). That file is the **single source of truth** for gutters, `PageHeaderBar`, `FormSheet`, icons, and `components/ui/*` usage. This document covers **domain structure and data flow** only.
+
+**After any UI change:** run `pnpm dev:web` and verify the affected routes in the browser (loading, empty, error, and success states).
+
 ---
 
 ## 1. Folder & Domain Structure
@@ -27,7 +31,7 @@ src/
   app/
   config/
   lib/
-  ui/   (DO NOT MODIFY)
+  components/ui/   (DO NOT MODIFY — coss/shadcn generated)
 ```
 
 ### 1.2 Domain Rules
@@ -181,18 +185,13 @@ All components must follow:
 
 ### 8.1 UI Constraints
 
-* **DO NOT modify the ui folder**
-* Use only:
-
-  * shadcn variants
-  * shadcn spacing tokens
-  * design system variables
+* **DO NOT modify `apps/web/src/components/ui/`** except via the documented shadcn/coss CLI workflow
+* Use only coss/shadcn variants and tokens from [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md) (`layout-spacing.ts`, `PageStack`, `FormSheet`, etc.)
 
 ### 8.2 Spacing Rules
 
-* No arbitrary spacing values
-* No magic numbers
-* Maintain consistent padding and margins across pages
+* No arbitrary spacing (`p-4`, `gap-6`, …) in feature code — import layout tokens
+* Sidebar-scale gutters (`p-2`, `gap-2`, `h-8` / `h-12` chrome) everywhere in app shell and pages
 
 ---
 

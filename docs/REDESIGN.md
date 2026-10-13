@@ -1,5 +1,7 @@
 # UI redesign (coss ui)
 
+**Status:** Largely implemented. For day-to-day rules use [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) and [UI.md](../UI.md).
+
 Senior UI/UX pass aligned with Vercel, Linear, Supabase, and Clerk: dense sidebar-scale spacing, one primary CTA per view, and coss primitives only.
 
 **Spacing:** `apps/web/src/lib/layout-spacing.ts` (mirrors inset `Sidebar` — `p-2`, `gap-2`, `h-8` / `h-12` chrome).
