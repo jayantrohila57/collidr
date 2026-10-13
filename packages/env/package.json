@@ -14,7 +14,11 @@
     "./soft-deletes": "./src/soft-deletes.ts",
     "./feature-flags": "./src/feature-flags.ts",
     "./www": "./src/www.ts",
-    "./console": "./src/console.ts"
+    "./console": "./src/console.ts",
+    "./auth-app": "./src/auth-app.ts",
+    "./studio": "./src/studio.ts",
+    "./account": "./src/account.ts",
+    "./platform": "./src/platform.ts"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.1",

@@ -1,0 +1,87 @@
+import { fetchClientMetadataResource } from "@better-auth/cimd/node";
+import { cimd } from "@better-auth/cimd";
+import { mcp } from "@better-auth/mcp";
+import { env } from "@env-manager/env/server";
+import type { BetterAuthPlugin } from "better-auth";
+import { betterAuth } from "better-auth";
+import { deviceAuthorization, jwt, oneTimeToken } from "better-auth/plugins";
+import {
+  basePlugins,
+  sharedDatabaseConfig,
+  sharedDatabaseHooks,
+  sharedE2eEmailPassword,
+  sharedSessionConfig,
+} from "./auth-shared";
+import {
+  DEFAULT_AUTH_URL,
+  DEFAULT_MCP_URL,
+  getPlatformProductionOrigins,
+  trimTrailingSlash,
+} from "./platform-urls";
+
+function buildMcpPlugins(): BetterAuthPlugin[] {
+  if (process.env.PLATFORM_AUTH_ENABLE_MCP !== "1") {
+    return [];
+  }
+  const mcpHost = trimTrailingSlash(
+    process.env.MCP_RESOURCE_URL ??
+      process.env.NEXT_PUBLIC_MCP_URL ??
+      DEFAULT_MCP_URL,
+  );
+  const mcpResource = mcpHost.endsWith("/api/mcp")
+    ? mcpHost
+    : `${mcpHost}/api/mcp`;
+
+  return [
+    mcp({
+      loginPage: "/sign-in",
+      consentPage: "/consent",
+      resource: mcpResource,
+    }) as BetterAuthPlugin,
+    cimd({
+      fetchClientMetadataResource,
+      metadataProfile: "mcp-2026-07-28",
+    }) as BetterAuthPlugin,
+  ];
+}
+
+/**
+ * Better Auth instance for `apps/auth` only — OAuth issuer, MCP, device flow (P2).
+ * Import only from the auth app route handler.
+ */
+export function createPlatformAuth() {
+  const baseURL = env.BETTER_AUTH_URL ?? DEFAULT_AUTH_URL;
+  const trustedOrigins = getPlatformProductionOrigins({
+    authUrl: baseURL,
+    legacyWebUrl: env.CORS_ORIGIN,
+  });
+
+  return betterAuth({
+    baseURL,
+    secret:
+      env.BETTER_AUTH_SECRET ??
+      "local-build-placeholder-secret-min-32-chars",
+    databaseHooks: sharedDatabaseHooks(),
+    session: sharedSessionConfig(),
+    ...sharedE2eEmailPassword(),
+    database: sharedDatabaseConfig(),
+    trustedOrigins,
+    socialProviders: {
+      github: {
+        clientId: env.GITHUB_CLIENT_ID ?? "build-placeholder",
+        clientSecret: env.GITHUB_CLIENT_SECRET ?? "build-placeholder",
+      },
+    },
+    plugins: [
+      ...basePlugins(),
+      jwt(),
+      oneTimeToken({
+        expiresIn: 5,
+      }),
+      deviceAuthorization({
+        verificationUri: "/device",
+      }),
+      ...buildMcpPlugins(),
+    ] as BetterAuthPlugin[],
+  });
+}

@@ -1,17 +1,13 @@
 import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod/v3";
+
+import {
+  platformUrlRuntimeEnv,
+  platformUrlSchema,
+} from "./platform";
 
 export const env = createEnv({
-  client: {
-    NEXT_PUBLIC_WWW_URL: z.string().url().optional(),
-    NEXT_PUBLIC_AUTH_URL: z.string().url().optional(),
-    NEXT_PUBLIC_STUDIO_URL: z.string().url().optional(),
-  },
-  runtimeEnv: {
-    NEXT_PUBLIC_WWW_URL: process.env.NEXT_PUBLIC_WWW_URL,
-    NEXT_PUBLIC_AUTH_URL: process.env.NEXT_PUBLIC_AUTH_URL,
-    NEXT_PUBLIC_STUDIO_URL: process.env.NEXT_PUBLIC_STUDIO_URL,
-  },
+  client: platformUrlSchema,
+  runtimeEnv: platformUrlRuntimeEnv,
   emptyStringAsUndefined: true,
   skipValidation: process.env.SKIP_ENV_VALIDATION === "1",
 });

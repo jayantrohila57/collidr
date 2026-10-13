@@ -15,7 +15,10 @@ Env Manager is a web dashboard and **pnpm/Turbo monorepo** for storing and organ
 
 | Path | Purpose |
 | ---- | ------- |
-| `apps/web` | Next.js studio UI, tRPC client, Better Auth routes |
+| `apps/web` | **Legacy** production app (unchanged until P3 cutover [#97](https://github.com/jayantrohila57/env-manager/issues/97)) |
+| `apps/auth` | Platform auth issuer — sign-in, device flow, MCP OAuth config, email-link origin |
+| `apps/studio` | Product UI (parity with `apps/web`); per-app tRPC + session via auth redirects |
+| `apps/account` | Account settings at `/settings/*`; per-app tRPC subset |
 | `apps/www` | Public marketing landing (Decision 4); CTAs → auth `sign-in` with `return_to` studio |
 | `apps/docs` | Public Fumadocs site (product guides, API overview, MCP reference) |
 | `packages/api` | tRPC routers (projects, orgs, access, audit, notifications, account, …) |
@@ -28,7 +31,7 @@ Env Manager is a web dashboard and **pnpm/Turbo monorepo** for storing and organ
 | `packages/config` | Shared TypeScript/Biome config |
 | `packages/ui` | Shared coss/shadcn UI (`@env-manager/ui`) — marketing chrome and primitives |
 
-Planned additional apps: `apps/auth`, `apps/studio`, `apps/console`, `apps/mcp`, … — see [docs/PLAN_PLATFORM_APPS.md](./docs/PLAN_PLATFORM_APPS.md).
+Further apps: `apps/console`, `apps/mcp`, `apps/docs`, … — see [docs/PLAN_PLATFORM_APPS.md](./docs/PLAN_PLATFORM_APPS.md).
 
 ## Product concepts
 
