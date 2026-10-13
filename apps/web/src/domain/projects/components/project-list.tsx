@@ -33,8 +33,8 @@ export default function ProjectList({ onCreateProject }: ProjectListProps) {
         <EmptyState
           icon={Plus}
           title="No projects yet"
-          description="Create your first project to start managing environment variables."
-          actionLabel="Create project"
+          description="Create a project to manage environments and variables."
+          actionLabel="New project"
           onAction={onCreateProject}
         />
       );
@@ -44,7 +44,7 @@ export default function ProjectList({ onCreateProject }: ProjectListProps) {
           projects={projects}
           caption="All projects"
           captionSrOnly
-          emptyMessage="No projects match your search."
+          onCreateProject={onCreateProject}
         />
       );
   }

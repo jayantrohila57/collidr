@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-table/legacy";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import type { DataTableEmptyConfig } from "@/components/data-table/data-table-empty-types";
 import {
   Select,
   SelectContent,
@@ -30,6 +31,7 @@ interface OrganizationMembersTableProps {
   isOwner: boolean;
   rolePendingId: string | null;
   onRoleChange: (memberId: string, role: string) => void;
+  empty?: DataTableEmptyConfig;
 }
 
 export function OrganizationMembersTable({
@@ -38,6 +40,7 @@ export function OrganizationMembersTable({
   isOwner,
   rolePendingId,
   onRoleChange,
+  empty,
 }: OrganizationMembersTableProps) {
   const columns = [
     columnHelper.accessor((row) => row.user.name, {
@@ -90,7 +93,8 @@ export function OrganizationMembersTable({
       columns={columns}
       data={members}
       caption="Organization members"
-      emptyMessage="No members yet."
+      captionSrOnly
+      empty={empty}
       framed
       compactLayout
       searchable

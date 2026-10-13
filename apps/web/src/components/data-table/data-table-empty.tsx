@@ -16,14 +16,17 @@ export function DataTableEmpty({
   title,
   description,
   action,
+  compact = false,
 }: {
   icon?: LucideIcon;
   title: string;
   description?: string;
   action?: ReactNode;
+  /** Tighter padding when rendered inside a table cell */
+  compact?: boolean;
 }) {
   return (
-    <Empty className="border border-dashed">
+    <Empty className={compact ? "border-0 py-6" : "border border-dashed"}>
       <EmptyHeader>
         {Icon ? (
           <EmptyMedia variant="icon">

@@ -24,10 +24,11 @@ import {
 } from "@/components/ui/table";
 import { layoutGapClass, layoutSectionStackClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
-import { DataTableEmpty } from "./data-table-empty";
+import type { DataTableEmptyConfig } from "./data-table-empty-types";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableSkeletonBody } from "./data-table-skeleton-body";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { resolveDataTableEmptyMarkup } from "./resolve-data-table-empty";
 
 export type DataTableColumnDef<TData extends RowData> = LegacyColumnDef<
   TData,
@@ -41,7 +42,12 @@ export type DataTableProps<TData extends RowData> = {
   isLoading?: boolean;
   skeletonRowCount?: number;
   emptyMessage?: string;
+  /** Structured empty vs no-results states (rendered inside the table frame) */
+  empty?: DataTableEmptyConfig;
+  /** @deprecated Prefer `empty` */
   emptyState?: ReactNode;
+  /** Server-side or toolbar filters active (empty data means no results) */
+  filterActive?: boolean;
   caption?: string;
   /** Visually hide table caption while keeping it for screen readers */
   captionSrOnly?: boolean;
@@ -90,7 +96,9 @@ export function DataTable<TData extends RowData>({
   isLoading = false,
   skeletonRowCount = 5,
   emptyMessage = "No results.",
+  empty,
   emptyState,
+  filterActive = false,
   caption,
   captionSrOnly = false,
   framed = false,
@@ -143,75 +151,92 @@ export function DataTable<TData extends RowData>({
   const rowModel = table.getRowModel();
   const hasRows = rowModel.rows.length > 0;
   const showEmpty = !isLoading && !hasRows;
+  const hasClientSearch = Boolean(
+    searchEnabled && String(searchValue ?? "").trim(),
+  );
+  const emptyVariant: "empty" | "noResults" =
+    data.length > 0 && !hasRows
+      ? "noResults"
+      : data.length === 0 && (filterActive || hasClientSearch)
+        ? "noResults"
+        : "empty";
 
   const emptyMarkup =
-    emptyState ?? (showEmpty ? <DataTableEmpty title={emptyMessage} /> : null);
+    emptyState ??
+    (showEmpty
+      ? resolveDataTableEmptyMarkup({
+          config: empty,
+          variant: emptyVariant,
+          onClearSearch:
+            onSearchChange && hasClientSearch
+              ? () => onSearchChange("")
+              : undefined,
+          fallbackTitle: emptyMessage,
+        })
+      : null);
 
-  const tableMarkup =
-    showEmpty && emptyState !== undefined ? (
-      emptyMarkup
-    ) : (
-      <Table variant="card" className={cn(compactLayout && "table-fixed")}>
-        {caption ? (
-          <TableCaption className={cn(captionSrOnly && "sr-only")}>
-            {caption}
-          </TableCaption>
-        ) : null}
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead
-                  key={header.id}
-                  className={columnClassName(header.column.columnDef)}
+  const tableMarkup = (
+    <Table variant="card" className={cn(compactLayout && "table-fixed")}>
+      {caption ? (
+        <TableCaption className={cn(captionSrOnly && "sr-only")}>
+          {caption}
+        </TableCaption>
+      ) : null}
+      <TableHeader>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <TableRow key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <TableHead
+                key={header.id}
+                className={columnClassName(header.column.columnDef)}
+              >
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+              </TableHead>
+            ))}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody>
+        {isLoading ? (
+          <DataTableSkeletonBody
+            columnCount={columnCount}
+            rows={skeletonRowCount}
+          />
+        ) : hasRows ? (
+          rowModel.rows.map((row) => (
+            <TableRow
+              key={row.id}
+              data-state={row.getIsSelected() ? "selected" : undefined}
+            >
+              {row.getVisibleCells().map((cell) => (
+                <TableCell
+                  key={cell.id}
+                  className={columnClassName(cell.column.columnDef)}
                 >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </TableHead>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
               ))}
             </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {isLoading ? (
-            <DataTableSkeletonBody
-              columnCount={columnCount}
-              rows={skeletonRowCount}
-            />
-          ) : hasRows ? (
-            rowModel.rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() ? "selected" : undefined}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className={columnClassName(cell.column.columnDef)}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columnCount} className="p-0">
-                {emptyMarkup ?? (
-                  <p className="px-4 py-6 text-center text-muted-foreground text-sm">
-                    {emptyMessage}
-                  </p>
-                )}
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    );
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={columnCount} className="p-0">
+              {emptyMarkup ?? (
+                <p className="px-4 py-6 text-center text-muted-foreground text-sm">
+                  {emptyMessage}
+                </p>
+              )}
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  );
 
   const body = (
     <div className={cn(layoutSectionStackClass, className)}>

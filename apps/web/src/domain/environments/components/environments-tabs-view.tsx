@@ -99,7 +99,7 @@ export function EnvironmentsTabsView({
           </EmptyMedia>
           <EmptyTitle>No environments yet</EmptyTitle>
           <EmptyDescription>
-            Create environments like development, staging, or production.
+            Add development, staging, or production targets for this project.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>

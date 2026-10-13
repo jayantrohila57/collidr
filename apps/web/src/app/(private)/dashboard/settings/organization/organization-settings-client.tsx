@@ -1,9 +1,14 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { Mail, Users } from "lucide-react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import {
+  invitationsEmpty,
+  membersTableEmpty,
+} from "@/components/data-table/data-table-empty-presets";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { OrganizationMembersTable } from "@/components/org/organization-members-table";
@@ -25,6 +30,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -369,7 +382,7 @@ export function OrganizationSettingsForm({
           </SettingsPanel>
         </TabsPanel>
 
-        <TabsPanel value="members" className="min-w-0">
+        <TabsPanel value="members" className="min-w-0 space-y-2">
           <SettingsPanel>
             <SettingsSectionHeader
               title="Members"
@@ -385,16 +398,79 @@ export function OrganizationSettingsForm({
                 Invite member
               </Button>
             </SettingsRow>
-            <div className="min-w-0 overflow-x-auto px-4 py-4">
-              <OrganizationMembersTable
-                members={members}
-                roleSelectItems={ROLE_SELECT_ITEMS}
-                isOwner={isOwner}
-                rolePendingId={rolePendingId}
-                onRoleChange={(memberId, role) => {
-                  void handleRoleChange(memberId, role);
-                }}
-              />
+            {members.length <= 1 ? (
+              <div className="px-4 py-6">
+                <Empty className="border border-dashed py-8">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <Users className="size-5" aria-hidden />
+                    </EmptyMedia>
+                    <EmptyTitle>You're the only member</EmptyTitle>
+                    <EmptyDescription>
+                      Invite teammates to share projects and environments.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                  <EmptyContent>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => setInviteOpen(true)}
+                    >
+                      Invite member
+                    </Button>
+                  </EmptyContent>
+                </Empty>
+              </div>
+            ) : (
+              <div className="min-w-0 overflow-x-auto px-4 py-4">
+                <OrganizationMembersTable
+                  members={members}
+                  roleSelectItems={ROLE_SELECT_ITEMS}
+                  isOwner={isOwner}
+                  rolePendingId={rolePendingId}
+                  onRoleChange={(memberId, role) => {
+                    void handleRoleChange(memberId, role);
+                  }}
+                  empty={membersTableEmpty(
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => setInviteOpen(true)}
+                    >
+                      Invite member
+                    </Button>,
+                  )}
+                />
+              </div>
+            )}
+          </SettingsPanel>
+
+          <SettingsPanel>
+            <SettingsSectionHeader
+              title="Invitations"
+              description="Pending email invites."
+            />
+            <div className="px-4 py-6">
+              <Empty className="border border-dashed py-8">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <Mail className="size-5" aria-hidden />
+                  </EmptyMedia>
+                  <EmptyTitle>{invitationsEmpty().empty.title}</EmptyTitle>
+                  <EmptyDescription>
+                    {invitationsEmpty().empty.description}
+                  </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => setInviteOpen(true)}
+                  >
+                    Invite member
+                  </Button>
+                </EmptyContent>
+              </Empty>
             </div>
           </SettingsPanel>
         </TabsPanel>

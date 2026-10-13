@@ -93,7 +93,7 @@ export function DashboardHome() {
               <EmptyState
                 icon={Plus}
                 title="No projects yet"
-                description="Create a project to manage environment variables."
+                description="Create a project to manage environments and variables."
                 actionLabel="New project"
                 onAction={openCreate}
               />
@@ -114,10 +114,10 @@ export function DashboardHome() {
                   projects={recentProjects}
                   caption="Recent projects"
                   captionSrOnly
-                  emptyMessage="No projects yet"
                   searchable={false}
                   enablePagination={false}
                   limitRows={5}
+                  onCreateProject={openCreate}
                 />
               </div>
             )}

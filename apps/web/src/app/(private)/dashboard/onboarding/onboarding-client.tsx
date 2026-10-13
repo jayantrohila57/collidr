@@ -1,15 +1,23 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Building2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod/v3";
-import { PageStack, PageTitleRow } from "@/components/layout/app-layout";
+import { PageStack } from "@/components/layout/app-layout";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { FormField } from "@/components/patterns/form-field";
 import { SubmitButton } from "@/components/patterns/submit-button";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Frame } from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
 import {
@@ -102,10 +110,17 @@ export default function OnboardingClient() {
   return (
     <PageStack className="min-h-svh flex-1">
       <Frame className="w-full flex-1">
-        <PageTitleRow
-          title="Welcome"
-          description="Create a workspace to manage projects and environment variables."
-        />
+        <Empty className="border border-dashed py-10">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Building2 className="size-6" aria-hidden />
+            </EmptyMedia>
+            <EmptyTitle>Create your organization</EmptyTitle>
+            <EmptyDescription>
+              You need a workspace before adding projects and environments.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       </Frame>
       <Sheet open onOpenChange={() => {}}>
         <SheetPopup variant="inset" showCloseButton={false}>

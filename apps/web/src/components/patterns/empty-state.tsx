@@ -29,7 +29,7 @@ export function EmptyState({
   onAction,
 }: EmptyStateProps) {
   return (
-    <Empty>
+    <Empty className="border border-dashed">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <Icon className="size-6" aria-hidden />

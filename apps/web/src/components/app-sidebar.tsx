@@ -36,7 +36,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const { isSwitching } = useActiveOrganization();
-  const { projects, status } = useProjects();
+  const { projects, status, refetch } = useProjects();
   const projectsLoading = isSwitching || status === "loading";
   const showOrgSwitcher = isOrganizationsEnabledOnClient();
 
@@ -111,20 +111,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 ))}
               {!projectsLoading && status === "error" && (
                 <SidebarMenuItem>
-                  <SidebarMenuButton disabled>
+                  <SidebarMenuButton
+                    type="button"
+                    onClick={() => void refetch()}
+                  >
                     <FolderIcon />
-                    <span>Error loading projects</span>
+                    <span className="text-xs">
+                      Couldn't load — tap to retry
+                    </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
               {!projectsLoading &&
-                status === "success" &&
+                status === "empty" &&
                 projects.length === 0 && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton disabled>
-                      <FolderIcon />
-                      <span>No projects yet</span>
-                    </SidebarMenuButton>
+                  <SidebarMenuItem className="px-2 py-1">
+                    <p className="text-muted-foreground text-xs leading-snug">
+                      No projects yet
+                    </p>
                   </SidebarMenuItem>
                 )}
               {!projectsLoading &&

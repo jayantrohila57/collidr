@@ -56,6 +56,7 @@ export function useAudit(filters: AuditFilters = {}) {
     isProjectsLoading: projectsQuery.isLoading,
     status,
     error: auditLogsQuery.error,
+    refetch: auditLogsQuery.refetch,
     revealedIds,
     toggleReveal,
   };

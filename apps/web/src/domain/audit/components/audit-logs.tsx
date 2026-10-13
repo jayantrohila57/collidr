@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { auditLogEmpty } from "@/components/data-table/data-table-empty-presets";
+import { ErrorState } from "@/components/patterns/error-state";
 import {
   Select,
   SelectContent,
@@ -15,10 +17,19 @@ export default function AuditLogs() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProjectId, setSelectedProjectId] = useState<string>("ALL");
 
-  const { logs, projects, status, revealedIds, toggleReveal } = useAudit({
-    search: searchTerm,
-    projectId: selectedProjectId === "ALL" ? undefined : selectedProjectId,
-  });
+  const { logs, projects, status, error, revealedIds, toggleReveal, refetch } =
+    useAudit({
+      search: searchTerm,
+      projectId: selectedProjectId === "ALL" ? undefined : selectedProjectId,
+    });
+
+  const filterActive =
+    Boolean(searchTerm.trim()) || selectedProjectId !== "ALL";
+
+  const clearFilters = useCallback(() => {
+    setSearchTerm("");
+    setSelectedProjectId("ALL");
+  }, []);
 
   const projectFilter = (
     <Select
@@ -48,6 +59,18 @@ export default function AuditLogs() {
     </Select>
   );
 
+  if (status === "error") {
+    return (
+      <ErrorState
+        title="Failed to load activity"
+        description={
+          error?.message ?? "We could not load the audit log. Please try again."
+        }
+        onRetry={() => void refetch()}
+      />
+    );
+  }
+
   return (
     <AuditLogTableView
       logs={logs}
@@ -57,6 +80,8 @@ export default function AuditLogs() {
       searchValue={searchTerm}
       onSearchChange={setSearchTerm}
       filter={projectFilter}
+      filterActive={filterActive}
+      empty={auditLogEmpty(clearFilters)}
     />
   );
 }

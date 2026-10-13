@@ -6,6 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 import type { ReactNode } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import type { DataTableEmptyConfig } from "@/components/data-table/data-table-empty-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -47,6 +48,8 @@ interface AuditLogTableViewProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
   filter?: ReactNode;
+  filterActive?: boolean;
+  empty?: DataTableEmptyConfig;
 }
 
 const getEntityDescription = (log: AuditLog) => {
@@ -67,6 +70,8 @@ export function AuditLogTableView({
   searchValue,
   onSearchChange,
   filter,
+  filterActive = false,
+  empty,
 }: AuditLogTableViewProps) {
   const columns: import("@/components/data-table/data-table").DataTableColumnDef<AuditLog>[] =
     [
@@ -143,7 +148,9 @@ export function AuditLogTableView({
       filter={filter}
       enablePagination
       pageSize={20}
-      emptyMessage="No audit logs found."
+      filterActive={filterActive}
+      empty={empty}
+      captionSrOnly
     />
   );
 }

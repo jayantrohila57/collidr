@@ -5,7 +5,7 @@ import { Copy, Eye, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { DataTableEmpty } from "@/components/data-table/data-table-empty";
+import { variablesTableEmpty } from "@/components/data-table/data-table-empty-presets";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { SecretValue } from "@/components/patterns/secret-value";
@@ -270,19 +270,12 @@ export function VariablesTableView({
         captionSrOnly
         framed
         compactLayout
-        emptyState={
-          <DataTableEmpty
-            icon={Plus}
-            title="No variables yet"
-            description="Add your first environment variable to get started."
-            action={
-              <AddVariableSheet
-                onConfirm={onAddVariable}
-                isPending={isAddingVariable}
-              />
-            }
-          />
-        }
+        empty={variablesTableEmpty(
+          <AddVariableSheet
+            onConfirm={onAddVariable}
+            isPending={isAddingVariable}
+          />,
+        )}
         primaryAction={
           variables.length > 0 ? (
             <AddVariableSheet

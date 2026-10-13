@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Spinner } from "@/components/ui/spinner";
 import { authClient } from "@/lib/auth-client";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
@@ -72,7 +73,15 @@ export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
   }, [pathname, queryClient, router]);
 
   if (!ready) {
-    return null;
+    return (
+      <div
+        className="flex min-h-48 flex-1 items-center justify-center py-12"
+        aria-busy="true"
+        aria-live="polite"
+      >
+        <Spinner className="size-6 text-muted-foreground" />
+      </div>
+    );
   }
 
   return children;
