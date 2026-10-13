@@ -5,13 +5,14 @@
   "type": "module",
   "scripts": {
     "check-types": "tsc --noEmit",
-    "test": "node --import tsx --test src/encryption-key-schema.test.ts src/server-github-oauth.test.ts"
+    "test": "node --import tsx --test src/encryption-key-schema.test.ts src/server-github-oauth.test.ts src/feature-flags.test.ts"
   },
   "exports": {
     "./server": "./src/server.ts",
     "./web": "./src/web.ts",
     "./organizations": "./src/organizations.ts",
-    "./soft-deletes": "./src/soft-deletes.ts"
+    "./soft-deletes": "./src/soft-deletes.ts",
+    "./feature-flags": "./src/feature-flags.ts"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.1",

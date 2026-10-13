@@ -465,6 +465,31 @@ export function AccountSettingsClient() {
                   </SettingsRow>
                 </SettingsPanel>
               ) : null}
+
+              <SettingsPanel className="mt-2">
+                <SettingsSectionHeader
+                  title="Production deploy"
+                  description="Feature flags, redeploy rules, and Vercel limits."
+                  icon="globe"
+                />
+                <SettingsRow
+                  label="Deploy runbook"
+                  description="Check server vs client flags for this build."
+                >
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="w-fit gap-2"
+                    render={
+                      <Link href={"/dashboard/settings/deploy" as Route} />
+                    }
+                  >
+                    <AppIcon name="externalLink" className="text-current" />
+                    Open runbook
+                  </Button>
+                </SettingsRow>
+              </SettingsPanel>
             </SettingsTabsPanel>
 
             <SettingsTabsPanel value="sessions" className="min-w-0">

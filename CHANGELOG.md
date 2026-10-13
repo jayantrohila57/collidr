@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Production deploy**: [docs/PRODUCTION_DEPLOY.md](./docs/PRODUCTION_DEPLOY.md) (Vercel rate-limit mitigations, flag/redeploy checklist, schema sign-off); Settings → Deploy runbook UI; Turbo `globalEnv` guard test in `@env-manager/env`
 - **Documentation**: README, AGENTS.md, platform plan (PLAN_PLATFORM_APPS §14 SSO), and doc index aligned with orgs, actions, flags, main-only deploy, and db:reset-seed policy
 
 - **Project Management**: Complete project editing functionality

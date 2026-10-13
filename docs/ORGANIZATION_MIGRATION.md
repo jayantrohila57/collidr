@@ -30,7 +30,7 @@ ORGANIZATIONS_ENABLED=true
 NEXT_PUBLIC_ORGANIZATIONS_ENABLED=true
 ```
 
-3. Redeploy (required: `NEXT_PUBLIC_*` is inlined at build time; Turbo must see both flags in `turbo.json` `globalEnv` / `build.env` or a remote cache hit can ship a client bundle with org UI still disabled).
+3. Redeploy (required: `NEXT_PUBLIC_*` is inlined at build time; Turbo must see both flags in `turbo.json` `globalEnv` / `build.env` or a remote cache hit can ship a client bundle with org UI still disabled). Full checklist: [PRODUCTION_DEPLOY.md](./PRODUCTION_DEPLOY.md).
 
 Users with **no** organization membership are sent to `/dashboard/onboarding`. Users with orgs but no active session org get the first org set automatically; they can switch in the sidebar.
 

@@ -30,6 +30,7 @@ This repository is maintained on **`main` only**. All work is tracked in GitHub.
 | DB reset + seed (prod) | [docs/DB_RESET.md](./docs/DB_RESET.md) |
 | Platform apps & SSO | [docs/PLAN_PLATFORM_APPS.md](./docs/PLAN_PLATFORM_APPS.md) |
 | Future MCP / console | [docs/PLAN_MCP_AND_CONSOLE.md](./docs/PLAN_MCP_AND_CONSOLE.md) |
+| Production deploy (Vercel, flags, rate limits) | [docs/PRODUCTION_DEPLOY.md](./docs/PRODUCTION_DEPLOY.md) |
 
 ## Product rules (short)
 

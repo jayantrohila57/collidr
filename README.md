@@ -137,6 +137,7 @@ pnpm a11y             # accessibility checks (web, Turbo task `a11y` → web)
 | [docs/DB_RESET.md](./docs/DB_RESET.md) | Reset-seed policy |
 | [docs/PLAN_PLATFORM_APPS.md](./docs/PLAN_PLATFORM_APPS.md) | Multi-app + SSO decision §14 |
 | [docs/PLAN_MCP_AND_CONSOLE.md](./docs/PLAN_MCP_AND_CONSOLE.md) | MCP & console research |
+| [docs/PRODUCTION_DEPLOY.md](./docs/PRODUCTION_DEPLOY.md) | Production deploy checklist & Vercel limits |
 | [SECURITY.md](./SECURITY.md) | Vulnerability reporting |
 
 ## Security

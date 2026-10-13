@@ -21,6 +21,7 @@ export function isRecognizedDashboardPath(
     "/dashboard/settings/delete",
     "/dashboard/settings/timeline",
     "/dashboard/settings/organization",
+    "/dashboard/settings/deploy",
     "/dashboard/organizations",
     "/dashboard/timeline",
   ]);

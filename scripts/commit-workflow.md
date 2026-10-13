@@ -38,6 +38,8 @@ git push origin main
 
 Production Vercel deploys from this push. **No** preview deployments from feature branches.
 
+Before pushing risky releases, follow [docs/PRODUCTION_DEPLOY.md](../docs/PRODUCTION_DEPLOY.md) (batch commits, `NEXT_PUBLIC_*` redeploy, `pnpm turbo run build --filter=web`).
+
 ## Rules
 
 | Do | Don't |

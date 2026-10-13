@@ -4,6 +4,8 @@
 
 Production was bootstrapped with **`drizzle-kit push`**, not `drizzle-kit migrate`. The `drizzle.__drizzle_migrations` table may be empty even when the live schema is current.
 
+**Owner sign-off:** Jayant approved this path for production (manual `db:push` / reviewed SQL, no migrate on Vercel build). See [docs/PRODUCTION_DEPLOY.md](../../docs/PRODUCTION_DEPLOY.md#database-production-schema-path).
+
 **Do not add `db:migrate` to the deploy pipeline.** After pulling schema changes:
 
 1. Review diffs locally: `pnpm --filter @env-manager/db db:push` (against a dev/staging database first).

@@ -17,6 +17,7 @@
 | [docs/PLATFORM_MIGRATION_COMBINED.md](./docs/PLATFORM_MIGRATION_COMBINED.md) | Combined SQL `0007` for prod |
 | [docs/DB_RESET.md](./docs/DB_RESET.md) | Reset-seed after schema cut |
 | [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md) | coss ui & spacing |
+| [docs/PRODUCTION_DEPLOY.md](./docs/PRODUCTION_DEPLOY.md) | Vercel prod checklist, flags, deploy limits |
 | [UI.md](./UI.md) | Domain/page architecture |
 
 ## Workflow rules
