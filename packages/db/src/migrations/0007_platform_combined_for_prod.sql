@@ -206,6 +206,12 @@ ALTER TABLE "project" DROP CONSTRAINT IF EXISTS "project_slug_unique";
 CREATE UNIQUE INDEX IF NOT EXISTS "project_slug_active_uidx"
   ON "project" ("slug") WHERE "deleted_at" IS NULL;
 
+CREATE UNIQUE INDEX IF NOT EXISTS "environment_project_slug_active_uidx"
+  ON "environment" ("project_id", "slug") WHERE "deleted_at" IS NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS "environment_variable_env_key_active_uidx"
+  ON "environment_variable" ("environment_id", "key") WHERE "deleted_at" IS NULL;
+
 -- Org member role migration (legacy admin -> manager)
 UPDATE "member" SET "role" = 'manager' WHERE "role" = 'admin';
 
