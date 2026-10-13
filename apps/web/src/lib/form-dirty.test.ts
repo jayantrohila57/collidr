@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { isInviteMemberFormDirty, isTeamCreateFormDirty } from "./form-dirty";
+import {
+  isInviteMemberFormDirty,
+  isOrganizationProfileEditDirty,
+  isTeamCreateFormDirty,
+} from "./form-dirty";
 
 describe("form-dirty helpers", () => {
   it("detects invite member dirty state", () => {
@@ -13,5 +17,20 @@ describe("form-dirty helpers", () => {
     assert.equal(isTeamCreateFormDirty(""), false);
     assert.equal(isTeamCreateFormDirty("  "), false);
     assert.equal(isTeamCreateFormDirty("Platform"), true);
+  });
+
+  it("detects organization profile edit dirty state", () => {
+    assert.equal(
+      isOrganizationProfileEditDirty("Acme", "acme", "Acme", "acme"),
+      false,
+    );
+    assert.equal(
+      isOrganizationProfileEditDirty("Acme Inc", "acme", "Acme", "acme"),
+      true,
+    );
+    assert.equal(
+      isOrganizationProfileEditDirty("Acme", "acme-corp", "Acme", "acme"),
+      true,
+    );
   });
 });

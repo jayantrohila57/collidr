@@ -14,6 +14,7 @@ import { OrganizationInvitationsTable } from "@/components/org/organization-invi
 import { OrganizationMembersTable } from "@/components/org/organization-members-table";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
+import { DiscardChangesDialog } from "@/components/patterns/discard-changes-dialog";
 import { ErrorState } from "@/components/patterns/error-state";
 import { FormField } from "@/components/patterns/form-field";
 import {
@@ -68,8 +69,12 @@ import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
+import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 import { authClient } from "@/lib/auth-client";
-import { isInviteMemberFormDirty } from "@/lib/form-dirty";
+import {
+  isInviteMemberFormDirty,
+  isOrganizationProfileEditDirty,
+} from "@/lib/form-dirty";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { isPersonalOrganization } from "@/lib/org-personal";
@@ -138,13 +143,6 @@ export function OrganizationSettingsForm({
     setActiveTabState(readTabFromLocation());
   }, [mode]);
 
-  const setActiveTab = (tab: OrgTab) => {
-    setActiveTabState(tab);
-    if (mode !== "legacy-tabs") return;
-    const url = new URL(window.location.href);
-    url.searchParams.set("tab", tab);
-    window.history.replaceState(null, "", url.toString());
-  };
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const { syncInvitationReceived } = useNotificationMutations();
@@ -156,6 +154,8 @@ export function OrganizationSettingsForm({
     [],
   );
   const [editSnapshot, setEditSnapshot] = useState({ name: "", slug: "" });
+  const [editDraftName, setEditDraftName] = useState("");
+  const [editDraftSlug, setEditDraftSlug] = useState("");
   const [orgName, setOrgName] = useState("");
   const [orgSlug, setOrgSlug] = useState("");
   const [orgMetadata, setOrgMetadata] = useState<
@@ -202,6 +202,47 @@ export function OrganizationSettingsForm({
   }, []);
 
   const inviteIsDirty = isInviteMemberFormDirty(inviteEmail, inviteRole);
+
+  const editProfileDirty =
+    editOrgOpen &&
+    isOrganizationProfileEditDirty(
+      editDraftName,
+      editDraftSlug,
+      editSnapshot.name,
+      editSnapshot.slug,
+    );
+
+  const resetEditDraft = useCallback(() => {
+    setEditDraftName(editSnapshot.name);
+    setEditDraftSlug(editSnapshot.slug);
+    setSlugError(undefined);
+  }, [editSnapshot.name, editSnapshot.slug]);
+
+  const editTabNavigationGuard = useUnsavedChangesGuard({
+    isDirty: editProfileDirty,
+    enabled: editOrgOpen,
+    onDiscard: () => {
+      resetEditDraft();
+      setEditOrgOpen(false);
+    },
+  });
+
+  const applyActiveTab = (tab: OrgTab) => {
+    setActiveTabState(tab);
+    if (mode !== "legacy-tabs") return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", tab);
+    window.history.replaceState(null, "", url.toString());
+  };
+
+  const setActiveTab = (tab: OrgTab) => {
+    if (tab === activeTab) return;
+    if (editProfileDirty) {
+      editTabNavigationGuard.guardNavigation(() => applyActiveTab(tab));
+      return;
+    }
+    applyActiveTab(tab);
+  };
 
   const loadOrganization = useCallback(async (targetOrgId: string) => {
     const org = await authClient.organization.getFullOrganization({
@@ -374,13 +415,13 @@ export function OrganizationSettingsForm({
     setSlugError(undefined);
     setSavePending(true);
     try {
-      const slugToSave = resolveOrgSlugForSave(orgSlug, initialSlug);
+      const slugToSave = resolveOrgSlugForSave(editDraftSlug, initialSlug);
       await toast.promise(
         (async () => {
           const result = await authClient.organization.update({
             organizationId,
             data: {
-              name: orgName.trim(),
+              name: editDraftName.trim(),
               slug: slugToSave,
             },
           });
@@ -506,6 +547,14 @@ export function OrganizationSettingsForm({
 
   return (
     <>
+      <DiscardChangesDialog
+        open={editTabNavigationGuard.discardDialogOpen}
+        onOpenChange={(next) => {
+          if (!next) editTabNavigationGuard.cancelDiscard();
+          else editTabNavigationGuard.setDiscardDialogOpen(true);
+        }}
+        onDiscard={editTabNavigationGuard.confirmDiscard}
+      />
       <SettingsTabs
         value={activeTab}
         onValueChange={(value) => {
@@ -559,7 +608,11 @@ export function OrganizationSettingsForm({
                   size="sm"
                   className="w-fit gap-2"
                   onClick={() => {
-                    setEditSnapshot({ name: orgName, slug: orgSlug });
+                    const snapshot = { name: orgName, slug: orgSlug };
+                    setEditSnapshot(snapshot);
+                    setEditDraftName(snapshot.name);
+                    setEditDraftSlug(snapshot.slug);
+                    setSlugError(undefined);
                     setEditOrgOpen(true);
                   }}
                 >
@@ -780,13 +833,11 @@ export function OrganizationSettingsForm({
       <FormSheet
         open={editOrgOpen}
         onOpenChange={setEditOrgOpen}
-        isDirty={
-          editOrgOpen &&
-          (orgName !== editSnapshot.name || orgSlug !== editSnapshot.slug)
-        }
-        onDiscard={() => {
-          setOrgName(editSnapshot.name);
-          setOrgSlug(editSnapshot.slug);
+        isDirty={editProfileDirty}
+        onDiscard={resetEditDraft}
+        onClosed={() => {
+          setEditDraftName(orgName);
+          setEditDraftSlug(orgSlug);
           setSlugError(undefined);
         }}
         closeWithoutPromptRef={editOrgCloseWithoutPromptRef}
@@ -805,8 +856,8 @@ export function OrganizationSettingsForm({
               <FormField id="org-name-edit" label="Name" required>
                 <Input
                   id="org-name-edit"
-                  value={orgName}
-                  onChange={(e) => setOrgName(e.target.value)}
+                  value={editDraftName}
+                  onChange={(e) => setEditDraftName(e.target.value)}
                 />
               </FormField>
               <FormField
@@ -818,10 +869,10 @@ export function OrganizationSettingsForm({
               >
                 <OrgSlugInput
                   id="org-slug-edit"
-                  value={orgSlug}
+                  value={editDraftSlug}
                   onChange={(value) => {
                     setSlugError(undefined);
-                    setOrgSlug(value);
+                    setEditDraftSlug(value);
                   }}
                 />
               </FormField>

@@ -34,6 +34,19 @@ test.describe("unsaved changes guard", () => {
     await expect(discardDialog.getByText("Discard changes?")).toBeVisible();
   });
 
+  test("edit organization sheet prompts before dismiss", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/dashboard/settings/organization");
+    await page.waitForLoadState("networkidle");
+    await page.getByRole("button", { name: /edit organization/i }).click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await page.getByLabel(/^name$/i).fill("Guard test org rename");
+    await page.keyboard.press("Escape");
+    const discardDialog = page.getByRole("alertdialog");
+    await expect(discardDialog).toBeVisible();
+    await expect(discardDialog.getByText("Discard changes?")).toBeVisible();
+  });
+
   test("account profile tab warns before switching tabs", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/dashboard/settings?tab=profile");
