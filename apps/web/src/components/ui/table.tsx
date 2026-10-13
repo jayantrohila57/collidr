@@ -9,12 +9,14 @@ export type TableVariant = "default" | "card";
 
 export type TableProps = React.ComponentProps<"table"> & {
   variant?: TableVariant;
+  containerRef?: React.Ref<HTMLDivElement>;
   render?: useRender.ComponentProps<"div">["render"];
 };
 
 export function Table({
   className,
   variant = "default",
+  containerRef,
   render,
   ...props
 }: TableProps): React.ReactElement {
@@ -36,7 +38,7 @@ export function Table({
 
   return useRender({
     defaultTagName: "div",
-    props: mergeProps<"div">(defaultProps, {}),
+    props: mergeProps<"div">(defaultProps, { ref: containerRef }),
     render,
   });
 }

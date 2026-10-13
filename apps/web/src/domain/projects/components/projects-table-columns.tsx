@@ -5,6 +5,7 @@ import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import type { Route } from "next";
 import Link from "next/link";
 import type { DataTableColumnDef } from "@/components/data-table/data-table";
+import { DataTableActionsColumnHeader } from "@/components/data-table/data-table-actions-column";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { StatusBadge } from "@/components/patterns/status-badge";
@@ -40,8 +41,6 @@ const col = {
   visibility: "hidden w-28 md:table-cell",
   updated: "hidden w-28 md:table-cell",
   links: "hidden w-20 2xl:table-cell",
-  actions:
-    "sticky end-0 z-10 w-12 bg-background shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)] dark:shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.35)]",
 } as const;
 
 export function createProjectsTableColumns(): DataTableColumnDef<ProjectOutput>[] {
@@ -173,8 +172,7 @@ export function createProjectsTableColumns(): DataTableColumnDef<ProjectOutput>[
     }),
     columnHelper.display({
       id: "actions",
-      meta: { className: col.actions },
-      header: () => <span className="sr-only">Actions</span>,
+      header: () => <DataTableActionsColumnHeader />,
       enableSorting: false,
       cell: ({ row }) => (
         <div className="flex justify-end">

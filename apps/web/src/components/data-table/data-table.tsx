@@ -11,7 +11,11 @@ import {
   useLegacyTable,
 } from "@tanstack/react-table/legacy";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  dataTableActionsColumnClassName,
+  isDataTableActionsColumn,
+} from "@/components/data-table/data-table-actions-column";
 import { Frame } from "@/components/ui/frame";
 import {
   Table,
@@ -68,9 +72,14 @@ export type DataTableProps<TData extends RowData> = {
 
 function columnClassName<TData extends RowData>(
   columnDef: DataTableColumnDef<TData>,
+  pinActions: boolean,
 ) {
   const meta = columnDef.meta as { className?: string } | undefined;
-  return meta?.className;
+  const base = meta?.className;
+  if (isDataTableActionsColumn(columnDef)) {
+    return cn(base, dataTableActionsColumnClassName(pinActions));
+  }
+  return base;
 }
 
 function defaultGlobalFilterFn<TData extends RowData>(
@@ -113,6 +122,8 @@ export function DataTable<TData extends RowData>({
   searchable = false,
   compactLayout = false,
 }: DataTableProps<TData>) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [pinActions, setPinActions] = useState(false);
   const [internalSearch, setInternalSearch] = useState("");
   const searchEnabled =
     searchable ||
@@ -150,6 +161,25 @@ export function DataTable<TData extends RowData>({
   const columnCount = columns.length;
   const rowModel = table.getRowModel();
   const hasRows = rowModel.rows.length > 0;
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const checkOverflow = () => {
+      setPinActions(el.scrollWidth > el.clientWidth + 1);
+    };
+
+    checkOverflow();
+    const observer = new ResizeObserver(checkOverflow);
+    observer.observe(el);
+    const tableEl = el.querySelector("[data-slot=table]");
+    if (tableEl instanceof HTMLElement) {
+      observer.observe(tableEl);
+    }
+    return () => observer.disconnect();
+  }, [columns, data, isLoading, hasRows, rowModel.rows.length]);
+
   const showEmpty = !isLoading && !hasRows;
   const hasClientSearch = Boolean(
     searchEnabled && String(searchValue ?? "").trim(),
@@ -176,7 +206,11 @@ export function DataTable<TData extends RowData>({
       : null);
 
   const tableMarkup = (
-    <Table variant="card" className={cn(compactLayout && "table-fixed")}>
+    <Table
+      variant="card"
+      containerRef={scrollRef}
+      className={cn(compactLayout && "table-fixed")}
+    >
       {caption ? (
         <TableCaption className={cn(captionSrOnly && "sr-only")}>
           {caption}
@@ -188,7 +222,7 @@ export function DataTable<TData extends RowData>({
             {headerGroup.headers.map((header) => (
               <TableHead
                 key={header.id}
-                className={columnClassName(header.column.columnDef)}
+                className={columnClassName(header.column.columnDef, pinActions)}
               >
                 {header.isPlaceholder
                   ? null
@@ -216,7 +250,7 @@ export function DataTable<TData extends RowData>({
               {row.getVisibleCells().map((cell) => (
                 <TableCell
                   key={cell.id}
-                  className={columnClassName(cell.column.columnDef)}
+                  className={columnClassName(cell.column.columnDef, pinActions)}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>

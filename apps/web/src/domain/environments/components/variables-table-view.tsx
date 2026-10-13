@@ -3,6 +3,7 @@
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import { useCallback, useMemo, useState } from "react";
 import { DataTable } from "@/components/data-table/data-table";
+import { DataTableActionsColumnHeader } from "@/components/data-table/data-table-actions-column";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { variablesTableEmpty } from "@/components/data-table/data-table-empty-presets";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
@@ -193,11 +194,7 @@ export function VariablesTableView({
       }),
       columnHelper.display({
         id: "actions",
-        meta: {
-          className:
-            "sticky end-0 z-10 w-12 bg-background shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)] dark:shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.35)]",
-        },
-        header: () => <span className="sr-only">Actions</span>,
+        header: () => <DataTableActionsColumnHeader />,
         enableSorting: false,
         cell: ({ row }) => {
           const variable = row.original;
