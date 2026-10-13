@@ -8,6 +8,9 @@ import { trpc } from "@/utils/trpc";
 interface DashboardStats {
   totalProjects: number;
   activeProjects: number;
+  privateProjects: number;
+  archivedOrMaintenance: number;
+  totalMembers: number;
   totalEnvironments: number;
   activeEnvironments: number;
   totalVariables: number;

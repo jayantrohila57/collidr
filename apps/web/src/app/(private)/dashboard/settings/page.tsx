@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
 import { SettingsPage } from "@/domain/settings/components/settings-page";
+import { UserSettingsStats } from "@/domain/settings/components/user-settings-stats";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -23,6 +24,7 @@ export default async function SettingsRoute() {
     <DashboardSection
       title="Settings"
       description="Account information and security preferences."
+      stats={<UserSettingsStats />}
     >
       <SettingsPage />
     </DashboardSection>

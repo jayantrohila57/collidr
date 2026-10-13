@@ -12,6 +12,7 @@ import { useEnvironments } from "@/domain/environments/hooks/use-environments";
 import { EditProjectSheet } from "./edit-project-sheet";
 import { ProjectActions } from "./project-actions";
 import ProjectDetail from "./project-detail";
+import { ProjectDetailStats } from "./project-detail-stats";
 
 interface ProjectDetailPageProps {
   slug: string;
@@ -74,6 +75,7 @@ export default function ProjectDetailPage({
           </div>
         }
         action={<Skeleton className="size-7 rounded-md" />}
+        stats={<ProjectDetailStats slug={slug} />}
       >
         <ProjectDetailSkeleton />
       </DashboardSection>
@@ -105,6 +107,7 @@ export default function ProjectDetailPage({
           />
         }
         action={<ProjectActions project={project} />}
+        stats={<ProjectDetailStats slug={slug} />}
       >
         <ProjectDetail projectSlug={slug} project={project} />
       </DashboardSection>

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
+import { ActivitySummaryStats } from "@/domain/audit/components/activity-summary-stats";
 import AuditLogs from "@/domain/audit/components/audit-logs";
 
 export const metadata: Metadata = {
@@ -23,6 +24,7 @@ export default async function ActivityPage() {
     <DashboardSection
       title="Activity"
       description="Audit log of changes across your projects."
+      stats={<ActivitySummaryStats />}
     >
       <AuditLogs />
     </DashboardSection>

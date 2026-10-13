@@ -7,6 +7,7 @@ import DashboardSection from "@/components/section-dashboard";
 import { Button } from "@/components/ui/button";
 import { CreateProjectSheet } from "./create-project-sheet";
 import ProjectList from "./project-list";
+import { ProjectsListStats } from "./projects-list-stats";
 
 export function ProjectsPageClient() {
   const router = useRouter();
@@ -46,6 +47,7 @@ export function ProjectsPageClient() {
             New project
           </Button>
         }
+        stats={<ProjectsListStats />}
       >
         <ProjectList onCreateProject={openCreate} />
       </DashboardSection>

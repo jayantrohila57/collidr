@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { layoutGapClass, layoutSectionStackClass } from "@/lib/layout-spacing";
+import { layoutSectionStackClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 import type { DataTableEmptyConfig } from "./data-table-empty-types";
 import { DataTablePagination } from "./data-table-pagination";

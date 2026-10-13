@@ -8,13 +8,14 @@ import { PageStack, PageTitleRow } from "@/components/layout/app-layout";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { ErrorState } from "@/components/patterns/error-state";
+import { StatCardRowSkeleton } from "@/components/patterns/stat-card";
 import { Button } from "@/components/ui/button";
 import { CreateProjectSheet } from "@/domain/projects/components/create-project-sheet";
 import { ProjectsTableView } from "@/domain/projects/components/projects-table-view";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
 import { appIcons } from "@/lib/icons";
 import { useDashboard } from "../hooks/use-dashboard";
-import { DashboardStatRow } from "./dashboard-stat-row";
+import { DashboardOverviewStats } from "./dashboard-overview-stats";
 import { DashboardPageSkeleton } from "./skeletons";
 
 export function DashboardHome() {
@@ -22,11 +23,7 @@ export function DashboardHome() {
   const searchParams = useSearchParams();
   const [createOpen, setCreateOpen] = useState(false);
   const { projects, status, error, refetch } = useProjects();
-  const {
-    stats,
-    status: overviewStatus,
-    refetch: refetchOverview,
-  } = useDashboard();
+  const { status: overviewStatus, refetch: refetchOverview } = useDashboard();
 
   const recentProjects = useMemo(() => {
     return [...projects]
@@ -76,7 +73,10 @@ export function DashboardHome() {
         />
 
         {isLoading ? (
-          <DashboardPageSkeleton />
+          <>
+            <StatCardRowSkeleton count={4} />
+            <DashboardPageSkeleton />
+          </>
         ) : status === "error" ? (
           <ErrorState
             title="Failed to load projects"
@@ -94,7 +94,7 @@ export function DashboardHome() {
           />
         ) : (
           <>
-            {stats ? <DashboardStatRow stats={stats} /> : null}
+            <DashboardOverviewStats />
 
             {status === "empty" ? (
               <EmptyState

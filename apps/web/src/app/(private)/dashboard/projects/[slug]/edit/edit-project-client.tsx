@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
 import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
+import { ProjectDetailStats } from "@/domain/projects/components/project-detail-stats";
 import { ProjectSettingsSection } from "@/domain/projects/components/project-settings-section";
 import { trpc } from "@/utils/trpc";
 
@@ -35,6 +36,7 @@ export default function EditProjectClient({ slug }: EditProjectClientProps) {
       <DashboardSection
         title="Edit project"
         description="Update project information and settings."
+        stats={<ProjectDetailStats slug={slug} />}
       >
         <ProjectDetailSkeleton />
       </DashboardSection>
@@ -49,6 +51,7 @@ export default function EditProjectClient({ slug }: EditProjectClientProps) {
     <DashboardSection
       title={`Edit ${project.name}`}
       description="Update project information and settings."
+      stats={<ProjectDetailStats slug={slug} />}
     >
       <div className="flex flex-col gap-4">
         <EditProject project={project} embedded />

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
+import { OrgSettingsStats } from "@/domain/settings/components/org-settings-stats";
 import OrganizationSettingsGate from "./organization-settings-gate";
 
 export const metadata: Metadata = {
@@ -23,6 +24,7 @@ export default async function OrganizationSettingsPage() {
     <DashboardSection
       title="Organization"
       description="Workspace profile, members, and invitations."
+      stats={<OrgSettingsStats />}
     >
       <OrganizationSettingsGate />
     </DashboardSection>

@@ -63,6 +63,7 @@ All app layout spacing is derived from the coss **Sidebar** source (`apps/web/sr
 | `PageStack` | same | Vertical sections (`gap-2`) |
 | `PageHeaderBar` / `PageHeaderRow` | same | Sticky inset header; **same `p-2` + `h-12` row as `SidebarHeader` + team switcher** |
 | `PageHeader` | `components/layout/page-header.tsx` | In-page title row with optional inline back (`back="auto"` via `lib/page-back.ts`) |
+| `StatCard` / `StatCardRow` | `components/patterns/stat-card.tsx` | Compact metrics under page headers (`grid-cols-2 lg:grid-cols-4`, `gap-2`) |
 | `PageTitleRow` | same | In-page title + action (`text-sm` title) |
 | `PageToolbar` | same | Filters / search above tables |
 | `FormSheet*` | `components/patterns/form-sheet.tsx` | Full-height inset sheets; header/footer/body share coss `px-6` |

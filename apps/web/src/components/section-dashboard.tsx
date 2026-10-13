@@ -18,6 +18,8 @@ interface SectionProps {
   /** @deprecated use actionLabel */
   actionUrl?: string;
   children: React.ReactNode;
+  /** Rendered directly under the page header (e.g. stat cards). */
+  stats?: ReactNode;
   /** `auto` shows back on non-root routes; `false` hides; string sets parent href */
   back?: PageHeaderBackProp;
 }
@@ -31,6 +33,7 @@ export default function DashboardSection({
   actionHref,
   actionUrl,
   children,
+  stats,
   back = "auto",
 }: SectionProps) {
   const resolvedActionHref = actionHref ?? actionUrl;
@@ -57,6 +60,7 @@ export default function DashboardSection({
           back={back}
         />
       ) : null}
+      {stats}
       {children}
     </PageStack>
   );
