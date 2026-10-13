@@ -1,4 +1,5 @@
 import { test } from "@playwright/test";
+import { hasE2eAuth } from "./helpers/auth";
 
 const VIEWPORTS = [
   { width: 375, height: 812, name: "375" },
@@ -12,7 +13,7 @@ const ROUTES = [
   { path: "/dashboard/settings/organization", name: "org-settings" },
 ] as const;
 
-const hasAuth = Boolean(process.env.E2E_SESSION_COOKIE?.trim());
+const hasAuth = hasE2eAuth();
 const shotDir =
   process.env.PROD_DESIGN_SHOT_DIR ??
   "../../artifacts/screenshots/prod-design-review";

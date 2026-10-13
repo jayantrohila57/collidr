@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { hasE2eAuth } from "./helpers/auth";
 import {
   assertNoHorizontalOverflow,
   assertStableMainHeight,
@@ -18,7 +19,7 @@ const AUTH_ROUTES = [
   "/dashboard/settings/organization",
 ] as const;
 
-const hasAuth = Boolean(process.env.E2E_SESSION_COOKIE?.trim());
+const hasAuth = hasE2eAuth();
 
 for (const viewport of VIEWPORTS) {
   for (const route of AUTH_ROUTES) {

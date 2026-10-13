@@ -9,6 +9,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { organization } from "better-auth/plugins";
 
+const e2eTestMode = process.env.E2E_TEST_MODE === "1";
+
 export const auth = betterAuth({
   session: {
     cookieCache: {
@@ -16,6 +18,13 @@ export const auth = betterAuth({
       maxAge: 5 * 60,
     },
   },
+  ...(e2eTestMode
+    ? {
+        emailAndPassword: {
+          enabled: true,
+        },
+      }
+    : {}),
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {

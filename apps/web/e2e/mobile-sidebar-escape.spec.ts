@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-const hasAuth = Boolean(process.env.E2E_SESSION_COOKIE?.trim());
+import { hasE2eAuth } from "./helpers/auth";
+
+const hasAuth = hasE2eAuth();
 const prodBase =
   process.env.PLAYWRIGHT_BASE_URL?.includes("vercel.app") ?? false;
 

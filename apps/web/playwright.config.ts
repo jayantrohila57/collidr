@@ -36,6 +36,8 @@ export default defineConfig({
         env: {
           ...process.env,
           SKIP_ENV_VALIDATION: "1",
+          E2E_TEST_MODE: process.env.E2E_TEST_MODE ?? "1",
+          E2E_TEST_SECRET: process.env.E2E_TEST_SECRET ?? "local-e2e-secret",
           BETTER_AUTH_SECRET:
             process.env.BETTER_AUTH_SECRET ??
             "playwright-local-auth-secret-32chars",
