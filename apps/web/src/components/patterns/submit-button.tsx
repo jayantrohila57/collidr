@@ -26,7 +26,7 @@ export function SubmitButton({
     >
       {isLoading ? (
         <>
-          <Spinner className="mr-2" />
+          <Spinner className="me-2" />
           {loadingLabel}
         </>
       ) : (

@@ -14,7 +14,7 @@ export function OfflineBanner() {
       aria-live="polite"
       className="border-amber-500/40 border-b bg-amber-500/10 px-4 py-2 text-center text-amber-950 text-sm dark:text-amber-100"
     >
-      <WifiOff className="mr-2 inline size-4 align-text-bottom" aria-hidden />
+      <WifiOff className="me-2 inline size-4 align-text-bottom" aria-hidden />
       You are offline. Changes will sync when your connection returns.
     </div>
   );

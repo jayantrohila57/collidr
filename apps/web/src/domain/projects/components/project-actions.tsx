@@ -99,13 +99,13 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
           {editHref ? (
             <DropdownMenuItem asChild>
               <Link href={editHref} onClick={() => setMenuOpen(false)}>
-                <Edit className="mr-2 h-4 w-4" />
+                <Edit className="me-2 h-4 w-4" />
                 Edit Project
               </Link>
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem disabled>
-              <Edit className="mr-2 h-4 w-4" />
+              <Edit className="me-2 h-4 w-4" />
               Edit Project (unavailable)
             </DropdownMenuItem>
           )}
@@ -119,7 +119,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             }}
             disabled={isChangingStatus || project.status === "active"}
           >
-            <Power className="mr-2 h-4 w-4" />
+            <Power className="me-2 h-4 w-4" />
             Set Active
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -129,7 +129,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             }}
             disabled={isChangingStatus || project.status === "inactive"}
           >
-            <RefreshCw className="mr-2 h-4 w-4" />
+            <RefreshCw className="me-2 h-4 w-4" />
             Set Inactive
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -139,7 +139,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             }}
             disabled={isChangingStatus || project.status === "maintenance"}
           >
-            <RefreshCw className="mr-2 h-4 w-4" />
+            <RefreshCw className="me-2 h-4 w-4" />
             Set Maintenance
           </DropdownMenuItem>
 
@@ -155,12 +155,12 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
           >
             {project.isPublic ? (
               <>
-                <EyeOff className="mr-2 h-4 w-4" />
+                <EyeOff className="me-2 h-4 w-4" />
                 Make Private
               </>
             ) : (
               <>
-                <Eye className="mr-2 h-4 w-4" />
+                <Eye className="me-2 h-4 w-4" />
                 Make Public
               </>
             )}
@@ -177,7 +177,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
               }}
               disabled={isUnarchiving}
             >
-              <ArchiveRestore className="mr-2 h-4 w-4" />
+              <ArchiveRestore className="me-2 h-4 w-4" />
               Unarchive Project
             </DropdownMenuItem>
           ) : (
@@ -189,7 +189,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
               }}
               disabled={isArchiving}
             >
-              <Archive className="mr-2 h-4 w-4" />
+              <Archive className="me-2 h-4 w-4" />
               Archive Project
             </DropdownMenuItem>
           )}
@@ -205,7 +205,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
             className="text-destructive focus:text-destructive"
             disabled={isDeleting}
           >
-            <Delete className="mr-2 h-4 w-4" />
+            <Delete className="me-2 h-4 w-4" />
             Delete Project
           </DropdownMenuItem>
         </DropdownMenuContent>

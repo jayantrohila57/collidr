@@ -64,7 +64,7 @@ export function CreateEnvironmentDialog({
           aria-label={compactOnMobile ? "Add environment" : undefined}
         >
           <Plus
-            className={compactOnMobile ? "size-4 sm:mr-2" : "mr-2 h-4 w-4"}
+            className={compactOnMobile ? "size-4 sm:me-2" : "me-2 h-4 w-4"}
             aria-hidden
           />
           <span className={compactOnMobile ? "hidden sm:inline" : undefined}>

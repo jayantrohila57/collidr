@@ -51,7 +51,7 @@ export function VariablesSkeleton() {
         <div className="flex gap-4">
           <Skeleton className="h-4 w-1/4" />
           <Skeleton className="h-4 w-1/2" />
-          <Skeleton className="ml-auto h-4 w-1/6" />
+          <Skeleton className="ms-auto h-4 w-1/6" />
         </div>
       </div>
       <div className="space-y-0 divide-y">
@@ -59,7 +59,7 @@ export function VariablesSkeleton() {
           <div key={i} className="flex gap-4 px-4 py-3">
             <Skeleton className="h-4 w-1/4" />
             <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="ml-auto h-8 w-1/6" />
+            <Skeleton className="ms-auto h-8 w-1/6" />
           </div>
         ))}
       </div>

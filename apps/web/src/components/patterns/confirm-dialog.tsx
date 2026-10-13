@@ -56,7 +56,7 @@ export function ConfirmDialog({
           >
             {isPending ? (
               <>
-                <Spinner className="mr-2" />
+                <Spinner className="me-2" />
                 Processing…
               </>
             ) : (

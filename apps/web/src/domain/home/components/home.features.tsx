@@ -115,7 +115,7 @@ export default function Features() {
                       key={`${feature.title}-detail-${detailIndex}`}
                       className="flex items-center text-muted-foreground text-sm"
                     >
-                      <Check className="mt-0.5 mr-2 h-4 w-4 shrink-0 text-green-500" />
+                      <Check className="me-2 mt-0.5 h-4 w-4 shrink-0 text-green-500" />
                       {detail}
                     </li>
                   ))}

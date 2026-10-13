@@ -31,7 +31,7 @@ export default function AuditLogs() {
             placeholder="Search logs..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="ps-10"
           />
         </div>
         <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>

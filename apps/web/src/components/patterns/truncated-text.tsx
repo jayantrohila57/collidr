@@ -110,7 +110,7 @@ export function TruncatedText({
           <HoverCardTrigger asChild>
             <button
               type="button"
-              className="w-full cursor-default text-left"
+              className="w-full cursor-default text-start"
               aria-label="Show full description"
             >
               {clamped}
@@ -119,7 +119,7 @@ export function TruncatedText({
           <HoverCardContent
             side="bottom"
             align="start"
-            className="wrap-anywhere max-w-md text-left"
+            className="wrap-anywhere max-w-md text-start"
           >
             {content}
           </HoverCardContent>

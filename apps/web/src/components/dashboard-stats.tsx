@@ -273,7 +273,7 @@ export default function DashboardStats() {
                           {project.slug}
                         </p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-end">
                         <Badge
                           variant={
                             project.status === "active"

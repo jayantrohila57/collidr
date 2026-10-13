@@ -34,7 +34,7 @@ export function PageHeader({
   return (
     <header className="flex min-w-0 shrink-0 flex-col gap-4">
       {showBack ? (
-        <div className="-ml-1">
+        <div className="-ms-1">
           <GoBackButton />
         </div>
       ) : null}

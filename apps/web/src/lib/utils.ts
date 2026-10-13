@@ -1,9 +1,4 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+export { cn } from "cn";
 
 /** Minimum 44px hit area on phones and coarse pointers (WCAG touch target). */
 export const touchTarget =
@@ -13,40 +8,39 @@ export function slugToTitle(slug: string | null | undefined): string {
   if (!slug) return "";
 
   return slug
-    .replace(/[-_]+/g, " ") // replace slug separators with spaces
-    .replace(/\s+/g, " ") // collapse multiple spaces
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
     .trim()
-    .replace(/\b\w/g, (c) => c.toUpperCase()); // capitalize each word
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export function deSlug(slug: string | null | undefined): string {
   if (!slug) return "";
 
   return slug
-    .replace(/[-_]+/g, " ") // replace hyphens and underscores with spaces
-    .replace(/\s+/g, " ") // collapse multiple spaces into one
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
     .trim()
-    .replace(/\b\w/g, (char) => char.toUpperCase()); // capitalize first letter of each word
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 export function deSlugWithOriginal(slug: string | null | undefined): string {
   if (!slug) return "";
 
-  // More sophisticated deslug that handles acronyms and special cases
   return slug
-    .replace(/[-_]+/g, " ") // replace separators with spaces
-    .replace(/\s+/g, " ") // collapse multiple spaces
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
     .trim()
-    .replace(/\b[a-z]/g, (char) => char.toUpperCase()) // capitalize first letter of each word
-    .replace(/\b(API|URL|ID|CSS|HTML|JS|TS|UI|UX)\b/g, (match) => match); // keep common acronyms uppercase
+    .replace(/\b[a-z]/g, (char) => char.toUpperCase())
+    .replace(/\b(API|URL|ID|CSS|HTML|JS|TS|UI|UX)\b/g, (match) => match);
 }
 
 export function nameToSlug(name: string | null | undefined): string {
   if (!name) return "";
 
   return name
-    .normalize("NFKD") // remove diacritics (café → cafe)
-    .replace(/[^\p{L}\p{N}]+/gu, "-") // replace non-alphanumeric with hyphen
-    .replace(/^-+|-+$/g, "") // trim leading/trailing hyphens
+    .normalize("NFKD")
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/^-+|-+$/g, "")
     .toLowerCase();
 }

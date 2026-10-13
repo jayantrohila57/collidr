@@ -102,7 +102,7 @@ export default function Pricing() {
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
                   <Badge className="bg-primary text-primary-foreground">
-                    <Star className="mr-1 h-3 w-3" />
+                    <Star className="me-1 h-3 w-3" />
                     {plan.badge}
                   </Badge>
                 </div>
@@ -118,7 +118,7 @@ export default function Pricing() {
                 <div className="mt-4">
                   <span className="font-bold text-4xl">{plan.price}</span>
                   {plan.period && (
-                    <span className="ml-2 text-muted-foreground">
+                    <span className="ms-2 text-muted-foreground">
                       /{plan.period}
                     </span>
                   )}
@@ -132,7 +132,7 @@ export default function Pricing() {
                       key={`${plan.name}-feature-${featureIndex}`}
                       className="flex items-start"
                     >
-                      <Check className="mt-0.5 mr-2 h-4 w-4 shrink-0 text-green-500" />
+                      <Check className="me-2 mt-0.5 h-4 w-4 shrink-0 text-green-500" />
                       <span className="text-sm">{feature}</span>
                     </div>
                   ))}
@@ -142,7 +142,7 @@ export default function Pricing() {
                       key={`${plan.name}-not-included-${featureIndex}`}
                       className="flex items-start opacity-50"
                     >
-                      <div className="mt-0.5 mr-2 h-4 w-4 shrink-0 rounded-sm border border-muted-foreground" />
+                      <div className="me-2 mt-0.5 h-4 w-4 shrink-0 rounded-sm border border-muted-foreground" />
                       <span className="text-muted-foreground text-sm">
                         {feature}
                       </span>
@@ -165,14 +165,14 @@ export default function Pricing() {
                       {plan.name === "Enterprise"
                         ? "Contact Sales"
                         : "Get Started"}
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      <ArrowRight className="ms-2 h-4 w-4" />
                     </Link>
                   ) : (
                     <>
                       {plan.name === "Enterprise"
                         ? "Contact Sales"
                         : "Get Started"}
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      <ArrowRight className="ms-2 h-4 w-4" />
                     </>
                   )}
                 </Button>

@@ -60,7 +60,7 @@ export default function OrganizationLayout({
               <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4 lg:px-4">
                 <div className="flex w-full min-w-0 items-center justify-between gap-2">
                   <div className="flex min-w-0 flex-1 flex-row items-center justify-start gap-2">
-                    <SidebarTrigger className="-ml-1 size-11 shrink-0" />
+                    <SidebarTrigger className="-ms-1 size-11 shrink-0" />
                     <Separator
                       orientation="vertical"
                       className="my-auto hidden h-6 lg:block"
@@ -88,7 +88,7 @@ export default function OrganizationLayout({
                                 : "NA"}
                             </AvatarFallback>
                           </Avatar>
-                          <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                          <div className="grid min-w-0 flex-1 text-start text-sm leading-tight">
                             <span className="truncate font-medium">
                               {siteConfig.name}
                             </span>

@@ -433,7 +433,7 @@ export function OrganizationSettingsForm({
             >
               {leavePending ? (
                 <>
-                  <Spinner className="mr-2" />
+                  <Spinner className="me-2" />
                   Leaving…
                 </>
               ) : (
@@ -473,7 +473,7 @@ export function OrganizationSettingsForm({
             >
               {deletePending ? (
                 <>
-                  <Spinner className="mr-2" />
+                  <Spinner className="me-2" />
                   Deleting…
                 </>
               ) : (

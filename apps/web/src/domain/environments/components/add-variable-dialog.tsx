@@ -69,7 +69,7 @@ export function AddVariableDialog({
     >
       <DialogTrigger asChild>
         <Button size="sm" className={`max-sm:min-h-11 ${touchTarget}`}>
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus className="me-2 h-4 w-4" />
           Add Variable
         </Button>
       </DialogTrigger>

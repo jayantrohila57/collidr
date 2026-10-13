@@ -34,7 +34,7 @@ export default function EditProjectPage({ projectSlug }: EditProjectPageProps) {
       <div className="flex items-center gap-4">
         <Link href={`/dashboard/projects/${projectSlug}`}>
           <Button variant="ghost" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft className="me-2 h-4 w-4" />
             Back to Project
           </Button>
         </Link>

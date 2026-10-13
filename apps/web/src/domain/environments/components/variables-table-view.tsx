@@ -157,7 +157,7 @@ export function VariablesTableView({
               <TableHead className="w-1/2 text-muted-foreground">
                 Value
               </TableHead>
-              <TableHead className="w-1/6 text-right text-muted-foreground">
+              <TableHead className="w-1/6 text-end text-muted-foreground">
                 Actions
               </TableHead>
             </TableRow>
@@ -192,7 +192,7 @@ export function VariablesTableView({
                       </Button>
                     )}
                   </TableCell>
-                  <TableCell className="text-right align-top">
+                  <TableCell className="text-end align-top">
                     <div className="flex items-center justify-end gap-1">
                       <IconButton
                         icon={isRevealed ? EyeOff : Eye}
@@ -230,7 +230,7 @@ export function VariablesTableView({
                               void handleEdit(variable);
                             }}
                           >
-                            <Pencil className="mr-2 h-4 w-4" />
+                            <Pencil className="me-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
@@ -241,7 +241,7 @@ export function VariablesTableView({
                             }}
                             className="text-destructive focus:text-destructive"
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
+                            <Trash2 className="me-2 h-4 w-4" />
                             Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>

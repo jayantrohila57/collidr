@@ -15,7 +15,7 @@ export default function Footer() {
             <div className="mb-4 flex items-center space-x-2">
               <Shield className="h-8 w-8 text-primary" />
               <span className="font-bold text-xl">{siteConfig.name}</span>
-              <Badge variant="secondary" className="ml-2">
+              <Badge variant="secondary" className="ms-2">
                 Beta
               </Badge>
             </div>

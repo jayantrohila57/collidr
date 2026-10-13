@@ -59,12 +59,12 @@ export function EditProjectDialog({
             openDialog();
           }}
         >
-          <Edit className="mr-2 h-4 w-4" />
+          <Edit className="me-2 h-4 w-4" />
           Edit Project
         </DropdownMenuItem>
       ) : (
         <Button variant="outline" size="sm" onClick={openDialog}>
-          <Edit className="mr-2 h-4 w-4" />
+          <Edit className="me-2 h-4 w-4" />
           Edit Project
         </Button>
       )}

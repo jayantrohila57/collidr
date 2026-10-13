@@ -10,6 +10,7 @@ import { getClientErrorMessage } from "@/lib/errors/client-errors";
 import { createTrpcClient, getQueryClient, TRPCProvider } from "@/utils/trpc";
 
 import { ThemeProvider } from "./theme-provider";
+import { DirectionProvider } from "./ui/direction";
 import { Toaster } from "./ui/sonner";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -32,18 +33,20 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <SkipLink />
-          <OfflineBanner />
-          {children}
-          <ReactQueryDevtools />
-          <Toaster richColors closeButton />
-        </ThemeProvider>
+        <DirectionProvider dir="ltr">
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SkipLink />
+            <OfflineBanner />
+            {children}
+            <ReactQueryDevtools />
+            <Toaster richColors closeButton />
+          </ThemeProvider>
+        </DirectionProvider>
       </QueryClientProvider>
     </TRPCProvider>
   );

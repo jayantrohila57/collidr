@@ -1,9 +1,8 @@
 "use client";
 
+import { cn } from "cn";
 import { Slider as SliderPrimitive } from "radix-ui";
 import * as React from "react";
-
-import { cn } from "@/lib/utils";
 
 function Slider({
   className,
@@ -38,7 +37,7 @@ function Slider({
     >
       <SliderPrimitive.Track
         data-slot="slider-track"
-        className="relative grow overflow-hidden rounded-full bg-muted bg-muted data-horizontal:h-1.5 data-vertical:h-full data-vertical:h-full data-horizontal:w-full data-horizontal:w-full data-vertical:w-1.5"
+        className="relative grow overflow-hidden rounded-md bg-muted data-horizontal:h-1 data-vertical:h-full data-horizontal:w-full data-vertical:w-1"
       >
         <SliderPrimitive.Range
           data-slot="slider-range"
@@ -48,8 +47,8 @@ function Slider({
       {Array.from({ length: _values.length }, (_, index) => (
         <SliderPrimitive.Thumb
           data-slot="slider-thumb"
-          key={`thumb-${_values[index]}-${index}`}
-          className="block size-4 shrink-0 select-none rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:outline-hidden focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50"
+          key={index}
+          className="relative block size-3 shrink-0 select-none rounded-md border border-ring bg-white ring-ring/30 transition-[color,box-shadow] after:absolute after:-inset-2 hover:ring-2 focus-visible:outline-hidden focus-visible:ring-2 active:ring-2 disabled:pointer-events-none disabled:opacity-50"
         />
       ))}
     </SliderPrimitive.Root>

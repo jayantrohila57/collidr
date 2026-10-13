@@ -81,13 +81,13 @@ export function HorizontalScrollRail({
       <div className="relative min-w-0 flex-1">
         {hasOverflow && canScrollLeft && (
           <div
-            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-background to-transparent"
+            className="pointer-events-none absolute inset-y-0 start-0 z-10 w-6 bg-gradient-to-r from-background to-transparent"
             aria-hidden
           />
         )}
         {hasOverflow && canScrollRight && (
           <div
-            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-background to-transparent"
+            className="pointer-events-none absolute inset-y-0 end-0 z-10 w-6 bg-gradient-to-l from-background to-transparent"
             aria-hidden
           />
         )}

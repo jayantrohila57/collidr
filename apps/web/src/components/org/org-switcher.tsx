@@ -126,22 +126,22 @@ export function OrgSwitcher() {
             key={org.id}
             onSelect={() => void onSelectOrg(org.id)}
           >
-            <Building2 className="mr-2 h-4 w-4" />
+            <Building2 className="me-2 h-4 w-4" />
             <span className="truncate">{org.name}</span>
             {org.id === activeOrganizationId && (
-              <span className="ml-auto text-muted-foreground text-xs">✓</span>
+              <span className="ms-auto text-muted-foreground text-xs">✓</span>
             )}
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href={"/dashboard/settings/organization" as Route}>
-            <Settings className="mr-2 h-4 w-4" />
+            <Settings className="me-2 h-4 w-4" />
             Organization settings
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => router.push("/dashboard/onboarding")}>
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus className="me-2 h-4 w-4" />
           Create organization
         </DropdownMenuItem>
       </DropdownMenuContent>

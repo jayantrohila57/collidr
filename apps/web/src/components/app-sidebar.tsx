@@ -83,7 +83,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="offcanvas" variant="sidebar" {...props}>
-      <SidebarHeader className="pr-2">
+      <SidebarHeader className="pe-2">
         <SidebarMenu>
           <SidebarMenuItem className="flex flex-row items-start gap-2">
             <Avatar className="size-9 shrink-0">
@@ -94,7 +94,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   : "NA"}
               </AvatarFallback>
             </Avatar>
-            <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+            <div className="grid min-w-0 flex-1 text-start text-sm leading-tight">
               <span className="truncate font-medium">{siteConfig.name}</span>
               <span className="line-clamp-2 text-xs">
                 {siteConfig.description}
@@ -118,7 +118,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
-                      variant={isActive(item.href) ? "active" : "inActive"}
                       isActive={isActive(item.href)}
                       tooltip={item.label}
                       asChild
@@ -170,11 +169,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   .map((project) => (
                     <SidebarMenuItem key={project.id}>
                       <SidebarMenuButton
-                        variant={
-                          isActive(`/dashboard/projects/${project.slug}`)
-                            ? "active"
-                            : "inActive"
-                        }
                         isActive={isActive(
                           `/dashboard/projects/${project.slug}`,
                         )}

@@ -152,7 +152,7 @@ export function EnvironmentsTabsView({
                     <TabsTrigger className="shrink-0" value={env.id}>
                       {env.name}
                     </TabsTrigger>
-                    <span className="flex shrink-0 items-center gap-0.5 pr-2">
+                    <span className="flex shrink-0 items-center gap-0.5 pe-2">
                       <EditEnvironmentDialog
                         environment={env}
                         onConfirm={onUpdate}
