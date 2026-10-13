@@ -9,6 +9,11 @@ import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { OrganizationMembersTable } from "@/components/org/organization-members-table";
 import { ErrorState } from "@/components/patterns/error-state";
 import { FormField } from "@/components/patterns/form-field";
+import {
+  SettingsPanel,
+  SettingsRow,
+  SettingsSectionHeader,
+} from "@/components/patterns/settings-layout";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import {
   AlertDialog,
@@ -20,13 +25,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardPanel,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -334,26 +332,31 @@ export function OrganizationSettingsForm({
         }}
         className="min-w-0 gap-2"
       >
-        <TabsList
-          size="sm"
-          className="h-auto w-full max-w-full flex-wrap justify-start"
-        >
+        <TabsList size="sm" className="h-auto w-fit max-w-full justify-start">
           <TabsTab value="general">General</TabsTab>
           <TabsTab value="members">Members</TabsTab>
           <TabsTab value="danger">Danger zone</TabsTab>
         </TabsList>
 
         <TabsPanel value="general" className="min-w-0">
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile</CardTitle>
-              <CardDescription>
-                Name and slug for this workspace.
-              </CardDescription>
-            </CardHeader>
-            <CardPanel className="flex flex-col gap-2">
-              <p className="font-medium text-sm">{orgName}</p>
-              <p className="text-muted-foreground text-sm">{orgSlug}</p>
+          <SettingsPanel>
+            <SettingsSectionHeader
+              title="Profile"
+              description="Name and slug for this workspace."
+            />
+            <SettingsRow label="Name" description="Organization display name.">
+              <span className="text-sm">{orgName}</span>
+            </SettingsRow>
+            <SettingsRow
+              label="Slug"
+              description="URL-safe workspace identifier."
+            >
+              <span className="font-mono text-sm">{orgSlug}</span>
+            </SettingsRow>
+            <SettingsRow
+              label="Details"
+              description="Update name, slug, and metadata."
+            >
               <Button
                 type="button"
                 size="sm"
@@ -362,28 +365,27 @@ export function OrganizationSettingsForm({
               >
                 Edit organization
               </Button>
-            </CardPanel>
-          </Card>
+            </SettingsRow>
+          </SettingsPanel>
         </TabsPanel>
 
         <TabsPanel value="members" className="min-w-0">
-          <Card>
-            <CardHeader>
-              <CardTitle>Members</CardTitle>
-              <CardDescription>
-                Invite teammates and manage roles.
-              </CardDescription>
-            </CardHeader>
-            <CardPanel className="flex flex-col gap-2">
-              <div className="flex justify-end">
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => setInviteOpen(true)}
-                >
-                  Invite member
-                </Button>
-              </div>
+          <SettingsPanel>
+            <SettingsSectionHeader
+              title="Members"
+              description="Invite teammates and manage roles."
+            />
+            <SettingsRow label="Invite" description="Add someone by email.">
+              <Button
+                type="button"
+                size="sm"
+                className="w-fit"
+                onClick={() => setInviteOpen(true)}
+              >
+                Invite member
+              </Button>
+            </SettingsRow>
+            <div className="min-w-0 overflow-x-auto px-4 py-4">
               <OrganizationMembersTable
                 members={members}
                 roleSelectItems={ROLE_SELECT_ITEMS}
@@ -393,78 +395,76 @@ export function OrganizationSettingsForm({
                   void handleRoleChange(memberId, role);
                 }}
               />
-            </CardPanel>
-          </Card>
+            </div>
+          </SettingsPanel>
         </TabsPanel>
 
         <TabsPanel value="danger" className="min-w-0">
-          <Card className="border-destructive/32 bg-destructive/4">
-            <CardHeader>
-              <CardTitle className="text-destructive">Danger zone</CardTitle>
-              <CardDescription>
-                Irreversible organization actions.
-              </CardDescription>
-            </CardHeader>
-            <CardPanel className="flex flex-col gap-2">
-              {isOwner ? (
-                <>
-                  {isPersonal ? (
-                    <p className="text-muted-foreground text-sm">
-                      Your personal workspace cannot be deleted.
-                    </p>
-                  ) : (
-                    <>
-                      <p className="text-muted-foreground text-sm">
-                        Deleting an organization removes members and
-                        invitations. Projects must be removed or moved first.
-                      </p>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="w-fit"
-                        disabled={orgs.length <= 1 || deletePending}
-                        onClick={() => {
-                          setDeleteConfirmName("");
-                          setDeleteOpen(true);
-                        }}
-                      >
-                        Delete organization
-                      </Button>
-                      {orgs.length <= 1 && (
-                        <p className="text-muted-foreground text-xs">
-                          Create another organization before deleting this one.
-                        </p>
-                      )}
-                    </>
-                  )}
-                </>
+          <SettingsPanel className="border-destructive/32 bg-destructive/4">
+            <SettingsSectionHeader
+              title="Danger zone"
+              description="Irreversible organization actions."
+            />
+            {isOwner ? (
+              isPersonal ? (
+                <SettingsRow
+                  label="Personal workspace"
+                  description="Your personal workspace cannot be deleted."
+                >
+                  <span className="text-muted-foreground text-xs">—</span>
+                </SettingsRow>
               ) : (
-                <>
-                  <p className="text-muted-foreground text-sm">
-                    Leave this organization. You will lose access to its
-                    projects.
-                  </p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={leavePending}
-                    onClick={() => void handleLeave()}
-                  >
-                    {leavePending ? (
-                      <>
-                        <Spinner className="me-2" />
-                        Leaving…
-                      </>
-                    ) : (
-                      "Leave organization"
-                    )}
-                  </Button>
-                </>
-              )}
-            </CardPanel>
-          </Card>
+                <SettingsRow
+                  label="Delete organization"
+                  description="Removes members and invitations. Projects must be removed or moved first."
+                >
+                  <div className="flex flex-col items-end gap-1">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="w-fit"
+                      disabled={orgs.length <= 1 || deletePending}
+                      onClick={() => {
+                        setDeleteConfirmName("");
+                        setDeleteOpen(true);
+                      }}
+                    >
+                      Delete organization
+                    </Button>
+                    {orgs.length <= 1 ? (
+                      <p className="max-w-[14rem] text-end text-muted-foreground text-xs">
+                        Create another organization before deleting this one.
+                      </p>
+                    ) : null}
+                  </div>
+                </SettingsRow>
+              )
+            ) : (
+              <SettingsRow
+                label="Leave organization"
+                description="You will lose access to its projects."
+              >
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-fit"
+                  disabled={leavePending}
+                  onClick={() => void handleLeave()}
+                >
+                  {leavePending ? (
+                    <>
+                      <Spinner className="me-2" />
+                      Leaving…
+                    </>
+                  ) : (
+                    "Leave organization"
+                  )}
+                </Button>
+              </SettingsRow>
+            )}
+          </SettingsPanel>
         </TabsPanel>
       </Tabs>
 

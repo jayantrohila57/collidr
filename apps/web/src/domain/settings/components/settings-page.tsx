@@ -4,15 +4,12 @@ import { Github } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { ErrorState } from "@/components/patterns/error-state";
+import {
+  SettingsPanel,
+  SettingsRow,
+} from "@/components/patterns/settings-layout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardPanel,
-  CardTitle,
-} from "@/components/ui/card";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { formatDateTime } from "@/lib/format";
 import { initialsFromLabel } from "@/lib/initials";
@@ -38,64 +35,55 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-2">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Account</CardTitle>
-          <CardDescription>Profile and sign-in method.</CardDescription>
-        </CardHeader>
-        <CardPanel className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-2">
-            <Avatar className="size-8">
-              <AvatarImage src={user.image ?? undefined} alt="" />
-              <AvatarFallback className="text-xs">
-                {initialsFromLabel(user.name ?? user.email ?? "User", "US")}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0">
-              <p className="truncate font-medium text-sm">
-                {user.name ?? "User"}
-              </p>
-              <p className="truncate text-muted-foreground text-xs">
-                {user.email}
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col items-end gap-0.5 text-end">
-            <p className="flex items-center justify-end gap-1 text-muted-foreground text-xs">
-              <Github className="size-3.5" aria-hidden />
-              GitHub
+    <SettingsPanel>
+      <SettingsRow label="Account" description="Profile and sign-in method.">
+        <div className="flex min-w-0 items-center gap-2">
+          <Avatar className="size-8 shrink-0">
+            <AvatarImage src={user.image ?? undefined} alt="" />
+            <AvatarFallback className="text-xs">
+              {initialsFromLabel(user.name ?? user.email ?? "User", "US")}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 text-end sm:text-start">
+            <p className="truncate font-medium text-sm">
+              {user.name ?? "User"}
             </p>
-            {"createdAt" in user && user.createdAt ? (
-              <p className="text-muted-foreground text-xs">
-                Member since {formatDateTime(String(user.createdAt))}
-              </p>
-            ) : null}
+            <p className="truncate text-muted-foreground text-xs">
+              {user.email}
+            </p>
           </div>
-        </CardPanel>
-      </Card>
+        </div>
+      </SettingsRow>
+
+      <SettingsRow label="Sign-in" description="Connected provider.">
+        <div className="text-end">
+          <p className="flex items-center justify-end gap-1 text-muted-foreground text-xs">
+            <Github className="size-3.5" aria-hidden />
+            GitHub
+          </p>
+          {"createdAt" in user && user.createdAt ? (
+            <p className="text-muted-foreground text-xs">
+              Member since {formatDateTime(String(user.createdAt))}
+            </p>
+          ) : null}
+        </div>
+      </SettingsRow>
 
       {isOrganizationsEnabledOnClient() ? (
-        <Card>
-          <CardPanel className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <p className="font-medium text-sm">Organization</p>
-              <p className="text-muted-foreground text-xs">
-                Members, invitations, and workspace profile.
-              </p>
-            </div>
-            <Button
-              type="button"
-              size="sm"
-              render={
-                <Link href={"/dashboard/settings/organization" as Route} />
-              }
-            >
-              Manage organization
-            </Button>
-          </CardPanel>
-        </Card>
+        <SettingsRow
+          label="Organization"
+          description="Members, invitations, and workspace profile."
+        >
+          <Button
+            type="button"
+            size="sm"
+            className="w-fit"
+            render={<Link href={"/dashboard/settings/organization" as Route} />}
+          >
+            Manage organization
+          </Button>
+        </SettingsRow>
       ) : null}
-    </div>
+    </SettingsPanel>
   );
 }

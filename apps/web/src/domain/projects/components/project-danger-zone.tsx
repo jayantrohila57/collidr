@@ -2,14 +2,12 @@
 
 import type { ProjectOutput } from "@env-manager/api/types";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardPanel,
-  CardTitle,
-} from "@/components/ui/card";
+  SettingsPanel,
+  SettingsRow,
+  SettingsSectionHeader,
+} from "@/components/patterns/settings-layout";
+import { Button } from "@/components/ui/button";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { ProjectActionDialog } from "./project-action-dialog";
 
@@ -33,61 +31,60 @@ export function ProjectDangerZone({ project }: ProjectDangerZoneProps) {
 
   return (
     <>
-      <Card className="border-destructive/32 bg-destructive/4">
-        <CardHeader>
-          <CardTitle className="text-destructive">Danger zone</CardTitle>
-          <CardDescription>
-            Archive or permanently delete this project and all of its
-            environments.
-          </CardDescription>
-        </CardHeader>
-        <CardPanel className="flex flex-col gap-2">
-          {project.isArchived ? (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-muted-foreground text-sm">
-                This project is archived and hidden from the main project list.
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isUnarchiving}
-                onClick={() => setUnarchiveDialogOpen(true)}
-              >
-                Unarchive project
-              </Button>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-muted-foreground text-sm">
-                Archive hides the project without deleting environments or
-                variables.
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isArchiving}
-                onClick={() => setArchiveDialogOpen(true)}
-              >
-                Archive project
-              </Button>
-            </div>
-          )}
-          <div className="flex flex-col gap-2 border-t pt-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-muted-foreground text-sm">
-              Deleting removes all environments, variables, and history. This
-              cannot be undone.
-            </p>
+      <SettingsPanel className="border-destructive/32 bg-destructive/4">
+        <SettingsSectionHeader
+          title="Danger zone"
+          description="Archive or permanently delete this project and all of its environments."
+        />
+        {project.isArchived ? (
+          <SettingsRow
+            label="Archived"
+            description="This project is hidden from the main project list."
+          >
             <Button
               type="button"
-              variant="destructive"
-              disabled={isDeleting}
-              onClick={() => setDeleteDialogOpen(true)}
+              variant="outline"
+              size="sm"
+              className="w-fit"
+              disabled={isUnarchiving}
+              onClick={() => setUnarchiveDialogOpen(true)}
             >
-              Delete project
+              Unarchive project
             </Button>
-          </div>
-        </CardPanel>
-      </Card>
+          </SettingsRow>
+        ) : (
+          <SettingsRow
+            label="Archive"
+            description="Hide the project without deleting environments or variables."
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-fit"
+              disabled={isArchiving}
+              onClick={() => setArchiveDialogOpen(true)}
+            >
+              Archive project
+            </Button>
+          </SettingsRow>
+        )}
+        <SettingsRow
+          label="Delete project"
+          description="Removes all environments, variables, and history. This cannot be undone."
+        >
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            className="w-fit"
+            disabled={isDeleting}
+            onClick={() => setDeleteDialogOpen(true)}
+          >
+            Delete project
+          </Button>
+        </SettingsRow>
+      </SettingsPanel>
 
       <ProjectActionDialog
         open={deleteDialogOpen}

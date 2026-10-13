@@ -50,8 +50,10 @@ export default function EditProjectClient({ slug }: EditProjectClientProps) {
       title={`Edit ${project.name}`}
       description="Update project information and settings."
     >
-      <EditProject project={project} embedded />
-      <ProjectSettingsSection project={project} />
+      <div className="flex flex-col gap-4">
+        <EditProject project={project} embedded />
+        <ProjectSettingsSection project={project} />
+      </div>
     </DashboardSection>
   );
 }

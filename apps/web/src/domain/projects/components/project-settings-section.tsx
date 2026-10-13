@@ -2,14 +2,12 @@
 
 import type { ProjectOutput } from "@env-manager/api/types";
 import { Eye, EyeOff, Power, Wrench } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardPanel,
-  CardTitle,
-} from "@/components/ui/card";
+  SettingsPanel,
+  SettingsRow,
+  SettingsSectionHeader,
+} from "@/components/patterns/settings-layout";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import { toast } from "@/lib/toast";
 import { useProjectActions } from "../hooks/use-project-actions";
@@ -52,73 +50,71 @@ export function ProjectSettingsSection({
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <Card>
-        <CardHeader>
-          <CardTitle>Project settings</CardTitle>
-          <CardDescription>
-            Status, visibility, and runtime behavior.
-          </CardDescription>
-        </CardHeader>
-        <CardPanel className="flex flex-col gap-3">
-          <div className="space-y-2">
-            <p className="font-medium text-sm">Status</p>
-            <Tabs
-              value={project.status}
-              onValueChange={(value) => {
-                if (value) {
-                  void handleStatusChange(
-                    value as "active" | "inactive" | "maintenance",
-                  );
-                }
-              }}
-            >
-              <TabsList
-                size="sm"
-                className="h-auto w-full max-w-md justify-start"
-              >
-                {STATUS_OPTIONS.map((option) => (
-                  <TabsTab
-                    key={option.value}
-                    value={option.value}
-                    className="gap-1.5"
-                    disabled={isChangingStatus}
-                  >
-                    <option.icon className="size-3.5" aria-hidden />
-                    {option.label}
-                  </TabsTab>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-muted-foreground text-sm">
-              {project.isPublic
-                ? "Visible to anyone with the link."
-                : "Only organization members can access."}
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={isTogglingPublic}
-              onClick={() => void toggleProjectPublic()}
-            >
-              {project.isPublic ? (
-                <>
-                  <EyeOff className="me-2 size-4" aria-hidden />
-                  Make private
-                </>
-              ) : (
-                <>
-                  <Eye className="me-2 size-4" aria-hidden />
-                  Make public
-                </>
-              )}
-            </Button>
-          </div>
-        </CardPanel>
-      </Card>
+    <div className="flex flex-col gap-4">
+      <SettingsPanel>
+        <SettingsSectionHeader
+          title="Project settings"
+          description="Status, visibility, and runtime behavior."
+        />
+        <SettingsRow
+          label="Status"
+          description="Operational state for this project."
+        >
+          <Tabs
+            value={project.status}
+            onValueChange={(value) => {
+              if (value) {
+                void handleStatusChange(
+                  value as "active" | "inactive" | "maintenance",
+                );
+              }
+            }}
+          >
+            <TabsList size="sm" className="h-auto w-fit justify-start">
+              {STATUS_OPTIONS.map((option) => (
+                <TabsTab
+                  key={option.value}
+                  value={option.value}
+                  className="gap-1.5"
+                  disabled={isChangingStatus}
+                >
+                  <option.icon className="size-3.5" aria-hidden />
+                  {option.label}
+                </TabsTab>
+              ))}
+            </TabsList>
+          </Tabs>
+        </SettingsRow>
+        <SettingsRow
+          label="Visibility"
+          description={
+            project.isPublic
+              ? "Visible to anyone with the link."
+              : "Only organization members can access."
+          }
+        >
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-fit"
+            disabled={isTogglingPublic}
+            onClick={() => void toggleProjectPublic()}
+          >
+            {project.isPublic ? (
+              <>
+                <EyeOff className="me-2 size-4" aria-hidden />
+                Make private
+              </>
+            ) : (
+              <>
+                <Eye className="me-2 size-4" aria-hidden />
+                Make public
+              </>
+            )}
+          </Button>
+        </SettingsRow>
+      </SettingsPanel>
       <ProjectDangerZone project={project} />
     </div>
   );

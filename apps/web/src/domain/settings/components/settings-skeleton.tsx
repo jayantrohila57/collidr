@@ -1,36 +1,25 @@
-import { Card, CardHeader, CardPanel, CardTitle } from "@/components/ui/card";
+import { SettingsPanel } from "@/components/patterns/settings-layout";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function SettingsPageSkeleton() {
   return (
-    <div className="flex flex-col gap-2" role="status" aria-busy="true">
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <Skeleton className="h-5 w-24" />
-          </CardTitle>
-        </CardHeader>
-        <CardPanel>
-          <div className="flex items-center gap-2">
-            <Skeleton className="size-16 rounded-full" />
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-4 w-48" />
-            </div>
+    <div role="status" aria-busy="true">
+      <SettingsPanel>
+        <div className="grid gap-3 px-4 py-4 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-3 w-40" />
           </div>
-        </CardPanel>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <Skeleton className="h-5 w-20" />
-          </CardTitle>
-        </CardHeader>
-        <CardPanel>
-          <Skeleton className="h-4 w-full max-w-md" />
-          <Skeleton className="h-4 w-40" />
-        </CardPanel>
-      </Card>
+          <Skeleton className="h-8 w-32 justify-self-start sm:justify-self-end" />
+        </div>
+        <div className="grid gap-3 px-4 py-4 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-3 w-48" />
+          </div>
+          <Skeleton className="h-8 w-28 justify-self-start sm:justify-self-end" />
+        </div>
+      </SettingsPanel>
     </div>
   );
 }

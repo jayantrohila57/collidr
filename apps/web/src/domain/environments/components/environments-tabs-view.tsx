@@ -118,7 +118,7 @@ export function EnvironmentsTabsView({
       >
         <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
           <HorizontalScrollRail className="w-full min-w-0 sm:flex-1">
-            <TabsList size="sm" className="h-auto w-max min-w-0 justify-start">
+            <TabsList size="sm" className="h-auto w-fit min-w-0 justify-start">
               {environments.map((env) => {
                 const count = variableCounts[env.id];
                 return (
