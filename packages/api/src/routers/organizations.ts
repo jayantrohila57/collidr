@@ -1,5 +1,5 @@
 import { isActionsAuditEnabled } from "@env-manager/actions";
-import { db } from "@env-manager/db";
+import { activeMemberWhere, db } from "@env-manager/db";
 import { member, organization } from "@env-manager/db/schema/organization";
 import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
@@ -25,7 +25,11 @@ export const organizationsRouter = router({
       })
       .from(member)
       .innerJoin(organization, eq(member.organizationId, organization.id))
-      .where(and(eq(member.userId, userId), isNull(organization.deletedAt)));
+      .where(
+        activeMemberWhere(
+          and(eq(member.userId, userId), isNull(organization.deletedAt)),
+        ),
+      );
 
     return { items: rows };
   }),
@@ -45,10 +49,12 @@ export const organizationsRouter = router({
         .from(organization)
         .innerJoin(member, eq(member.organizationId, organization.id))
         .where(
-          and(
-            eq(organization.slug, input.slug),
-            eq(member.userId, userId),
-            isNull(organization.deletedAt),
+          activeMemberWhere(
+            and(
+              eq(organization.slug, input.slug),
+              eq(member.userId, userId),
+              isNull(organization.deletedAt),
+            ),
           ),
         )
         .limit(1);
