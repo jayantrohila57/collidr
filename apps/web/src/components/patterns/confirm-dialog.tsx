@@ -15,6 +15,7 @@ import { Spinner } from "@/components/ui/spinner";
 interface ConfirmDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onOpenChangeComplete?: (open: boolean) => void;
   title: string;
   description: string;
   confirmLabel: string;
@@ -27,6 +28,7 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({
   open,
   onOpenChange,
+  onOpenChangeComplete,
   title,
   description,
   confirmLabel,
@@ -36,7 +38,11 @@ export function ConfirmDialog({
   isPending = false,
 }: ConfirmDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      onOpenChangeComplete={onOpenChangeComplete}
+    >
       <AlertDialogPopup>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>

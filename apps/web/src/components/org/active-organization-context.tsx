@@ -108,11 +108,14 @@ export function ActiveOrganizationProvider({
       try {
         await authClient.organization.setActive({ organizationId });
 
-        const refreshOrgs = refreshOrganizations();
         await invalidateAfterOrganizationChange(queryClient);
         void router.refresh();
 
-        await queryClient.fetchQuery(trpc.dashboard.getOverview.queryOptions());
+        const refreshOrgs = refreshOrganizations();
+        await Promise.all([
+          queryClient.fetchQuery(trpc.projects.list.queryOptions()),
+          queryClient.fetchQuery(trpc.dashboard.getOverview.queryOptions()),
+        ]);
 
         if (options?.awaitRefresh) {
           await refreshOrgs;

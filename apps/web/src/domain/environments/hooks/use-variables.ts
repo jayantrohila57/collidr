@@ -76,19 +76,13 @@ export function useVariables(environmentId: string) {
         return { previousVariables };
       },
       onError: () => {
-        // Rollback to the previous value
         if (createMutation.context?.previousVariables) {
           queryClient.setQueryData(
             trpc.environmentVariables.list.queryKey({ environmentId }),
             createMutation.context.previousVariables,
           );
         }
-      },
-      onSettled: () => {
-        // Always refetch after error or success to ensure consistency
-        queryClient.invalidateQueries({
-          queryKey: trpc.environmentVariables.list.queryKey({ environmentId }),
-        });
+        toast.error("Failed to add variable");
       },
       onSuccess: () => {
         toast.success("Variable added");
@@ -126,6 +120,7 @@ export function useVariables(environmentId: string) {
           );
         }
 
+        toast.success("Variable updated successfully");
         return { previousVariables };
       },
       onError: () => {
@@ -135,11 +130,7 @@ export function useVariables(environmentId: string) {
             updateMutation.context.previousVariables,
           );
         }
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries({
-          queryKey: trpc.environmentVariables.list.queryKey({ environmentId }),
-        });
+        toast.error("Failed to update variable");
       },
       onSuccess: (_result, variables) => {
         if (variables.value !== undefined) {
@@ -153,7 +144,6 @@ export function useVariables(environmentId: string) {
             id: variables.id,
           }),
         });
-        toast.success("Variable updated successfully");
       },
     }),
   );
@@ -182,6 +172,7 @@ export function useVariables(environmentId: string) {
           );
         }
 
+        toast.success("Variable deleted");
         return { previousVariables };
       },
       onError: () => {
@@ -191,14 +182,7 @@ export function useVariables(environmentId: string) {
             deleteMutation.context.previousVariables,
           );
         }
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries({
-          queryKey: trpc.environmentVariables.list.queryKey({ environmentId }),
-        });
-      },
-      onSuccess: () => {
-        toast.success("Variable deleted");
+        toast.error("Failed to delete variable");
       },
     }),
   );
@@ -245,11 +229,6 @@ export function useVariables(environmentId: string) {
             bulkImportMutation.context.previousVariables,
           );
         }
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries({
-          queryKey: trpc.environmentVariables.list.queryKey({ environmentId }),
-        });
       },
       onSuccess: (data) => {
         toast.success(data.message);

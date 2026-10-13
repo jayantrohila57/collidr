@@ -12,6 +12,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSwitcher } from "@/components/org/org-switcher";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +25,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
@@ -52,7 +54,9 @@ function MobileSidebarClose() {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+  const { isSwitching } = useActiveOrganization();
   const { projects, status } = useProjects();
+  const projectsLoading = isSwitching || status === "loading";
 
   useEffect(() => {
     setMounted(true);
@@ -138,15 +142,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <Separator className="my-2 group-data-[collapsible=icon]:hidden" />
           <SidebarGroupContent>
             <SidebarMenu className="flex flex-col gap-1">
-              {status === "loading" && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton disabled>
-                    <FolderIcon />
-                    <span>Loading projects...</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-              {status === "error" && (
+              {projectsLoading &&
+                ["a", "b", "c", "d"].map((id) => (
+                  <SidebarMenuItem key={`project-skeleton-${id}`}>
+                    <SidebarMenuSkeleton showIcon />
+                  </SidebarMenuItem>
+                ))}
+              {!projectsLoading && status === "error" && (
                 <SidebarMenuItem>
                   <SidebarMenuButton disabled>
                     <FolderIcon />
@@ -154,15 +156,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
-              {status === "success" && projects.length === 0 && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton disabled>
-                    <FolderIcon />
-                    <span>No projects yet</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-              {status === "success" &&
+              {!projectsLoading &&
+                status === "success" &&
+                projects.length === 0 && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton disabled>
+                      <FolderIcon />
+                      <span>No projects yet</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+              {!projectsLoading &&
+                status === "success" &&
                 projects
                   .filter((project) => project.slug?.trim())
                   .map((project) => (

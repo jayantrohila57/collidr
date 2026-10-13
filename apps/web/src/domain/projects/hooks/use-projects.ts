@@ -8,6 +8,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";
 
@@ -89,6 +90,7 @@ const PROJECTS_LOAD_TIMEOUT_MS = 20_000;
 export function useProjects() {
   const queryClient = useQueryClient();
   const [loadTimedOut, setLoadTimedOut] = useState(false);
+  const { isSwitching } = useActiveOrganization();
 
   const projectsQuery = useQuery({
     ...trpc.projects.list.queryOptions(),
@@ -96,6 +98,7 @@ export function useProjects() {
     retry: 2,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
     refetchOnWindowFocus: true,
+    enabled: !isSwitching,
   });
 
   useEffect(() => {
@@ -124,14 +127,6 @@ export function useProjects() {
             };
           },
         );
-
-        // Invalidate related queries to ensure consistency
-        queryClient.invalidateQueries({
-          queryKey: trpc.projects.list.queryKey(),
-        });
-        queryClient.invalidateQueries({
-          queryKey: trpc.dashboard.getOverview.queryKey(),
-        });
 
         toast.success("Project created successfully");
       },
@@ -455,18 +450,22 @@ export function useProjects() {
     }),
   );
 
-  const status: "loading" | "error" | "empty" | "success" = loadTimedOut
-    ? "error"
-    : projectsQuery.isLoading
-      ? "loading"
-      : projectsQuery.isError
-        ? "error"
-        : projectsQuery.data?.data.length === 0
-          ? "empty"
-          : "success";
+  const status: "loading" | "error" | "empty" | "success" = isSwitching
+    ? "loading"
+    : loadTimedOut
+      ? "error"
+      : projectsQuery.isLoading
+        ? "loading"
+        : projectsQuery.isError
+          ? "error"
+          : projectsQuery.data?.data.length === 0
+            ? "empty"
+            : "success";
 
   return {
-    projects: (projectsQuery.data?.data ?? []).map(transformProject),
+    projects: isSwitching
+      ? []
+      : (projectsQuery.data?.data ?? []).map(transformProject),
     status,
     error: loadTimedOut
       ? new Error("Projects took too long to load. Please try again.")

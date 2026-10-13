@@ -89,7 +89,6 @@ export function VariablesTableView({
     if (deleteTarget) {
       await onDelete(deleteTarget.id);
       setDeleteDialogOpen(false);
-      window.setTimeout(() => setDeleteTarget(null), 200);
     }
   };
 
@@ -300,10 +299,10 @@ export function VariablesTableView({
 
       <ConfirmDialog
         open={deleteDialogOpen}
-        onOpenChange={(open) => {
-          setDeleteDialogOpen(open);
+        onOpenChange={setDeleteDialogOpen}
+        onOpenChangeComplete={(open) => {
           if (!open) {
-            window.setTimeout(() => setDeleteTarget(null), 200);
+            setDeleteTarget(null);
           }
         }}
         title="Delete variable"
