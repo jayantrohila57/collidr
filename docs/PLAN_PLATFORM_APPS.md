@@ -360,7 +360,7 @@ Each app’s tRPC context / middleware:
 ### 8.1 Principles
 
 - **Single window:** `apps/auth`, `apps/account`, and `apps/studio` go live together; `apps/web` Vercel project is retired in the same change set.
-- **SSO (phase 1):** Per **Decision 1**, users sign in via auth-app redirects; expect **one re-login** at cutover (session cookies move off the monolithic web origin).
+- **SSO (phase 1):** Per **Decision 1** + **Decision 6**, auth-app redirects; existing `apps/web` sessions are **not** carried over — users **re-login once** at cutover (no dual-cookie window).
 - **Database:** App split is routing/deploy only until MCP/console schema (`0008`); use a **Neon test branch** for full-stack verification before prod (see §8.2).
 - **Prep in repo:** Feature freeze on `apps/web` while studio/account/auth reach parity; avoid long-lived production shims.
 
@@ -385,7 +385,7 @@ Complete on a **Neon branch** (and matching Vercel **staging** hostnames or loca
 - [ ] GitHub OAuth app: **new callback URL** on auth hostname tested; old web callback removal planned for cutover instant.
 - [ ] Vercel env: `BETTER_AUTH_URL`, `NEXT_PUBLIC_AUTH_URL`, studio/account URL graph, shared `BETTER_AUTH_SECRET` / `DATABASE_URL` aligned across three projects.
 - [ ] Redirect map drafted: `env-manager-web.vercel.app` → studio; `/dashboard/settings/*` → account paths.
-- [ ] Owner comms: maintenance window + “sign in again once” (OIDC redirect model).
+- [ ] Owner comms: maintenance window + **one-time re-login** (Decision 6); no promise of seamless session continuity.
 - [ ] Rollback owner identified; §8.4 steps reviewed.
 
 ### 8.3 Big-bang cutover (single maintenance window)
@@ -516,10 +516,22 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 | **Style** | **Big-bang** — `apps/auth` + `apps/account` + `apps/studio` production **at once**; retire `apps/web` in the **same** maintenance window. |
 | **Excluded** | No beta hostname, no gradual traffic percentage, no long dual-run of web + studio in production. |
 | **Proof** | Full §8.2 verification on **Neon test branch** + staging URLs; §8.2 checklist signed off before C1. |
-| **Sessions** | Expect users to **sign in again once** after cutover (auth redirect model + new origins); no dual-cookie migration window. |
+| **Sessions** | See **Decision 6** — one-time re-login; no dual-cookie window. |
 | **Runbook** | §8.3 steps C1–C7; rollback §8.4. |
 
 **Implication:** Implementation work happens off prod until parity is proven; production changes once, completely.
+
+### Decision 6 — Session migration at cutover (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **User experience** | **One-time re-login** when the big-bang cutover (Decision 5) completes. Treat as expected, not a defect. |
+| **Dual cookies** | **No dual-cookie window** — do not run overlapping session cookies on `apps/web` and auth/studio/account to “bridge” users. |
+| **Implementation** | At cutover, auth lives only on **`apps/auth`**; studio/account issue **new** per-origin sessions after redirect login. Do not copy or sync legacy web session rows into sibling apps. |
+| **Invalidation** | Pre-cutover web sessions may simply **expire unused** after web is decommissioned; no mass session migration script required for v1. |
+| **Comms** | Maintenance notice states: sign in again once via GitHub on the auth flow. |
+
+**Implication:** Cutover runbooks must not include “keep users logged in” via cookie duplication; optimize for a clean auth boundary instead.
 
 ---
 
