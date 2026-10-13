@@ -1,6 +1,6 @@
 "use client";
 
-import { Home } from "lucide-react";
+import { Home, MoreHorizontal } from "lucide-react";
 import type { Route } from "next";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
@@ -12,6 +12,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
 import { cn, deSlug } from "@/lib/utils";
 
@@ -36,6 +38,23 @@ const generateBreadcrumbs = (pathname: string) => {
   return breadcrumbs;
 };
 
+function breadcrumbLabel(
+  breadcrumb: { segment: string },
+  index: number,
+  breadcrumbs: ReturnType<typeof generateBreadcrumbs>,
+  projectFromList?: { name: string },
+) {
+  const isProjectSlug =
+    index === 2 &&
+    breadcrumbs[1]?.segment === "projects" &&
+    !["new", "edit"].includes(breadcrumb.segment);
+
+  return formatSegmentLabel(
+    breadcrumb.segment,
+    isProjectSlug ? projectFromList?.name : undefined,
+  );
+}
+
 export function Breadcrumbs({ className }: { className?: string }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -59,6 +78,10 @@ export function Breadcrumbs({ className }: { className?: string }) {
     ? [0, breadcrumbs.length - 2, breadcrumbs.length - 1]
     : breadcrumbs.map((_, i) => i);
 
+  const lastIndex = breadcrumbs.length - 1;
+  const mobileMenuItems =
+    breadcrumbs.length > 1 ? breadcrumbs.slice(0, -1) : [];
+
   return (
     <Breadcrumb className="min-w-0">
       <BreadcrumbList
@@ -73,15 +96,74 @@ export function Breadcrumbs({ className }: { className?: string }) {
             <Home className="size-4" aria-hidden />
           </BreadcrumbLink>
         </BreadcrumbItem>
+
+        {/* Mobile: last segment + ellipsis menu for ancestors */}
+        {breadcrumbs.length > 0 ? (
+          <>
+            {mobileMenuItems.length > 0 ? (
+              <React.Fragment key="mobile-ellipsis">
+                <BreadcrumbSeparator className="shrink-0 md:hidden">
+                  {"/"}
+                </BreadcrumbSeparator>
+                <BreadcrumbItem className="shrink-0 md:hidden">
+                  <Menu>
+                    <MenuTrigger
+                      render={
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label="Show breadcrumb trail"
+                        />
+                      }
+                    >
+                      <MoreHorizontal className="size-4" aria-hidden />
+                    </MenuTrigger>
+                    <MenuPopup align="start">
+                      {mobileMenuItems.map((crumb, index) => (
+                        <MenuItem
+                          key={crumb.href}
+                          onClick={() => handleBreadcrumbClick(crumb.href)}
+                        >
+                          {breadcrumbLabel(
+                            crumb,
+                            index,
+                            breadcrumbs,
+                            projectFromList,
+                          )}
+                        </MenuItem>
+                      ))}
+                    </MenuPopup>
+                  </Menu>
+                </BreadcrumbItem>
+              </React.Fragment>
+            ) : null}
+            <BreadcrumbSeparator className="shrink-0 md:hidden">
+              {"/"}
+            </BreadcrumbSeparator>
+            <BreadcrumbItem className="max-w-[min(12rem,55vw)] shrink truncate md:hidden">
+              <BreadcrumbPage className="truncate">
+                {breadcrumbLabel(
+                  breadcrumbs[lastIndex],
+                  lastIndex,
+                  breadcrumbs,
+                  projectFromList,
+                )}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </>
+        ) : null}
+
+        {/* md+: full trail (with optional middle collapse) */}
         {breadcrumbs?.map((breadcrumb, index) => {
           if (collapseMiddle && index > 0 && index < breadcrumbs.length - 2) {
             if (index === 1) {
               return (
                 <React.Fragment key="ellipsis">
-                  <BreadcrumbSeparator className="shrink-0">
+                  <BreadcrumbSeparator className="hidden shrink-0 md:flex">
                     {"/"}
                   </BreadcrumbSeparator>
-                  <BreadcrumbItem className="shrink-0 text-muted-foreground">
+                  <BreadcrumbItem className="hidden shrink-0 text-muted-foreground md:flex">
                     …
                   </BreadcrumbItem>
                 </React.Fragment>
@@ -94,22 +176,19 @@ export function Breadcrumbs({ className }: { className?: string }) {
             return null;
           }
 
-          const isProjectSlug =
-            index === 2 &&
-            breadcrumbs[1]?.segment === "projects" &&
-            !["new", "edit"].includes(breadcrumb.segment);
-
-          const label = formatSegmentLabel(
-            breadcrumb.segment,
-            isProjectSlug ? projectFromList?.name : undefined,
+          const label = breadcrumbLabel(
+            breadcrumb,
+            index,
+            breadcrumbs,
+            projectFromList,
           );
 
           return (
             <React.Fragment key={breadcrumb.href}>
-              <BreadcrumbSeparator className="shrink-0 first:hidden">
+              <BreadcrumbSeparator className="hidden shrink-0 first:hidden md:flex">
                 {"/"}
               </BreadcrumbSeparator>
-              <BreadcrumbItem className="max-w-24 shrink truncate sm:max-w-32 md:max-w-xs">
+              <BreadcrumbItem className="hidden max-w-32 shrink truncate md:flex md:max-w-xs">
                 {index === breadcrumbs.length - 1 ? (
                   <BreadcrumbPage className="truncate">{label}</BreadcrumbPage>
                 ) : (

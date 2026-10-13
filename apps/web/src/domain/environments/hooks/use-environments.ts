@@ -4,7 +4,7 @@ import type { EnvironmentOutput, ProjectOutput } from "@env-manager/api/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";
 
@@ -49,21 +49,30 @@ export function useEnvironments(projectSlug: string) {
   };
   const environments = projectData.environments;
 
-  const activeTab = useMemo(() => {
+  const urlActiveTab = useMemo(() => {
     const resolved = resolveEnvironmentId(environments, envParam);
     return resolved ?? environments[0]?.id;
   }, [environments, envParam]);
 
+  const [clientActiveTab, setClientActiveTab] = useState<string | undefined>();
+
+  useEffect(() => {
+    setClientActiveTab(undefined);
+  }, [envParam, projectSlug]);
+
+  const activeTab = clientActiveTab ?? urlActiveTab;
+
   const setActiveTab = useCallback(
     (id: string) => {
+      setClientActiveTab(id);
       const params = new URLSearchParams(searchParams.toString());
       const env = environments.find((item) => item.id === id);
       params.set("env", env?.slug ?? id);
       const query = params.toString();
-      const href = (query ? `${pathname}?${query}` : pathname) as Route;
-      router.replace(href, { scroll: false });
+      const href = query ? `${pathname}?${query}` : pathname;
+      window.history.replaceState(window.history.state, "", href);
     },
-    [environments, pathname, router, searchParams],
+    [environments, pathname, searchParams],
   );
 
   const createEnvMutation = useMutation(

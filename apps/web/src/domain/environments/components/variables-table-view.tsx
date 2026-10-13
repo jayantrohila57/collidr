@@ -123,11 +123,38 @@ export function VariablesTableView({
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Key" />
         ),
-        cell: ({ getValue }) => (
-          <span className="block truncate font-medium font-mono text-xs sm:text-sm">
-            {getValue()}
-          </span>
-        ),
+        cell: ({ row }) => {
+          const variable = row.original;
+          const isRevealed = revealedIds.has(variable.id);
+          return (
+            <div className="min-w-0">
+              <span className="block truncate font-medium font-mono text-xs sm:text-sm">
+                {variable.key}
+              </span>
+              <div className="mt-1 flex min-w-0 items-center gap-1 sm:hidden">
+                <SecretValue
+                  revealed={isRevealed}
+                  value={variable.value}
+                  className="min-w-0 flex-1 text-xs"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={isRevealed ? "Hide value" : "Reveal value"}
+                  disabled={revealingIds?.has(variable.id)}
+                  onClick={() => onReveal(variable.id)}
+                >
+                  {isRevealed ? (
+                    <EyeOff className="size-4" aria-hidden />
+                  ) : (
+                    <Eye className="size-4" aria-hidden />
+                  )}
+                </Button>
+              </div>
+            </div>
+          );
+        },
       }),
       columnHelper.display({
         id: "value",
@@ -240,6 +267,7 @@ export function VariablesTableView({
         enablePagination={variables.length > 15}
         pageSize={15}
         caption="Environment variables"
+        captionSrOnly
         framed
         compactLayout
         emptyState={

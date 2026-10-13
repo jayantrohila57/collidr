@@ -113,6 +113,7 @@ export function DashboardHome() {
                 <ProjectsTableView
                   projects={recentProjects}
                   caption="Recent projects"
+                  captionSrOnly
                   emptyMessage="No projects yet"
                   searchable={false}
                   enablePagination={false}

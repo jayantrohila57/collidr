@@ -43,6 +43,8 @@ export type DataTableProps<TData extends RowData> = {
   emptyMessage?: string;
   emptyState?: ReactNode;
   caption?: string;
+  /** Visually hide table caption while keeping it for screen readers */
+  captionSrOnly?: boolean;
   framed?: boolean;
   className?: string;
   searchPlaceholder?: string;
@@ -90,6 +92,7 @@ export function DataTable<TData extends RowData>({
   emptyMessage = "No results.",
   emptyState,
   caption,
+  captionSrOnly = false,
   framed = false,
   className,
   searchPlaceholder,
@@ -149,7 +152,11 @@ export function DataTable<TData extends RowData>({
       emptyMarkup
     ) : (
       <Table variant="card" className={cn(compactLayout && "table-fixed")}>
-        {caption ? <TableCaption>{caption}</TableCaption> : null}
+        {caption ? (
+          <TableCaption className={cn(captionSrOnly && "sr-only")}>
+            {caption}
+          </TableCaption>
+        ) : null}
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>

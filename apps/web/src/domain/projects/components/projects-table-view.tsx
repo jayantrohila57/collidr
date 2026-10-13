@@ -14,6 +14,7 @@ interface ProjectsTableViewProps {
   enablePagination?: boolean;
   pageSize?: number;
   limitRows?: number;
+  captionSrOnly?: boolean;
 }
 
 export function ProjectsTableView({
@@ -25,6 +26,7 @@ export function ProjectsTableView({
   enablePagination = true,
   pageSize = 10,
   limitRows,
+  captionSrOnly,
 }: ProjectsTableViewProps) {
   const columns = useMemo(() => createProjectsTableColumns(), []);
   const data = limitRows ? projects.slice(0, limitRows) : projects;
@@ -36,6 +38,7 @@ export function ProjectsTableView({
       isLoading={isLoading}
       emptyMessage={emptyMessage}
       caption={caption}
+      captionSrOnly={captionSrOnly}
       framed
       compactLayout
       searchable={searchable}

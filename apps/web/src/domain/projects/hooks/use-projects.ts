@@ -462,17 +462,18 @@ export function useProjects() {
     }),
   );
 
-  const status: "loading" | "error" | "empty" | "success" = isSwitching
-    ? "loading"
-    : loadTimedOut
-      ? "error"
-      : projectsQuery.isLoading
-        ? "loading"
-        : projectsQuery.isError
-          ? "error"
-          : projectsQuery.data?.data.length === 0
-            ? "empty"
-            : "success";
+  const status: "loading" | "error" | "empty" | "success" =
+    isSwitching || !orgReady
+      ? "loading"
+      : loadTimedOut
+        ? "error"
+        : projectsQuery.isLoading
+          ? "loading"
+          : projectsQuery.isError
+            ? "error"
+            : projectsQuery.data?.data.length === 0
+              ? "empty"
+              : "success";
 
   return {
     projects: isSwitching

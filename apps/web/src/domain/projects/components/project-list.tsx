@@ -43,6 +43,7 @@ export default function ProjectList({ onCreateProject }: ProjectListProps) {
         <ProjectsTableView
           projects={projects}
           caption="All projects"
+          captionSrOnly
           emptyMessage="No projects match your search."
         />
       );

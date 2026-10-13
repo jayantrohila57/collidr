@@ -36,12 +36,12 @@ export function DashboardStatRow({ stats }: { stats: DashboardStats }) {
       label: "Variables",
       value: stats.totalVariables,
       href: "/dashboard/activity" as Route,
-      hint: "Recent activity",
+      hint: "Across all environments",
     },
   ];
 
   return (
-    <div className={cn("grid sm:grid-cols-3", layoutGapClass)}>
+    <div className={cn("grid grid-cols-2 sm:grid-cols-3", layoutGapClass)}>
       {items.map((item) => (
         <Link key={item.label} href={item.href} className="min-w-0">
           <Card className="h-full transition-colors hover:bg-muted/40">

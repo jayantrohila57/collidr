@@ -143,7 +143,11 @@ export function createProjectsTableColumns(): DataTableColumnDef<ProjectOutput>[
       meta: { className: col.actions },
       header: () => <span className="sr-only">Actions</span>,
       enableSorting: false,
-      cell: ({ row }) => <ProjectActions project={row.original} />,
+      cell: ({ row }) => (
+        <div className="flex justify-end">
+          <ProjectActions project={row.original} />
+        </div>
+      ),
     }),
   ];
 }

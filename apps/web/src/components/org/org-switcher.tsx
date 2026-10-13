@@ -23,6 +23,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { initialsFromLabel } from "@/lib/initials";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { toast } from "@/lib/toast";
@@ -92,7 +93,7 @@ export function OrgSwitcher() {
               <>
                 <Avatar className="size-8 shrink-0 rounded-lg">
                   <AvatarFallback className="rounded-lg text-xs">
-                    {active?.name?.slice(0, 2).toUpperCase() ?? "—"}
+                    {active?.name ? initialsFromLabel(active.name, "OR") : "OR"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid min-w-0 flex-1 gap-0.5 text-start text-sm leading-tight group-data-[collapsible=icon]:hidden">

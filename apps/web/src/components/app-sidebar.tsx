@@ -29,6 +29,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
+import { initialsFromLabel } from "@/lib/initials";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -147,12 +148,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       >
                         <Avatar className="size-5 shrink-0">
                           <AvatarFallback className="bg-muted font-medium text-[9px]">
-                            {project.name
-                              .split(/\s+/)
-                              .map((part) => part[0])
-                              .join("")
-                              .slice(0, 2)
-                              .toUpperCase() || "P"}
+                            {initialsFromLabel(project.name, "PR")}
                           </AvatarFallback>
                         </Avatar>
                         <span className="truncate">{project.name}</span>

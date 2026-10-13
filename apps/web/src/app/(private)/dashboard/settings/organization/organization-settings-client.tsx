@@ -357,6 +357,7 @@ export function OrganizationSettingsForm({
               <Button
                 type="button"
                 size="sm"
+                className="w-fit"
                 onClick={() => setEditOrgOpen(true)}
               >
                 Edit organization
@@ -397,9 +398,9 @@ export function OrganizationSettingsForm({
         </TabsPanel>
 
         <TabsPanel value="danger" className="min-w-0">
-          <Card>
+          <Card className="border-destructive/32 bg-destructive/4">
             <CardHeader>
-              <CardTitle>Danger zone</CardTitle>
+              <CardTitle className="text-destructive">Danger zone</CardTitle>
               <CardDescription>
                 Irreversible organization actions.
               </CardDescription>

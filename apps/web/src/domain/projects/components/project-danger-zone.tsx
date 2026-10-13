@@ -33,9 +33,9 @@ export function ProjectDangerZone({ project }: ProjectDangerZoneProps) {
 
   return (
     <>
-      <Card>
+      <Card className="border-destructive/32 bg-destructive/4">
         <CardHeader>
-          <CardTitle>Danger zone</CardTitle>
+          <CardTitle className="text-destructive">Danger zone</CardTitle>
           <CardDescription>
             Archive or permanently delete this project and all of its
             environments.

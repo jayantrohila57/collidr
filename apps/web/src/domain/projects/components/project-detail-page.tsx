@@ -96,6 +96,7 @@ export default function ProjectDetailPage({
     <>
       <DashboardSection
         title={project.name}
+        description={project.description?.trim() || undefined}
         titleAccessory={
           <ProjectHeaderBadges
             isPublic={project.isPublic}

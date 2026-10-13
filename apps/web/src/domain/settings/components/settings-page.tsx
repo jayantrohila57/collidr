@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { formatDateTime } from "@/lib/format";
+import { initialsFromLabel } from "@/lib/initials";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { SettingsPageSkeleton } from "./settings-skeleton";
 
@@ -48,9 +49,7 @@ export function SettingsPage() {
             <Avatar className="size-8">
               <AvatarImage src={user.image ?? undefined} alt="" />
               <AvatarFallback className="text-xs">
-                {user.name?.slice(0, 2)?.toUpperCase() ??
-                  user.email?.slice(0, 2)?.toUpperCase() ??
-                  "U"}
+                {initialsFromLabel(user.name ?? user.email ?? "User", "US")}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
@@ -62,20 +61,19 @@ export function SettingsPage() {
               </p>
             </div>
           </div>
-          <p className="flex items-center gap-1 text-muted-foreground text-xs">
-            <Github className="size-3.5" aria-hidden />
-            GitHub
-          </p>
+          <div className="flex flex-col items-end gap-0.5 text-end">
+            <p className="flex items-center justify-end gap-1 text-muted-foreground text-xs">
+              <Github className="size-3.5" aria-hidden />
+              GitHub
+            </p>
+            {"createdAt" in user && user.createdAt ? (
+              <p className="text-muted-foreground text-xs">
+                Member since {formatDateTime(String(user.createdAt))}
+              </p>
+            ) : null}
+          </div>
         </CardPanel>
       </Card>
-
-      {"createdAt" in user && user.createdAt ? (
-        <Card>
-          <CardPanel className="text-muted-foreground text-xs">
-            Member since {formatDateTime(String(user.createdAt))}
-          </CardPanel>
-        </Card>
-      ) : null}
 
       {isOrganizationsEnabledOnClient() ? (
         <Card>
