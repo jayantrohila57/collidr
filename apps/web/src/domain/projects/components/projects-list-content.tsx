@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { projectsTableEmpty } from "@/components/data-table/data-table-empty-presets";
 import { waitForClientTableRefresh } from "@/components/data-table/data-table-filter-refetch";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
+import { runDataTableClearAllFilters } from "@/components/data-table/run-data-table-clear-all-filters";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,15 @@ export function ProjectsListContent({
     },
     [],
   );
+
+  const handleClearAllFilters = useCallback(async () => {
+    setFilterTableLoading(true);
+    try {
+      await runDataTableClearAllFilters(params.clearFilters);
+    } finally {
+      setFilterTableLoading(false);
+    }
+  }, [params.clearFilters]);
 
   const filtered = useMemo(
     () =>
@@ -90,7 +100,7 @@ export function ProjectsListContent({
             onSortChange={(value) =>
               withFilterApply(() => params.setSort(value))
             }
-            onClear={params.clearFilters}
+            onClear={() => void handleClearAllFilters()}
             filtersActive={params.filtersActive}
             tableLoading={filterTableLoading}
           />

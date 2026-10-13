@@ -138,7 +138,7 @@ export function DataTableFacetedFilter<T extends string = string>({
       <ComboboxTrigger
         className={cn(
           selectTriggerVariants({ size: "sm" }),
-          "h-8 w-full min-w-[8.5rem] justify-start gap-1.5 sm:w-auto",
+          "h-8 w-auto min-w-[8.5rem] max-w-full justify-start gap-1.5",
           className,
         )}
         aria-label={ariaLabel ?? title}
@@ -146,12 +146,12 @@ export function DataTableFacetedFilter<T extends string = string>({
         <span className="flex min-w-0 items-center gap-1.5">
           <FilterTriggerIcon filterIcon={filterIcon} />
           <span className="truncate">{title}</span>
+          {selectedCount > 0 ? (
+            <Badge variant="secondary" size="sm" className="shrink-0">
+              {selectedCount}
+            </Badge>
+          ) : null}
         </span>
-        {selectedCount > 0 ? (
-          <Badge variant="secondary" size="sm" className="ms-0.5">
-            {selectedCount}
-          </Badge>
-        ) : null}
       </ComboboxTrigger>
       <ComboboxPopup align="start" className="w-64 p-0">
         <div className="flex flex-col gap-0">

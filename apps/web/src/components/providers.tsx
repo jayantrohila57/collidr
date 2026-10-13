@@ -47,7 +47,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             enableSystem
             disableTransitionOnChange
           >
-            <ToastProvider>
+            <ToastProvider position="bottom-left">
               <SkipLink />
               <OfflineBanner />
               {children}

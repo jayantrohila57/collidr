@@ -61,16 +61,18 @@ export function DataTableFilterSelect({
     >
       <SelectTrigger
         className={cn(
-          "h-8 w-full min-w-[8.5rem] gap-2 sm:w-auto [&_[data-slot=select-value]]:flex [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:items-center",
+          "h-8 w-auto min-w-[8.5rem] max-w-full justify-start gap-1.5 [&_[data-slot=select-icon]]:ms-0 [&_[data-slot=select-value]]:flex [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:flex-none [&_[data-slot=select-value]]:items-center",
           className,
         )}
         aria-label={ariaLabel}
       >
-        <AppIcon
-          name={triggerIcon}
-          className={cn(iconMutedClassName, "size-4 shrink-0")}
-        />
-        <SelectValue placeholder={placeholder} />
+        <span className="flex min-w-0 items-center gap-1.5">
+          <AppIcon
+            name={triggerIcon}
+            className={cn(iconMutedClassName, "size-4 shrink-0")}
+          />
+          <SelectValue placeholder={placeholder} />
+        </span>
       </SelectTrigger>
       <SelectContent>
         {options.map((option) => (

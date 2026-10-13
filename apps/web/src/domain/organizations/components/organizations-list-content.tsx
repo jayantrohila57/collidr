@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
+import { runDataTableClearAllFilters } from "@/components/data-table/run-data-table-clear-all-filters";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { ProjectsViewToggle } from "@/domain/projects/components/projects-view-toggle";
@@ -23,6 +24,16 @@ export function OrganizationsListContent({
 }: OrganizationsListContentProps) {
   const { orgs, activeOrganizationId } = useActiveOrganization();
   const params = useOrganizationsListParams();
+  const [filterTableLoading, setFilterTableLoading] = useState(false);
+
+  const handleClearAllFilters = useCallback(async () => {
+    setFilterTableLoading(true);
+    try {
+      await runDataTableClearAllFilters(params.clearFilters);
+    } finally {
+      setFilterTableLoading(false);
+    }
+  }, [params.clearFilters]);
 
   const filtered = useMemo(
     () =>
@@ -55,8 +66,9 @@ export function OrganizationsListContent({
             sort={params.sort}
             onTypeChange={params.setType}
             onSortChange={params.setSort}
-            onClear={params.clearFilters}
+            onClear={() => void handleClearAllFilters()}
             filtersActive={params.filtersActive}
+            tableLoading={filterTableLoading}
           />
         }
         trailing={
