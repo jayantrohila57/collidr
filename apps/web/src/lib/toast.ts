@@ -53,14 +53,18 @@ toastFn.promise = <T>(
   promise: Promise<T>,
   messages: {
     loading: string;
-    success: string;
+    success: string | ((value: T) => string);
     error?: string;
   },
 ): Promise<T> => {
   const id = toast.loading(messages.loading);
   return promise
     .then((result) => {
-      toast.success(messages.success, { id });
+      const successTitle =
+        typeof messages.success === "function"
+          ? messages.success(result)
+          : messages.success;
+      toast.success(successTitle, { id });
       return result;
     })
     .catch((error: unknown) => {
@@ -84,7 +88,7 @@ export const toast = toastFn as typeof toastFn & {
     promise: Promise<T>,
     messages: {
       loading: string;
-      success: string;
+      success: string | ((value: T) => string);
       error?: string;
     },
   ) => Promise<T>;
