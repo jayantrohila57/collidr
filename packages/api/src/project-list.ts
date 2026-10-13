@@ -1,4 +1,4 @@
-import { isActionsAuditEnabled, normalizeOrgRole } from "@env-manager/actions";
+import { normalizeOrgRole } from "@env-manager/actions";
 import { db } from "@env-manager/db";
 import { member } from "@env-manager/db/schema/organization";
 import {
@@ -8,13 +8,14 @@ import {
 } from "@env-manager/db/schema/project-access";
 import { project } from "@env-manager/db/schema/projects";
 import { teamMember } from "@env-manager/db/schema/team";
+import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 
 export async function listAccessibleProjectIds(
   userId: string,
   organizationId: string | null,
 ): Promise<string[] | null> {
-  if (!isActionsAuditEnabled() || !organizationId) {
+  if (!isOrganizationsEnabled() || !organizationId) {
     return null;
   }
 

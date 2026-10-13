@@ -2,9 +2,7 @@ import { decrypt, encrypt } from "@env-manager/crypto";
 import {
   activeEnvironmentVariableWhere,
   db,
-  environmentOwnedByUserWhere,
   softDeleteEnvironmentVariableById,
-  variableOwnedByUserWhere,
 } from "@env-manager/db";
 import {
   environment,
@@ -15,13 +13,14 @@ import { TRPCError } from "@trpc/server";
 import { and, count, eq, inArray } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
-import {
-  projectIdForEnvironmentInput,
-  projectIdForVariableInput,
-} from "../actions/guard-resolve";
 import { createAuditLog, getProjectEnvironmentIds } from "../audit";
+import {
+  assertEnvironmentAccess,
+  assertEnvironmentsAccess,
+  lookupProjectIdByEnvironmentId,
+} from "../environment-access";
 import { throwFriendlyError } from "../errors";
-import { protectedProcedure, router } from "../index";
+import { orgProcedure, router } from "../index";
 import {
   bulkImportResultOutput,
   bulkImportVariablesInput,
@@ -37,30 +36,40 @@ import {
   variableOutput,
   variableWithDecryptedValueOutput,
 } from "../validation";
+import {
+  variableAuditKeyPayload,
+  variableBulkImportAuditPayload,
+} from "../variable-audit-payload";
 import { formatVariableRows } from "../variable-format";
 import { isVariablesV2Enabled } from "../variables-v2";
 
 export const environmentVariablesRouter = router({
   // List variables for an environment (metadata only)
-  list: protectedProcedure
-    .use(actionGuard("variable.read", projectIdForEnvironmentInput))
+  list: orgProcedure
+    .use(
+      actionGuard("variable.read", async (input) => {
+        const environmentId = (input as { environmentId: string })
+          .environmentId;
+        const projectId = await lookupProjectIdByEnvironmentId(environmentId);
+        if (!projectId) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Environment not found",
+          });
+        }
+        return { projectId };
+      }),
+    )
     .input(z.object({ environmentId: z.string().uuid() }))
     .output(makeResponseSchema(z.array(variableOutput)))
     .query(async ({ ctx, input }) => {
-      // Verify ownership through project
-      const hasAccess = await db
-        .select({ id: environment.id })
-        .from(environment)
-        .innerJoin(project, eq(environment.projectId, project.id))
-        .where(
-          environmentOwnedByUserWhere(
-            ctx.session.user.id,
-            eq(environment.id, input.environmentId),
-          ),
-        )
-        .limit(1);
-
-      if (!hasAccess.length) {
+      try {
+        await assertEnvironmentAccess(
+          ctx.session.user.id,
+          input.environmentId,
+          ctx.activeOrganizationId,
+        );
+      } catch {
         return respond({ message: "Environment not found", data: [] });
       }
 
@@ -102,8 +111,7 @@ export const environmentVariablesRouter = router({
       return respond({ message: "Variables fetched", data });
     }),
 
-  countsByEnvironment: protectedProcedure
-    .use(actionGuard("variable.read", projectIdForVariableInput))
+  countsByEnvironment: orgProcedure
     .input(
       z.object({
         environmentIds: z.array(z.string().uuid()).max(64),
@@ -115,18 +123,11 @@ export const environmentVariablesRouter = router({
         return respond({ message: "Counts fetched", data: {} });
       }
 
-      const allowed = await db
-        .select({ id: environment.id })
-        .from(environment)
-        .innerJoin(project, eq(environment.projectId, project.id))
-        .where(
-          environmentOwnedByUserWhere(
-            ctx.session.user.id,
-            inArray(environment.id, input.environmentIds),
-          ),
-        );
-
-      const allowedIds = allowed.map((row) => row.id);
+      const allowedIds = await assertEnvironmentsAccess(
+        ctx.session.user.id,
+        input.environmentIds,
+        ctx.activeOrganizationId,
+      );
       if (allowedIds.length === 0) {
         return respond({ message: "Counts fetched", data: {} });
       }
@@ -156,15 +157,37 @@ export const environmentVariablesRouter = router({
     }),
 
   // Get a single variable with decrypted value
-  get: protectedProcedure
-    .use(actionGuard("variable.reveal", projectIdForVariableInput))
+  get: orgProcedure
+    .use(
+      actionGuard("variable.reveal", async (input) => {
+        const variableId = (input as { id: string }).id;
+        const [row] = await db
+          .select({ environmentId: environmentVariable.environmentId })
+          .from(environmentVariable)
+          .where(eq(environmentVariable.id, variableId))
+          .limit(1);
+        if (!row) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Variable not found",
+          });
+        }
+        const projectId = await lookupProjectIdByEnvironmentId(
+          row.environmentId,
+        );
+        if (!projectId) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Variable not found",
+          });
+        }
+        return { projectId };
+      }),
+    )
     .input(getVariableInput)
     .output(makeResponseSchema(variableWithDecryptedValueOutput.nullable()))
     .query(async ({ ctx, input }) => {
-      const getWhere = variableOwnedByUserWhere(
-        ctx.session.user.id,
-        eq(environmentVariable.id, input.id),
-      );
+      const getWhere = eq(environmentVariable.id, input.id);
 
       const data = isVariablesV2Enabled()
         ? await db
@@ -211,6 +234,16 @@ export const environmentVariablesRouter = router({
         return respond({ message: "Variable not found", data: null });
       }
 
+      try {
+        await assertEnvironmentAccess(
+          ctx.session.user.id,
+          record.environmentId,
+          ctx.activeOrganizationId,
+        );
+      } catch {
+        return respond({ message: "Variable not found", data: null });
+      }
+
       const formatRow = isVariablesV2Enabled()
         ? {
             id: record.id,
@@ -246,25 +279,31 @@ export const environmentVariablesRouter = router({
     }),
 
   // Create a new variable
-  create: protectedProcedure
-    .use(actionGuard("variable.create", projectIdForEnvironmentInput))
+  create: orgProcedure
+    .use(
+      actionGuard("variable.create", async (input) => {
+        const environmentId = (input as { environmentId: string })
+          .environmentId;
+        const projectId = await lookupProjectIdByEnvironmentId(environmentId);
+        if (!projectId) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Environment not found",
+          });
+        }
+        return { projectId };
+      }),
+    )
     .input(createVariableInput)
     .output(makeResponseSchema(variableOutput.nullable()))
     .mutation(async ({ ctx, input }) => {
-      // Verify user owns the environment
-      const hasAccess = await db
-        .select({ id: environment.id })
-        .from(environment)
-        .innerJoin(project, eq(environment.projectId, project.id))
-        .where(
-          environmentOwnedByUserWhere(
-            ctx.session.user.id,
-            eq(environment.id, input.environmentId),
-          ),
-        )
-        .limit(1);
-
-      if (!hasAccess.length) {
+      try {
+        await assertEnvironmentAccess(
+          ctx.session.user.id,
+          input.environmentId,
+          ctx.activeOrganizationId,
+        );
+      } catch {
         return respond({ message: "Environment not found", data: null });
       }
 
@@ -354,8 +393,7 @@ export const environmentVariablesRouter = router({
       return respond({ message: "Variable created", data: formatted });
     }),
 
-  createBatch: protectedProcedure
-    .use(actionGuard("variable.create", projectIdForVariableInput))
+  createBatch: orgProcedure
     .input(createVariablesBatchInput)
     .output(makeResponseSchema(createVariablesBatchOutput))
     .mutation(async ({ ctx, input }) => {
@@ -366,18 +404,12 @@ export const environmentVariablesRouter = router({
         });
       }
 
-      const allowed = await db
-        .select({ id: environment.id })
-        .from(environment)
-        .innerJoin(project, eq(environment.projectId, project.id))
-        .where(
-          and(
-            inArray(environment.id, input.environmentIds),
-            eq(project.userId, ctx.session.user.id),
-          ),
-        );
-
-      const allowedIds = new Set(allowed.map((row) => row.id));
+      const allowedIdList = await assertEnvironmentsAccess(
+        ctx.session.user.id,
+        input.environmentIds,
+        ctx.activeOrganizationId,
+      );
+      const allowedIds = new Set(allowedIdList);
       if (allowedIds.size === 0) {
         return respond({
           message: "No accessible environments",
@@ -459,12 +491,36 @@ export const environmentVariablesRouter = router({
     }),
 
   // Update a variable
-  update: protectedProcedure
-    .use(actionGuard("variable.update", projectIdForVariableInput))
+  update: orgProcedure
+    .use(
+      actionGuard("variable.update", async (input) => {
+        const variableId = (input as { id: string }).id;
+        const [row] = await db
+          .select({ environmentId: environmentVariable.environmentId })
+          .from(environmentVariable)
+          .where(eq(environmentVariable.id, variableId))
+          .limit(1);
+        if (!row) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Variable not found",
+          });
+        }
+        const projectId = await lookupProjectIdByEnvironmentId(
+          row.environmentId,
+        );
+        if (!projectId) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Variable not found",
+          });
+        }
+        return { projectId };
+      }),
+    )
     .input(updateVariableInput)
     .output(makeResponseSchema(variableOutput.nullable()))
     .mutation(async ({ ctx, input }) => {
-      // Verify ownership
       const existing = await db
         .select({
           id: environmentVariable.id,
@@ -473,17 +529,7 @@ export const environmentVariablesRouter = router({
           environmentId: environmentVariable.environmentId,
         })
         .from(environmentVariable)
-        .innerJoin(
-          environment,
-          eq(environmentVariable.environmentId, environment.id),
-        )
-        .innerJoin(project, eq(environment.projectId, project.id))
-        .where(
-          variableOwnedByUserWhere(
-            ctx.session.user.id,
-            eq(environmentVariable.id, input.id),
-          ),
-        )
+        .where(eq(environmentVariable.id, input.id))
         .limit(1);
 
       if (!existing.length) {
@@ -495,10 +541,15 @@ export const environmentVariablesRouter = router({
         return respond({ message: "Variable not found", data: null });
       }
 
-      const oldValue = {
-        key: existingVar.key,
-        value: decrypt(existingVar.encryptedValue),
-      };
+      try {
+        await assertEnvironmentAccess(
+          ctx.session.user.id,
+          existingVar.environmentId,
+          ctx.activeOrganizationId,
+        );
+      } catch {
+        return respond({ message: "Variable not found", data: null });
+      }
 
       const normalizedKey = input.key?.trim().toUpperCase();
 
@@ -568,10 +619,8 @@ export const environmentVariablesRouter = router({
           variableId: input.id,
           action: "UPDATE",
           entityType: "VARIABLE",
-          oldValue: JSON.stringify(oldValue),
-          newValue: JSON.stringify({
-            key: normalizedKey || existingVar.key,
-          }),
+          oldValue: variableAuditKeyPayload(existingVar.key),
+          newValue: variableAuditKeyPayload(normalizedKey || existingVar.key),
         });
       }
 
@@ -594,31 +643,44 @@ export const environmentVariablesRouter = router({
     }),
 
   // Delete a variable
-  delete: protectedProcedure
-    .use(actionGuard("variable.delete", projectIdForVariableInput))
+  delete: orgProcedure
+    .use(
+      actionGuard("variable.delete", async (input) => {
+        const variableId = (input as { id: string }).id;
+        const [row] = await db
+          .select({ environmentId: environmentVariable.environmentId })
+          .from(environmentVariable)
+          .where(eq(environmentVariable.id, variableId))
+          .limit(1);
+        if (!row) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Variable not found",
+          });
+        }
+        const projectId = await lookupProjectIdByEnvironmentId(
+          row.environmentId,
+        );
+        if (!projectId) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Variable not found",
+          });
+        }
+        return { projectId };
+      }),
+    )
     .input(getVariableInput)
     .output(z.object({ success: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
-      // Verify ownership
       const existing = await db
         .select({
           id: environmentVariable.id,
           key: environmentVariable.key,
-          encryptedValue: environmentVariable.encryptedValue,
           environmentId: environmentVariable.environmentId,
         })
         .from(environmentVariable)
-        .innerJoin(
-          environment,
-          eq(environmentVariable.environmentId, environment.id),
-        )
-        .innerJoin(project, eq(environment.projectId, project.id))
-        .where(
-          variableOwnedByUserWhere(
-            ctx.session.user.id,
-            eq(environmentVariable.id, input.id),
-          ),
-        )
+        .where(eq(environmentVariable.id, input.id))
         .limit(1);
 
       if (!existing.length) {
@@ -627,6 +689,16 @@ export const environmentVariablesRouter = router({
 
       const existingVar = existing[0];
       if (!existingVar) {
+        return { success: false };
+      }
+
+      try {
+        await assertEnvironmentAccess(
+          ctx.session.user.id,
+          existingVar.environmentId,
+          ctx.activeOrganizationId,
+        );
+      } catch {
         return { success: false };
       }
 
@@ -642,10 +714,7 @@ export const environmentVariablesRouter = router({
           variableId: input.id,
           action: "DELETE",
           entityType: "VARIABLE",
-          oldValue: JSON.stringify({
-            key: existingVar.key,
-            value: decrypt(existingVar.encryptedValue),
-          }),
+          oldValue: variableAuditKeyPayload(existingVar.key),
         });
       }
 
@@ -655,25 +724,31 @@ export const environmentVariablesRouter = router({
     }),
 
   // Bulk import variables (supports .env file style imports)
-  bulkImport: protectedProcedure
-    .use(actionGuard("variable.bulk_import", projectIdForEnvironmentInput))
+  bulkImport: orgProcedure
+    .use(
+      actionGuard("variable.bulk_import", async (input) => {
+        const environmentId = (input as { environmentId: string })
+          .environmentId;
+        const projectId = await lookupProjectIdByEnvironmentId(environmentId);
+        if (!projectId) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Environment not found",
+          });
+        }
+        return { projectId };
+      }),
+    )
     .input(bulkImportVariablesInput)
     .output(makeResponseSchema(bulkImportResultOutput))
     .mutation(async ({ ctx, input }) => {
-      // Verify user owns the environment
-      const hasAccess = await db
-        .select({ id: environment.id })
-        .from(environment)
-        .innerJoin(project, eq(environment.projectId, project.id))
-        .where(
-          environmentOwnedByUserWhere(
-            ctx.session.user.id,
-            eq(environment.id, input.environmentId),
-          ),
-        )
-        .limit(1);
-
-      if (!hasAccess.length) {
+      try {
+        await assertEnvironmentAccess(
+          ctx.session.user.id,
+          input.environmentId,
+          ctx.activeOrganizationId,
+        );
+      } catch {
         return respond({
           message: "Environment not found",
           data: { created: 0, updated: 0, skipped: 0 },
@@ -732,8 +807,8 @@ export const environmentVariablesRouter = router({
           environmentId: envDetails.environmentId,
           action: "BULK_IMPORT",
           entityType: "VARIABLE",
-          newValue: JSON.stringify({
-            variables: input.variables,
+          newValue: variableBulkImportAuditPayload({
+            keys: input.variables.map((v) => v.key),
             overwrite: input.overwrite,
             result: { created, updated, skipped },
           }),
@@ -747,25 +822,31 @@ export const environmentVariablesRouter = router({
     }),
 
   // Export variables as .env format string
-  export: protectedProcedure
-    .use(actionGuard("variable.export", projectIdForEnvironmentInput))
+  export: orgProcedure
+    .use(
+      actionGuard("variable.export", async (input) => {
+        const environmentId = (input as { environmentId: string })
+          .environmentId;
+        const projectId = await lookupProjectIdByEnvironmentId(environmentId);
+        if (!projectId) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Environment not found",
+          });
+        }
+        return { projectId };
+      }),
+    )
     .input(exportVariablesInput)
     .output(makeResponseSchema(exportVariablesOutput))
     .query(async ({ ctx, input }) => {
-      // Verify user owns the environment
-      const hasAccess = await db
-        .select({ id: environment.id })
-        .from(environment)
-        .innerJoin(project, eq(environment.projectId, project.id))
-        .where(
-          environmentOwnedByUserWhere(
-            ctx.session.user.id,
-            eq(environment.id, input.environmentId),
-          ),
-        )
-        .limit(1);
-
-      if (!hasAccess.length) {
+      try {
+        await assertEnvironmentAccess(
+          ctx.session.user.id,
+          input.environmentId,
+          ctx.activeOrganizationId,
+        );
+      } catch {
         return respond({ message: "Environment not found", data: "" });
       }
 

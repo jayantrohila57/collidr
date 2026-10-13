@@ -30,10 +30,7 @@ export async function requireAction(
   action: ActionName,
   ctx: RequireActionContext,
 ): Promise<void> {
-  if (!isActionsAuditEnabled()) {
-    return;
-  }
-
+  const auditEnabled = isActionsAuditEnabled();
   const startedAt = Date.now();
   const def = getActionDefinition(action);
   let result: "success" | "denied" | "failure" = "denied";
@@ -133,21 +130,23 @@ export async function requireAction(
     }
     throw e;
   } finally {
-    try {
-      await writeAuditEvent({
-        action,
-        result,
-        actorUserId: ctx.userId,
-        organizationId: ctx.organizationId,
-        projectId: ctx.projectId,
-        targetUserId: ctx.targetUserId,
-        denialReason,
-        durationMs: Date.now() - startedAt,
-        ipAddress: ctx.ipAddress,
-        userAgent: ctx.userAgent,
-      });
-    } catch (auditErr) {
-      console.error("audit_event write failed", auditErr);
+    if (auditEnabled) {
+      try {
+        await writeAuditEvent({
+          action,
+          result,
+          actorUserId: ctx.userId,
+          organizationId: ctx.organizationId,
+          projectId: ctx.projectId,
+          targetUserId: ctx.targetUserId,
+          denialReason,
+          durationMs: Date.now() - startedAt,
+          ipAddress: ctx.ipAddress,
+          userAgent: ctx.userAgent,
+        });
+      } catch (auditErr) {
+        console.error("audit_event write failed", auditErr);
+      }
     }
   }
 }

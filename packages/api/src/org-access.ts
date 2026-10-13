@@ -1,15 +1,12 @@
-import {
-  evaluatePermission,
-  isActionsAuditEnabled,
-  normalizeOrgRole,
-} from "@env-manager/actions";
+import { evaluatePermission, normalizeOrgRole } from "@env-manager/actions";
 import { activeMemberWhere, activeProjectWhere, db } from "@env-manager/db";
 import { member } from "@env-manager/db/schema/organization";
 import { project } from "@env-manager/db/schema/projects";
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import { TRPCError } from "@trpc/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, type SQL } from "drizzle-orm";
 import { loadProjectAccessContext } from "./actions/project-access";
+import { listAccessibleProjectIds, projectIdsFilter } from "./project-list";
 
 type SessionLike = {
   user: { id: string };
@@ -75,6 +72,28 @@ export function projectListFilter(
   return activeProjectWhere(scope);
 }
 
+/** Project scope for list/get/mutations aligned with org RBAC when organizations are enabled. */
+export async function resolveProjectScopeWhere(
+  userId: string,
+  organizationId: string | null,
+): Promise<SQL | undefined> {
+  const accessibleIds = await listAccessibleProjectIds(userId, organizationId);
+  if (accessibleIds === null) {
+    return projectListFilter(userId, organizationId);
+  }
+
+  const idFilter = projectIdsFilter(accessibleIds);
+  if (!idFilter) {
+    return projectListFilter(userId, organizationId);
+  }
+
+  return activeProjectWhere(
+    organizationId
+      ? and(eq(project.organizationId, organizationId), idFilter)
+      : idFilter,
+  );
+}
+
 export async function resolveOrgContext(auth: SessionLike) {
   const userId = auth.user.id;
   if (!isOrganizationsEnabled()) {
@@ -104,7 +123,7 @@ export async function assertProjectAccess(
   projectId: string,
   organizationId: string | null,
 ) {
-  if (isActionsAuditEnabled() && organizationId) {
+  if (isOrganizationsEnabled() && organizationId) {
     const [proj] = await db
       .select({ id: project.id })
       .from(project)

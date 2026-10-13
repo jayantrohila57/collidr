@@ -39,11 +39,7 @@ export const projectAccessRouter = router({
 
   assignManager: orgProcedure
     .input(z.object({ projectId: z.string(), userId: z.string() }))
-    .use(
-      actionGuard("project.assign_manager", (input) => ({
-        projectId: (input as { projectId: string }).projectId,
-      })),
-    )
+    .use(actionGuard("project.assign_manager"))
     .mutation(async ({ ctx, input }) => {
       const organizationId = ctx.activeOrganizationId;
       if (!organizationId) {
@@ -61,7 +57,10 @@ export const projectAccessRouter = router({
         )
         .limit(1);
       if (!proj) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
       }
 
       await db.insert(projectManager).values({

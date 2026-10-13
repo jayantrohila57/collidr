@@ -1,7 +1,7 @@
-import { isActionsAuditEnabled, type ActionName } from "@env-manager/actions";
+import type { ActionName } from "@env-manager/actions";
+import { t } from "../index";
 import type { RequireActionContext } from "./require-action";
 import { requireAction } from "./require-action";
-import { t } from "../index";
 
 type GuardCtx = {
   session: { user: { id: string } };
@@ -17,9 +17,6 @@ export function actionGuard(
 ) {
   return t.middleware(async (opts) => {
     const { ctx, next } = opts;
-    if (!isActionsAuditEnabled()) {
-      return next();
-    }
 
     const input = "input" in opts ? opts.input : undefined;
     const guardCtx = ctx as GuardCtx;
