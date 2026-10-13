@@ -86,20 +86,17 @@ import {
   formatOrganizationCreateError,
   resolveOrgSlugForSave,
 } from "@/lib/org-slug";
+import {
+  type OrganizationInvitationRow,
+  parseOrganizationInvitations,
+  pendingOrganizationInvitations,
+} from "@/lib/organization-invitations";
 import { toast } from "@/lib/toast";
 
 type MemberRow = {
   id: string;
   role: string;
   user: { name: string; email: string; id?: string };
-};
-
-type InvitationRow = {
-  id: string;
-  email: string;
-  role: string;
-  status: string;
-  expiresAt: Date | string;
 };
 
 const ROLES = ["member", "manager", "owner"] as const;
@@ -162,7 +159,9 @@ export function OrganizationSettingsForm({
     useActiveOrganization();
 
   const [members, setMembers] = useState<MemberRow[]>([]);
-  const [invitations, setInvitations] = useState<InvitationRow[]>([]);
+  const [invitations, setInvitations] = useState<OrganizationInvitationRow[]>(
+    [],
+  );
   const [editSnapshot, setEditSnapshot] = useState({ name: "", slug: "" });
   const [orgName, setOrgName] = useState("");
   const [orgSlug, setOrgSlug] = useState("");
@@ -200,6 +199,7 @@ export function OrganizationSettingsForm({
   );
   const isOwner = myMembership?.role === "owner";
   const isPersonal = isPersonalOrganization({ metadata: orgMetadata });
+  const pendingInvitations = pendingOrganizationInvitations(invitations);
 
   const resetInviteFields = useCallback(() => {
     setInviteEmail("");
@@ -223,10 +223,14 @@ export function OrganizationSettingsForm({
       query: { organizationId: targetOrgId },
     });
     setMembers((list.data?.members ?? []) as MemberRow[]);
+    const embeddedInvites = parseOrganizationInvitations(
+      (org.data as { invitations?: unknown }).invitations,
+    );
     const inviteList = await authClient.organization.listInvitations({
       query: { organizationId: targetOrgId },
     });
-    setInvitations((inviteList.data ?? []) as InvitationRow[]);
+    const listedInvites = parseOrganizationInvitations(inviteList.data);
+    setInvitations(listedInvites.length > 0 ? listedInvites : embeddedInvites);
   }, []);
 
   useEffect(() => {
@@ -549,7 +553,9 @@ export function OrganizationSettingsForm({
                       </EmptyMedia>
                       <EmptyTitle>You're the only member</EmptyTitle>
                       <EmptyDescription>
-                        Invite teammates to share projects and environments.
+                        {pendingInvitations.length > 0
+                          ? `You have ${pendingInvitations.length} pending ${pendingInvitations.length === 1 ? "invitation" : "invitations"} awaiting acceptance.`
+                          : "Invite teammates to share projects and environments."}
                       </EmptyDescription>
                     </EmptyHeader>
                     <EmptyContent>
@@ -603,8 +609,7 @@ export function OrganizationSettingsForm({
                 icon="mail"
               />
               <div className="px-4 py-4">
-                {invitations.filter((invite) => invite.status === "pending")
-                  .length === 0 ? (
+                {pendingInvitations.length === 0 ? (
                   <Empty className="border border-dashed py-8">
                     <EmptyHeader>
                       <EmptyMedia variant="icon">
@@ -639,24 +644,22 @@ export function OrganizationSettingsForm({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {invitations
-                          .filter((invite) => invite.status === "pending")
-                          .map((invite) => (
-                            <TableRow key={invite.id}>
-                              <TableCell className="px-4 font-medium">
-                                {invite.email}
-                              </TableCell>
-                              <TableCell className="px-4">
-                                <RoleBadge role={invite.role} />
-                              </TableCell>
-                              <TableCell className="px-4 capitalize">
-                                {invite.status}
-                              </TableCell>
-                              <TableCell className="px-4 text-muted-foreground text-xs">
-                                {formatDateTime(String(invite.expiresAt))}
-                              </TableCell>
-                            </TableRow>
-                          ))}
+                        {pendingInvitations.map((invite) => (
+                          <TableRow key={invite.id}>
+                            <TableCell className="px-4 font-medium">
+                              {invite.email}
+                            </TableCell>
+                            <TableCell className="px-4">
+                              <RoleBadge role={invite.role} />
+                            </TableCell>
+                            <TableCell className="px-4 capitalize">
+                              {invite.status}
+                            </TableCell>
+                            <TableCell className="px-4 text-muted-foreground text-xs">
+                              {formatDateTime(String(invite.expiresAt))}
+                            </TableCell>
+                          </TableRow>
+                        ))}
                       </TableBody>
                     </Table>
                   </div>

@@ -25,22 +25,21 @@ import {
 import { Can } from "@/domain/permissions/components/can";
 import { authClient } from "@/lib/auth-client";
 import { formatDateTime } from "@/lib/format";
+import {
+  isPendingInvitationStatus,
+  type OrganizationInvitationRow,
+  parseOrganizationInvitations,
+} from "@/lib/organization-invitations";
 import { toast } from "@/lib/toast";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { InviteMemberSheet } from "./invite-member-sheet";
 import { OrganizationSectionPage } from "./organization-section-page";
 
-type InvitationRow = {
-  id: string;
-  email: string;
-  role: string;
-  status: string;
-  expiresAt: Date | string;
-};
-
 export function OrganizationInvitationsPage({ slug }: { slug: string }) {
   const { organization, status: orgStatus } = useOrganizationBySlug(slug);
-  const [invitations, setInvitations] = useState<InvitationRow[]>([]);
+  const [invitations, setInvitations] = useState<OrganizationInvitationRow[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
@@ -51,7 +50,19 @@ export function OrganizationInvitationsPage({ slug }: { slug: string }) {
       const result = await authClient.organization.listInvitations({
         query: { organizationId },
       });
-      setInvitations((result.data ?? []) as InvitationRow[]);
+      const listed = parseOrganizationInvitations(result.data);
+      if (listed.length > 0) {
+        setInvitations(listed);
+        return;
+      }
+      const full = await authClient.organization.getFullOrganization({
+        query: { organizationId },
+      });
+      setInvitations(
+        parseOrganizationInvitations(
+          (full.data as { invitations?: unknown } | null)?.invitations,
+        ),
+      );
     } catch {
       setInvitations([]);
     } finally {
@@ -77,14 +88,11 @@ export function OrganizationInvitationsPage({ slug }: { slug: string }) {
         toast.error("Revoke is not available for this workspace.");
         return;
       }
-      await toast.promise(
-        client.cancelInvitation({ invitationId }),
-        {
-          loading: "Revoking invitation…",
-          success: "Invitation revoked",
-          error: "Could not revoke invitation",
-        },
-      );
+      await toast.promise(client.cancelInvitation({ invitationId }), {
+        loading: "Revoking invitation…",
+        success: "Invitation revoked",
+        error: "Could not revoke invitation",
+      });
       await loadInvitations(organization.id);
     } finally {
       setRevokingId(null);
@@ -93,8 +101,8 @@ export function OrganizationInvitationsPage({ slug }: { slug: string }) {
 
   const sorted = [...invitations].sort((a, b) => {
     if (a.status === b.status) return 0;
-    if (a.status === "pending") return -1;
-    if (b.status === "pending") return 1;
+    if (isPendingInvitationStatus(a.status)) return -1;
+    if (isPendingInvitationStatus(b.status)) return 1;
     return 0;
   });
 
@@ -172,7 +180,7 @@ export function OrganizationInvitationsPage({ slug }: { slug: string }) {
                     {formatDateTime(String(invite.expiresAt))}
                   </TableCell>
                   <TableCell className="px-4 text-end">
-                    {invite.status === "pending" ? (
+                    {isPendingInvitationStatus(invite.status) ? (
                       <Button
                         type="button"
                         variant="outline"

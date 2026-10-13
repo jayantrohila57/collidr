@@ -7,6 +7,7 @@ import {
 } from "@/components/org/active-organization-context";
 import { authClient } from "@/lib/auth-client";
 import { isBenignClientError } from "@/lib/errors/client-errors";
+import { countPendingInvitations } from "@/lib/organization-invitations";
 
 export type OrganizationDetail = {
   id: string;
@@ -52,7 +53,7 @@ export function useOrganizationBySlug(slug: string) {
       const invitations = (data as { invitations?: { status?: string }[] })
         .invitations;
       const pendingInvites = Array.isArray(invitations)
-        ? invitations.filter((invite) => invite.status === "pending").length
+        ? countPendingInvitations(invitations)
         : undefined;
       setOrganization({
         id: data.id,

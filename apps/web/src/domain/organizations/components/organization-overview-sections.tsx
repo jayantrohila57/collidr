@@ -78,6 +78,13 @@ export function OrganizationOverviewSections({ slug }: { slug: string }) {
         let summary = "—";
         if (section.id === "members" && memberCount !== undefined) {
           summary = formatCountLabel(memberCount, "member", "members");
+          if (invitationCount !== undefined && invitationCount > 0) {
+            summary += ` · ${formatCountLabel(
+              invitationCount,
+              "pending invite",
+              "pending invites",
+            )}`;
+          }
         }
         if (section.id === "invitations" && invitationCount !== undefined) {
           summary = formatCountLabel(
