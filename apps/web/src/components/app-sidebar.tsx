@@ -86,7 +86,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             return permissions.allowed;
           }
           if (item.action === "audit.timeline.view.org") {
-            return canTimeline.allowed;
+            return canTimeline.allowed || canTimeline.isLoading;
           }
           if (item.action === "notification.list") {
             return notificationsEnabled;
