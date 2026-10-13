@@ -69,9 +69,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { notifyInvitationAccepted } = await import(
-    "@env-manager/notifications"
-  );
+  const { notifyInvitationAccepted } = await import("@collidr/notifications");
   await notifyInvitationAccepted(body.invitationId);
 
   return NextResponse.json({ ok: true });

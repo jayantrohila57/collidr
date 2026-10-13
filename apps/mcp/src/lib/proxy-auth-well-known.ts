@@ -1,4 +1,4 @@
-import { resolveAuthServiceUrl } from "@env-manager/env/vercel-services";
+import { resolveAuthServiceUrl } from "@collidr/env/vercel-services";
 
 /** Proxy OAuth discovery documents from the auth service (private binding at runtime). */
 export async function proxyAuthWellKnown(
