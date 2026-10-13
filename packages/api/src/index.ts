@@ -52,7 +52,9 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
     });
   }
   const session = ctx.session;
-  const platformAdmin = sessionUserIsPlatformAdmin(session.user);
+  const platformAdmin = sessionUserIsPlatformAdmin(
+    session.user as { role?: string | null },
+  );
   return runWithPlatformAdminContext(platformAdmin, () =>
     next({
       ctx: {

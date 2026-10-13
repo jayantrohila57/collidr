@@ -18,7 +18,11 @@ export async function getConsoleGate(
   if (!session) {
     return { ok: false, reason: "unauthenticated" };
   }
-  if (!sessionUserIsPlatformAdmin(session.user)) {
+  if (
+    !sessionUserIsPlatformAdmin(
+      session.user as { role?: string | null },
+    )
+  ) {
     return { ok: false, reason: "not_admin" };
   }
   if (!session.user.email || !isEmailAllowedForConsole(session.user.email)) {
