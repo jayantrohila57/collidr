@@ -10,7 +10,7 @@ const appOrigin = (
     : DEFAULT_SUPPORT_URL)
 ).replace(/\/$/, "");
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const gated = platformSessionMiddleware(request, {
     appOrigin,
     protectedPrefixes: ["/tickets", "/manage"],

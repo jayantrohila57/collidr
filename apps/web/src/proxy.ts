@@ -11,7 +11,7 @@ function isSignedIn(request: NextRequest): boolean {
   return Boolean(getSessionCookie(request.headers));
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const signedIn = isSignedIn(request);
 

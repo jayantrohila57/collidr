@@ -19,7 +19,7 @@ const LEGACY_TAB_PATHS: Record<string, string> = {
   timeline: "/settings/timeline",
 };
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/settings" || pathname.startsWith("/settings/")) {

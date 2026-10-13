@@ -10,7 +10,7 @@ const appOrigin = (
     : DEFAULT_STUDIO_URL)
 ).replace(/\/$/, "");
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/sign-in")) {
