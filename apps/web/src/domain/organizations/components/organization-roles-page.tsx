@@ -11,7 +11,7 @@ import { Can } from "@/domain/permissions/components/can";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { OrganizationSectionPage } from "./organization-section-page";
 
-const DEFAULT_ROLES = ["owner", "admin", "member"] as const;
+const DEFAULT_ROLES = ["owner", "manager", "member"] as const;
 
 export function OrganizationRolesPage({ slug }: { slug: string }) {
   const { organization, status } = useOrganizationBySlug(slug);
@@ -39,7 +39,7 @@ export function OrganizationRolesPage({ slug }: { slug: string }) {
                 description={
                   role === "owner"
                     ? "Full control including deletion."
-                    : role === "admin"
+                    : role === "manager"
                       ? "Manage members, invites, and settings."
                       : "Access organization resources."
                 }

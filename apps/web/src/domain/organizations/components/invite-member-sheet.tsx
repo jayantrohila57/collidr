@@ -28,7 +28,9 @@ import { authClient } from "@/lib/auth-client";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { toast } from "@/lib/toast";
 
-const ROLES = ["member", "admin", "owner"] as const;
+const ROLES = ["member", "manager", "owner"] as const;
+
+type OrgInviteRole = (typeof ROLES)[number];
 
 type InviteMemberSheetProps = {
   organizationId: string;
@@ -59,7 +61,7 @@ export function InviteMemberSheet({
       await toast.promise(
         authClient.organization.inviteMember({
           email,
-          role: inviteRole as "member" | "admin" | "owner",
+          role: inviteRole as OrgInviteRole,
           organizationId,
         }),
         {

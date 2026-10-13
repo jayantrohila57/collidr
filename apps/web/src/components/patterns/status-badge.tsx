@@ -145,8 +145,8 @@ export function RoleBadge({
   const label =
     normalized === "owner"
       ? "Owner"
-      : normalized === "admin"
-        ? "Admin"
+      : normalized === "admin" || normalized === "manager"
+        ? "Manager"
         : normalized === "member"
           ? "Member"
           : formatLabel(role);

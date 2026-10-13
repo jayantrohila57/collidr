@@ -78,7 +78,9 @@ type MemberRow = {
   user: { name: string; email: string; id?: string };
 };
 
-const ROLES = ["member", "admin", "owner"] as const;
+const ROLES = ["member", "manager", "owner"] as const;
+
+type OrgMemberRole = (typeof ROLES)[number];
 
 const ROLE_SELECT_ITEMS = ROLES.map((role) => ({
   value: role,
@@ -220,7 +222,7 @@ export function OrganizationSettingsForm({
       await toast.promise(
         authClient.organization.inviteMember({
           email,
-          role: inviteRole as "member" | "admin" | "owner",
+          role: inviteRole as OrgMemberRole,
           organizationId,
         }),
         {
@@ -258,7 +260,7 @@ export function OrganizationSettingsForm({
       await toast.promise(
         authClient.organization.updateMemberRole({
           memberId,
-          role: role as "member" | "admin" | "owner",
+          role: role as OrgMemberRole,
           organizationId,
         }),
         {
