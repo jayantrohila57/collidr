@@ -21,7 +21,7 @@ import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const ghostLinkClassName =
-  "h-6 max-w-full gap-1 px-1.5 text-muted-foreground hover:text-foreground";
+  "h-6 max-w-full gap-1 px-1.5 text-xs text-muted-foreground hover:text-foreground";
 
 function formatExternalLinkLabel(url: string): string {
   try {

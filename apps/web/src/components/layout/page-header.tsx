@@ -75,6 +75,38 @@ function resolveBack(
   };
 }
 
+function TitleHeading({
+  title,
+  titleAccessory,
+  className,
+}: {
+  title: string;
+  titleAccessory?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex min-w-0 flex-wrap items-center gap-2", className)}>
+      <h1 className={cn(layoutPageTitleClass, "truncate")}>{title}</h1>
+      {titleAccessory}
+    </div>
+  );
+}
+
+function PageHeaderDescriptionSlot({
+  description,
+  className,
+}: {
+  description: string;
+  className?: string;
+}) {
+  return (
+    <PageHeaderDescription
+      text={description}
+      className={cn("max-md:max-w-none", className)}
+    />
+  );
+}
+
 function TitleBlock({
   title,
   titleAccessory,
@@ -88,10 +120,7 @@ function TitleBlock({
 }) {
   return (
     <div className={cn("flex min-w-0 flex-col gap-0.5", className)}>
-      <div className="flex min-w-0 flex-wrap items-center gap-2">
-        <h1 className={cn(layoutPageTitleClass, "truncate")}>{title}</h1>
-        {titleAccessory}
-      </div>
+      <TitleHeading title={title} titleAccessory={titleAccessory} />
       {description ? <PageHeaderDescription text={description} /> : null}
     </div>
   );
@@ -110,6 +139,72 @@ function PageHeaderSimple({
   description?: string;
   action?: ReactNode;
 }) {
+  const hasBack = Boolean(resolved);
+  const hasAction = Boolean(action);
+
+  if (description) {
+    const mobileCols = hasBack
+      ? hasAction
+        ? "grid-cols-[auto_minmax(0,1fr)_auto]"
+        : "grid-cols-[auto_minmax(0,1fr)]"
+      : hasAction
+        ? "grid-cols-[minmax(0,1fr)_auto]"
+        : "grid-cols-1";
+
+    const mobileAreas = hasBack
+      ? hasAction
+        ? "[grid-template-areas:'leading_title_action'_'desc_desc_desc']"
+        : "[grid-template-areas:'leading_title_title'_'desc_desc_desc']"
+      : hasAction
+        ? "[grid-template-areas:'title_action'_'desc_desc']"
+        : "[grid-template-areas:'title'_'desc']";
+
+    const desktopAreas = hasBack
+      ? hasAction
+        ? "md:[grid-template-areas:'leading_title_action'_'leading_desc_desc']"
+        : "md:[grid-template-areas:'leading_title_title'_'leading_desc_desc']"
+      : hasAction
+        ? "md:[grid-template-areas:'title_action'_'desc_desc']"
+        : "md:[grid-template-areas:'title'_'desc']";
+
+    return (
+      <div
+        className={cn(
+          "grid w-full min-w-0 gap-2 py-0.5",
+          layoutGapClass,
+          mobileCols,
+          mobileAreas,
+          desktopAreas,
+          hasBack && "md:grid-cols-[auto_minmax(0,1fr)_auto]",
+        )}
+      >
+        {hasBack ? (
+          <div className="self-center [grid-area:leading] md:self-start">
+            <PageBackButton
+              href={resolved?.href}
+              fallbackHref={resolved?.fallbackHref ?? "/dashboard"}
+              useHistory={resolved?.useHistory ?? false}
+            />
+          </div>
+        ) : null}
+        <TitleHeading
+          title={title}
+          titleAccessory={titleAccessory}
+          className="[grid-area:title] md:col-start-2"
+        />
+        {action ? (
+          <div className="shrink-0 self-center [grid-area:action] md:col-start-3">
+            {action}
+          </div>
+        ) : null}
+        <PageHeaderDescriptionSlot
+          description={description}
+          className="[grid-area:desc] md:col-start-2"
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
@@ -170,11 +265,19 @@ function PageHeaderWithMetadata({
 
   const mobileAreas = hasBack
     ? hasAction
-      ? "[grid-template-areas:'leading_title_action'_'div_div_div'_'meta_meta_meta']"
-      : "[grid-template-areas:'leading_title'_'div_div'_'meta_meta']"
+      ? description
+        ? "[grid-template-areas:'leading_title_action'_'desc_desc_desc'_'div_div_div'_'meta_meta_meta']"
+        : "[grid-template-areas:'leading_title_action'_'div_div_div'_'meta_meta_meta']"
+      : description
+        ? "[grid-template-areas:'leading_title_title'_'desc_desc_desc'_'div_div_div'_'meta_meta_meta']"
+        : "[grid-template-areas:'leading_title'_'div_div'_'meta_meta']"
     : hasAction
-      ? "[grid-template-areas:'title_action'_'div_div'_'meta_meta']"
-      : "[grid-template-areas:'title'_'div'_'meta']";
+      ? description
+        ? "[grid-template-areas:'title_action'_'desc_desc'_'div_div'_'meta_meta']"
+        : "[grid-template-areas:'title_action'_'div_div'_'meta_meta']"
+      : description
+        ? "[grid-template-areas:'title'_'desc'_'div'_'meta']"
+        : "[grid-template-areas:'title'_'div'_'meta']";
 
   const desktopCols = hasBack
     ? hasAction
@@ -228,18 +331,24 @@ function PageHeaderWithMetadata({
         />
       ) : null}
 
-      <TitleBlock
+      <TitleHeading
         title={title}
         titleAccessory={titleAccessory}
-        description={description}
         className="[grid-area:title]"
       />
+
+      {description ? (
+        <PageHeaderDescriptionSlot
+          description={description}
+          className="[grid-area:desc] md:mt-0.5 md:[grid-area:title]"
+        />
+      ) : null}
 
       <Separator className="[grid-area:div] md:hidden" />
 
       <div
         className={cn(
-          "min-w-0 [grid-area:meta]",
+          "w-full min-w-0 [grid-area:meta]",
           description ? "md:mt-1 md:self-start" : "md:self-center",
         )}
       >
@@ -257,7 +366,7 @@ function PageHeaderWithMetadata({
       {action ? (
         <div
           className={cn(
-            "shrink-0 self-start [grid-area:action]",
+            "flex shrink-0 items-center justify-end gap-1 self-center [grid-area:action]",
             description ? "md:mt-1 md:self-start" : "md:self-center",
           )}
         >
