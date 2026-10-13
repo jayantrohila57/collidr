@@ -9,8 +9,10 @@ import { signInWithGithub } from "../lib/auth-actions";
 
 export function GitHubLoginButton({
   size = "lg",
+  label = "Sign in with GitHub",
 }: {
   size?: "default" | "sm" | "lg";
+  label?: string;
 }) {
   const [isLoading, startTransition] = useTransition();
 
@@ -40,7 +42,7 @@ export function GitHubLoginButton({
       className="gap-2"
     >
       {isLoading ? <Spinner /> : <Github className="h-4 w-4" />}
-      Sign in with GitHub
+      {label}
     </Button>
   );
 }

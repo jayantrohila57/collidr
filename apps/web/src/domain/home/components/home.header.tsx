@@ -1,28 +1,48 @@
+"use client";
+
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserMenu } from "@/domain/auth/components/user-menu";
+import { Button } from "@/components/ui/button";
+import { GitHubLoginButton } from "@/domain/auth/components/github-login";
+import { useSession } from "@/domain/auth/lib/auth-actions";
+import { layoutChromeRowClass, layoutRowLgClass } from "@/lib/layout-spacing";
 import { siteConfig } from "@/lib/siteConfig";
+import { cn } from "@/lib/utils";
 
 export default function Header() {
+  const { data: session, isPending } = useSession();
+
   return (
-    <div className="mx-auto flex h-12 w-full max-w-6xl flex-row items-center justify-between p-2">
-      <div className="w-full flex-1">
-        <Link href="/" className="flex items-center space-x-2">
-          <Avatar className="border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50">
-            <AvatarImage src="/favicon/favicon.ico" alt={siteConfig.name} />
-            <AvatarFallback className="border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50">
-              {siteConfig.name
-                ? siteConfig.name.slice(0, 2).toUpperCase()
-                : "NA"}
-            </AvatarFallback>
-          </Avatar>
-          <span className="font-semibold text-sm">{siteConfig.name}</span>
-        </Link>
-      </div>
-      <div className="flex items-center space-x-2">
+    <div className={cn(layoutChromeRowClass, layoutRowLgClass)}>
+      <Link
+        href="/"
+        className="flex min-w-0 items-center gap-2 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <img
+          src="/favicon/favicon.ico"
+          alt=""
+          className="size-8 shrink-0 rounded-lg border bg-background object-cover"
+          width={32}
+          height={32}
+        />
+        <span className="truncate font-semibold text-sm">
+          {siteConfig.name}
+        </span>
+      </Link>
+      <div className="flex shrink-0 items-center gap-2">
         <ModeToggle />
-        <UserMenu />
+        {isPending ? (
+          <div
+            className="size-8 animate-pulse rounded-md bg-muted"
+            aria-hidden
+          />
+        ) : session?.user ? (
+          <Button size="sm" render={<Link href="/dashboard" />}>
+            Dashboard
+          </Button>
+        ) : (
+          <GitHubLoginButton size="sm" label="Sign in" />
+        )}
       </div>
     </div>
   );

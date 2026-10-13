@@ -21,6 +21,9 @@ export const layoutInsetXClass = "px-4 md:px-6";
 export const layoutInsetContainerWideClass = "w-full min-w-0";
 export const layoutInsetContainerNarrowClass = layoutInsetContainerWideClass;
 
+/** Centered marketing site column (public landing only). */
+export const marketingContainerClass = "mx-auto w-full max-w-6xl px-4 md:px-6";
+
 /** Default flex gap between blocks — SidebarContent */
 export const layoutGapClass = "gap-2";
 

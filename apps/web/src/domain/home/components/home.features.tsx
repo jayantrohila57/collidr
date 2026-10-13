@@ -1,17 +1,16 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
 import {
-  ArrowRight,
+  Activity,
+  Building2,
   Check,
-  Cloud,
-  GitBranch,
-  Lock,
-  Shield,
-  Terminal,
-  Users,
+  FolderKanban,
+  Github,
+  KeyRound,
+  Layers,
 } from "lucide-react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,133 +19,154 @@ import {
   CardPanel,
   CardTitle,
 } from "@/components/ui/card";
-import { FramePanel } from "@/components/ui/frame";
 import { GitHubLoginButton } from "@/domain/auth/components/github-login";
 import { useSession } from "@/domain/auth/lib/auth-actions";
-import SectionHeading from "./section-heading";
+import { layoutGapClass } from "@/lib/layout-spacing";
+import { cn } from "@/lib/utils";
+import { MarketingSectionHeading } from "./marketing-section-heading";
 
-const features = [
+type Feature = {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  details: string[];
+};
+
+const features: Feature[] = [
   {
-    icon: Lock,
-    title: "Secure Storage",
+    icon: KeyRound,
+    title: "Encrypted variables",
     description:
-      "Bank-level encryption ensures your environment variables and secrets are protected with industry-standard security measures.",
-    badge: "Security",
+      "Secrets are encrypted at rest. Values stay masked in the UI until you choose to reveal them.",
     details: [
-      "AES-256 encryption",
-      "Zero-knowledge architecture",
-      "SOC 2 compliant",
+      "Encryption at rest",
+      "Masked values in the dashboard",
+      "Per-environment variable lists",
     ],
   },
   {
-    icon: GitBranch,
-    title: "Version Control Integration",
+    icon: Layers,
+    title: "Environments per project",
     description:
-      "Seamlessly integrate with your existing Git workflows and CI/CD pipelines for automated environment management.",
-    badge: "Integration",
-    details: ["GitHub Actions", "GitLab CI", "Jenkins", "Azure DevOps"],
+      "Model dev, staging, production, or any targets you need for each repository.",
+    details: [
+      "Multiple environments per project",
+      "Tabbed environment workspace",
+      "Create and rename environments",
+    ],
   },
   {
-    icon: Cloud,
-    title: "Multi-Environment Support",
+    icon: FolderKanban,
+    title: "Projects workspace",
     description:
-      "Manage different configurations for development, staging, and production environments from a single dashboard.",
-    badge: "Flexibility",
-    details: ["Dev/Staging/Prod", "Feature branches", "Preview environments"],
+      "Organize variables by project with slugs, visibility, and status at a glance.",
+    details: [
+      "Project list and detail views",
+      "Repository and website links",
+      "Quick navigation sidebar",
+    ],
   },
   {
-    icon: Terminal,
-    title: "Developer Tools",
+    icon: Building2,
+    title: "Organizations",
     description:
-      "Powerful CLI and SDK integrations that fit naturally into your existing development workflow.",
-    badge: "Developer Experience",
-    details: ["CLI tools", "SDKs for major languages", "IDE extensions"],
+      "Switch workspaces when teams are enabled, with organization settings and members.",
+    details: [
+      "Organization switcher",
+      "Member roles when enabled",
+      "Org-level settings",
+    ],
   },
   {
-    icon: Shield,
-    title: "Access Control",
+    icon: Activity,
+    title: "Activity log",
     description:
-      "Granular permissions and role-based access control ensure team members only see what they need.",
-    badge: "Enterprise",
-    details: ["Role-based access", "SSO integration", "Audit logs"],
+      "Review recent changes in an audit-style activity feed for your workspace.",
+    details: [
+      "Dashboard activity summary",
+      "Filterable audit log",
+      "Timestamps on events",
+    ],
   },
   {
-    icon: Users,
-    title: "Team Collaboration",
+    icon: Github,
+    title: "GitHub sign-in",
     description:
-      "Share environment configurations safely with your team while maintaining security and compliance.",
-    badge: "Collaboration",
-    details: ["Team workspaces", "Shared secrets", "Approval workflows"],
+      "Authenticate with GitHub to get started—no separate password to manage.",
+    details: [
+      "OAuth via GitHub",
+      "Session-based access",
+      "Redirect to dashboard after sign-in",
+    ],
   },
 ];
+
+function FeatureCard({ feature }: { feature: Feature }) {
+  const Icon = feature.icon;
+  return (
+    <Card className="flex h-full flex-col">
+      <CardHeader className="gap-3">
+        <Icon className="size-5 text-muted-foreground" aria-hidden />
+        <CardTitle className="text-base">{feature.title}</CardTitle>
+        <CardDescription>{feature.description}</CardDescription>
+      </CardHeader>
+      <CardPanel className="mt-auto pt-0">
+        <ul className="space-y-2">
+          {feature.details.map((detail) => (
+            <li
+              key={detail}
+              className="flex items-start gap-2 text-muted-foreground text-sm"
+            >
+              <Check
+                className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                aria-hidden
+              />
+              <span>{detail}</span>
+            </li>
+          ))}
+        </ul>
+      </CardPanel>
+    </Card>
+  );
+}
 
 export default function Features() {
   const { data: session, isPending } = useSession();
 
   return (
-    <>
-      <SectionHeading
+    <section id="features" className={cn("flex flex-col", layoutGapClass)}>
+      <MarketingSectionHeading
         badge="Features"
-        title="Everything You Need for"
-        titleHighlight="Environment Management"
-        description="Built by developers, for developers. Our platform provides all the tools you need to manage environment variables securely and efficiently."
+        title="Built for environment management"
+        description="Practical tools for storing variables, organizing projects, and keeping work visible to your team."
       />
-      <FramePanel id="features">
+      <ul
+        className={cn(
+          "grid list-none gap-4 p-0",
+          "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
+        )}
+      >
         {features.map((feature) => (
-          <Card key={`feature-${feature.title.toLowerCase()}`}>
-            <CardHeader>
-              <CardTitle>{feature.title}</CardTitle>
-              <CardDescription>{feature.description}</CardDescription>
-            </CardHeader>
-            <CardPanel>
-              <div className="flex items-center justify-between">
-                <feature.icon className="size-6 text-primary" aria-hidden />
-                <Badge variant="secondary">{feature.badge}</Badge>
-              </div>
-              <ul className="space-y-2">
-                {feature.details.map((detail, detailIndex) => (
-                  <li
-                    key={`${feature.title}-detail-${detailIndex}`}
-                    className="flex items-center text-muted-foreground text-sm"
-                  >
-                    <Check className="me-2 mt-0.5 h-4 w-4 shrink-0 text-green-500" />
-                    {detail}
-                  </li>
-                ))}
-              </ul>
-            </CardPanel>
-          </Card>
+          <li key={feature.title} className="min-h-0">
+            <FeatureCard feature={feature} />
+          </li>
         ))}
-      </FramePanel>
-      <FramePanel>
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Ready to streamline your environment management?
-            </CardTitle>
-            <CardDescription>
-              Join thousands of developers who trust env-manager for their
-              environment variable security and management needs.
-            </CardDescription>
-          </CardHeader>
-          <CardPanel>
-            {isPending ? (
-              <div className="h-11 w-32 animate-pulse rounded-lg bg-muted" />
-            ) : session?.user ? (
-              <Button
-                size="lg"
-                className="gap-2"
-                render={<Link href="/dashboard" />}
-              >
-                Get Started Now
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            ) : (
-              <GitHubLoginButton size="default" />
-            )}
-          </CardPanel>
-        </Card>
-      </FramePanel>
-    </>
+      </ul>
+      <div className="flex flex-col gap-3 border-t pt-8">
+        <MarketingSectionHeading
+          title="Ready to try it?"
+          description="Sign in with GitHub to create projects and manage environment variables in your workspace."
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          {isPending ? (
+            <div className="h-9 w-40 animate-pulse rounded-md bg-muted" />
+          ) : session?.user ? (
+            <Button render={<Link href="/dashboard" />}>Open dashboard</Button>
+          ) : (
+            <GitHubLoginButton size="default" />
+          )}
+        </div>
+      </div>
+    </section>
   );
 }
