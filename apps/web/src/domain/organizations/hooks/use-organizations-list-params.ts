@@ -1,0 +1,123 @@
+"use client";
+
+import type { Route } from "next";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo } from "react";
+import type {
+  OrganizationsSort,
+  OrganizationsTypeFilter,
+} from "../lib/filter-organizations";
+
+const VIEW_STORAGE_KEY = "env-manager-organizations-view";
+
+export type OrganizationsViewMode = "grid" | "list";
+
+function readStoredView(): OrganizationsViewMode {
+  if (typeof window === "undefined") return "list";
+  const stored = window.localStorage.getItem(VIEW_STORAGE_KEY);
+  return stored === "grid" ? "grid" : "list";
+}
+
+function parseType(value: string | null): OrganizationsTypeFilter {
+  if (value === "personal" || value === "team") return value;
+  return "all";
+}
+
+function parseSort(value: string | null): OrganizationsSort {
+  if (value === "name-desc" || value === "slug-asc") return value;
+  return "name-asc";
+}
+
+function parseView(value: string | null): OrganizationsViewMode {
+  if (value === "grid" || value === "list") return value;
+  return readStoredView();
+}
+
+export function useOrganizationsListParams() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const search = searchParams.get("q") ?? "";
+  const type = parseType(searchParams.get("type"));
+  const sort = parseSort(searchParams.get("sort"));
+  const view = parseView(searchParams.get("view"));
+
+  const replaceParams = useCallback(
+    (mutate: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString());
+      mutate(params);
+      const query = params.toString();
+      router.replace((query ? `${pathname}?${query}` : pathname) as Route);
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSearch = useCallback(
+    (value: string) => {
+      replaceParams((params) => {
+        if (value.trim()) params.set("q", value);
+        else params.delete("q");
+      });
+    },
+    [replaceParams],
+  );
+
+  const setType = useCallback(
+    (value: OrganizationsTypeFilter) => {
+      replaceParams((params) => {
+        if (value === "all") params.delete("type");
+        else params.set("type", value);
+      });
+    },
+    [replaceParams],
+  );
+
+  const setSort = useCallback(
+    (value: OrganizationsSort) => {
+      replaceParams((params) => {
+        if (value === "name-asc") params.delete("sort");
+        else params.set("sort", value);
+      });
+    },
+    [replaceParams],
+  );
+
+  const setView = useCallback(
+    (value: OrganizationsViewMode) => {
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(VIEW_STORAGE_KEY, value);
+      }
+      replaceParams((params) => {
+        params.set("view", value);
+      });
+    },
+    [replaceParams],
+  );
+
+  const clearFilters = useCallback(() => {
+    replaceParams((params) => {
+      params.delete("q");
+      params.delete("type");
+      params.delete("sort");
+    });
+  }, [replaceParams]);
+
+  const filtersActive = useMemo(
+    () => Boolean(search.trim()) || type !== "all" || sort !== "name-asc",
+    [search, sort, type],
+  );
+
+  return {
+    search,
+    type,
+    sort,
+    view,
+    setSearch,
+    setType,
+    setSort,
+    setView,
+    clearFilters,
+    filtersActive,
+  };
+}

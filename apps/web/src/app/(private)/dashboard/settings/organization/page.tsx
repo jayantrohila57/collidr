@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import DashboardSection from "@/components/section-dashboard";
+import { OrganizationSettingsRedirect } from "@/domain/organizations/components/organization-settings-redirect";
 import { OrgSettingsStats } from "@/domain/settings/components/org-settings-stats";
 import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
 import { getServerSession } from "@/lib/server-auth";
@@ -19,7 +20,7 @@ export default async function OrganizationSettingsPage() {
   }
 
   if (isActionsAuditEnabledOnServer()) {
-    redirect("/dashboard/organizations");
+    return <OrganizationSettingsRedirect />;
   }
 
   return (

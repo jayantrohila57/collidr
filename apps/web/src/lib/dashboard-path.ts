@@ -15,6 +15,7 @@ export function isRecognizedDashboardPath(
     "/dashboard/projects/new",
     "/dashboard/settings",
     "/dashboard/settings/organization",
+    "/dashboard/organizations",
   ]);
 
   if (staticPaths.has(pathname)) return true;
@@ -40,6 +41,21 @@ export function isRecognizedDashboardPath(
     if (slug === "new" || slug === "edit") return true;
     if (!projectsLoaded) return true;
     return projectSlugs.has(slug);
+  }
+
+  const organizationDetail = /^\/dashboard\/organizations\/([^/]+)$/.exec(
+    pathname,
+  );
+  if (organizationDetail) {
+    return true;
+  }
+
+  const organizationSection =
+    /^\/dashboard\/organizations\/([^/]+)\/(members|teams|invitations|roles|settings|timeline)$/.exec(
+      pathname,
+    );
+  if (organizationSection) {
+    return true;
   }
 
   return false;

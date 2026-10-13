@@ -34,7 +34,18 @@ export function getPageBackHref(pathname: string): PageBackHref | null {
   }
 
   if (pathname === "/dashboard/settings/organization") {
-    return "/dashboard/settings";
+    return "/dashboard/organizations";
+  }
+
+  if (pathname === "/dashboard/organizations") {
+    return "/dashboard";
+  }
+
+  const organizationDetail = /^\/dashboard\/organizations\/([^/]+)$/.exec(
+    pathname,
+  );
+  if (organizationDetail) {
+    return "/dashboard/organizations";
   }
 
   if (pathname === "/dashboard/projects/new") {

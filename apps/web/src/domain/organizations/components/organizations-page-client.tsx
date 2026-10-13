@@ -1,78 +1,63 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import type { Route } from "next";
-import Link from "next/link";
-import { ErrorState } from "@/components/patterns/error-state";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
+import DashboardSection from "@/components/section-dashboard";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from "@/components/ui/empty";
-import { Spinner } from "@/components/ui/spinner";
-import { trpc } from "@/utils/trpc";
+import { CreateOrganizationSheet } from "./create-organization-sheet";
+import { OrganizationsList } from "./organizations-list";
+import { OrganizationsListStats } from "./organizations-list-stats";
 
 export function OrganizationsPageClient() {
-  const query = useQuery(trpc.organizations.list.queryOptions());
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [createOpen, setCreateOpen] = useState(false);
 
-  if (query.isLoading) {
-    return (
-      <div className="flex justify-center py-12">
-        <Spinner />
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (searchParams.get("create") === "1") {
+      setCreateOpen(true);
+    }
+  }, [searchParams]);
 
-  if (query.error) {
-    return (
-      <ErrorState
-        title="Could not load organizations"
-        description={query.error.message}
-        onRetry={() => query.refetch()}
-      />
-    );
-  }
+  const closeCreate = useCallback(() => {
+    setCreateOpen(false);
+    if (searchParams.get("create") === "1") {
+      router.replace("/dashboard/organizations");
+    }
+  }, [router, searchParams]);
 
-  const items = query.data?.items ?? [];
-
-  if (!items.length) {
-    return (
-      <Empty>
-        <EmptyHeader>
-          <EmptyTitle>No organizations</EmptyTitle>
-          <EmptyDescription>
-            Create or join an organization to collaborate.
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    );
-  }
+  const openCreate = useCallback(() => {
+    setCreateOpen(true);
+  }, []);
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {items.map((org) => (
-        <Card key={org.id} className="flex flex-col">
-          <CardHeader className="flex flex-row items-center justify-between gap-2">
-            <CardTitle className="text-base">{org.name}</CardTitle>
-            <span className="text-muted-foreground text-xs capitalize">
-              {org.role === "admin" ? "manager" : org.role}
-            </span>
-          </CardHeader>
-          <div className="px-6 pb-6">
-            <Button
-              size="sm"
-              render={
-                <Link href={`/dashboard/organizations/${org.slug}` as Route} />
-              }
-            >
-              Open hub
-            </Button>
-          </div>
-        </Card>
-      ))}
-    </div>
+    <>
+      <DashboardSection
+        title="Organizations"
+        description="Workspaces you belong to, with members, teams, and access settings."
+        action={
+          <Button
+            type="button"
+            size="sm"
+            className="gap-2 max-sm:size-8 max-sm:gap-0 max-sm:px-0"
+            onClick={openCreate}
+          >
+            <AppIcon name="plus" className="text-current" />
+            <span className="sr-only sm:not-sr-only">New organization</span>
+          </Button>
+        }
+        stats={<OrganizationsListStats />}
+      >
+        <OrganizationsList onCreateOrganization={openCreate} />
+      </DashboardSection>
+      <CreateOrganizationSheet
+        open={createOpen}
+        onOpenChange={(next) => {
+          if (next) setCreateOpen(true);
+          else closeCreate();
+        }}
+      />
+    </>
   );
 }

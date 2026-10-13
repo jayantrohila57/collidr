@@ -2,7 +2,6 @@
 
 import { Building2, ChevronsUpDown, Plus, Settings } from "lucide-react";
 import type { Route } from "next";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { OrgListItem } from "@/components/org/active-organization-context";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
@@ -141,9 +140,9 @@ export function OrgSwitcher() {
               ))}
             </MenuGroup>
             <MenuSeparator />
-            <MenuLinkItem href={"/dashboard/settings/organization" as Route}>
+            <MenuLinkItem href={"/dashboard/organizations" as Route}>
               <Settings className="me-2 size-4" aria-hidden />
-              Organization settings
+              Manage organizations
             </MenuLinkItem>
             <MenuItem onClick={() => router.push("/dashboard/onboarding")}>
               <Plus className="me-2 size-4" aria-hidden />

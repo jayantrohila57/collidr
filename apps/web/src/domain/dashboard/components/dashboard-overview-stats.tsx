@@ -49,7 +49,7 @@ export function DashboardOverviewStats() {
         : "Personal workspace",
       icon: "member",
       href: isOrganizationsEnabledOnClient()
-        ? ("/dashboard/settings/organization" as Route)
+        ? ("/dashboard/organizations" as Route)
         : undefined,
     },
   ];

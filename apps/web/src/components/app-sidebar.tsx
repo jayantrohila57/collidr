@@ -5,7 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   ActivityIcon,
   BellIcon,
-  Building2Icon,
+  Building2,
   ClockIcon,
   FolderClosedIcon,
   LayoutDashboardIcon,
@@ -43,7 +43,7 @@ import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 const navIcons: Record<string, LucideIcon> = {
   "/dashboard": LayoutDashboardIcon,
   "/dashboard/projects": FolderClosedIcon,
-  "/dashboard/organizations": Building2Icon,
+  "/dashboard/organizations": Building2,
   "/dashboard/timeline": ClockIcon,
   "/dashboard/notifications": BellIcon,
   "/dashboard/settings": SettingsIcon,
@@ -110,6 +110,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           label: "Dashboard",
           icon: LayoutDashboardIcon,
         },
+        ...(showOrgSwitcher
+          ? [
+              {
+                href: "/dashboard/organizations",
+                label: "Organizations",
+                icon: Building2,
+              },
+            ]
+          : []),
         {
           href: "/dashboard/projects",
           label: "Projects",

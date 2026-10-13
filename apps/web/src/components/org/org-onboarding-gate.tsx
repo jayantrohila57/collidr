@@ -11,6 +11,7 @@ import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 const EXEMPT_PREFIXES = [
   "/dashboard/onboarding",
   "/dashboard/settings/organization",
+  "/dashboard/organizations",
 ];
 
 export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {

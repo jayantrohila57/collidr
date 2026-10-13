@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { Skeleton } from "@/components/ui/skeleton";
+import { OrganizationSettingsForm } from "@/domain/organizations/components/organization-settings-form";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
-import { OrganizationSettingsForm } from "./organization-settings-client";
 
 export default function OrganizationSettingsGate() {
   const router = useRouter();
@@ -36,6 +36,7 @@ export default function OrganizationSettingsGate() {
     <OrganizationSettingsForm
       key={activeOrganizationId}
       organizationId={activeOrganizationId}
+      mode="legacy-tabs"
     />
   );
 }

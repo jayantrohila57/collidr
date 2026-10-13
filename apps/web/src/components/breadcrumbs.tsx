@@ -20,6 +20,13 @@ import { cn, deSlug } from "@/lib/utils";
 
 const STATIC_LABELS: Record<string, string> = {
   dashboard: "Dashboard",
+  organizations: "Organizations",
+  members: "Members",
+  teams: "Teams",
+  invitations: "Invitations",
+  roles: "Roles & access",
+  settings: "Settings",
+  timeline: "Timeline",
   projects: "Projects",
   notifications: "Notifications",
   new: "New Project",

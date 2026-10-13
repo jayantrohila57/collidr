@@ -1,29 +1,39 @@
+import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import DashboardSection from "@/components/section-dashboard";
+import { Suspense } from "react";
+import { OrganizationsFeatureGate } from "@/domain/organizations/components/organizations-feature-gate";
 import { OrganizationsPageClient } from "@/domain/organizations/components/organizations-page-client";
-import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
-import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+import { OrganizationsListSkeleton } from "@/domain/organizations/components/skeletons";
+import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
+import { getServerSession } from "@/lib/server-auth";
+import { siteConfig } from "@/lib/siteConfig";
 
 export const metadata: Metadata = {
   title: "Organizations",
-  description: "Manage your organizations.",
+  description: `Manage workspaces and members in ${siteConfig.name}.`,
 };
 
-export default function OrganizationsPage() {
-  if (!isOrganizationsEnabledOnClient()) {
+export default async function OrganizationsPage() {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    redirect("/");
+  }
+
+  if (!isOrganizationsEnabled()) {
     redirect("/dashboard");
   }
-  if (!isActionsAuditEnabledOnClient()) {
+
+  if (!isActionsAuditEnabledOnServer()) {
     redirect("/dashboard/settings/organization");
   }
 
   return (
-    <DashboardSection
-      title="Organizations"
-      description="Workspaces you belong to."
-    >
-      <OrganizationsPageClient />
-    </DashboardSection>
+    <OrganizationsFeatureGate>
+      <Suspense fallback={<OrganizationsListSkeleton />}>
+        <OrganizationsPageClient />
+      </Suspense>
+    </OrganizationsFeatureGate>
   );
 }

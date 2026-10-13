@@ -1,55 +1,48 @@
-import type { Metadata, Route } from "next";
-import Link from "next/link";
+import { isOrganizationsEnabled } from "@env-manager/env/organizations";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import DashboardSection from "@/components/section-dashboard";
-import { Button } from "@/components/ui/button";
-import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
+import { Suspense } from "react";
+import OrganizationDetailPage from "@/domain/organizations/components/organization-detail-page";
+import { OrganizationsFeatureGate } from "@/domain/organizations/components/organizations-feature-gate";
+import { OrganizationDetailSkeleton } from "@/domain/organizations/components/skeletons";
+import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
+import { getServerSession } from "@/lib/server-auth";
 
-export const metadata: Metadata = {
-  title: "Organization",
-  description: "Organization hub.",
-};
+interface OrganizationHubPageProps {
+  params: Promise<{ slug: string }>;
+}
 
-const sections = [
-  { href: "members", label: "Members" },
-  { href: "teams", label: "Teams" },
-  { href: "invitations", label: "Invitations" },
-  { href: "roles", label: "Roles & access" },
-  { href: "settings", label: "Settings" },
-  { href: "timeline", label: "Timeline" },
-] as const;
+export async function generateMetadata({
+  params,
+}: OrganizationHubPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  return {
+    title: slug,
+    description: "Organization overview and administration.",
+  };
+}
 
 export default async function OrganizationHubPage({
   params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  if (!isActionsAuditEnabledOnClient()) {
+}: OrganizationHubPageProps) {
+  const session = await getServerSession();
+  if (!session?.user) {
+    redirect("/");
+  }
+  if (!isOrganizationsEnabled()) {
+    redirect("/dashboard");
+  }
+  if (!isActionsAuditEnabledOnServer()) {
     redirect("/dashboard/settings/organization");
   }
 
   const { slug } = await params;
 
   return (
-    <DashboardSection title="Organization" description={`Hub for ${slug}`}>
-      <div className="flex flex-wrap gap-2">
-        {sections.map((section) => (
-          <Button
-            key={section.href}
-            variant="outline"
-            size="sm"
-            render={
-              <Link
-                href={
-                  `/dashboard/organizations/${slug}/${section.href}` as Route
-                }
-              />
-            }
-          >
-            {section.label}
-          </Button>
-        ))}
-      </div>
-    </DashboardSection>
+    <OrganizationsFeatureGate>
+      <Suspense fallback={<OrganizationDetailSkeleton />}>
+        <OrganizationDetailPage slug={slug} />
+      </Suspense>
+    </OrganizationsFeatureGate>
   );
 }
