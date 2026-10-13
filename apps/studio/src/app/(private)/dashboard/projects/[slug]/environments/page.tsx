@@ -1,10 +1,9 @@
 import { HydrationBoundary } from "@tanstack/react-query";
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import ProjectEnvironmentsPage from "@/domain/projects/components/project-environments-page";
+import { loadProjectPageDataOrNotFound } from "@/lib/page-guards";
 import { loadProjectPageData } from "@/lib/project-page-loader";
-import { getServerSession } from "@/lib/server-auth";
 import ProjectEnvironmentsLoading from "./loading";
 
 interface ProjectEnvironmentsPageProps {
@@ -36,15 +35,7 @@ export default async function ProjectEnvironmentsRoute({
   params,
 }: ProjectEnvironmentsPageProps) {
   const { slug } = await params;
-
-  const data = await loadProjectPageData(slug);
-  if (!data) {
-    const session = await getServerSession();
-    if (!session?.user) {
-      redirect("/");
-    }
-    notFound();
-  }
+  const data = await loadProjectPageDataOrNotFound(slug);
 
   return (
     <HydrationBoundary state={data.dehydratedState}>

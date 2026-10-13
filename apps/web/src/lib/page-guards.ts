@@ -103,6 +103,31 @@ export async function guardOrganizationSlugPage(
   return { session, org };
 }
 
+export async function loadProjectPageDataOrNotFound(
+  slug: string,
+): Promise<import("@/lib/project-page-loader").ProjectPageData> {
+  await guardProjectSlugPage(slug);
+  const { loadProjectPageData } = await import("@/lib/project-page-loader");
+  const data = await loadProjectPageData(slug);
+  if (!data) {
+    const { notFound } = await import("next/navigation");
+    return notFound();
+  }
+  return data;
+}
+
+export async function guardProjectEditPage(slug: string) {
+  const { session, project } = await guardProjectSlugPage(slug);
+  await runPageGuard(() =>
+    requirePageAction("project.update", {
+      userId: session.user.id,
+      organizationId: getSessionActiveOrganizationId(session),
+      projectId: project.id,
+    }),
+  );
+  return project;
+}
+
 export async function guardProjectSlugPage(slug: string) {
   const session = await guardAuthenticatedPage();
   const organizationId = getSessionActiveOrganizationId(session);

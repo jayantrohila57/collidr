@@ -1,6 +1,11 @@
+import { DEFAULT_ACCOUNT_URL } from "@env-manager/env/platform";
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 import { SIGN_IN_PATH } from "@/lib/auth-routes";
+
+const accountOrigin = (
+  process.env.NEXT_PUBLIC_ACCOUNT_URL ?? DEFAULT_ACCOUNT_URL
+).replace(/\/$/, "");
 
 function isSignedIn(request: NextRequest): boolean {
   return Boolean(getSessionCookie(request.headers));
@@ -12,6 +17,11 @@ export function middleware(request: NextRequest) {
 
   if (signedIn && pathname === SIGN_IN_PATH) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  if (pathname.startsWith("/dashboard/settings")) {
+    const suffix = pathname.replace("/dashboard/settings", "/settings");
+    return NextResponse.redirect(`${accountOrigin}${suffix}${search}`);
   }
 
   if (!signedIn && pathname.startsWith("/dashboard")) {

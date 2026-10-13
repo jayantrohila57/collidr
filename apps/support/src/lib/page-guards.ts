@@ -1,16 +1,22 @@
 import "server-only";
 
 import {
-  requirePageSession,
+  requirePageAction,
+  requireSupportManagerPage,
+  requireSupportTicketPage,
+  runPageGuard,
+} from "@env-manager/api/page-guards";
+import {
   type RequirePageSessionResult,
+  requirePageSession,
 } from "@env-manager/auth/guards";
 import type { AuthSession } from "@env-manager/auth/session-types";
 import { DEFAULT_SUPPORT_URL } from "@env-manager/env/platform";
 import type { Route } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { siblingAuth } from "@/lib/sibling-auth";
 import { cache } from "react";
+import { siblingAuth } from "@/lib/sibling-auth";
 
 const appOrigin = (
   process.env.NEXT_PUBLIC_SUPPORT_URL ?? DEFAULT_SUPPORT_URL
@@ -41,4 +47,28 @@ export async function guardAuthenticatedPage(): Promise<AuthSession> {
     redirect("/" as Route);
   }
   return result.session;
+}
+
+export async function guardPageAction(
+  action: Parameters<typeof requirePageAction>[0],
+): Promise<AuthSession> {
+  const session = await guardAuthenticatedPage();
+  await runPageGuard(() =>
+    requirePageAction(action, { userId: session.user.id }),
+  );
+  return session;
+}
+
+export async function guardSupportManagerPage(): Promise<AuthSession> {
+  const session = await guardAuthenticatedPage();
+  await runPageGuard(() => requireSupportManagerPage(session.user.id));
+  return session;
+}
+
+export async function guardSupportTicketPage(
+  ticketId: string,
+): Promise<AuthSession> {
+  const session = await guardAuthenticatedPage();
+  await runPageGuard(() => requireSupportTicketPage(session.user.id, ticketId));
+  return session;
 }

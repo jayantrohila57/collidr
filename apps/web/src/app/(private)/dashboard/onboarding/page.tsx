@@ -1,5 +1,7 @@
+import { guardPageAction } from "@/lib/page-guards";
 import { redirectToStudio } from "@/lib/studio-redirect";
 
-export default function OnboardingPage() {
+export default async function OnboardingRedirectPage() {
+  await guardPageAction("organization.create");
   redirectToStudio("/dashboard/onboarding");
 }

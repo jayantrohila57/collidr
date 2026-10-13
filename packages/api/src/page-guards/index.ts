@@ -1,17 +1,22 @@
+export { requireConsoleOperatorPage } from "./console";
 export { PageForbiddenError, PageNotFoundError } from "./errors";
-export { requirePageAction } from "./require-action";
-export {
-  resolveOrganizationForPage,
-  resolveProjectForPage,
-  type ResolvedOrganization,
-  type ResolvedProject,
-} from "./resources";
-export {
-  organizationChildAction,
-  organizationChildRouteActions,
-} from "./org-route-actions";
 export {
   applyPageGuardError,
   redirectToForbidden,
   runPageGuard,
 } from "./next";
+export {
+  organizationChildAction,
+  organizationChildRouteActions,
+} from "./org-route-actions";
+export { requirePageAction } from "./require-action";
+export {
+  type ResolvedOrganization,
+  type ResolvedProject,
+  resolveOrganizationForPage,
+  resolveProjectForPage,
+} from "./resources";
+export {
+  requireSupportManagerPage,
+  requireSupportTicketPage,
+} from "./support";

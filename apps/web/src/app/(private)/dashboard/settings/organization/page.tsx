@@ -1,35 +1,10 @@
-import type { Metadata } from "next";
+import { DEFAULT_ACCOUNT_URL } from "@env-manager/env/platform";
 import { redirect } from "next/navigation";
-import DashboardSection from "@/components/section-dashboard";
-import { OrganizationSettingsRedirect } from "@/domain/organizations/components/organization-settings-redirect";
-import { OrgSettingsStats } from "@/domain/settings/components/org-settings-stats";
-import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
-import { getServerSession } from "@/lib/server-auth";
-import OrganizationSettingsGate from "./organization-settings-gate";
 
-export const metadata: Metadata = {
-  title: "Organization settings",
-  description: "Manage organization profile, members, and invitations.",
-};
+const accountOrigin = (
+  process.env.NEXT_PUBLIC_ACCOUNT_URL ?? DEFAULT_ACCOUNT_URL
+).replace(/\/$/, "");
 
-export default async function OrganizationSettingsPage() {
-  const session = await getServerSession();
-
-  if (!session?.user) {
-    redirect("/");
-  }
-
-  if (isActionsAuditEnabledOnServer()) {
-    return <OrganizationSettingsRedirect />;
-  }
-
-  return (
-    <DashboardSection
-      title="Organization"
-      description="Workspace profile, members, and invitations."
-      stats={<OrgSettingsStats />}
-    >
-      <OrganizationSettingsGate />
-    </DashboardSection>
-  );
+export default function OrganizationSettingsRedirect() {
+  redirect(`${accountOrigin}/settings` as never);
 }

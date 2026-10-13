@@ -8,7 +8,7 @@ describe("isDashboardRootPath", () => {
       "/dashboard",
       "/dashboard/projects",
       "/dashboard/organizations",
-      "/dashboard/settings",
+      "/dashboard/notifications",
     ]) {
       assert.equal(isDashboardRootPath(path), true);
     }

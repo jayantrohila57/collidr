@@ -1,10 +1,8 @@
 import { HydrationBoundary } from "@tanstack/react-query";
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import ProjectDetailPage from "@/domain/projects/components/project-detail-page";
-import { loadProjectPageData } from "@/lib/project-page-loader";
-import { getServerSession } from "@/lib/server-auth";
+import { loadProjectPageDataOrNotFound } from "@/lib/page-guards";
 import ProjectDetailLoading from "./loading";
 
 interface ProjectPageProps {
@@ -17,6 +15,7 @@ export async function generateMetadata({
   params,
 }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
+  const { loadProjectPageData } = await import("@/lib/project-page-loader");
   const data = await loadProjectPageData(slug);
 
   if (!data) {
@@ -35,15 +34,7 @@ export async function generateMetadata({
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
-
-  const data = await loadProjectPageData(slug);
-  if (!data) {
-    const session = await getServerSession();
-    if (!session?.user) {
-      redirect("/");
-    }
-    notFound();
-  }
+  const data = await loadProjectPageDataOrNotFound(slug);
 
   return (
     <HydrationBoundary state={data.dehydratedState}>
