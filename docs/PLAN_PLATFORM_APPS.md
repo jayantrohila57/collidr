@@ -14,7 +14,7 @@
 | **`apps/auth`** | Single entry for **sign-in / sign-up / sign-out** for all products; **OAuth 2.1 authorization server**; **MCP authorization** (login + consent for MCP clients). Hosts Better Auth route handler only (+ minimal auth/consent/device pages). | coss ui (minimal) | **Issuer** — `BETTER_AUTH_URL` = auth origin |
 | **`apps/account`** | **Account management** moved out of studio: profile, sessions, connected accounts, export, delete, personal audit timeline. | coss ui | Session cookie (SSO) |
 | **`apps/studio`** | **Main product** — rename/migrate from `apps/web`: orgs, projects, environments, variables, org hub, notifications, onboarding. **No** account settings (link out to account). | coss ui | Session cookie (SSO) |
-| **`apps/console`** | **Platform admin** (`user.role = admin` + Better Auth admin plugin): users, orgs, projects, sessions, global audit, impersonation/ban, MCP OAuth clients/tokens, feature flags, health. | coss ui | Session cookie (SSO) + admin gate |
+| **`apps/console`** | **Platform admin** (`user.role = admin` + Better Auth admin plugin): users, orgs, projects, sessions, global audit, impersonation/ban, MCP OAuth clients/tokens, feature flags, health. | coss ui | Session cookie (SSO) + **Admin role** + **production IP allowlist** (Decision 11) |
 | **`apps/mcp`** | **API-only** remote MCP server (stateless HTTP `POST`, MCP 2026-07-28). | none | OAuth access token (+ optional DPoP) |
 | **`apps/docs`** | Product + MCP documentation (**Fumadocs** + built-in search, Decision 9) with **our** chrome (`@env-manager/ui`). **Fully public** (Decision 10). | coss ui shell + Fumadocs primitives | Public read; optional “edit on GitHub”; optional sign-in link to studio |
 
@@ -191,9 +191,10 @@ trustedOrigins: [
   "https://account.env-manager.com",
   "https://console.env-manager.com",
   "https://docs.env-manager.com",
-  // previews: policy TBD
 ],
 ```
+
+`trustedOrigins` lists **production hostnames only** (Decision 12) — no `*.vercel.app` preview wildcard, no branch preview URLs.
 
 `BETTER_AUTH_URL` = `https://auth.env-manager.com` (issuer + `/api/auth/*`).
 
@@ -247,7 +248,7 @@ sequenceDiagram
 | Param | Where | Rules |
 |-------|-------|--------|
 | `return_to` | Auth sign-in/sign-up/sign-out | **Required** for cross-app flows. Full `https://` URL. |
-| Allowlist | `packages/auth` config | `allowedReturnOrigins`: studio, account, console, docs origins (+ preview pattern if approved). |
+| Allowlist | `packages/auth` config | `allowedReturnOrigins`: production studio, account, console, docs origins only (Decision 12). |
 | Validation | Auth app | Reject missing scheme, `javascript:`, non-allowlisted host; default fallback `https://app.env-manager.com/dashboard`. |
 | Relative paths | Deprecated | Map old `?redirect=/dashboard` on studio middleware → build absolute `return_to` pointing at studio. |
 
@@ -316,8 +317,10 @@ Each app’s tRPC context / middleware:
 
 ### 6.4 `apps/console`
 
-- Unchanged intent from prior plan: platform `platform.*` actions, admin plugin, MCP OAuth admin UI.
-- Sign-in: auth with `return_to=console`; middleware checks `isPlatformAdmin`.
+- Platform `platform.*` actions, admin plugin, MCP OAuth admin UI.
+- Sign-in: auth with `return_to=console`; middleware checks **`isPlatformAdmin()`** and **production IP allowlist** (Decision 11).
+- **Env:** `CONSOLE_IP_ALLOWLIST` — comma-separated IPs or CIDRs (e.g. `203.0.113.10,198.51.100.0/24`). **Required in production**; values are set by the operator in Vercel (not committed). Requests from non-allowlisted IPs are rejected before app logic (403), even for admins.
+- Validate allowlist in `@env-manager/env` when `apps/console` ships; empty/missing in production should fail deploy or refuse traffic (implementation choice — must not default to “allow all”).
 
 ### 6.5 `apps/mcp`
 
@@ -436,7 +439,7 @@ Target rollback decision time: **< 1 hour** from go/no-go.
 | `env-manager-mcp` | `apps/mcp` | `mcp.env-manager.com` |
 | `env-manager-docs` | `apps/docs` | `docs.env-manager.com` |
 
-**Build:** `turbo build --filter=studio` (etc.). **Env:** duplicate DB secrets; per-app `NEXT_PUBLIC_*_URL` link graph. **Previews:** `trustedOrigins` / `allowedReturnOrigins` strategy (open decision).
+**Build:** `turbo build --filter=studio` (etc.). **Env:** duplicate DB secrets; per-app `NEXT_PUBLIC_*_URL` link graph; console **`CONSOLE_IP_ALLOWLIST`** (Decision 11). **Previews:** disabled — production **`main` only** (Decision 12); `trustedOrigins` / `allowedReturnOrigins` are explicit production URLs, no preview wildcard.
 
 **Legacy:** At cutover (§8.3), `env-manager-web.vercel.app` aliases to **studio** (Decision 5); web project removed same window.
 
@@ -460,7 +463,8 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 | SSO cookies | `httpOnly`, `secure`, scoped domain; [Cookies](https://www.better-auth.com/docs/concepts/cookies) |
 | `return_to` | Allowlist only — prevent open redirects |
 | MCP | PKCE, CIMD, scope step-up, `requireAction` per tool |
-| Console | Admin role + optional IP allowlist |
+| Console | **Admin role** + **mandatory production IP allowlist** via `CONSOLE_IP_ALLOWLIST` (Decision 11) |
+| Auth origins | `trustedOrigins` / `allowedReturnOrigins` — **production URLs only**; no preview wildcard (Decision 12) |
 | Docs | **Fully public** (Decision 10); Fumadocs built-in search (Decision 9); no secrets in MDX |
 | CSRF | Auth routes on auth origin; sibling apps use SameSite=Lax cross-subdomain |
 
@@ -477,7 +481,7 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 | **P4** | Custom apex DNS (optional, later) | §2.1 hostnames when approved |
 | **P5** | `apps/docs` MVP | Fumadocs content + coss shell; MCP scope page |
 | **P6** | `apps/mcp` + OAuth consent on auth | MCP client auth E2E |
-| **P7** | `apps/console` | Admin-only cross-tenant |
+| **P7** | `apps/console` | Admin + `CONSOLE_IP_ALLOWLIST` enforced in prod |
 | **P8** | MCP tool parity + hardening | See Appendix A |
 
 ---
@@ -573,6 +577,27 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 **Implication:** Do not design docs RBAC or `requireAction` on MDX pages for v1.
 
+### Decision 11 — Console IP allowlist (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Control** | **`apps/console` production** requires **both** platform **Admin** role (Better Auth admin plugin) **and** client IP ∈ allowlist. |
+| **Configuration** | Env var **`CONSOLE_IP_ALLOWLIST`** — comma-separated IPv4/IPv6 addresses or CIDR blocks; **values supplied by the operator** in Vercel (never committed to git). |
+| **Behavior** | Middleware (or edge) checks run **before** console routes/tRPC; non-allowlisted IPs get **403** regardless of admin session. |
+| **Non-prod** | Local dev may use `127.0.0.1/32` or disable via documented dev-only escape (e.g. unset only when `NODE_ENV=development`) — production must always set the allowlist. |
+
+**Implication:** Console is never “admin login only”; network posture is part of the security model.
+
+### Decision 12 — No preview trusted origins (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Deploys** | **Production only** from `main` — no Vercel preview deployments, no branch URLs ([AGENTS.md](../AGENTS.md)). |
+| **Better Auth** | `trustedOrigins` and `allowedReturnOrigins` list **fixed production hostnames** (§2.0 / §2.1) — **no** `*.vercel.app` wildcard for previews. |
+| **Excluded** | Do not add preview URLs to auth config “for convenience”; local/staging uses explicit hostnames on Neon branch testing, not prod auth config drift. |
+
+**Implication:** Auth config stays a closed set of production origins; preview deploys are out of scope for this repo.
+
 ---
 
 ## 15. Open decisions (numbered)
@@ -580,16 +605,14 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 1. **Cookie domain** (custom apex) — `env-manager.com` vs `.env-manager.com` vs per-subdomain only?
 2. **Auth proxy vs cookie-only** (custom apex) — rewrites on every sibling app or only `crossSubDomainCookies`?
 3. **Marketing site** — `www` → docs, studio landing, or separate?
-4. **Console IP allowlist** — required in prod?
-5. **Preview `trustedOrigins`** — policy for non-prod (prod: **no branch previews** per [AGENTS.md](../AGENTS.md))?
-6. **`project.unarchive` canonical action** — add to registry?
-7. **Rate limit store** for MCP — KV vs Postgres?
-8. **MCP transport** — `@modelcontextprotocol/server` + `requireMcpAuth` vs `@vercel/mcp-adapter`?
-9. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
-10. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
-11. **Account app URL in emails** — branding and link targets?
-12. **Impersonation banner** — show on studio, account, or all apps?
-13. **Better Auth upgrade** — before P2 or as part of P2?
+4. **`project.unarchive` canonical action** — add to registry?
+5. **Rate limit store** for MCP — KV vs Postgres?
+6. **MCP transport** — `@modelcontextprotocol/server` + `requireMcpAuth` vs `@vercel/mcp-adapter`?
+7. **tRPC deployment** — each app mounts own `/api/trpc` vs shared API gateway app?
+8. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
+9. **Account app URL in emails** — branding and link targets?
+10. **Impersonation banner** — show on studio, account, or all apps?
+11. **Better Auth upgrade** — before P2 or as part of P2?
 
 ---
 
