@@ -26,3 +26,8 @@ export {
 } from "./platform-urls";
 export type { AuthSession } from "./session-types";
 export { getSessionActiveOrganizationId } from "./session-types";
+export {
+  evaluateSessionAccess,
+  resolveSignInRedirect,
+  type SessionAccessResult,
+} from "./guards";

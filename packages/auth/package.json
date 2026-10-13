@@ -20,13 +20,16 @@
     "./platform-middleware": {
       "default": "./src/platform-middleware.ts"
     },
+    "./guards": {
+      "default": "./src/guards/index.ts"
+    },
     "./*": {
       "default": "./src/*.ts"
     }
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "test": "node --import tsx --test src/return-to.test.ts"
+    "test": "node --import tsx --test src/return-to.test.ts src/guards/session-access.test.ts"
   },
   "dependencies": {
     "@better-auth/cimd": "^1.7.7",
@@ -35,6 +38,7 @@
     "@env-manager/db": "workspace:*",
     "@env-manager/env": "workspace:*",
     "@env-manager/notifications": "workspace:*",
+    "@env-manager/ui": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",

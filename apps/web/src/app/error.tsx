@@ -1,32 +1,13 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
-import { useEffect } from "react";
-import { PageStatusEmpty } from "@/components/layout/page-state";
-import { Button } from "@/components/ui/button";
-import { getClientErrorMessage } from "@/lib/errors/client-errors";
+import { AppRouteErrorPage } from "@env-manager/ui/patterns/app-route-states";
 
-export default function RootError({
+export default function Error({
   error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
-
-  return (
-    <PageStatusEmpty
-      icon={AlertTriangle}
-      title="Unexpected error"
-      description={getClientErrorMessage(error)}
-      action={
-        <Button type="button" size="sm" onClick={reset}>
-          Try again
-        </Button>
-      }
-    />
-  );
+  return <AppRouteErrorPage error={error} reset={reset} />;
 }

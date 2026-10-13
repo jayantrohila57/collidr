@@ -26,6 +26,17 @@
     },
     "./page-header-grid-classes": "./src/lib/page-header-grid-classes.ts",
     "./patterns/impersonation-banner": "./src/patterns/impersonation-banner.tsx",
+    "./patterns/page-state": "./src/patterns/page-state.tsx",
+    "./patterns/app-route-states": "./src/patterns/app-route-states.tsx",
+    "./empty": {
+      "default": "./src/components/ui/empty.tsx"
+    },
+    "./frame": {
+      "default": "./src/components/ui/frame.tsx"
+    },
+    "./skeleton": {
+      "default": "./src/components/ui/skeleton.tsx"
+    },
     "./utils": {
       "default": "./src/lib/utils.ts"
     }

@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { SettingsSectionShell } from "@/app/(private)/settings/_components/settings-section-shell";
 import { AccountSettingsClient } from "@/domain/settings/components/account-settings-client";
 import { AccountSettingsSkeleton } from "@/domain/settings/components/account-settings-skeleton";
-import { getServerSession } from "@/lib/server-auth";
+import { guardPageAction } from "@/lib/page-guards";
 
 export const metadata: Metadata = {
   title: "Sessions",
@@ -12,8 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SessionsSettingsPage() {
-  const session = await getServerSession();
-  if (!session?.user) redirect("/");
+  await guardPageAction("session.list");
 
   return (
     <SettingsSectionShell

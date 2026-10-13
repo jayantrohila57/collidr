@@ -1,9 +1,9 @@
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { guardOrganizationSlugPage } from "@/lib/page-guards";
 import { OrganizationTeamsPage } from "@/domain/organizations/components/organization-teams-page";
 import { OrganizationsFeatureGate } from "@/domain/organizations/components/organizations-feature-gate";
-import { getServerSession } from "@/lib/server-auth";
 
 export const metadata: Metadata = {
   title: "Teams",
@@ -15,10 +15,9 @@ export default async function OrganizationTeamsRoute({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const session = await getServerSession();
-  if (!session?.user) redirect("/");
   if (!isOrganizationsEnabled()) redirect("/dashboard");
-  const { slug } = await params;
+    const { slug } = await params;
+  await guardOrganizationSlugPage(slug, "teams");
   return (
     <OrganizationsFeatureGate>
       <OrganizationTeamsPage slug={slug} />

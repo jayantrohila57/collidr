@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { SettingsSectionShell } from "@/app/(private)/settings/_components/settings-section-shell";
 import { TimelinePageClient } from "@/domain/timeline/components/timeline-page-client";
 import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
-import { getServerSession } from "@/lib/server-auth";
+import { guardPageAction } from "@/lib/page-guards";
 
 export const metadata: Metadata = {
   title: "Timeline",
@@ -12,8 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SettingsTimelinePage() {
-  const session = await getServerSession();
-  if (!session?.user) redirect("/");
+  await guardPageAction("audit.timeline.view.self");
 
   if (!isActionsAuditEnabledOnServer()) {
     redirect("/settings/profile");

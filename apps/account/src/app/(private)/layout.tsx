@@ -2,13 +2,15 @@ import { ModeToggle } from "@/components/mode-toggle";
 import Shell from "@/components/shell";
 import { UserMenu } from "@/domain/auth/components/user-menu";
 import { layoutInsetXClass } from "@/lib/layout-spacing";
+import { guardAuthenticatedPage } from "@/lib/page-guards";
 import { cn } from "@/lib/utils";
 
-export default function AccountLayout({
+export default async function AccountLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await guardAuthenticatedPage();
   return (
     <Shell>
       <div className="flex h-svh max-h-svh min-h-0 flex-col overflow-hidden">

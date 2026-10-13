@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { guardPageAction } from "@/lib/page-guards";
 import DashboardSection from "@/components/section-dashboard";
 import { ActivitySummaryStats } from "@/domain/audit/components/activity-summary-stats";
 import AuditLogs from "@/domain/audit/components/audit-logs";
 import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
-import { getServerSession } from "@/lib/server-auth";
 
 export const metadata: Metadata = {
   title: "Activity",
@@ -12,12 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ActivityPage() {
-  const session = await getServerSession();
-
-  if (!session?.user) {
-    redirect("/");
-  }
-
+  await guardPageAction("audit.timeline.view.org");
   if (isActionsAuditEnabledOnServer()) {
     redirect("/dashboard/timeline");
   }

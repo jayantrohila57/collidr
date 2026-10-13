@@ -6,7 +6,7 @@ import OrganizationDetailPage from "@/domain/organizations/components/organizati
 import { OrganizationsFeatureGate } from "@/domain/organizations/components/organizations-feature-gate";
 import { OrganizationDetailPageSkeleton } from "@/domain/organizations/components/skeletons";
 import { PermissionGate } from "@/domain/permissions/components/permission-gate";
-import { getServerSession } from "@/lib/server-auth";
+import { guardOrganizationSlugPage } from "@/lib/page-guards";
 
 interface OrganizationHubPageProps {
   params: Promise<{ slug: string }>;
@@ -25,14 +25,12 @@ export async function generateMetadata({
 export default async function OrganizationHubPage({
   params,
 }: OrganizationHubPageProps) {
-  const session = await getServerSession();
-  if (!session?.user) {
-    redirect("/");
-  }
+  const { slug } = await params;
+  await guardOrganizationSlugPage(slug);
+
   if (!isOrganizationsEnabled()) {
     redirect("/dashboard");
   }
-  const { slug } = await params;
 
   return (
     <OrganizationsFeatureGate>

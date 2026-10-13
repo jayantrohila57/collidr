@@ -6,7 +6,7 @@ import { OrganizationsFeatureGate } from "@/domain/organizations/components/orga
 import { OrganizationsPageClient } from "@/domain/organizations/components/organizations-page-client";
 import { OrganizationsPageSkeleton } from "@/domain/organizations/components/skeletons";
 import { PermissionGate } from "@/domain/permissions/components/permission-gate";
-import { getServerSession } from "@/lib/server-auth";
+import { guardPageAction } from "@/lib/page-guards";
 import { siteConfig } from "@/lib/siteConfig";
 
 export const metadata: Metadata = {
@@ -15,12 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function OrganizationsPage() {
-  const session = await getServerSession();
-
-  if (!session?.user) {
-    redirect("/");
-  }
-
+  await guardPageAction("organization.list");
   if (!isOrganizationsEnabled()) {
     redirect("/dashboard");
   }
