@@ -29,6 +29,12 @@ import {
   SettingsSectionHeader,
 } from "@/components/patterns/settings-layout";
 import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
+import {
+  SettingsTabs,
+  SettingsTabsList,
+  SettingsTabsPanel,
+  SettingsTabsTab,
+} from "@/components/patterns/settings-tabs";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import {
@@ -59,7 +65,6 @@ import {
 } from "@/components/ui/select";
 import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
-import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
 import { authClient } from "@/lib/auth-client";
@@ -415,30 +420,32 @@ export function OrganizationSettingsForm({
 
   return (
     <>
-      <Tabs
+      <SettingsTabs
         value={activeTab}
         onValueChange={(value) => {
           if (value) setActiveTab(value as OrgTab);
         }}
-        className="min-w-0 gap-2"
       >
-        {mode === "legacy-tabs" ? (
-          <TabsList size="sm" className="h-auto w-fit max-w-full justify-start">
-            <TabsTab value="general">General</TabsTab>
-            <TabsTab value="members">Members</TabsTab>
-            <TabsTab value="danger">Danger zone</TabsTab>
-          </TabsList>
-        ) : showSettingsHubTabs ? (
-          <TabsList size="sm" className="h-auto w-fit max-w-full justify-start">
-            <TabsTab value="general">General</TabsTab>
-            <TabsTab value="danger">Danger zone</TabsTab>
-          </TabsList>
+        {mode === "legacy-tabs" || showSettingsHubTabs ? (
+          <SettingsTabsList>
+            <SettingsTabsTab value="general" icon="organization">
+              General
+            </SettingsTabsTab>
+            {mode === "legacy-tabs" ? (
+              <SettingsTabsTab value="members" icon="member">
+                Members
+              </SettingsTabsTab>
+            ) : null}
+            <SettingsTabsTab value="danger" icon="danger">
+              Danger zone
+            </SettingsTabsTab>
+          </SettingsTabsList>
         ) : null}
 
         {(mode === "legacy-tabs" ||
           mode === "general" ||
           mode === "settings-hub") && (
-          <TabsPanel value="general" className="min-w-0">
+          <SettingsTabsPanel value="general" className="min-w-0">
             <SettingsPanel>
               <SettingsSectionHeader
                 title="Profile"
@@ -472,11 +479,11 @@ export function OrganizationSettingsForm({
                 </Button>
               </SettingsRow>
             </SettingsPanel>
-          </TabsPanel>
+          </SettingsTabsPanel>
         )}
 
         {(mode === "legacy-tabs" || mode === "members") && (
-          <TabsPanel value="members" className="min-w-0 space-y-2">
+          <SettingsTabsPanel value="members" className="min-w-0 space-y-2">
             <SettingsPanel>
               <SettingsSectionHeader
                 title="Members"
@@ -581,13 +588,13 @@ export function OrganizationSettingsForm({
                 </Empty>
               </div>
             </SettingsPanel>
-          </TabsPanel>
+          </SettingsTabsPanel>
         )}
 
         {(mode === "legacy-tabs" ||
           mode === "danger" ||
           showSettingsHubTabs) && (
-          <TabsPanel value="danger" className="min-w-0">
+          <SettingsTabsPanel value="danger" className="min-w-0">
             <SettingsPanel className="border-destructive/32 bg-destructive/4">
               <SettingsSectionHeader
                 title="Danger zone"
@@ -654,9 +661,9 @@ export function OrganizationSettingsForm({
                 </SettingsRow>
               )}
             </SettingsPanel>
-          </TabsPanel>
+          </SettingsTabsPanel>
         )}
-      </Tabs>
+      </SettingsTabs>
 
       <FormSheet open={editOrgOpen} onOpenChange={setEditOrgOpen}>
         <FormSheetPopup>

@@ -15,6 +15,12 @@ import {
   SettingsSectionHeader,
   settingsControlWidthClass,
 } from "@/components/patterns/settings-layout";
+import {
+  SettingsTabs,
+  SettingsTabsList,
+  SettingsTabsPanel,
+  SettingsTabsTab,
+} from "@/components/patterns/settings-tabs";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import {
   AlertDialog,
@@ -39,7 +45,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { AuditLogTableView } from "@/domain/audit/components/audit-log-table-view";
 import {
   linkGithubAccount,
@@ -321,36 +326,46 @@ export function AccountSettingsClient() {
 
   return (
     <>
-      <Tabs
+      <SettingsTabs
         value={activeTab}
         onValueChange={(value) => {
           if (value) setActiveTab(value as AccountTab);
         }}
-        className="min-w-0 gap-2"
       >
-        <TabsList
-          size="sm"
-          className="h-auto w-full max-w-full justify-start overflow-x-auto"
-        >
+        <SettingsTabsList>
           {canProfile.allowed ? (
-            <TabsTab value="profile">Profile</TabsTab>
+            <SettingsTabsTab value="profile" icon="user">
+              Profile
+            </SettingsTabsTab>
           ) : null}
           {canSessions.allowed ? (
-            <TabsTab value="sessions">Sessions</TabsTab>
+            <SettingsTabsTab value="sessions" icon="lock">
+              Sessions
+            </SettingsTabsTab>
           ) : null}
           {canAccounts.allowed ? (
-            <TabsTab value="accounts">Connected accounts</TabsTab>
+            <SettingsTabsTab value="accounts" icon="github">
+              Connected accounts
+            </SettingsTabsTab>
           ) : null}
-          {canExport.allowed ? <TabsTab value="export">Export</TabsTab> : null}
+          {canExport.allowed ? (
+            <SettingsTabsTab value="export" icon="archiveRestore">
+              Export
+            </SettingsTabsTab>
+          ) : null}
           {canDelete.allowed ? (
-            <TabsTab value="delete">Delete account</TabsTab>
+            <SettingsTabsTab value="delete" icon="danger">
+              Delete account
+            </SettingsTabsTab>
           ) : null}
           {canTimeline.allowed ? (
-            <TabsTab value="timeline">Timeline</TabsTab>
+            <SettingsTabsTab value="timeline" icon="activity">
+              Timeline
+            </SettingsTabsTab>
           ) : null}
-        </TabsList>
+        </SettingsTabsList>
 
-        <TabsPanel value="profile" className="min-w-0">
+        <SettingsTabsPanel value="profile" className="min-w-0">
           <SettingsPanel>
             <SettingsSectionHeader
               title="Profile"
@@ -429,9 +444,9 @@ export function AccountSettingsClient() {
               </SettingsRow>
             </SettingsPanel>
           ) : null}
-        </TabsPanel>
+        </SettingsTabsPanel>
 
-        <TabsPanel value="sessions" className="min-w-0">
+        <SettingsTabsPanel value="sessions" className="min-w-0">
           <PermissionGate action={accountSettingsActions.sessions}>
             <SettingsPanel>
               <SettingsSectionHeader
@@ -526,9 +541,9 @@ export function AccountSettingsClient() {
               )}
             </SettingsPanel>
           </PermissionGate>
-        </TabsPanel>
+        </SettingsTabsPanel>
 
-        <TabsPanel value="accounts" className="min-w-0">
+        <SettingsTabsPanel value="accounts" className="min-w-0">
           <PermissionGate action={accountSettingsActions.accounts}>
             <SettingsPanel>
               <SettingsSectionHeader
@@ -639,9 +654,9 @@ export function AccountSettingsClient() {
               ) : null}
             </SettingsPanel>
           </PermissionGate>
-        </TabsPanel>
+        </SettingsTabsPanel>
 
-        <TabsPanel value="export" className="min-w-0">
+        <SettingsTabsPanel value="export" className="min-w-0">
           <PermissionGate action={accountSettingsActions.export}>
             <SettingsPanel>
               <SettingsSectionHeader
@@ -667,9 +682,9 @@ export function AccountSettingsClient() {
               </SettingsRow>
             </SettingsPanel>
           </PermissionGate>
-        </TabsPanel>
+        </SettingsTabsPanel>
 
-        <TabsPanel value="delete" className="min-w-0">
+        <SettingsTabsPanel value="delete" className="min-w-0">
           <PermissionGate action={accountSettingsActions.delete}>
             <SettingsPanel className="border-destructive/32 bg-destructive/4">
               <SettingsSectionHeader
@@ -711,9 +726,9 @@ export function AccountSettingsClient() {
               </SettingsRow>
             </SettingsPanel>
           </PermissionGate>
-        </TabsPanel>
+        </SettingsTabsPanel>
 
-        <TabsPanel value="timeline" className="min-w-0">
+        <SettingsTabsPanel value="timeline" className="min-w-0">
           <PermissionGate action={accountSettingsActions.timeline}>
             <SettingsPanel>
               <SettingsSectionHeader
@@ -754,8 +769,8 @@ export function AccountSettingsClient() {
               </div>
             </SettingsPanel>
           </PermissionGate>
-        </TabsPanel>
-      </Tabs>
+        </SettingsTabsPanel>
+      </SettingsTabs>
 
       <AlertDialog
         open={revokeToken !== null}
