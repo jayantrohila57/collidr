@@ -22,9 +22,13 @@ test.describe("app sidebar", () => {
     await expect(
       page.getByText("Organizations", { exact: true }),
     ).not.toBeVisible();
+    const header = page.locator('[data-slot="sidebar-header"]');
     const footer = page.locator('[data-slot="sidebar-footer"]');
     await expect(footer.getByRole("link", { name: "Settings" })).toBeVisible();
-    const orgSwitcher = footer.getByRole("button", {
+    await expect(
+      footer.getByRole("button", { name: "Switch organization" }),
+    ).toHaveCount(0);
+    const orgSwitcher = header.getByRole("button", {
       name: "Switch organization",
     });
     if (await orgSwitcher.count()) {
@@ -45,6 +49,11 @@ test.describe("app sidebar", () => {
         name: "Settings",
       }),
     ).toBeVisible();
+    await expect(
+      page.locator('[data-slot="sidebar-footer"]').getByRole("button", {
+        name: "Switch organization",
+      }),
+    ).toHaveCount(0);
     await page.screenshot({
       path: `${ARTIFACT_DIR}/sidebar-desktop-icon-collapsed.png`,
       fullPage: false,
@@ -58,6 +67,17 @@ test.describe("app sidebar", () => {
       .getByRole("button", { name: "Toggle Sidebar" })
       .click();
     await expect(page.getByRole("link", { name: "Settings" })).toBeVisible();
+    const mobileFooter = page.locator('[data-slot="sidebar-footer"]');
+    await expect(
+      mobileFooter.getByRole("button", { name: "Switch organization" }),
+    ).toHaveCount(0);
+    const mobileHeader = page.locator('[data-slot="sidebar-header"]');
+    const mobileOrg = mobileHeader.getByRole("button", {
+      name: "Switch organization",
+    });
+    if (await mobileOrg.count()) {
+      await expect(mobileOrg).toBeVisible();
+    }
     await expect(
       page.getByText("Organizations", { exact: true }),
     ).not.toBeVisible();

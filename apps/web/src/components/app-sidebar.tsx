@@ -20,6 +20,7 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -69,6 +70,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
+      {showOrgSwitcher ? (
+        <SidebarHeader className="shrink-0">
+          <OrgSwitcher />
+        </SidebarHeader>
+      ) : null}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -115,7 +121,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <span>Settings</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          {showOrgSwitcher ? <OrgSwitcher /> : null}
         </SidebarMenu>
       </SidebarFooter>
 
