@@ -7,10 +7,10 @@ import { environment, project } from "@env-manager/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod/v3";
-import { createAuditLog } from "../audit";
-import { throwFriendlyError } from "../errors";
 import { actionGuard } from "../actions/action-guard";
 import { projectIdFromInput } from "../actions/guard-resolve";
+import { createAuditLog } from "../audit";
+import { throwFriendlyError } from "../errors";
 import { orgProcedure, router } from "../index";
 import { formatEnvironmentRows } from "../variable-format";
 import { isVariablesV2Enabled } from "../variables-v2";
@@ -320,7 +320,10 @@ export const projectsRouter = router({
         .limit(1);
 
       if (existingProject.length === 0) {
-        throw new Error("Project not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
       }
 
       const updateData: Record<string, unknown> = {};
@@ -400,7 +403,10 @@ export const projectsRouter = router({
         .limit(1);
 
       if (existingProject.length === 0) {
-        throw new Error("Project not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
       }
 
       const slug = existingProject[0]?.slug;
@@ -440,7 +446,10 @@ export const projectsRouter = router({
         .limit(1);
 
       if (existingProject.length === 0) {
-        throw new Error("Project not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
       }
 
       const archivedProject = await db
@@ -480,7 +489,10 @@ export const projectsRouter = router({
         .limit(1);
 
       if (existingProject.length === 0) {
-        throw new Error("Project not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
       }
 
       const unarchivedProject = await db
@@ -523,7 +535,10 @@ export const projectsRouter = router({
         .limit(1);
 
       if (existingProject.length === 0) {
-        throw new Error("Project not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
       }
 
       const updatedProject = await db
@@ -566,12 +581,18 @@ export const projectsRouter = router({
         .limit(1);
 
       if (existingProject.length === 0) {
-        throw new Error("Project not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
       }
 
       const currentProject = existingProject[0];
       if (!currentProject) {
-        throw new Error("Project not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
       }
 
       const updatedProject = await db
