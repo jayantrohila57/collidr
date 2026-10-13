@@ -4,7 +4,18 @@
 
 Senior UI/UX pass aligned with Vercel, Linear, Supabase, and Clerk: dense sidebar-scale spacing, one primary CTA per view, and coss primitives only.
 
-**Spacing:** `apps/web/src/lib/layout-spacing.ts` (mirrors inset `Sidebar` — `p-2`, `gap-2`, `h-8` / `h-12` chrome).
+## Spacing
+
+**Canonical source:** [`apps/web/src/lib/layout-spacing.ts`](../apps/web/src/lib/layout-spacing.ts).
+
+| Layer | Rule |
+|-------|------|
+| Sidebar + app chrome | `p-2` / `gap-2` / `h-8` controls / `h-12` primary rows — mirrored from coss `Sidebar` |
+| Dashboard inset | `layoutInsetXClass` (`px-4 md:px-6`) on header + `Shell.Main`; section stacks use `layoutDashboardPageStackClass` (`gap-4`) |
+| Feature code | Import tokens or `PageMain` / `PageStack` / `PageHeaderBar` / `PageToolbar` from `components/layout/app-layout.tsx` — **no ad-hoc `p-4`, `gap-6`, or `md:p-6`** |
+| Component internals | coss defaults on `Card`, `Dialog`, `Sheet` panels (`p-6`, etc.) stay untouched |
+
+Full token tables and primitives: [DESIGN_SYSTEM.md — Spacing (sidebar scale)](./DESIGN_SYSTEM.md#spacing-sidebar-scale).
 
 **Chrome:** Inset `Sidebar` (`collapsible="icon"`, `variant="inset"`) + `OrgSwitcher` in `SidebarHeader`. Sticky `PageHeaderBar` matches sidebar header row.
 

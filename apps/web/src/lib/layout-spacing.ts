@@ -1,5 +1,12 @@
 /**
- * Layout spacing scale — mirrored from `components/ui/sidebar.tsx` (coss Sidebar).
+ * Canonical layout spacing for the web app (coss / shadcn sidebar scale).
+ *
+ * Import tokens from this module (or `Page*` primitives in `components/layout/app-layout.tsx`).
+ * Do not add ad-hoc `p-4`, `gap-6`, or `md:p-6` in feature code — extend this file instead.
+ *
+ * Documented in `docs/DESIGN_SYSTEM.md` (Spacing) and `docs/REDESIGN.md`.
+ *
+ * Sidebar mirror (`components/ui/sidebar.tsx`):
  *
  * | Sidebar region | Classes |
  * |----------------|---------|
@@ -14,8 +21,17 @@
 /** Inset padding (gutter) — SidebarHeader / SidebarGroup */
 export const layoutGutterClass = "p-2";
 
-/** Dashboard inset horizontal padding — aligns header and scrollable main */
+/**
+ * Dashboard inset horizontal padding — aligns header and scrollable main.
+ * Only use via `layoutChromeClass`, `layoutDashboardScrollClass`, or marketing/sign-in shells.
+ */
 export const layoutInsetXClass = "px-4 md:px-6";
+
+/** Vertical gap between dashboard page blocks (title → stats → body). */
+export const layoutDashboardSectionGapClass = "gap-4";
+
+/** Top padding on the dashboard scroll region below the sticky header. */
+export const layoutDashboardScrollTopClass = "pt-4";
 
 /** Full-width content inside the dashboard inset (header + main share this width). */
 export const layoutInsetContainerWideClass = "w-full min-w-0";
@@ -43,10 +59,10 @@ export const layoutSectionStackClass = `flex min-w-0 flex-col ${layoutGapClass}`
 export const layoutContentClass = `flex flex-1 min-w-0 flex-col ${layoutGapClass} ${layoutGutterClass}`;
 
 /** Scrollable dashboard main below the inset header (single scroll container) */
-export const layoutDashboardScrollClass = `flex min-h-0 flex-1 min-w-0 flex-col gap-4 overflow-x-hidden overflow-y-auto overscroll-y-contain pt-4 pb-2 [scrollbar-gutter:stable] ${layoutInsetXClass}`;
+export const layoutDashboardScrollClass = `flex min-h-0 flex-1 min-w-0 flex-col ${layoutDashboardSectionGapClass} overflow-x-hidden overflow-y-auto overscroll-y-contain ${layoutDashboardScrollTopClass} pb-2 [scrollbar-gutter:stable] ${layoutInsetXClass}`;
 
 /** Vertical rhythm for dashboard page sections (title → stats → body) */
-export const layoutDashboardPageStackClass = "flex min-w-0 flex-col gap-4";
+export const layoutDashboardPageStackClass = `flex min-w-0 flex-col ${layoutDashboardSectionGapClass}`;
 
 /** Fixed inset header shell — matches SidebarHeader vertical rhythm */
 export const layoutChromeClass = `flex shrink-0 flex-col ${layoutGapClass} py-2 [scrollbar-gutter:stable] ${layoutInsetXClass}`;

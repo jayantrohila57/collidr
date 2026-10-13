@@ -53,7 +53,28 @@ All app layout spacing is derived from the coss **Sidebar** source (`apps/web/sr
 | `SidebarMenuButton` `size="lg"` (team switcher) | `layoutRowLgClass` | `h-12` |
 | `SidebarGroupLabel` | `layoutGroupLabelClass` | `h-8`, `px-2`, `text-xs` |
 
-**Tokens:** `apps/web/src/lib/layout-spacing.ts`
+**Canonical module:** `apps/web/src/lib/layout-spacing.ts` — add or change spacing here; feature code imports tokens only.
+
+**Composed layout tokens** (defined in `layout-spacing.ts`, not duplicated in pages):
+
+| Token | Tailwind | Use |
+|-------|----------|-----|
+| `layoutInsetXClass` | `px-4`, `md:px-6` | Shared horizontal inset for dashboard chrome + main scroll |
+| `layoutInsetContainerWideClass` / `Narrow` | `w-full min-w-0` | Width wrapper inside inset (`DashboardInsetContainer`) |
+| `marketingContainerClass` | `max-w-6xl`, `px-4`, `md:px-6` | Public marketing column only |
+| `layoutSectionStackClass` | `flex`, `gap-2` | Generic vertical stacks |
+| `layoutContentClass` | `flex-1`, `gap-2`, `p-2` | Legacy `PageMain` / page-state shell |
+| `layoutDashboardSectionGapClass` | `gap-4` | Section rhythm inside dashboard pages |
+| `layoutDashboardScrollTopClass` | `pt-4` | Space below sticky `PageHeaderBar` |
+| `layoutDashboardScrollClass` | scroll + inset tokens above | `Shell.Main` `variant="dashboard"` |
+| `layoutDashboardPageStackClass` | `gap-4` stack | `DashboardSection` page rhythm |
+| `layoutChromeClass` / `layoutChromeRowClass` | `py-2`, `gap-2`, `h-12` | Sticky app header bar |
+| `layoutPageHeaderRowClass` | `min-h-12`, `gap-2` | In-page title rows (`PageHeader`) |
+| `layoutFormStackClass` | `grid`, `gap-2` | Form field stacks |
+| `layoutToolbarClass` | `flex`, `gap-2` | Table / list toolbars |
+| `layoutPageTitleClass` | `text-lg` / `text-xl` | Primary in-page heading |
+
+Do not copy `px-4`, `gap-4`, or `pt-4` into feature files unless you are extending this module — those values are centralized so the dashboard inset stays consistent.
 
 **Composed primitives** (no new visuals—only class composition):
 
@@ -122,6 +143,7 @@ Dashboard charts use `apps/web/src/components/ui/chart.tsx` (Recharts wrapper). 
 ```bash
 cd apps/web
 rg -n 'radix-ui|@radix-ui' --glob '!node_modules'   # expect no matches
+rg -n '\b(gap-6|md:p-6)\b' src/domain src/app --glob '!**/ui/**'   # expect no matches (use layout-spacing)
 pnpm build
 pnpm a11y
 ```
