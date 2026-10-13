@@ -4,6 +4,19 @@
 **Bundles with:** pending platform migration train (after approved `0005`; proposed **`0006_actions_permissions_audit`**).  
 **Authoritative intent:** one canonical action name per user-visible or security-sensitive operation; that name drives audit logging, authorization, block lists, and UI gating.
 
+### Phase 1 implementation scope (confirmed)
+
+The product is **organization-level only** today: there is **no admin dashboard**, no cross-org operator UI, and no platform-wide routes.
+
+| In scope (Phase 1) | Out of scope (later) |
+|--------------------|----------------------|
+| **OWNER**, **MANAGER**, **MEMBER** within the active organization | **ADMIN** (platform super admin) behavior, UI, and routes |
+| Org + project permissions, teams, timeline, `requireAction` for tRPC | Better Auth **admin** plugin, `user.role`, impersonation, ban UI |
+| `action_block` at **organization**, **project**, **user** scope | `action_block` at **platform** scope (schema may reserve `scope_type`) |
+| Registry entries for org/project actions | Wiring `platform.*` actions (reserved names only) |
+
+**ADMIN** remains in the **registry and permission model** (action names, evaluation order stub, matrix column) so a future platform phase can plug in without renaming. Phase 1 **`requireAction` must not treat any user as ADMIN** (`isPlatformAdmin()` always false; no admin plugin).
+
 ---
 
 ## 1. Executive summary
@@ -13,9 +26,9 @@ Today the product logs a subset of mutations to `audit_log` with ad-hoc `action`
 This spec introduces:
 
 1. **`@env-manager/actions` registry** — single source of truth for action metadata, Better Auth organization statements/roles, project-level grants, audit payloads, notification triggers, and UI `requiredAction`.
-2. **`requireAction(action, ctx)`** — server gate used by tRPC (and Better Auth hooks where applicable): platform admin → block list → org role → project grant; **always** writes `audit_event` (`success` | `failure` | `denied`).
-3. **`audit_event`** — replaces `audit_log` and powers **org-wide Timeline** (replaces `/dashboard/activity`) plus **user Timeline** in settings; privileged viewers can open any member’s timeline.
-4. **Role model** — **ADMIN** (platform), **OWNER** / **MANAGER** / **MEMBER** (org + project), aligned with Better Auth organization + teams + admin plugins.
+2. **`requireAction(action, ctx)`** — server gate used by tRPC (and Better Auth hooks where applicable): **(reserved: platform admin)** → block list → org role → project grant; **always** writes `audit_event` (`success` | `failure` | `denied`). Phase 1 skips the admin step.
+3. **`audit_event`** — replaces `audit_log` and powers **org-wide Timeline** (replaces `/dashboard/activity`) plus **user Timeline** in settings; **OWNER** (and later ADMIN) can view any member’s timeline — Phase 1 implements OWNER only.
+4. **Role model** — **OWNER** / **MANAGER** / **MEMBER** (org + project), aligned with Better Auth organization + **teams**. **ADMIN** is documented and reserved in the registry; not implemented in Phase 1.
 5. **Project scope** — Better Auth is org/team-native; **project permissions are app tables** (`project_manager`, `project_team`, `project_member_grant`) evaluated after org role.
 
 ---
@@ -62,7 +75,7 @@ This spec introduces:
 
 ---
 
-## 3. Better Auth research (organization + admin)
+## 3. Better Auth research (organization; platform admin deferred)
 
 ### 3.1 Organization access control (built-in)
 
@@ -84,18 +97,20 @@ Endpoints use internal `hasPermission({ permissions, role })`. Client: `authClie
 
 Enable `organization({ teams: { enabled: true } })` → CRUD teams, add/remove team members, `setActiveTeam`. Teams are **org-scoped**, not project-scoped. **Project ↔ team** link is our `project_team` table.
 
-### 3.3 Admin plugin (platform)
+### 3.3 Admin plugin (platform) — **reserved, not Phase 1**
 
-Separate plugin: `user` resource (`create`, `list`, `set-role`, `ban`, `impersonate`, …). Platform **ADMIN** = `user.role` in `adminRoles` (default `admin`) or `adminUserIds`. Requires `role` column on `user` (Better Auth schema).
+There is **no admin dashboard** in the app; all UX lives under **organization context** (`/dashboard/*` with active org). Platform operator tooling is a **future phase**.
 
-**Naming collision:** Better Auth org role `admin` ≠ platform `admin`. This spec uses:
+Better Auth’s **admin** plugin (`user` resource: `list`, `set-role`, `ban`, `impersonate`, …) is **not enabled** in Phase 1. The registry still defines `platform.*` actions and an **ADMIN** column in matrices so later work can enable the plugin and flip `isPlatformAdmin()` without renaming actions.
 
-| Product role | Storage |
-|--------------|---------|
-| **ADMIN** (platform) | `user.role = 'admin'` (admin plugin) |
-| **OWNER** | `member.role = 'owner'` |
-| **MANAGER** | `member.role = 'manager'` (migrate from legacy `admin`) |
-| **MEMBER** (org) | `member.role = 'member'` — team/project access only |
+**Naming collision (when admin ships):** Better Auth org role `admin` (legacy) ≠ platform `admin`. Product naming:
+
+| Product role | Phase 1 | Storage (when implemented) |
+|--------------|---------|----------------------------|
+| **ADMIN** (platform) | Reserved in registry only | `user.role = 'admin'` + admin plugin |
+| **OWNER** | ✓ | `member.role = 'owner'` |
+| **MANAGER** | ✓ | `member.role = 'manager'` (migrate from legacy org `admin`) |
+| **MEMBER** (org) | ✓ | `member.role = 'member'` — team/project access only |
 
 Org-level Better Auth `hasPermission` applies to **invitation/member/team/org** routes. **Project/env/variable** tRPC uses `requireAction` + project tables (§5).
 
@@ -144,8 +159,8 @@ Registry entry example:
 
 `<resource>.<verb>` lowercase, dot-separated. Use specific verbs (`reveal` not `read` for secret material). Group by domain:
 
-- `platform.*` — ADMIN only  
-- `organization.*`, `member.*`, `invitation.*`, `team.*`  
+- `platform.*` — **reserved** for future ADMIN (not registered in Phase 1 route map)  
+- `organization.*`, `member.*`, `invitation.*`, `team.*` — **Phase 1**  
 - `project.*`, `environment.*`, `variable.*`  
 - `audit.*`, `notification.*`  
 - `settings.*`
@@ -232,6 +247,7 @@ async function requireAction(
       throw forbidden();
     }
 
+    // Phase 1: isPlatformAdmin() is a stub (always false). Future: ADMIN bypass here.
     if (await isPlatformAdmin(ctx.session.user)) {
       result = "success";
       return { allowed: true };
@@ -269,8 +285,8 @@ async function requireAction(
 
 ### 4.4 Evaluation order (deterministic)
 
-1. **Block list** (`action_block`) — scope: `platform` \| `organization` \| `project` \| `user`  
-2. **Platform ADMIN** — allow all except explicit platform blocks (e.g. compliance freeze)  
+1. **Block list** (`action_block`) — Phase 1: `organization` \| `project` \| `user` only (platform scope reserved in schema)  
+2. **Platform ADMIN** — **reserved**; no bypass in Phase 1  
 3. **Org context** — require active org when action scope needs it  
 4. **Org OWNER** — all org actions + all projects in org  
 5. **Org MANAGER** — org actions allowed by `manager` org role; project actions only if `project_manager` row exists for `projectId`  
@@ -283,7 +299,9 @@ Deny by default.
 
 ## 5. Role × responsibility matrix (behavioral)
 
-| Capability | ADMIN | OWNER | MANAGER | MEMBER (project) |
+*ADMIN column: future platform operator; **not implemented Phase 1**. Rows below describe intended end state; implement OWNER / MANAGER / MEMBER columns only now.*
+
+| Capability | ADMIN (reserved) | OWNER | MANAGER | MEMBER (project) |
 |------------|:-----:|:-----:|:-------:|:----------------:|
 | All orgs / all projects | ✓ | — | — | — |
 | Org settings, billing (future) | ✓ | ✓ | — | — |
@@ -303,14 +321,16 @@ Deny by default.
 
 ## 6. Full action × role matrix
 
+**Phase 1:** Enforce **OWNER**, **MANAGER**, and **MEMBER** columns only. **ADMIN** column and `platform.*` rows are registry placeholders (no routes, no checks, no UI).
+
 Legend:
 
 - **Y** — allowed (org role sufficient; project scope = all org projects for OWNER, assigned projects for MANAGER)  
 - **G** — allowed only with **project grant** (MEMBER via team) or explicit `project_manager` row for MANAGER where noted  
 - **—** — not allowed  
-- **A** — ADMIN (platform) always **Y** unless block list says otherwise  
+- **ADMIN column** — reserved; when platform admin ships, **Y** unless platform block list says otherwise  
 
-| Action | ADMIN | OWNER | MANAGER | MEMBER |
+| Action | ADMIN (reserved) | OWNER | MANAGER | MEMBER |
 |--------|:-----:|:-----:|:-------:|:------:|
 | `platform.user.list` | Y | — | — | — |
 | `platform.user.set_role` | Y | — | — | — |
@@ -383,7 +403,8 @@ tRPC `permissions.snapshot` (org + optional project):
 
 ```ts
 {
-  platformAdmin: boolean;
+  /** Phase 1: always false; field reserved for future ADMIN */
+  platformAdmin: false;
   orgRole: "owner" | "manager" | "member" | null;
   projectGrants: Record<ActionName, boolean>; // or grant keys
   blocked: ActionName[];
@@ -475,16 +496,11 @@ Keeps notification types in `@env-manager/notifications`; registry only referenc
 
 Joins **same approval bundle** as `0005` (user approves one prod cut) or immediately follows `0005` in journal — **single prod window**.
 
-### 9.1 Auth / platform
+### 9.1 Auth / platform — **deferred (not Phase 1)**
 
-```sql
--- Admin plugin role (if not present)
-ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "role" text DEFAULT 'user' NOT NULL;
-ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "banned" boolean DEFAULT false NOT NULL;
--- ban fields as required by better-auth admin plugin (see plugin schema)
-```
+Do **not** add Better Auth admin plugin columns or enable `admin()` in Phase 1. When platform admin ships, add `user.role`, ban fields, and plugin config in a separate migration (`0007_platform_admin` or similar).
 
-### 9.2 Better Auth teams (organization plugin)
+### 9.2 Better Auth teams (organization plugin) — **Phase 1**
 
 Use Better Auth’s generated team / team_member schema when enabling teams (run `db:generate` after plugin config) — typically:
 
@@ -588,7 +604,7 @@ CREATE TABLE audit_event (
 | Projects without manager | **OWNER** manages all; MANAGER sees nothing until assigned |
 | `project.user_id` | Remains creator attribution; access not limited to creator after org attach |
 | `audit_log` rows | Map `CREATE`+`PROJECT` → `project.create`, etc.; `result = 'success'` |
-| Platform admins | Manual seed `user.role = 'admin'` for operators |
+| Platform admins | **Deferred** — no `user.role` seed in Phase 1 |
 
 ### 9.7 Feature flags
 
@@ -608,7 +624,8 @@ Gate registry, `requireAction`, and Timeline UI until migration applied.
 | **W1** | Action registry package | `packages/actions/**` | — |
 | **W2** | DB schema + SQL `0006` | `packages/db/src/schema/*`, `migrations/0006_*`, `docs/ACTIONS_*` | W1 action list frozen |
 | **W3** | `requireAction` + audit writer | `packages/api/src/actions/**`, retrofit routers | W1, W2 |
-| **W4** | Better Auth config | `packages/auth/**`, team enablement, admin plugin, org role migrate | W1, W2 |
+| **W4** | Better Auth config | `packages/auth/**`, team enablement, org role migrate (`admin`→`manager`) — **no admin plugin** | W1, W2 |
+| **W4b** | Platform admin (later) | admin plugin, `platform.*` wiring, operator UI | Post–Phase 1 |
 | **W5** | Timeline UI | `apps/web/.../timeline/**`, remove/replace `activity/**`, settings tab | W3 list API |
 | **W6** | Client `useCan` + sidebar | `apps/web/src/lib/nav/**`, `components/app-sidebar.tsx` | W3 snapshot endpoint |
 | **W7** | Notifications bridge | `packages/notifications/**`, registry `notifyOn` | W3 audit insert hook |
@@ -625,7 +642,7 @@ Gate registry, `requireAction`, and Timeline UI until migration applied.
 1. **Org `member` vs project MEMBER:** Should org-level `member` see any org timeline entries, or only after first team/project grant?  
 2. **MANAGER invite:** Can managers invite users to org or only to teams? (Matrix assumes no.)  
 3. **Variable reveal:** Always audit as `variable.reveal` even when failed — confirm retention period.  
-4. **Block list precedence:** Platform block overrides ADMIN? (Recommended: yes for compliance.)  
+4. **Block list precedence (future):** When ADMIN exists, should platform block override ADMIN? (Recommended: yes for compliance.)  
 5. **0005 + 0006:** One prod migration PR or two sequential with single flag flip?
 
 ---
