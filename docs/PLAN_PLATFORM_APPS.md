@@ -160,7 +160,7 @@ Implement **`apps/auth`** strictly from current Better Auth docs (target **≥ 1
 | Orgs (product) | [Organization](https://www.better-auth.com/docs/plugins/organization) | Keep on shared auth config (studio uses org APIs via session) |
 | Platform admin | [Admin](https://www.better-auth.com/docs/plugins/admin) | Console only consumers; enabled on same auth instance |
 | Device authorization (auth v1) | [Device Authorization](https://www.better-auth.com/docs/plugins/device-authorization) | **Required** on `apps/auth` (Decision 8): `/device` for first-party CLI and headless flows |
-| Enterprise SSO (future) | [SSO plugin](https://www.better-auth.com/docs/plugins/sso) | SAML/OIDC **IdP** into auth — not required for v1 |
+| Enterprise SSO | [SSO plugin](https://www.better-auth.com/docs/plugins/sso) | **Deferred** (Decision 17) — post platform split / MCP; v1 auth = GitHub OAuth + device flow only |
 | Legacy | Avoid deprecated in-repo `oidcProvider` / old `mcp` plugin — use **`@better-auth/mcp`** per [MCP plugin](https://www.better-auth.com/docs/plugins/mcp) |
 
 **MCP resource URL:** `mcp({ resource: "https://mcp.env-manager.com/api/mcp" })` on auth; `apps/mcp` protects route with `requireMcpAuth` / `createMcpProtectedRequestHandler` ([MCP plugin — Protecting an MCP Route](https://www.better-auth.com/docs/plugins/mcp#protecting-an-mcp-route)).
@@ -652,6 +652,17 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 **Implication:** Vercel project count stays one per UI app; API surface is duplicated at the HTTP edge but not in business logic.
 
+### Decision 17 — Enterprise SSO plugin (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Scope** | **[Better Auth SSO plugin](https://www.better-auth.com/docs/plugins/sso)** (SAML/OIDC IdP federation into `apps/auth`) is **deferred** to a **later phase** after auth/studio/account cutover and initial MCP/console work. |
+| **v1 auth** | GitHub OAuth (social provider) + **device authorization** (Decision 8) only. |
+| **Excluded** | No SAML/OIDC enterprise IdP configuration, no SSO admin UI, and no `sso()` plugin on the first production `apps/auth` release. |
+| **Revisit** | Re-open when a customer or internal requirement needs non-GitHub workforce identity; may coincide with custom apex (§2.1) but is not blocked on it. |
+
+**Implication:** `0008` / auth v1 schema and docs should not assume enterprise SSO tables or routes unless Better Auth requires them for unrelated plugins.
+
 ---
 
 ## 15. Open decisions (numbered)
@@ -659,10 +670,9 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 1. **Cookie domain** (custom apex) — `env-manager.com` vs `.env-manager.com` vs per-subdomain only?
 2. **Auth proxy vs cookie-only** (custom apex) — rewrites on every sibling app or only `crossSubDomainCookies`?
 3. **Marketing site** — `www` → docs, studio landing, or separate?
-4. **Enterprise SSO** — plan [SSO plugin](https://www.better-auth.com/docs/plugins/sso) on auth now or later?
-5. **Account app URL in emails** — branding and link targets?
-6. **Impersonation banner** — show on studio, account, or all apps?
-7. **Better Auth upgrade** — before P2 or as part of P2?
+4. **Account app URL in emails** — branding and link targets?
+5. **Impersonation banner** — show on studio, account, or all apps?
+6. **Better Auth upgrade** — before P2 or as part of P2?
 
 ---
 
