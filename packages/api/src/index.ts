@@ -6,6 +6,7 @@ import {
 import { isOrganizationsEnabled } from "@env-manager/env/organizations";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { assertConsoleOperator } from "./console-access";
+import { runWithConsoleAuditContext } from "./console-audit-context";
 import type { Context } from "./context";
 import { getFriendlyErrorMessage } from "./errors";
 import {
@@ -68,7 +69,7 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
 /** Platform console operator — Admin role + `CONSOLE_ALLOWED_EMAILS` (Decision 11). */
 export const consoleProcedure = protectedProcedure.use(({ ctx, next }) => {
   assertConsoleOperator(ctx.session);
-  return next({ ctx });
+  return runWithConsoleAuditContext(() => next({ ctx }));
 });
 
 /** When orgs are enabled, requires an active organization on the session. */

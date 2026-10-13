@@ -1,13 +1,16 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { DataTableColumnDef } from "@/components/data-table/data-table";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ConsolePageHeader } from "@/domain/console/components/console-page-header";
 import { QueryErrorState } from "@/domain/console/components/query-state";
 import { formatDateTime } from "@/lib/format";
@@ -16,12 +19,49 @@ import { trpc } from "@/utils/trpc";
 export default function ConsoleOrganizationDetailPage() {
   const params = useParams<{ organizationId: string }>();
   const organizationId = params.organizationId;
+  const queryClient = useQueryClient();
 
   const detail = useQuery(
     trpc.platform.getOrganization.queryOptions({ organizationId }),
   );
 
+  const updateOrganization = useMutation({
+    ...trpc.platform.updateOrganization.mutationOptions(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries();
+    },
+  });
+
+  const transferOwner = useMutation({
+    ...trpc.platform.transferOrganizationOwner.mutationOptions(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries();
+    },
+  });
+
+  const deleteOrganization = useMutation({
+    ...trpc.platform.deleteOrganization.mutationOptions(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries();
+    },
+  });
+
+  const restoreOrganization = useMutation({
+    ...trpc.platform.restoreOrganization.mutationOptions(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries();
+    },
+  });
+
   const org = detail.data?.organization;
+  const [editName, setEditName] = useState("");
+  const [transferUserId, setTransferUserId] = useState("");
+
+  useEffect(() => {
+    if (org) {
+      setEditName(org.name);
+    }
+  }, [org]);
   const members = detail.data?.members ?? [];
   const projects = detail.data?.projects ?? [];
   const audit = detail.data?.audit ?? [];
@@ -150,11 +190,87 @@ export default function ConsoleOrganizationDetailPage() {
           <CardHeader>
             <CardTitle className="text-base">Details</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm">
-            <p className="font-mono text-muted-foreground text-xs">{org.id}</p>
-            <p className="mt-1 text-muted-foreground">
-              Created {formatDateTime(org.createdAt)}
-            </p>
+          <CardContent className="space-y-4 text-sm">
+            <div>
+              <Label className="text-muted-foreground">Name</Label>
+              <Input
+                className="mt-1 max-w-md"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+              />
+              <Button
+                type="button"
+                className="mt-2"
+                size="sm"
+                disabled={updateOrganization.isPending}
+                onClick={() =>
+                  updateOrganization.mutate({
+                    organizationId: org.id,
+                    name: editName.trim(),
+                  })
+                }
+              >
+                Save name
+              </Button>
+            </div>
+            <div>
+              <Label className="text-muted-foreground">
+                Transfer ownership to user ID
+              </Label>
+              <div className="mt-1 flex max-w-md flex-wrap gap-2">
+                <Input
+                  className="flex-1 font-mono text-xs"
+                  value={transferUserId}
+                  onChange={(e) => setTransferUserId(e.target.value)}
+                  placeholder="User ID"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={transferOwner.isPending || !transferUserId.trim()}
+                  onClick={() =>
+                    transferOwner.mutate({
+                      organizationId: org.id,
+                      targetUserId: transferUserId.trim(),
+                    })
+                  }
+                >
+                  Transfer
+                </Button>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                disabled={deleteOrganization.isPending}
+                onClick={() =>
+                  deleteOrganization.mutate({ organizationId: org.id })
+                }
+              >
+                Delete organization
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={restoreOrganization.isPending}
+                onClick={() =>
+                  restoreOrganization.mutate({ organizationId: org.id })
+                }
+              >
+                Restore organization
+              </Button>
+            </div>
+            <div>
+              <Label className="text-muted-foreground">Organization ID</Label>
+              <p className="font-mono text-xs">{org.id}</p>
+              <p className="mt-1 text-muted-foreground">
+                Created {formatDateTime(org.createdAt)}
+              </p>
+            </div>
           </CardContent>
         </Card>
       ) : null}

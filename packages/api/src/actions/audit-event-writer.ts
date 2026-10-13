@@ -2,6 +2,7 @@ import { type ActionName, getActionDefinition } from "@env-manager/actions";
 import { db } from "@env-manager/db";
 import { auditEvent } from "@env-manager/db/schema/audit-event";
 import { isNotificationsEnabled } from "@env-manager/notifications";
+import { getConsoleAuditContext } from "../console-audit-context";
 import { getMcpAuditContext } from "../mcp-audit-context";
 import { notifyFromAuditEvent } from "./notify-from-audit";
 
@@ -29,6 +30,7 @@ export async function writeAuditEvent(input: WriteAuditEventInput) {
   const def = getActionDefinition(input.action);
   const id = crypto.randomUUID();
   const mcp = getMcpAuditContext();
+  const consoleCtx = getConsoleAuditContext();
 
   await db.insert(auditEvent).values({
     id,
@@ -48,7 +50,7 @@ export async function writeAuditEvent(input: WriteAuditEventInput) {
     ipAddress: input.ipAddress ?? null,
     userAgent: input.userAgent ?? null,
     durationMs: input.durationMs ?? null,
-    source: mcp?.source ?? "trpc",
+    source: consoleCtx?.source ?? mcp?.source ?? "trpc",
     oauthClientId: mcp?.oauthClientId ?? null,
     mcpTool: mcp?.mcpTool ?? null,
   });

@@ -25,6 +25,7 @@ import { z } from "zod/v3";
 import { isConsoleOperator } from "../console-access";
 import { consoleProcedure, protectedProcedure, router } from "../index";
 import { makeResponseSchema, respond } from "../validation";
+import { platformAdminEndpoints } from "./platform-admin";
 import {
   assertPlatformOperatorList,
   assertPlatformSetRole,
@@ -47,6 +48,7 @@ const userRowSchema = z.object({
 });
 
 export const platformRouter = router({
+  ...platformAdminEndpoints,
   accessStatus: protectedProcedure.query(({ ctx }) => {
     const allowed = isConsoleOperator(ctx.session);
     return {

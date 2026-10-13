@@ -4,17 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import {
+  ADMIN_NAV_GROUPS,
+  isAdminNavItemActive,
+} from "@/domain/console/admin-nav";
 import { authClient } from "@/lib/auth-client";
 import { consoleSignInUrl } from "@/lib/auth-url";
 import { trpc } from "@/utils/trpc";
-
-const nav = [
-  { href: "/dashboard", label: "Overview" },
-  { href: "/dashboard/users", label: "Users" },
-  { href: "/dashboard/organizations", label: "Organizations" },
-  { href: "/dashboard/sessions", label: "Sessions" },
-  { href: "/dashboard/audit", label: "Audit" },
-] as const;
 
 export function ConsoleShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -65,21 +61,32 @@ export function ConsoleShell({ children }: { children: React.ReactNode }) {
               Signed in as {session.data.user.email}
             </p>
           </div>
-          <nav className="flex flex-wrap gap-2 text-sm">
-            {nav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={
-                  pathname === item.href ||
-                  (item.href !== "/dashboard" &&
-                    pathname.startsWith(`${item.href}/`))
-                    ? "rounded-md bg-muted px-2 py-1 font-medium"
-                    : "rounded-md px-2 py-1 hover:bg-muted"
-                }
+          <nav className="flex max-w-3xl flex-col gap-2 text-sm">
+            {ADMIN_NAV_GROUPS.map((group) => (
+              <div
+                key={group.label}
+                className="flex flex-wrap items-center gap-1.5"
               >
-                {item.label}
-              </Link>
+                <span className="shrink-0 px-1 font-medium text-muted-foreground text-xs uppercase tracking-wide">
+                  {group.label}
+                </span>
+                {group.items.map((item) => {
+                  const active = isAdminNavItemActive(pathname, item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={
+                        active
+                          ? "rounded-md bg-muted px-2 py-1 font-medium"
+                          : "rounded-md px-2 py-1 hover:bg-muted"
+                      }
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
             ))}
           </nav>
         </div>

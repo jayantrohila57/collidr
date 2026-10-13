@@ -1,10 +1,11 @@
 import "server-only";
 
+import type { Route } from "next";
 import { notFound, redirect } from "next/navigation";
 import { PageForbiddenError, PageNotFoundError } from "./errors";
 
 export function redirectToForbidden(): never {
-  redirect("/forbidden");
+  redirect("/forbidden" as Route);
 }
 
 export function applyPageGuardError(error: unknown): never {

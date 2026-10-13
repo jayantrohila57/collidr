@@ -8,8 +8,8 @@ import {
   CardPanel,
   CardTitle,
 } from "@env-manager/ui/card";
-import Link from "next/link";
 import type { Route } from "next";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { GitHubSignInButton } from "@/components/github-sign-in-button";

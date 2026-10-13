@@ -2,7 +2,7 @@
 
 import { AppRouteErrorPage } from "@env-manager/ui/patterns/app-route-states";
 
-export default function Error({
+export default function RouteError({
   error,
   reset,
 }: {
