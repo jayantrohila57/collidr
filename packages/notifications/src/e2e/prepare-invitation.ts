@@ -1,11 +1,12 @@
 import { db } from "@env-manager/db";
 import { user } from "@env-manager/db/schema/auth";
+import { notification } from "@env-manager/db/schema/notifications";
 import {
   invitation,
   member,
   organization,
 } from "@env-manager/db/schema/organization";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { notifyInvitationReceived } from "../triggers/invitations";
 
 const E2E_PRIMARY_EMAIL = "e2e-playwright@env-manager.local";
@@ -64,12 +65,25 @@ export async function prepareE2eInvitationNotifications() {
   }
 
   await db
-    .delete(invitation)
+    .delete(notification)
     .where(
       and(
-        eq(invitation.organizationId, orgId),
-        eq(sql`lower(${invitation.email})`, E2E_INVITEE_EMAIL.toLowerCase()),
+        inArray(notification.recipientUserId, [inviterId, inviteeId]),
+        inArray(notification.type, [
+          "invitation.received",
+          "invitation.accepted",
+        ]),
       ),
+    );
+
+  await db
+    .delete(member)
+    .where(and(eq(member.organizationId, orgId), eq(member.userId, inviteeId)));
+
+  await db
+    .delete(invitation)
+    .where(
+      eq(sql`lower(${invitation.email})`, E2E_INVITEE_EMAIL.toLowerCase()),
     );
 
   const invitationId = crypto.randomUUID();

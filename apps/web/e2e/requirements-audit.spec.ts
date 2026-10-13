@@ -1,3 +1,5 @@
+import { mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 import { expect, test } from "@playwright/test";
 import { hasE2eAuth } from "./helpers/auth";
 import {
@@ -7,7 +9,7 @@ import {
 
 const ARTIFACT_DIR =
   process.env.REQUIREMENTS_AUDIT_DIR ??
-  "/opt/cursor/artifacts/screenshots/requirements-audit";
+  "test-results/screenshots/requirements-audit";
 
 const VIEWPORTS = [
   { width: 1280, height: 800, name: "1280" },
@@ -24,8 +26,10 @@ const AUTH_ROUTES = [
 ] as const;
 
 async function shot(page: import("@playwright/test").Page, name: string) {
+  const path = `${ARTIFACT_DIR}/${name}.png`;
+  mkdirSync(dirname(path), { recursive: true });
   await page.screenshot({
-    path: `${ARTIFACT_DIR}/${name}.png`,
+    path,
     fullPage: false,
   });
 }

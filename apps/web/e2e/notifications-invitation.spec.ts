@@ -42,7 +42,9 @@ test.describe("notifications — invitation flow", () => {
     await inviteePage.goto("/dashboard");
     await inviteePage.getByRole("button", { name: /Notifications/i }).click();
     await expect(
-      inviteePage.getByText("Organization invitation", { exact: false }),
+      inviteePage
+        .getByText("Organization invitation", { exact: false })
+        .first(),
     ).toBeVisible();
     await inviteeContext.close();
 
@@ -69,7 +71,7 @@ test.describe("notifications — invitation flow", () => {
 
     await inviterPage.goto("/dashboard/notifications");
     await expect(
-      inviterPage.getByText("Invitation accepted", { exact: false }),
+      inviterPage.getByText("Invitation accepted", { exact: false }).first(),
     ).toBeVisible();
     await inviterContext.close();
   });

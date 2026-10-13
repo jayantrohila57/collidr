@@ -1,10 +1,11 @@
+import { mkdirSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { hasE2eAuth } from "./helpers/auth";
 import { assertNoHorizontalOverflow } from "./helpers/layout";
 
 const ARTIFACT_DIR =
   process.env.PROJECTS_LIST_SCREENSHOT_DIR ??
-  "/opt/cursor/artifacts/screenshots/projects-list";
+  "test-results/screenshots/projects-list";
 
 const PROJECTS_PATH = "/dashboard/projects";
 async function setColorScheme(
@@ -21,6 +22,7 @@ async function setColorScheme(
 test.describe("projects list", () => {
   test.beforeAll(() => {
     test.skip(!hasE2eAuth(), "E2E_TEST_MODE or E2E_SESSION_COOKIE required");
+    mkdirSync(ARTIFACT_DIR, { recursive: true });
   });
 
   test("projects grid view @ 1280 dark", async ({ page }) => {

@@ -1,9 +1,9 @@
+import { mkdirSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { hasE2eAuth } from "./helpers/auth";
 
 const ARTIFACT_DIR =
-  process.env.SIDEBAR_SCREENSHOT_DIR ??
-  "/opt/cursor/artifacts/screenshots/sidebar";
+  process.env.SIDEBAR_SCREENSHOT_DIR ?? "test-results/screenshots/sidebar";
 
 test.describe("app sidebar", () => {
   test.beforeAll(() => {
@@ -13,6 +13,7 @@ test.describe("app sidebar", () => {
   test("sidebar expanded, icon collapsed, and mobile sheet", async ({
     page,
   }) => {
+    mkdirSync(ARTIFACT_DIR, { recursive: true });
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/dashboard/projects");
     await page.waitForLoadState("networkidle");

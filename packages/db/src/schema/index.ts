@@ -2,6 +2,7 @@ export * from "./action-block";
 export * from "./audit";
 export * from "./audit-event";
 export * from "./auth";
+export * from "./device-code";
 export * from "./jwks";
 export * from "./notifications";
 export * from "./oauth";

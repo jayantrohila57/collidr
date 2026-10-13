@@ -8,6 +8,7 @@ Remote MCP (HTTP `POST /api/mcp`, MCP 2026-07-28) on Vercel project **`env-manag
 2. Apply reviewed SQL in order:
    - `packages/db/src/migrations/0008_platform_admin.sql` (if not already applied)
    - `packages/db/src/migrations/0009_platform_apps.sql` (OAuth/MCP + `rate_limit_bucket`)
+   - `packages/db/src/migrations/0012_better_auth_jwks_device_code.sql` (JWT `jwks` + device flow `device_code`; review on a branch — not on prod default until approved)
 3. Do **not** enable MCP in auth until `0009` is applied.
 
 ## Vercel: `env-manager-mcp`

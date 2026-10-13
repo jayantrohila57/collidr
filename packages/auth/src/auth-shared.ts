@@ -2,9 +2,10 @@ import { orgAc, orgBetterAuthRoles } from "@env-manager/actions";
 import { activeUserWhere, db } from "@env-manager/db";
 import { assertOrganizationCanBeDeleted } from "@env-manager/db/org-delete-policy";
 import * as authSchema from "@env-manager/db/schema/auth";
+import { user } from "@env-manager/db/schema/auth";
+import { deviceCode } from "@env-manager/db/schema/device-code";
 import { jwks } from "@env-manager/db/schema/jwks";
 import * as oauthSchema from "@env-manager/db/schema/oauth";
-import { user } from "@env-manager/db/schema/auth";
 import * as organizationSchema from "@env-manager/db/schema/organization";
 import * as teamSchema from "@env-manager/db/schema/team";
 import { teamMember } from "@env-manager/db/schema/team";
@@ -112,6 +113,8 @@ export function platformDatabaseConfig(): BetterAuthOptions["database"] {
     ...authSchema,
     ...organizationSchema,
     ...teamSchema,
+    jwks,
+    deviceCode,
   };
   if (process.env.PLATFORM_AUTH_ENABLE_MCP !== "1") {
     return drizzleAdapter(db, { provider: "pg", schema: base });
@@ -121,7 +124,6 @@ export function platformDatabaseConfig(): BetterAuthOptions["database"] {
     schema: {
       ...base,
       ...oauthSchema,
-      jwks,
     },
   });
 }
@@ -195,7 +197,11 @@ export function organizationPlugin() {
             payload: { invitationId: invite.id },
           });
         },
-        afterUpdateMemberRole: async ({ member: memberRow, user, organization: org }) => {
+        afterUpdateMemberRole: async ({
+          member: memberRow,
+          user,
+          organization: org,
+        }) => {
           if (!org) return;
           await writeAuthAuditEvent({
             action: "member.role.update",
@@ -207,7 +213,11 @@ export function organizationPlugin() {
             payload: { role: memberRow.role },
           });
         },
-        afterRemoveMember: async ({ member: memberRow, user, organization: org }) => {
+        afterRemoveMember: async ({
+          member: memberRow,
+          user,
+          organization: org,
+        }) => {
           if (!org) return;
           await writeAuthAuditEvent({
             action: "member.remove",

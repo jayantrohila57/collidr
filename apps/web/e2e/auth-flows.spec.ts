@@ -50,6 +50,8 @@ test.describe("auth redirects — production", () => {
 });
 
 test.describe("auth sign-in and sign-out — local e2e", () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test.beforeAll(() => {
     test.skip(!hasE2eAuth(), "E2E_TEST_MODE or E2E_SESSION_COOKIE required");
     test.skip(PROD, "Use local dev for email sign-in and sign-out");
@@ -57,7 +59,15 @@ test.describe("auth sign-in and sign-out — local e2e", () => {
 
   test("e2e login reaches dashboard; sign-out shows toast and returns to home", async ({
     page,
+    baseURL,
   }) => {
+    const secret = process.env.E2E_TEST_SECRET ?? "local-e2e-secret";
+    const login = await page.request.post(`${baseURL}/api/e2e/login`, {
+      headers: { "x-e2e-secret": secret },
+      data: { persona: "invitee" },
+    });
+    expect(login.ok()).toBeTruthy();
+
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle");
     await expect(page).not.toHaveURL(/\/sign-in/);
@@ -70,7 +80,7 @@ test.describe("auth sign-in and sign-out — local e2e", () => {
     await page.getByRole("button", { name: "Open account menu" }).click();
     await page.getByRole("menuitem", { name: /log out/i }).click();
     await expect(page.getByText("Signed out")).toBeVisible({ timeout: 10_000 });
-    await expect(page).toHaveURL(/\/$/);
+    await page.waitForURL(/\/$/, { timeout: 15_000 });
     await expect(page.getByTestId("marketing-sign-in")).toBeVisible();
 
     await page.goto("/dashboard");

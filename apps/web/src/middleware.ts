@@ -15,6 +15,12 @@ export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const signedIn = isSignedIn(request);
 
+  if (pathname === "/dashboard/settings/timeline") {
+    return NextResponse.redirect(
+      new URL("/dashboard/settings?tab=timeline", request.url),
+    );
+  }
+
   if (signedIn && pathname === SIGN_IN_PATH) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }

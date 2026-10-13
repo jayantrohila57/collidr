@@ -50,6 +50,7 @@ export async function POST(request: Request) {
       method: "POST",
       headers: {
         "content-type": "application/json",
+        origin: baseUrl,
         ...(cookie ? { cookie } : {}),
       },
       body: JSON.stringify({ invitationId: body.invitationId }),
@@ -63,6 +64,11 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+
+  const { notifyInvitationAccepted } = await import(
+    "@env-manager/notifications"
+  );
+  await notifyInvitationAccepted(body.invitationId);
 
   return NextResponse.json({ ok: true });
 }

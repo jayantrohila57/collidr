@@ -1,17 +1,17 @@
+import { mkdirSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { hasE2eAuth } from "./helpers/auth";
 import { assertNoHorizontalOverflow } from "./helpers/layout";
 
 const OVERVIEW_ARTIFACT_DIR =
-  process.env.PROJECT_OVERVIEW_SCREENSHOT_DIR ??
-  "/opt/cursor/artifacts/screenshots";
+  process.env.PROJECT_OVERVIEW_SCREENSHOT_DIR ?? "test-results/screenshots";
 
 const HEADER_DESC_ARTIFACT_DIR =
   process.env.PROJECT_HEADER_DESC_SCREENSHOT_DIR ?? OVERVIEW_ARTIFACT_DIR;
 
 const ENVIRONMENTS_ARTIFACT_DIR =
   process.env.PROJECT_ENVIRONMENTS_SCREENSHOT_DIR ??
-  "/opt/cursor/artifacts/screenshots/project-environments";
+  "test-results/screenshots/project-environments";
 
 const LONG_DESC_QUERY = "e2eLongDescription=1";
 
@@ -52,6 +52,8 @@ test.describe("project overview layout", () => {
 
   test.beforeAll(() => {
     test.skip(!hasE2eAuth(), "E2E_TEST_MODE or E2E_SESSION_COOKIE required");
+    mkdirSync(OVERVIEW_ARTIFACT_DIR, { recursive: true });
+    mkdirSync(ENVIRONMENTS_ARTIFACT_DIR, { recursive: true });
   });
 
   for (const viewport of VIEWPORTS) {
@@ -209,7 +211,7 @@ test.describe("project overview layout", () => {
 
   const HEADER_ARTIFACT_DIR =
     process.env.PROJECT_HEADER_SCREENSHOT_DIR ??
-    "/opt/cursor/artifacts/screenshots/project-header-taskflow";
+    "test-results/screenshots/project-header-taskflow";
 
   for (const width of [1280, 1440, 768, 390] as const) {
     test(`project header taskflow-style @ ${width}px`, async ({
@@ -237,7 +239,10 @@ test.describe("project overview layout", () => {
       await expect(page.getByText("Website", { exact: true })).toHaveCount(1);
 
       const description = page.locator('[data-slot="page-header-description"]');
-      const more = description.getByRole("button", { name: "more", exact: true });
+      const more = description.getByRole("button", {
+        name: "more",
+        exact: true,
+      });
       await expect(more).toBeVisible();
       const descBox = await description.boundingBox();
       const moreBox = await more.boundingBox();
@@ -270,7 +275,9 @@ test.describe("project overview layout", () => {
         path: `${HEADER_DESC_ARTIFACT_DIR}/project-header-desc-collapsed-${width}.png`,
         fullPage: false,
       });
-      await description.getByRole("button", { name: "more", exact: true }).click();
+      await description
+        .getByRole("button", { name: "more", exact: true })
+        .click();
       await expect(description).toHaveAttribute("data-expanded", "true");
       await expect(
         description.getByRole("button", { name: "less" }),

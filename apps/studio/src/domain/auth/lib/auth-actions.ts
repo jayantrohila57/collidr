@@ -46,17 +46,19 @@ export async function performSignOut(options: {
   queryClient: QueryClient;
   router: AppRouterInstance;
 }): Promise<void> {
-  const { queryClient, router } = options;
+  const { queryClient } = options;
 
   await authClient.signOut({
     fetchOptions: {
       onSuccess: () => {
         queryClient.clear();
-        router.replace(PUBLIC_HOME_PATH);
-        router.refresh();
       },
     },
   });
+  queryClient.clear();
+  window.setTimeout(() => {
+    window.location.replace(PUBLIC_HOME_PATH);
+  }, 300);
 }
 
 /** @deprecated Use performSignOut with queryClient and router */
