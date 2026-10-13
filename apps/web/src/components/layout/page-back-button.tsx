@@ -42,7 +42,7 @@ export function PageBackButton({
           render={
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="icon"
               className={cn(backButtonClassName, className)}
               aria-label="Back"
@@ -63,7 +63,7 @@ export function PageBackButton({
         render={
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             size="icon"
             className={cn(backButtonClassName, className)}
             aria-label="Back"

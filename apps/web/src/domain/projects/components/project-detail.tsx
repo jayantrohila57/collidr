@@ -2,12 +2,10 @@
 
 import type { ProjectOutput } from "@env-manager/api/types";
 import { PageStack } from "@/components/layout/app-layout";
-import { cn } from "@/lib/utils";
 import { CreateEnvironmentSheet } from "../../environments/components/create-environment-sheet";
 import { EnvironmentPanel } from "../../environments/components/environment-panel";
 import { EnvironmentsTabsView } from "../../environments/components/environments-tabs-view";
 import { useEnvironments } from "../../environments/hooks/use-environments";
-import { ProjectMetadataRow } from "./project-metadata-row";
 
 interface ProjectDetailProps {
   projectSlug: string;
@@ -33,8 +31,6 @@ export default function ProjectDetail({
 
   return (
     <PageStack className="w-full min-w-0 gap-4">
-      <ProjectMetadataRow project={project} />
-
       <section className="flex min-w-0 flex-col gap-2">
         <div className="flex min-w-0 items-start justify-between gap-2">
           <div className="min-w-0">

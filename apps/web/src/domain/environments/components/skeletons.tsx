@@ -61,11 +61,6 @@ export function ProjectDetailSkeleton() {
       aria-live="polite"
       aria-busy="true"
     >
-      <div className="flex flex-wrap items-center gap-3">
-        <Skeleton className="h-3 w-32" />
-        <Skeleton className="h-3 w-36" />
-      </div>
-
       <SectionCardSkeleton titleWidth="w-36" descriptionWidth="w-56">
         <Skeleton className="h-8 w-fit max-w-full rounded-lg sm:w-64" />
         <VariablesSkeleton />

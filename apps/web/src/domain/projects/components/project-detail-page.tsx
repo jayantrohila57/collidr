@@ -15,6 +15,7 @@ import { EditProjectSheet } from "./edit-project-sheet";
 import { ProjectActions } from "./project-actions";
 import ProjectDetail from "./project-detail";
 import { ProjectDetailStats } from "./project-detail-stats";
+import { ProjectMetadataRow } from "./project-metadata-row";
 
 interface ProjectDetailPageProps {
   slug: string;
@@ -79,6 +80,12 @@ export default function ProjectDetailPage({
           </div>
         }
         action={<Skeleton className="size-7 rounded-md" />}
+        metadata={
+          <div className="flex flex-wrap items-center gap-3">
+            <Skeleton className="h-3 w-32" />
+            <Skeleton className="h-3 w-36" />
+          </div>
+        }
         stats={<ProjectDetailStats slug={slug} />}
       >
         <ProjectDetailSkeleton />
@@ -111,6 +118,7 @@ export default function ProjectDetailPage({
           />
         }
         action={<ProjectActions project={project} />}
+        metadata={<ProjectMetadataRow project={project} />}
         stats={<ProjectDetailStats slug={slug} />}
       >
         <ProjectDetail projectSlug={slug} project={project} />

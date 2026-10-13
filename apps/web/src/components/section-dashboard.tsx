@@ -20,7 +20,9 @@ interface SectionProps {
   /** @deprecated use actionLabel */
   actionUrl?: string;
   children: React.ReactNode;
-  /** Rendered directly under the page header (e.g. stat cards). */
+  /** Rendered directly under the page header (e.g. slug / updated row). */
+  metadata?: ReactNode;
+  /** Rendered under metadata (e.g. stat cards). */
   stats?: ReactNode;
   /** `auto` shows back everywhere; `false` hides; string sets parent href */
   back?: PageHeaderBackProp;
@@ -35,6 +37,7 @@ export default function DashboardSection({
   actionHref,
   actionUrl,
   children,
+  metadata,
   stats,
   back = "auto",
 }: SectionProps) {
@@ -62,6 +65,7 @@ export default function DashboardSection({
           back={back}
         />
       ) : null}
+      {metadata ? <div className="min-w-0">{metadata}</div> : null}
       {stats ? <div className="min-w-0">{stats}</div> : null}
       {children ? <div className="min-w-0">{children}</div> : null}
     </PageStack>

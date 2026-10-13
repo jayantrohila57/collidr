@@ -6,6 +6,17 @@ const ARTIFACT_DIR =
   process.env.PROJECT_DETAIL_SCREENSHOT_DIR ??
   "/opt/cursor/artifacts/screenshots/project-detail-mobile";
 
+async function setColorScheme(
+  page: import("@playwright/test").Page,
+  scheme: "light" | "dark",
+) {
+  await page.getByRole("button", { name: "Toggle theme" }).click();
+  await page
+    .getByRole("menuitem", { name: scheme === "dark" ? "Dark" : "Light" })
+    .click();
+  await page.waitForTimeout(300);
+}
+
 const VIEWPORTS = [
   { width: 375, height: 812, name: "375" },
   { width: 390, height: 844, name: "390" },
@@ -50,6 +61,38 @@ test.describe("project detail layout", () => {
         fullPage: true,
       });
     });
+  }
+
+  for (const scheme of ["light", "dark"] as const) {
+    for (const width of [1280, 390] as const) {
+      test(`project detail chrome @ ${width}px ${scheme}`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 800 });
+        await page.goto(PROJECT_DETAIL_PATH);
+        await page.waitForLoadState("networkidle");
+        await setColorScheme(page, scheme);
+        await expect(page.locator('[data-slot="tabs-list"]')).toBeVisible();
+        await expect(
+          page.locator("dl").filter({ hasText: "Slug" }).first(),
+        ).toBeVisible();
+        const slugBox = await page
+          .locator("dl")
+          .filter({ hasText: "Slug" })
+          .first()
+          .boundingBox();
+        const statBox = await page
+          .getByText("Environments", { exact: true })
+          .first()
+          .boundingBox();
+        if (slugBox && statBox) {
+          expect(slugBox.y).toBeLessThan(statBox.y);
+        }
+        await assertNoHorizontalOverflow(page);
+        await page.screenshot({
+          path: `${ARTIFACT_DIR}/project-detail-${width}-${scheme}.png`,
+          fullPage: true,
+        });
+      });
+    }
   }
 
   test("project detail @ 390px with seeded variable row", async ({

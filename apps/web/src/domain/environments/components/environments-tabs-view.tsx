@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { HorizontalScrollRail } from "@/components/patterns/horizontal-scroll-rail";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -20,12 +19,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { iconMutedClassName } from "@/lib/icons";
 import { layoutGapClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 import { useEnvironmentVariableCounts } from "../hooks/use-environment-variable-counts";
 import { CreateEnvironmentSheet } from "./create-environment-sheet";
 import { DeleteEnvironmentDialog } from "./delete-environment-dialog";
 import { EditEnvironmentSheet } from "./edit-environment-sheet";
+import { EnvironmentTabCountBadge } from "./environment-tab-count-badge";
 
 interface Environment {
   id: string;
@@ -106,8 +107,12 @@ export function EnvironmentsTabsView({
         className="min-w-0 gap-2"
       >
         <HorizontalScrollRail compactControls className="min-w-0">
-          <div className="flex w-max min-w-full items-center gap-1">
-            <TabsList size="sm" className="h-8 w-fit shrink-0 justify-start">
+          <div className="flex w-max min-w-full items-end gap-1 border-border border-b">
+            <TabsList
+              variant="underline"
+              size="sm"
+              className="h-9 min-h-9 w-fit shrink-0 justify-start gap-0 bg-transparent p-0"
+            >
               {environments.map((env) => {
                 const count = variableCounts[env.id];
                 return (
@@ -115,20 +120,16 @@ export function EnvironmentsTabsView({
                     key={env.id}
                     value={env.id}
                     size="sm"
-                    className="shrink-0 grow-0 gap-1 whitespace-nowrap"
+                    className="h-9 min-h-9 shrink-0 grow-0 gap-1.5 whitespace-nowrap rounded-none px-2.5 data-active:shadow-none"
                   >
+                    <AppIcon
+                      name="environment"
+                      className={cn(iconMutedClassName, "size-4")}
+                    />
                     <span className="max-w-[7.5rem] truncate sm:max-w-none">
                       {env.name}
                     </span>
-                    {count !== undefined ? (
-                      <Badge
-                        variant="secondary"
-                        size="sm"
-                        className="tabular-nums"
-                      >
-                        {count}
-                      </Badge>
-                    ) : null}
+                    <EnvironmentTabCountBadge count={count} />
                   </TabsTab>
                 );
               })}

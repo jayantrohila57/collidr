@@ -5,6 +5,11 @@ import type { ReactNode } from "react";
 import { PageBackButton } from "@/components/layout/page-back-button";
 import { Separator } from "@/components/ui/separator";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   layoutPageHeaderRowClass,
   layoutPageTitleClass,
 } from "@/lib/layout-spacing";
@@ -115,9 +120,21 @@ export function PageHeader({
             {titleAccessory}
           </div>
           {description ? (
-            <p className="line-clamp-2 pb-0.5 text-muted-foreground text-xs">
-              {description}
-            </p>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <p
+                    className="line-clamp-3 pb-0.5 text-muted-foreground text-xs"
+                    title={description}
+                  />
+                }
+              >
+                {description}
+              </TooltipTrigger>
+              <TooltipContent className="max-w-sm text-pretty">
+                {description}
+              </TooltipContent>
+            </Tooltip>
           ) : null}
         </div>
       </div>
