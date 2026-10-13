@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "test": "SKIP_ENV_VALIDATION=1 node --import tsx --test src/variable-audit-payload.test.ts src/actions/evaluate-rbac.test.ts src/actions/require-action-membership.test.ts src/routers/project-access-router.test.ts src/routers/notifications-action-guard.test.ts"
+    "test": "SKIP_ENV_VALIDATION=1 node --import tsx --test src/variable-audit-payload.test.ts src/actions/evaluate-rbac.test.ts src/actions/require-action-membership.test.ts src/routers/project-access-router.test.ts src/routers/notifications-action-guard.test.ts src/invitation-sync-auth.test.ts"
   },
   "dependencies": {
     "@env-manager/actions": "workspace:*",

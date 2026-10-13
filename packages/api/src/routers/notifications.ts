@@ -13,6 +13,11 @@ import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
 import { protectedProcedure, router } from "../index";
 import {
+  assertSyncInvitationAcceptedAllowed,
+  assertSyncInvitationReceivedAllowed,
+  organizationIdFromInviteSyncInput,
+} from "../invitation-sync-auth";
+import {
   makeResponseSchema,
   notificationListItemOutput,
   respond,
@@ -245,7 +250,7 @@ export const notificationsRouter = router({
     }),
 
   syncInvitationReceived: protectedProcedure
-    .use(actionGuard("member.invite"))
+    .use(actionGuard("member.invite", organizationIdFromInviteSyncInput))
     .input(
       z.object({
         organizationId: z.string(),
@@ -255,6 +260,11 @@ export const notificationsRouter = router({
     .output(makeResponseSchema(z.boolean()))
     .mutation(async ({ ctx, input }) => {
       assertNotificationsEnabled();
+      await assertSyncInvitationReceivedAllowed(
+        ctx.session.user.id,
+        input.organizationId,
+        input.email,
+      );
       await syncInvitationReceivedByEmail(
         input.organizationId,
         input.email,
@@ -264,7 +274,7 @@ export const notificationsRouter = router({
     }),
 
   syncInvitationAccepted: protectedProcedure
-    .use(actionGuard("invitation.accept"))
+    .use(actionGuard("invitation.accept", organizationIdFromInviteSyncInput))
     .input(
       z.object({
         organizationId: z.string(),
@@ -272,8 +282,13 @@ export const notificationsRouter = router({
       }),
     )
     .output(makeResponseSchema(z.boolean()))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       assertNotificationsEnabled();
+      await assertSyncInvitationAcceptedAllowed(
+        ctx.session.user.id,
+        input.organizationId,
+        input.email,
+      );
       await syncInvitationAcceptedByEmail(input.organizationId, input.email);
       return respond({ message: "Synced", data: true });
     }),
