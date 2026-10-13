@@ -12,7 +12,8 @@
     "./web": "./src/web.ts",
     "./organizations": "./src/organizations.ts",
     "./soft-deletes": "./src/soft-deletes.ts",
-    "./feature-flags": "./src/feature-flags.ts"
+    "./feature-flags": "./src/feature-flags.ts",
+    "./www": "./src/www.ts"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.1",

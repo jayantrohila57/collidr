@@ -7,7 +7,7 @@ import {
   clientFeatureFlagEnvKeys,
   FEATURE_FLAG_PAIRS,
   serverFeatureFlagEnvKeysForBuild,
-} from "./feature-flags.ts";
+} from "./feature-flags";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 const turboJson = JSON.parse(

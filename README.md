@@ -15,7 +15,8 @@ Env Manager is a web dashboard and **pnpm/Turbo monorepo** for storing and organ
 
 | Path | Purpose |
 | ---- | ------- |
-| `apps/web` | Next.js UI, tRPC client, Better Auth routes |
+| `apps/web` | Next.js studio UI, tRPC client, Better Auth routes |
+| `apps/www` | Public marketing landing (Decision 4); CTAs → auth `sign-in` with `return_to` studio |
 | `packages/api` | tRPC routers (projects, orgs, access, audit, notifications, account, …) |
 | `packages/actions` | Canonical action registry, org roles, `requireAction` evaluation |
 | `packages/auth` | Better Auth (GitHub OAuth, organizations, teams) |
@@ -24,8 +25,9 @@ Env Manager is a web dashboard and **pnpm/Turbo monorepo** for storing and organ
 | `packages/crypto` | AES-256-GCM encrypt/decrypt for secret values |
 | `packages/env` | Shared Zod env validation & feature flags |
 | `packages/config` | Shared TypeScript/Biome config |
+| `packages/ui` | Shared coss/shadcn UI (`@env-manager/ui`) — marketing chrome and primitives |
 
-Planned additional apps (not in repo yet): `auth-app`, `console`, `mcp` — see [docs/PLAN_PLATFORM_APPS.md](./docs/PLAN_PLATFORM_APPS.md).
+Planned additional apps: `apps/auth`, `apps/studio`, `apps/console`, `apps/mcp`, … — see [docs/PLAN_PLATFORM_APPS.md](./docs/PLAN_PLATFORM_APPS.md).
 
 ## Product concepts
 
@@ -109,7 +111,8 @@ Production uses **reviewed SQL / push**, not automatic migrate on deploy — [pa
 ## Run & build
 
 ```bash
-pnpm dev:web          # Next.js on http://localhost:3000
+pnpm dev:web
+pnpm dev:www    # marketing site on :3006          # Next.js on http://localhost:3000
 pnpm dev              # Turbo dev (all apps with dev tasks)
 pnpm build
 pnpm check-types
