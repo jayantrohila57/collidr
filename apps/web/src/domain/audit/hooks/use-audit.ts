@@ -54,6 +54,7 @@ export function useAudit(filters: AuditFilters = {}) {
     logs: auditLogsQuery.data?.data ?? [],
     projects: projectsQuery.data?.data ?? [],
     isProjectsLoading: projectsQuery.isLoading,
+    isFetching: auditLogsQuery.isFetching,
     status,
     error: auditLogsQuery.error,
     refetch: auditLogsQuery.refetch,
