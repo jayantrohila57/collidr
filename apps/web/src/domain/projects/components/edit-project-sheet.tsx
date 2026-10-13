@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 import { useProjects } from "../hooks/use-projects";
 
 interface EditProjectSheetProps {
@@ -95,7 +96,7 @@ export function EditProjectSheet({
           </SheetDescription>
         </SheetHeader>
         <form className="contents" onSubmit={form.handleSubmit(onSubmit)}>
-          <SheetPanel className="grid gap-4">
+          <SheetPanel className={layoutSheetPanelClass}>
             <Controller
               name="name"
               control={form.control}
@@ -159,7 +160,7 @@ export function EditProjectSheet({
               name="isPublic"
               control={form.control}
               render={({ field }) => (
-                <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
+                <div className="flex items-center justify-between gap-2 rounded-lg border p-2">
                   <div className="min-w-0 flex-1 space-y-0.5">
                     <Label
                       htmlFor="edit-project-visibility"

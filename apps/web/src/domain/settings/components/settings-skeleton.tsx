@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function SettingsPageSkeleton() {
   return (
-    <div className="flex flex-col gap-4" role="status" aria-busy="true">
+    <div className="flex flex-col gap-2" role="status" aria-busy="true">
       <Card>
         <CardHeader>
           <CardTitle>
@@ -11,7 +11,7 @@ export function SettingsPageSkeleton() {
           </CardTitle>
         </CardHeader>
         <CardPanel>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Skeleton className="size-16 rounded-full" />
             <div className="space-y-2">
               <Skeleton className="h-4 w-32" />

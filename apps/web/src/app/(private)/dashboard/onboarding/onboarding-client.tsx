@@ -20,6 +20,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { authClient } from "@/lib/auth-client";
+import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 import {
   formatOrganizationCreateError,
   slugifyOrganizationName,
@@ -106,7 +107,7 @@ export default function OnboardingClient() {
           </SheetDescription>
         </SheetHeader>
         <form className="contents" onSubmit={form.handleSubmit(onSubmit)}>
-          <SheetPanel className="grid gap-4">
+          <SheetPanel className={layoutSheetPanelClass}>
             <Controller
               name="name"
               control={form.control}

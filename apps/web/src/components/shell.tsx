@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import React, { type ReactNode } from "react";
+import { layoutContentClass, layoutGutterClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 
 export const Shell = ({ children }: { children: React.ReactNode }) => {
@@ -74,7 +75,7 @@ const FooterVariants = cva("backdrop-blur-xs", {
       default: "h-full w-full",
     },
     padding: {
-      default: "px-4 md:px-6",
+      default: "px-2",
       none: "",
     },
   },
@@ -113,7 +114,7 @@ const MainVariants = cva("relative", {
   variants: {
     variant: {
       default: "flex flex-col",
-      dashboard: "flex flex-1 flex-col gap-4 p-4 md:p-6",
+      dashboard: layoutContentClass,
       centered: "flex flex-col items-center justify-center py-16",
     },
     scale: {

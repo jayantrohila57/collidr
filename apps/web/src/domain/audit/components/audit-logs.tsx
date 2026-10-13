@@ -2,6 +2,7 @@
 
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { PageToolbar } from "@/components/layout/app-layout";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -23,8 +24,8 @@ export default function AuditLogs() {
   });
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row">
+    <div className="flex flex-col gap-2">
+      <PageToolbar>
         <div className="relative flex-1">
           <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -59,7 +60,7 @@ export default function AuditLogs() {
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </PageToolbar>
 
       <AuditLogTableView
         logs={logs}

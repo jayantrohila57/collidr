@@ -3,10 +3,10 @@ import { HydrationBoundary } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { PageStack, PageTitleRow } from "@/components/layout/app-layout";
 import { DashboardHome } from "@/domain/dashboard/components/dashboard-home";
 import { DashboardPageSkeleton } from "@/domain/dashboard/components/skeletons";
 import { dehydrateDashboardOverview } from "@/lib/dashboard-prefetch";
-import { pageStackClass } from "@/lib/page-layout";
 
 export default async function DashboardPage() {
   const headerList = await headers();
@@ -24,14 +24,10 @@ export default async function DashboardPage() {
     <HydrationBoundary state={dehydratedState}>
       <Suspense
         fallback={
-          <div className={pageStackClass}>
-            <div className="flex items-center justify-between gap-3">
-              <h1 className="font-semibold text-lg tracking-tight">
-                Dashboard
-              </h1>
-            </div>
+          <PageStack>
+            <PageTitleRow title="Dashboard" />
             <DashboardPageSkeleton />
-          </div>
+          </PageStack>
         }
       >
         <DashboardHome />

@@ -21,6 +21,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 
 const environmentNameSchema = createEnvironmentInput.pick({ name: true });
 
@@ -83,7 +84,7 @@ export function CreateEnvironmentSheet({
           </SheetDescription>
         </SheetHeader>
         <form className="contents" onSubmit={form.handleSubmit(onSubmit)}>
-          <SheetPanel className="grid gap-4">
+          <SheetPanel className={layoutSheetPanelClass}>
             <Controller
               name="name"
               control={form.control}

@@ -19,6 +19,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 
 interface AddVariableSheetProps {
   onConfirm: (data: { key: string; value: string }) => Promise<void>;
@@ -79,7 +80,7 @@ export function AddVariableSheet({
           <SheetDescription>Add a new environment variable.</SheetDescription>
         </SheetHeader>
         <form className="contents" onSubmit={handleSubmit}>
-          <SheetPanel className="grid gap-4">
+          <SheetPanel className={layoutSheetPanelClass}>
             <FormField
               id="var-key"
               label="Key"

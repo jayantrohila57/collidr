@@ -19,7 +19,7 @@ const skeletonColumns = [
 export function ProjectsSkeleton() {
   return (
     <div
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-2"
       role="status"
       aria-live="polite"
       aria-busy="true"

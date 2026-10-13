@@ -106,7 +106,7 @@ export default function ProjectList({ onCreateProject }: ProjectListProps) {
       );
     case "success":
       return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           {projectCategories.map((category) => (
             <Collapsible
               key={category.title}

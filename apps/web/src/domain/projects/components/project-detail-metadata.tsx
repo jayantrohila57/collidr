@@ -41,7 +41,7 @@ export function ProjectDetailMetadata({ project }: ProjectDetailMetadataProps) {
         </CardDescription>
       </CardHeader>
       <CardPanel>
-        <dl className="grid gap-4 sm:grid-cols-2">
+        <dl className="grid gap-2 sm:grid-cols-2">
           <MetadataItem label="Slug">
             <span className="font-mono">{project.slug}</span>
           </MetadataItem>

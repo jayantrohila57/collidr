@@ -83,11 +83,11 @@ export function EnvironmentsTabsView({
   }
 
   return (
-    <section className="flex min-w-0 flex-col gap-3">
+    <section className="flex min-w-0 flex-col gap-2">
       <Tabs
         value={resolvedActive}
         onValueChange={onTabChange}
-        className="min-w-0 gap-3"
+        className="min-w-0 gap-2"
       >
         <div className="min-w-0 space-y-2 lg:hidden">
           <Select

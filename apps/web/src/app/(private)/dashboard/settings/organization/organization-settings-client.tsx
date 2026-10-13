@@ -50,6 +50,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { authClient } from "@/lib/auth-client";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
+import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import {
   formatOrganizationCreateError,
@@ -285,7 +286,7 @@ export function OrganizationSettingsForm({
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-4" aria-busy="true">
+      <div className="flex flex-col gap-2" aria-busy="true">
         <Skeleton className="h-24 w-full rounded-xl" />
         <Skeleton className="h-32 w-full rounded-xl" />
       </div>
@@ -303,7 +304,7 @@ export function OrganizationSettingsForm({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       <Card>
         <CardHeader>
           <CardTitle>Organization</CardTitle>
@@ -413,7 +414,7 @@ export function OrganizationSettingsForm({
             </SheetDescription>
           </SheetHeader>
           <form className="contents" onSubmit={handleSaveProfile}>
-            <SheetPanel className="grid gap-4">
+            <SheetPanel className={layoutSheetPanelClass}>
               <FormField id="org-name-edit" label="Name" required>
                 <Input
                   id="org-name-edit"
@@ -467,7 +468,7 @@ export function OrganizationSettingsForm({
             </SheetDescription>
           </SheetHeader>
           <form className="contents" onSubmit={handleInvite}>
-            <SheetPanel className="grid gap-4">
+            <SheetPanel className={layoutSheetPanelClass}>
               <FormField id="invite-email" label="Email" required>
                 <Input
                   id="invite-email"

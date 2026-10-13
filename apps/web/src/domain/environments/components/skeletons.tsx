@@ -56,7 +56,7 @@ function SectionCardSkeleton({
 export function ProjectDetailSkeleton() {
   return (
     <div
-      className="flex w-full flex-col gap-4"
+      className="flex w-full flex-col gap-2"
       role="status"
       aria-live="polite"
       aria-busy="true"
@@ -71,7 +71,7 @@ export function ProjectDetailSkeleton() {
       </SectionCardSkeleton>
 
       <SectionCardSkeleton titleWidth="w-24" descriptionWidth="w-72">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-2 sm:grid-cols-2">
           {[
             "slug",
             "status",

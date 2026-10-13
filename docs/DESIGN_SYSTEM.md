@@ -40,14 +40,46 @@ Base UI layout: root `body` is `relative`; app content is wrapped in `isolate re
 
 See `docs/COSS_MIGRATION.md` for the full migration map.
 
-## Layout primitives (app-level, unchanged)
+## Spacing (sidebar scale)
+
+All app layout spacing is derived from the coss **Sidebar** source (`apps/web/src/components/ui/sidebar.tsx`). Do not invent parallel gutters (`p-4`, `gap-6`, `md:p-6`, etc.) in feature code—import tokens or layout primitives instead.
+
+| Sidebar source | Token | Tailwind |
+|----------------|-------|----------|
+| `SidebarHeader`, `SidebarFooter`, `SidebarGroup` | `layoutGutterClass` | `p-2` |
+| `SidebarContent` column | `layoutGapClass` | `gap-2` |
+| `SidebarMenu` | `layoutMenuGapClass` | `gap-1` |
+| `SidebarMenuButton` (default) | `layoutRowClass` | `h-8` |
+| `SidebarMenuButton` `size="lg"` (team switcher) | `layoutRowLgClass` | `h-12` |
+| `SidebarGroupLabel` | `layoutGroupLabelClass` | `h-8`, `px-2`, `text-xs` |
+
+**Tokens:** `apps/web/src/lib/layout-spacing.ts`
+
+**Composed primitives** (no new visuals—only class composition):
+
+| Primitive | Path | Use |
+|-----------|------|-----|
+| `PageMain` | `components/layout/app-layout.tsx` | Dashboard main scroll area (`layoutContentClass`) |
+| `PageStack` | same | Vertical sections (`gap-2`) |
+| `PageHeaderBar` / `PageHeaderRow` | same | Sticky inset header; **same `p-2` + `h-12` row as `SidebarHeader` + team switcher** |
+| `PageTitleRow` | same | In-page title + action (`text-sm` title) |
+| `PageToolbar` | same | Filters / search above tables |
+| `layoutSheetPanelClass` | `layout-spacing.ts` | Sheet bodies (`SheetPanel` `className`) |
+| `DashboardSection` | `components/section-dashboard.tsx` | Wraps `PageStack` + `PageTitleRow` |
+| `FormSection` | `components/layout/form-section.tsx` | Form blocks (`gap-2`) |
+
+`Shell.Main` `variant="dashboard"` uses `layoutContentClass`. The private layout `PageHeaderBar` aligns with the sidebar org switcher row.
+
+Card, Frame, Table, and Dialog **internals** keep coss defaults (`p-6` on `CardHeader`, etc.); only **between** sections and **app chrome** use the sidebar scale.
+
+## Layout primitives (coss)
 
 | Component | Path |
 |-----------|------|
 | `Frame` (page/section layout) | `apps/web/src/components/ui/frame.tsx` |
-| `FormSection` | `apps/web/src/components/layout/form-section.tsx` |
+| `Sidebar*` | `apps/web/src/components/ui/sidebar.tsx` |
 
-Use coss defaults for control density and visuals—avoid custom overrides on generated `ui/*` primitives.
+Use coss defaults for control density and visuals—avoid custom overrides on generated `ui/*` primitives except where `layout-spacing` documents app-level composition.
 
 ## Charts
 

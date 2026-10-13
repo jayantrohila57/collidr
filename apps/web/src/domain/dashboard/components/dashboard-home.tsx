@@ -3,13 +3,13 @@
 import { Plus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { PageStack, PageTitleRow } from "@/components/layout/app-layout";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { ErrorState } from "@/components/patterns/error-state";
 import { Button } from "@/components/ui/button";
 import { CreateProjectSheet } from "@/domain/projects/components/create-project-sheet";
 import { ProjectsTableView } from "@/domain/projects/components/projects-table-view";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
-import { pageStackClass } from "@/lib/page-layout";
 import { useDashboard } from "../hooks/use-dashboard";
 import { DashboardPageSkeleton } from "./skeletons";
 
@@ -45,13 +45,15 @@ export function DashboardHome() {
 
   return (
     <>
-      <div className={pageStackClass}>
-        <div className="flex items-center justify-between gap-3">
-          <h1 className="font-semibold text-lg tracking-tight">Dashboard</h1>
-          <Button type="button" size="sm" onClick={openCreate}>
-            New project
-          </Button>
-        </div>
+      <PageStack>
+        <PageTitleRow
+          title="Dashboard"
+          action={
+            <Button type="button" size="sm" onClick={openCreate}>
+              New project
+            </Button>
+          }
+        />
 
         {isLoading ? (
           <DashboardPageSkeleton />
@@ -112,7 +114,7 @@ export function DashboardHome() {
             )}
           </>
         )}
-      </div>
+      </PageStack>
 
       <CreateProjectSheet
         open={createOpen}

@@ -21,6 +21,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 
 interface Environment {
   id: string;
@@ -117,7 +118,7 @@ export function EditEnvironmentSheet({
             className="contents"
             onSubmit={handleSubmit}
           >
-            <SheetPanel className="grid gap-4">
+            <SheetPanel className={layoutSheetPanelClass}>
               <FormField
                 id={`env-name-${environment.id}`}
                 label="Name"

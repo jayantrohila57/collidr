@@ -4,6 +4,7 @@ import type { ProjectOutput } from "@env-manager/api/types";
 import { Edit, Github, Globe } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import { PageStack } from "@/components/layout/app-layout";
 import { TruncatedText } from "@/components/patterns/truncated-text";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +20,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { layoutGapClass } from "@/lib/layout-spacing";
 import { CreateEnvironmentSheet } from "../../environments/components/create-environment-sheet";
 import { EnvironmentPanel } from "../../environments/components/environment-panel";
 import { EnvironmentsTabsView } from "../../environments/components/environments-tabs-view";
@@ -54,7 +56,7 @@ export default function ProjectDetail({
   const hasLinks = Boolean(project.repositoryUrl || project.websiteUrl);
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <PageStack className="w-full">
       <Card>
         <CardHeader>
           <CardTitle>Overview</CardTitle>
@@ -75,7 +77,7 @@ export default function ProjectDetail({
             </CardAction>
           ) : null}
         </CardHeader>
-        <CardPanel className="flex flex-col gap-4">
+        <CardPanel className={`flex flex-col ${layoutGapClass}`}>
           <TruncatedText
             text={project.description ?? ""}
             emptyFallback="No description provided."
@@ -181,6 +183,6 @@ export default function ProjectDetail({
 
       <ProjectSettingsSection project={project} />
       <ProjectDangerZone project={project} />
-    </div>
+    </PageStack>
   );
 }

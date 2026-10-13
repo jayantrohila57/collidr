@@ -36,14 +36,14 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       <Card>
         <CardHeader>
           <CardTitle>Account</CardTitle>
           <CardDescription>Your profile in this workspace.</CardDescription>
         </CardHeader>
         <CardPanel>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Avatar>
               <AvatarImage src={user.image ?? undefined} alt="" />
               <AvatarFallback>

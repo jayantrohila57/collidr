@@ -92,7 +92,7 @@ export default function Pricing() {
           description="Choose the perfect plan for your needs. Start free and scale as you grow."
         />
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
           {pricingPlans.map((plan) => (
             <Card key={`plan-${plan.name.toLowerCase()}`}>
               <CardHeader>

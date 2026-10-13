@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { PageHeaderBar, PageHeaderRow } from "@/components/layout/app-layout";
 import { ModeToggle } from "@/components/mode-toggle";
 import { ActiveOrganizationProvider } from "@/components/org/active-organization-context";
 import { OrgOnboardingGate } from "@/components/org/org-onboarding-gate";
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { UserMenu } from "@/domain/auth/components/user-menu";
+import { layoutContentClass } from "@/lib/layout-spacing";
 
 interface OrganizationLayoutProps {
   children: React.ReactNode;
@@ -33,7 +35,7 @@ export default function OrganizationLayout({
           <ActiveOrganizationProvider>
             <main
               id="main-content"
-              className="flex min-h-svh min-w-0 flex-col bg-background p-4 md:p-6"
+              className={`min-h-svh min-w-0 bg-background ${layoutContentClass}`}
             >
               <OrgOnboardingGate>{children}</OrgOnboardingGate>
             </main>
@@ -53,13 +55,13 @@ export default function OrganizationLayout({
               id="main-content"
               className="min-h-svh min-w-0 overflow-x-hidden"
             >
-              <header className="sticky top-0 z-40 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-4 md:px-6">
-                <div className="flex w-full min-w-0 items-center justify-between gap-2">
-                  <div className="flex min-w-0 flex-1 flex-row items-center justify-start gap-2">
-                    <SidebarTrigger className="-ms-0.5 size-8 shrink-0" />
+              <PageHeaderBar>
+                <PageHeaderRow>
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
+                    <SidebarTrigger className="size-8 shrink-0" />
                     <Separator
                       orientation="vertical"
-                      className="my-auto hidden h-6 lg:block"
+                      className="my-auto hidden h-8 lg:block"
                     />
                     <div className="hidden min-w-0 flex-1 lg:block">
                       <Breadcrumbs />
@@ -68,12 +70,12 @@ export default function OrganizationLayout({
                       <Breadcrumbs className="flex-nowrap" />
                     </div>
                   </div>
-                  <div className="flex shrink-0 flex-row items-center justify-end gap-2">
+                  <div className="flex shrink-0 items-center gap-2">
                     <ModeToggle />
                     <UserMenu />
                   </div>
-                </div>
-              </header>
+                </PageHeaderRow>
+              </PageHeaderBar>
               <Shell.Main
                 variant="dashboard"
                 padding="none"

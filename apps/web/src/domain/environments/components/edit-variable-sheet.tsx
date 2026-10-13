@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { layoutSheetPanelClass } from "@/lib/layout-spacing";
 
 interface EditVariableSheetProps {
   open: boolean;
@@ -91,7 +92,7 @@ export function EditVariableSheet({
           </SheetDescription>
         </SheetHeader>
         <form className="contents" onSubmit={handleSubmit}>
-          <SheetPanel className="grid gap-4">
+          <SheetPanel className={layoutSheetPanelClass}>
             <FormField
               id="edit-key"
               label="Key"

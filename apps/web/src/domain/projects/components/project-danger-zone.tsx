@@ -41,7 +41,7 @@ export function ProjectDangerZone({ project }: ProjectDangerZoneProps) {
             environments.
           </CardDescription>
         </CardHeader>
-        <CardPanel className="flex flex-col gap-4">
+        <CardPanel className="flex flex-col gap-2">
           {project.isArchived ? (
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-muted-foreground text-sm">

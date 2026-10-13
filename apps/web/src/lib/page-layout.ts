@@ -1,3 +1,5 @@
-/** Shared dashboard page chrome — one gutter, one vertical rhythm between sections. */
-export const pageGutterClass = "p-4 md:p-6";
-export const pageStackClass = "flex min-w-0 flex-col gap-4";
+/** @deprecated Import from `@/lib/layout-spacing` or `@/components/layout/app-layout`. */
+export {
+  layoutContentClass as pageGutterClass,
+  layoutSectionStackClass as pageStackClass,
+} from "@/lib/layout-spacing";

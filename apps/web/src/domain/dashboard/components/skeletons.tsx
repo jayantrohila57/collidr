@@ -3,6 +3,7 @@
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import { DataTable } from "@/components/data-table/data-table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { layoutSectionStackClass } from "@/lib/layout-spacing";
 
 type DashboardProjectSkeletonRow = { id: string };
 
@@ -23,7 +24,7 @@ const skeletonColumns = [
 export function DashboardPageSkeleton() {
   return (
     <div
-      className="flex flex-col gap-4"
+      className={layoutSectionStackClass}
       role="status"
       aria-live="polite"
       aria-busy="true"

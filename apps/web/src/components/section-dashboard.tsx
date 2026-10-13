@@ -2,8 +2,8 @@ import type { Route } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import GoBackButton from "@/components/go-back";
+import { PageStack, PageTitleRow } from "@/components/layout/app-layout";
 import { Button } from "@/components/ui/button";
-import { pageStackClass } from "@/lib/page-layout";
 
 interface SectionProps {
   title?: string;
@@ -43,25 +43,17 @@ export default function DashboardSection({
     ) : null);
 
   return (
-    <div className={pageStackClass}>
+    <PageStack>
       {showBack ? <GoBackButton /> : null}
       {title ? (
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 space-y-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="font-semibold text-lg tracking-tight">{title}</h1>
-              {titleAccessory}
-            </div>
-            {description ? (
-              <p className="text-muted-foreground text-sm">{description}</p>
-            ) : null}
-          </div>
-          {trailingAction ? (
-            <div className="shrink-0">{trailingAction}</div>
-          ) : null}
-        </div>
+        <PageTitleRow
+          title={title}
+          titleAccessory={titleAccessory}
+          description={description}
+          action={trailingAction}
+        />
       ) : null}
       {children}
-    </div>
+    </PageStack>
   );
 }
