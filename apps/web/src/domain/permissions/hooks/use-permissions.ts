@@ -2,26 +2,23 @@
 
 import type { ActionName } from "@env-manager/actions";
 import { useQuery } from "@tanstack/react-query";
-import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { trpc } from "@/utils/trpc";
 
 const POLL_MS = 30_000;
 
 export function usePermissionsSnapshot(projectId?: string) {
-  const enabled = isActionsAuditEnabledOnClient();
   return useQuery({
     ...trpc.permissions.snapshot.queryOptions(
       projectId ? { projectId } : undefined,
     ),
-    enabled,
     staleTime: POLL_MS,
-    refetchInterval: enabled ? POLL_MS : false,
+    refetchInterval: POLL_MS,
   });
 }
 
 export function useCan(action: ActionName, options?: { projectId?: string }) {
   const { data, isLoading } = usePermissionsSnapshot(options?.projectId);
-  const allowed = data?.actions?.[action] ?? !isActionsAuditEnabledOnClient();
+  const allowed = data?.actions?.[action] === true;
   const reason = allowed ? undefined : "denied";
   return { allowed, reason, isLoading };
 }

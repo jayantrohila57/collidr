@@ -1,0 +1,33 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { evaluatePermission } from "./evaluate";
+
+/**
+ * permissions.snapshot must evaluate real RBAC even when ACTIONS_AUDIT_ENABLED is false
+ * (audit flag controls timeline writes only; see issues #40 / #11).
+ */
+describe("permissions snapshot policy", () => {
+  it("denies org-scoped actions without org role instead of marking all actions allowed", () => {
+    const organizationList = evaluatePermission({
+      action: "organization.list",
+      orgRole: null,
+      project: null,
+    });
+    assert.equal(organizationList.allowed, false);
+
+    const projectUpdate = evaluatePermission({
+      action: "project.update",
+      orgRole: null,
+      project: null,
+    });
+    assert.equal(projectUpdate.allowed, false);
+  });
+
+  it("treats missing snapshot entries as denied (fail-closed client default)", () => {
+    const actions: Record<string, boolean> | undefined = undefined;
+    assert.equal(actions?.["project.update"] === true, false);
+    assert.equal({}["project.update"] === true, false);
+    assert.equal({ "project.update": false }["project.update"] === true, false);
+    assert.equal({ "project.update": true }["project.update"] === true, true);
+  });
+});

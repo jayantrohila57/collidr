@@ -2,7 +2,6 @@ import {
   type ActionName,
   actionNames,
   evaluatePermission,
-  isActionsAuditEnabled,
   normalizeOrgRole,
 } from "@env-manager/actions";
 import { db } from "@env-manager/db";
@@ -30,19 +29,6 @@ export async function buildPermissionsSnapshot(input: {
 }): Promise<PermissionsSnapshot> {
   const blocked: ActionName[] = [];
   const actions: Record<string, boolean> = {};
-
-  if (!isActionsAuditEnabled()) {
-    for (const name of actionNames) {
-      actions[name] = true;
-    }
-    return {
-      platformAdmin: false,
-      orgRole: null,
-      unassignedMember: false,
-      actions,
-      blocked,
-    };
-  }
 
   let orgRole: "owner" | "manager" | "member" | null = null;
   if (input.organizationId) {
