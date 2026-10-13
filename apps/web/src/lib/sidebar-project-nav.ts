@@ -32,17 +32,22 @@ export function selectSidebarProjects({
   activeSlug?: string | null;
   listExpanded: boolean;
   limit?: number;
-}): { visible: ProjectOutput[]; hiddenCount: number } {
+}): {
+  visible: ProjectOutput[];
+  hiddenCount: number;
+  listToggleVisible: boolean;
+} {
   const sorted = sortProjectsByUpdated(
     projects.filter(isSidebarProjectNavItem),
   );
+  const listToggleVisible = sorted.length > limit;
 
   if (listExpanded) {
-    return { visible: sorted, hiddenCount: 0 };
+    return { visible: sorted, hiddenCount: 0, listToggleVisible };
   }
 
   if (sorted.length <= limit) {
-    return { visible: sorted, hiddenCount: 0 };
+    return { visible: sorted, hiddenCount: 0, listToggleVisible: false };
   }
 
   const recent = sorted.slice(0, limit);
@@ -54,6 +59,7 @@ export function selectSidebarProjects({
     return {
       visible: recent,
       hiddenCount: Math.max(0, sorted.length - recent.length),
+      listToggleVisible,
     };
   }
 
@@ -64,5 +70,6 @@ export function selectSidebarProjects({
   return {
     visible,
     hiddenCount: Math.max(0, sorted.length - visible.length),
+    listToggleVisible,
   };
 }

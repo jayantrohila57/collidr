@@ -69,7 +69,7 @@ export function SidebarProjectsGroup({
     return match?.[1] ?? null;
   }, [pathname]);
 
-  const { visible, hiddenCount } = useMemo(
+  const { visible, listToggleVisible } = useMemo(
     () =>
       selectSidebarProjects({
         projects,
@@ -175,7 +175,7 @@ export function SidebarProjectsGroup({
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
-              {!projectsLoading && hiddenCount > 0 && (
+              {!projectsLoading && listToggleVisible && (
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     type="button"
