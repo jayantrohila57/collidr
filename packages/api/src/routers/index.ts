@@ -7,6 +7,7 @@ import { environmentsRouter } from "./environments";
 import { notificationsRouter } from "./notifications";
 import { organizationsRouter } from "./organizations";
 import { permissionsRouter } from "./permissions";
+import { projectAccessRouter } from "./project-access-router";
 import { projectsRouter } from "./projects";
 import { environmentVariablesRouter } from "./variables";
 
@@ -30,5 +31,6 @@ export const appRouter = router({
   permissions: permissionsRouter,
   account: accountRouter,
   organizations: organizationsRouter,
+  projectAccess: projectAccessRouter,
 });
 export type AppRouter = typeof appRouter;

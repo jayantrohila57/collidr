@@ -11,6 +11,7 @@ import {
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, isNull, lt, or, sql } from "drizzle-orm";
 import { z } from "zod/v3";
+import { actionGuard } from "../actions/action-guard";
 import { protectedProcedure, router } from "../index";
 import {
   makeResponseSchema,
@@ -43,6 +44,7 @@ function renderIcon(type: string, data: unknown) {
 
 export const notificationsRouter = router({
   unreadCount: protectedProcedure
+    .use(actionGuard("notification.list"))
     .output(makeResponseSchema(z.number()))
     .query(async ({ ctx }) => {
       if (!isNotificationsEnabled()) {
@@ -65,6 +67,7 @@ export const notificationsRouter = router({
     }),
 
   list: protectedProcedure
+    .use(actionGuard("notification.list"))
     .input(
       z.object({
         cursor: z
@@ -169,6 +172,7 @@ export const notificationsRouter = router({
     }),
 
   markRead: protectedProcedure
+    .use(actionGuard("notification.mark_read"))
     .input(z.object({ id: z.string() }))
     .output(makeResponseSchema(z.boolean()))
     .mutation(async ({ ctx, input }) => {
@@ -211,6 +215,7 @@ export const notificationsRouter = router({
     }),
 
   markAllRead: protectedProcedure
+    .use(actionGuard("notification.mark_read"))
     .output(makeResponseSchema(z.number()))
     .mutation(async ({ ctx }) => {
       assertNotificationsEnabled();

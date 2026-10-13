@@ -1,6 +1,11 @@
 "use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCan } from "@/domain/permissions/hooks/use-permissions";
+import {
+  orgHubSectionActions,
+  type OrgHubSection,
+} from "@/domain/permissions/org-section-actions";
 import { ORGANIZATION_SECTIONS } from "../config/org-sections";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { OrganizationSectionCard } from "./organization-section-card";

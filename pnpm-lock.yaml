@@ -214,6 +214,9 @@ importers:
 
   packages/actions:
     dependencies:
+      better-auth:
+        specifier: 'catalog:'
+        version: 1.4.15(drizzle-kit@0.31.8)(drizzle-orm@0.45.1(@types/pg@8.16.0)(kysely@0.28.10)(pg@8.17.1))(next@16.1.3(@playwright/test@1.64.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(pg@8.17.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       zod:
         specifier: 'catalog:'
         version: 4.3.5
@@ -279,6 +282,9 @@ importers:
 
   packages/auth:
     dependencies:
+      '@env-manager/actions':
+        specifier: workspace:*
+        version: link:../actions
       '@env-manager/db':
         specifier: workspace:*
         version: link:../db

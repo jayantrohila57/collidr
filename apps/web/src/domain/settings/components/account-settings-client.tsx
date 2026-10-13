@@ -56,6 +56,9 @@ import { formatDateTime } from "@/lib/format";
 import { formatRelativeShort } from "@/lib/format-relative-short";
 import { initialsFromLabel } from "@/lib/initials";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+import { useCan } from "@/domain/permissions/hooks/use-permissions";
+import { accountSettingsActions } from "@/domain/permissions/org-section-actions";
+import { PermissionGate } from "@/domain/permissions/components/permission-gate";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { sessionDeviceLabel } from "@/lib/session-device";
 import { toast } from "@/lib/toast";
@@ -305,6 +308,13 @@ export function AccountSettingsClient() {
     }
   };
 
+  const canProfile = useCan(accountSettingsActions.profile);
+  const canSessions = useCan(accountSettingsActions.sessions);
+  const canAccounts = useCan(accountSettingsActions.accounts);
+  const canExport = useCan(accountSettingsActions.export);
+  const canDelete = useCan(accountSettingsActions.delete);
+  const canTimeline = useCan(accountSettingsActions.timeline);
+
   const timelineLogs = timelineQuery.data?.data ?? [];
   const timelineStatus = timelineQuery.isLoading
     ? "loading"
@@ -327,12 +337,24 @@ export function AccountSettingsClient() {
           size="sm"
           className="h-auto w-full max-w-full justify-start overflow-x-auto"
         >
-          <TabsTab value="profile">Profile</TabsTab>
-          <TabsTab value="sessions">Sessions</TabsTab>
-          <TabsTab value="accounts">Connected accounts</TabsTab>
-          <TabsTab value="export">Export</TabsTab>
-          <TabsTab value="delete">Delete account</TabsTab>
-          <TabsTab value="timeline">Timeline</TabsTab>
+          {canProfile.allowed ? (
+            <TabsTab value="profile">Profile</TabsTab>
+          ) : null}
+          {canSessions.allowed ? (
+            <TabsTab value="sessions">Sessions</TabsTab>
+          ) : null}
+          {canAccounts.allowed ? (
+            <TabsTab value="accounts">Connected accounts</TabsTab>
+          ) : null}
+          {canExport.allowed ? (
+            <TabsTab value="export">Export</TabsTab>
+          ) : null}
+          {canDelete.allowed ? (
+            <TabsTab value="delete">Delete account</TabsTab>
+          ) : null}
+          {canTimeline.allowed ? (
+            <TabsTab value="timeline">Timeline</TabsTab>
+          ) : null}
         </TabsList>
 
         <TabsPanel value="profile" className="min-w-0">
@@ -417,6 +439,7 @@ export function AccountSettingsClient() {
         </TabsPanel>
 
         <TabsPanel value="sessions" className="min-w-0">
+          <PermissionGate action={accountSettingsActions.sessions}>
           <SettingsPanel>
             <SettingsSectionHeader
               title="Sessions"
@@ -507,9 +530,11 @@ export function AccountSettingsClient() {
               </ul>
             )}
           </SettingsPanel>
+          </PermissionGate>
         </TabsPanel>
 
         <TabsPanel value="accounts" className="min-w-0">
+          <PermissionGate action={accountSettingsActions.accounts}>
           <SettingsPanel>
             <SettingsSectionHeader
               title="Connected accounts"
@@ -618,9 +643,11 @@ export function AccountSettingsClient() {
               </SettingsRow>
             ) : null}
           </SettingsPanel>
+          </PermissionGate>
         </TabsPanel>
 
         <TabsPanel value="export" className="min-w-0">
+          <PermissionGate action={accountSettingsActions.export}>
           <SettingsPanel>
             <SettingsSectionHeader
               title="Export my data"
@@ -644,9 +671,11 @@ export function AccountSettingsClient() {
               </SubmitButton>
             </SettingsRow>
           </SettingsPanel>
+          </PermissionGate>
         </TabsPanel>
 
         <TabsPanel value="delete" className="min-w-0">
+          <PermissionGate action={accountSettingsActions.delete}>
           <SettingsPanel className="border-destructive/32 bg-destructive/4">
             <SettingsSectionHeader
               title="Delete account"
@@ -686,9 +715,11 @@ export function AccountSettingsClient() {
               </Button>
             </SettingsRow>
           </SettingsPanel>
+          </PermissionGate>
         </TabsPanel>
 
         <TabsPanel value="timeline" className="min-w-0">
+          <PermissionGate action={accountSettingsActions.timeline}>
           <SettingsPanel>
             <SettingsSectionHeader
               title="Timeline"
@@ -727,6 +758,7 @@ export function AccountSettingsClient() {
               )}
             </div>
           </SettingsPanel>
+          </PermissionGate>
         </TabsPanel>
       </Tabs>
 

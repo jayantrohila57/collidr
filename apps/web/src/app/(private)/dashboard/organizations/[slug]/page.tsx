@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import OrganizationDetailPage from "@/domain/organizations/components/organization-detail-page";
 import { OrganizationsFeatureGate } from "@/domain/organizations/components/organizations-feature-gate";
 import { OrganizationDetailSkeleton } from "@/domain/organizations/components/skeletons";
+import { PermissionGate } from "@/domain/permissions/components/permission-gate";
 import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
 import { getServerSession } from "@/lib/server-auth";
 
@@ -40,9 +41,11 @@ export default async function OrganizationHubPage({
 
   return (
     <OrganizationsFeatureGate>
-      <Suspense fallback={<OrganizationDetailSkeleton />}>
-        <OrganizationDetailPage slug={slug} />
-      </Suspense>
+      <PermissionGate action="organization.hub.view">
+        <Suspense fallback={<OrganizationDetailSkeleton />}>
+          <OrganizationDetailPage slug={slug} />
+        </Suspense>
+      </PermissionGate>
     </OrganizationsFeatureGate>
   );
 }

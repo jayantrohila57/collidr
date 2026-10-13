@@ -9,6 +9,7 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod/v3";
 import { createAuditLog } from "../audit";
 import { throwFriendlyError } from "../errors";
+import { actionGuard } from "../actions/action-guard";
 import { orgProcedure, router } from "../index";
 import { formatEnvironmentRows } from "../variable-format";
 import { isVariablesV2Enabled } from "../variables-v2";
@@ -211,6 +212,7 @@ export const projectsRouter = router({
 
   // Create a new project
   create: orgProcedure
+    .use(actionGuard("project.create"))
     .input(createProjectInput)
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {

@@ -11,6 +11,7 @@
   },
   "scripts": {},
   "dependencies": {
+    "@env-manager/actions": "workspace:*",
     "@env-manager/db": "workspace:*",
     "@env-manager/env": "workspace:*",
     "@env-manager/notifications": "workspace:*",

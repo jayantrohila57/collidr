@@ -15,6 +15,7 @@ import {
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { orgAc, orgBetterAuthRoles } from "@env-manager/actions";
 import { organization } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 
@@ -74,6 +75,8 @@ export const auth = betterAuth({
       ? [
           organization({
             allowUserToCreateOrganization: true,
+            ac: orgAc,
+            roles: orgBetterAuthRoles,
             teams: { enabled: true },
             organizationHooks: {
               beforeDeleteOrganization: async ({ organization: org, user }) => {

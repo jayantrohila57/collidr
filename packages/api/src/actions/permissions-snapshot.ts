@@ -17,6 +17,8 @@ import {
 export type PermissionsSnapshot = {
   platformAdmin: false;
   orgRole: "owner" | "manager" | "member" | null;
+  /** Org member with no manager assignment and no team/project grants. */
+  unassignedMember: boolean;
   actions: Record<string, boolean>;
   blocked: ActionName[];
 };
@@ -36,6 +38,7 @@ export async function buildPermissionsSnapshot(input: {
     return {
       platformAdmin: false,
       orgRole: null,
+      unassignedMember: false,
       actions,
       blocked,
     };
@@ -61,11 +64,18 @@ export async function buildPermissionsSnapshot(input: {
     : null;
 
   let managerHasTimeline = false;
+  let unassignedMember = false;
   if (orgRole === "manager" && input.organizationId) {
     managerHasTimeline = await userHasAnyProjectManagerAssignment(
       input.userId,
       input.organizationId,
     );
+  }
+  if (orgRole === "member" && input.organizationId) {
+    const accessible = await import("../project-list").then((m) =>
+      m.listAccessibleProjectIds(input.userId, input.organizationId),
+    );
+    unassignedMember = (accessible?.length ?? 0) === 0;
   }
 
   for (const name of actionNames) {
@@ -103,6 +113,7 @@ export async function buildPermissionsSnapshot(input: {
   return {
     platformAdmin: false,
     orgRole,
+    unassignedMember,
     actions,
     blocked,
   };

@@ -6,4 +6,5 @@ export * from "./notifications";
 export * from "./organization";
 export * from "./project-access";
 export * from "./projects";
+export * from "./variable-type";
 export * from "./team";

@@ -25,3 +25,11 @@ export function useCan(action: ActionName, options?: { projectId?: string }) {
   const reason = allowed ? undefined : "denied";
   return { allowed, reason, isLoading };
 }
+
+export function useUnassignedOrgMember() {
+  const { data, isLoading } = usePermissionsSnapshot();
+  return {
+    unassigned: Boolean(data?.unassignedMember),
+    isLoading,
+  };
+}

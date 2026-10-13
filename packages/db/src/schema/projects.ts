@@ -11,12 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { organization } from "./organization";
-
-export const environmentVariableTypeEnum = pgEnum("environment_variable_type", [
-  "secret",
-  "config",
-]);
-
+import { environmentVariableTypeEnum } from "./variable-type";
 export const project = pgTable(
   "project",
   {
@@ -78,6 +73,12 @@ export const environment = pgTable(
       .notNull(),
     isProduction: boolean("is_production").default(false).notNull(),
     description: text("description"),
+    createdBy: text("created_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    updatedBy: text("updated_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
     projectId: text("project_id")
       .notNull()
       .references(() => project.id, { onDelete: "cascade" }),
@@ -116,6 +117,15 @@ export const environmentVariable = pgTable(
     encryptedValue: text("encrypted_value").notNull(),
     type: environmentVariableTypeEnum("type").default("secret").notNull(),
     note: text("note"),
+<<<<<<< HEAD
+=======
+    createdBy: text("created_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    updatedBy: text("updated_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+>>>>>>> 261344f (feat(permissions): Better Auth roles, action guards, combined migration)
     environmentId: text("environment_id")
       .notNull()
       .references(() => environment.id, { onDelete: "cascade" }),

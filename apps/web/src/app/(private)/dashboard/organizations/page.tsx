@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { OrganizationsFeatureGate } from "@/domain/organizations/components/organizations-feature-gate";
 import { OrganizationsPageClient } from "@/domain/organizations/components/organizations-page-client";
 import { OrganizationsListSkeleton } from "@/domain/organizations/components/skeletons";
+import { PermissionGate } from "@/domain/permissions/components/permission-gate";
 import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
 import { getServerSession } from "@/lib/server-auth";
 import { siteConfig } from "@/lib/siteConfig";
@@ -31,9 +32,11 @@ export default async function OrganizationsPage() {
 
   return (
     <OrganizationsFeatureGate>
-      <Suspense fallback={<OrganizationsListSkeleton />}>
-        <OrganizationsPageClient />
-      </Suspense>
+      <PermissionGate action="organization.list">
+        <Suspense fallback={<OrganizationsListSkeleton />}>
+          <OrganizationsPageClient />
+        </Suspense>
+      </PermissionGate>
     </OrganizationsFeatureGate>
   );
 }
