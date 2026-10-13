@@ -13,27 +13,39 @@ const VIEW_STORAGE_KEY = "env-manager-projects-view";
 
 export type ProjectsViewMode = "grid" | "list";
 
+const STATUS_VALUES = new Set<ProjectsStatusFilter>([
+  "active",
+  "inactive",
+  "maintenance",
+  "archived",
+]);
+
+const VISIBILITY_VALUES = new Set<ProjectsVisibilityFilter>([
+  "public",
+  "private",
+]);
+
 function readStoredView(): ProjectsViewMode {
   if (typeof window === "undefined") return "list";
   const stored = window.localStorage.getItem(VIEW_STORAGE_KEY);
   return stored === "grid" ? "grid" : "list";
 }
 
-function parseStatus(value: string | null): ProjectsStatusFilter {
-  if (
-    value === "active" ||
-    value === "inactive" ||
-    value === "maintenance" ||
-    value === "archived"
-  ) {
-    return value;
+function parseListParam<T extends string>(
+  value: string | null,
+  allowed: Set<T>,
+): T[] {
+  if (!value?.trim()) return [];
+  const seen = new Set<T>();
+  const result: T[] = [];
+  for (const part of value.split(",")) {
+    const token = part.trim() as T;
+    if (allowed.has(token) && !seen.has(token)) {
+      seen.add(token);
+      result.push(token);
+    }
   }
-  return "all";
-}
-
-function parseVisibility(value: string | null): ProjectsVisibilityFilter {
-  if (value === "public" || value === "private") return value;
-  return "all";
+  return result;
 }
 
 function parseSort(value: string | null): ProjectsSort {
@@ -58,8 +70,11 @@ export function useProjectsListParams() {
   const searchParams = useSearchParams();
 
   const search = searchParams.get("q") ?? "";
-  const status = parseStatus(searchParams.get("status"));
-  const visibility = parseVisibility(searchParams.get("visibility"));
+  const status = parseListParam(searchParams.get("status"), STATUS_VALUES);
+  const visibility = parseListParam(
+    searchParams.get("visibility"),
+    VISIBILITY_VALUES,
+  );
   const sort = parseSort(searchParams.get("sort"));
   const view = parseView(searchParams.get("view"));
 
@@ -84,20 +99,20 @@ export function useProjectsListParams() {
   );
 
   const setStatus = useCallback(
-    (value: ProjectsStatusFilter) => {
+    (value: ProjectsStatusFilter[]) => {
       replaceParams((params) => {
-        if (value === "all") params.delete("status");
-        else params.set("status", value);
+        if (value.length === 0) params.delete("status");
+        else params.set("status", value.join(","));
       });
     },
     [replaceParams],
   );
 
   const setVisibility = useCallback(
-    (value: ProjectsVisibilityFilter) => {
+    (value: ProjectsVisibilityFilter[]) => {
       replaceParams((params) => {
-        if (value === "all") params.delete("visibility");
-        else params.set("visibility", value);
+        if (value.length === 0) params.delete("visibility");
+        else params.set("visibility", value.join(","));
       });
     },
     [replaceParams],
@@ -137,8 +152,8 @@ export function useProjectsListParams() {
   const filtersActive = useMemo(
     () =>
       Boolean(search.trim()) ||
-      status !== "all" ||
-      visibility !== "all" ||
+      status.length > 0 ||
+      visibility.length > 0 ||
       sort !== "updated-desc",
     [search, sort, status, visibility],
   );

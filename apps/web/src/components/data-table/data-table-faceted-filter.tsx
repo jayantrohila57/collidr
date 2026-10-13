@@ -47,6 +47,8 @@ export type DataTableFacetedFilterProps<T extends string = string> = {
   className?: string;
   /** Accessible label for the trigger */
   ariaLabel?: string;
+  /** Override trigger badge count (defaults to applied selection length) */
+  badgeCount?: number;
 } & UseDataTableFacetedFilterOptions<T>;
 
 function FilterTriggerIcon({
@@ -82,6 +84,7 @@ export function DataTableFacetedFilter<T extends string = string>({
   isLoading = false,
   className,
   ariaLabel,
+  badgeCount,
   refetch,
   getResultCount,
   onApplyingChange,
@@ -109,7 +112,7 @@ export function DataTableFacetedFilter<T extends string = string>({
     );
   }, [options, query]);
 
-  const selectedCount = value.length;
+  const selectedCount = badgeCount ?? value.length;
 
   const toggleOption = (optionValue: T, checked: boolean) => {
     if (multiple) {

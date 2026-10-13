@@ -3,6 +3,7 @@
 import { createProjectInput } from "@env-manager/api/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
 import {
@@ -33,6 +34,7 @@ export function CreateProjectSheet({
   onOpenChange,
 }: CreateProjectSheetProps) {
   const router = useRouter();
+  const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const { createProject, isCreating } = useProjects();
 
   const form = useForm({
@@ -60,6 +62,7 @@ export function CreateProjectSheet({
       });
 
       form.reset();
+      closeWithoutPromptRef.current?.();
       onOpenChange(false);
       const slug = result?.data?.slug;
       if (slug) {
@@ -73,7 +76,13 @@ export function CreateProjectSheet({
   };
 
   return (
-    <FormSheet open={open} onOpenChange={onOpenChange}>
+    <FormSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      isDirty={form.formState.isDirty}
+      onDiscard={() => form.reset()}
+      closeWithoutPromptRef={closeWithoutPromptRef}
+    >
       <FormSheetPopup>
         <FormSheetHeader>
           <SheetTitleWithIcon icon="project">
