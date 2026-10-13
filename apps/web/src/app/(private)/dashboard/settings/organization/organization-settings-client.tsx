@@ -285,7 +285,7 @@ export function OrganizationSettingsForm({
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-6" aria-busy="true">
+      <div className="flex flex-col gap-4" aria-busy="true">
         <Skeleton className="h-24 w-full rounded-xl" />
         <Skeleton className="h-32 w-full rounded-xl" />
       </div>
@@ -303,7 +303,7 @@ export function OrganizationSettingsForm({
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <Card>
         <CardHeader>
           <CardTitle>Organization</CardTitle>

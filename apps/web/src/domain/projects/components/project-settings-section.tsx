@@ -52,7 +52,7 @@ export function ProjectSettingsSection({
           Runtime status and who can discover this project.
         </CardDescription>
       </CardHeader>
-      <CardPanel className="flex flex-col gap-6">
+      <CardPanel className="flex flex-col gap-4">
         <div className="space-y-2">
           <p className="font-medium text-sm">Status</p>
           <p className="text-muted-foreground text-sm">

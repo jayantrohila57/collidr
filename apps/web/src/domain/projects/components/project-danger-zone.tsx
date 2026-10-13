@@ -72,7 +72,7 @@ export function ProjectDangerZone({ project }: ProjectDangerZoneProps) {
               </Button>
             </div>
           )}
-          <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 border-t pt-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-muted-foreground text-sm">
               Deleting removes all environments, variables, and history. This
               cannot be undone.

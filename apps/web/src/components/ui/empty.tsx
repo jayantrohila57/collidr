@@ -24,7 +24,7 @@ export function Empty({
   return (
     <div
       className={cn(
-        "flex min-w-0 flex-1 flex-col items-center justify-center gap-6 text-balance px-6 py-12 text-center md:py-20",
+        "flex min-w-0 flex-1 flex-col items-center justify-center gap-4 text-balance px-4 py-8 text-center md:px-6 md:py-12",
         className,
       )}
       data-slot="empty"

@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
-import { Separator } from "./ui/separator";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
@@ -74,7 +73,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
-          <Separator className="my-2 group-data-[collapsible=icon]:hidden" />
           <SidebarGroupContent>
             <SidebarMenu className="flex flex-col gap-1">
               {menuItems.map((item) => {
@@ -98,7 +96,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         <SidebarGroup>
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
-          <Separator className="my-2 group-data-[collapsible=icon]:hidden" />
           <SidebarGroupContent>
             <SidebarMenu className="flex flex-col gap-1">
               {projectsLoading &&

@@ -106,7 +106,7 @@ export default function ProjectList({ onCreateProject }: ProjectListProps) {
       );
     case "success":
       return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           {projectCategories.map((category) => (
             <Collapsible
               key={category.title}
@@ -130,7 +130,7 @@ export default function ProjectList({ onCreateProject }: ProjectListProps) {
                 />
               </CollapsibleTrigger>
               <Separator />
-              <CollapsibleContent className="pt-4">
+              <CollapsibleContent className="pt-2">
                 {category.projects.length > 0 ? (
                   <ProjectsTableView
                     projects={category.projects}

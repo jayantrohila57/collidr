@@ -237,7 +237,7 @@ export function VariablesTableView({
 
   if (variables.length === 0) {
     return (
-      <div className="space-y-4">
+      <div className="flex flex-col gap-3">
         <EmptyState
           icon={Plus}
           title="No variables yet"

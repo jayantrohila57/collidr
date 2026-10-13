@@ -6,7 +6,7 @@ import { siteConfig } from "@/lib/siteConfig";
 
 export default function Header() {
   return (
-    <div className="container mx-auto flex h-16 w-full flex-row items-center justify-between px-5 sm:px-5 md:px-10 lg:px-16">
+    <div className="container mx-auto flex h-14 w-full flex-row items-center justify-between px-4 md:px-6">
       <div className="w-full flex-1">
         <Link href="/" className="flex items-center space-x-2">
           <Avatar className="border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50">

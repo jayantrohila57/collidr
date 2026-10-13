@@ -83,7 +83,7 @@ export default function Pricing() {
   const { data: session, isPending } = useSession();
 
   return (
-    <section id="pricing" className="py-24">
+    <section id="pricing" className="py-12 md:py-16">
       <div>
         <SectionHeading
           badge="Pricing"
@@ -92,7 +92,7 @@ export default function Pricing() {
           description="Choose the perfect plan for your needs. Start free and scale as you grow."
         />
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
           {pricingPlans.map((plan) => (
             <Card key={`plan-${plan.name.toLowerCase()}`}>
               <CardHeader>

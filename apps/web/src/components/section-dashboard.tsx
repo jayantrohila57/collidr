@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import GoBackButton from "@/components/go-back";
 import { Button } from "@/components/ui/button";
+import { pageStackClass } from "@/lib/page-layout";
 
 interface SectionProps {
   title?: string;
@@ -42,7 +43,7 @@ export default function DashboardSection({
     ) : null);
 
   return (
-    <div className="flex min-w-0 flex-col gap-4">
+    <div className={pageStackClass}>
       {showBack ? <GoBackButton /> : null}
       {title ? (
         <div className="flex items-start justify-between gap-4">

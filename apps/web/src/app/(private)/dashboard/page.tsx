@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { DashboardHome } from "@/domain/dashboard/components/dashboard-home";
 import { DashboardPageSkeleton } from "@/domain/dashboard/components/skeletons";
 import { dehydrateDashboardOverview } from "@/lib/dashboard-prefetch";
+import { pageStackClass } from "@/lib/page-layout";
 
 export default async function DashboardPage() {
   const headerList = await headers();
@@ -23,8 +24,8 @@ export default async function DashboardPage() {
     <HydrationBoundary state={dehydratedState}>
       <Suspense
         fallback={
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between gap-4">
+          <div className={pageStackClass}>
+            <div className="flex items-center justify-between gap-3">
               <h1 className="font-semibold text-lg tracking-tight">
                 Dashboard
               </h1>

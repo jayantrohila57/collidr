@@ -74,7 +74,7 @@ const FooterVariants = cva("backdrop-blur-xs", {
       default: "h-full w-full",
     },
     padding: {
-      default: "px-5 sm:px-5 md:px-10 lg:px-16",
+      default: "px-4 md:px-6",
       none: "",
     },
   },
@@ -113,7 +113,7 @@ const MainVariants = cva("relative", {
   variants: {
     variant: {
       default: "flex flex-col",
-      dashboard: "flex flex-1 flex-col gap-4 p-4",
+      dashboard: "flex flex-1 flex-col gap-4 p-4 md:p-6",
       centered: "flex flex-col items-center justify-center py-16",
     },
     scale: {

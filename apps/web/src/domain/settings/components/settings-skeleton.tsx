@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function SettingsPageSkeleton() {
   return (
-    <div className="flex flex-col gap-6" role="status" aria-busy="true">
+    <div className="flex flex-col gap-4" role="status" aria-busy="true">
       <Card>
         <CardHeader>
           <CardTitle>

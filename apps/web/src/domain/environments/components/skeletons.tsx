@@ -56,7 +56,7 @@ function SectionCardSkeleton({
 export function ProjectDetailSkeleton() {
   return (
     <div
-      className="flex w-full flex-col gap-6"
+      className="flex w-full flex-col gap-4"
       role="status"
       aria-live="polite"
       aria-busy="true"

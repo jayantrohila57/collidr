@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { CreateProjectSheet } from "@/domain/projects/components/create-project-sheet";
 import { ProjectsTableView } from "@/domain/projects/components/projects-table-view";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
+import { pageStackClass } from "@/lib/page-layout";
 import { useDashboard } from "../hooks/use-dashboard";
 import { DashboardPageSkeleton } from "./skeletons";
 
@@ -44,8 +45,8 @@ export function DashboardHome() {
 
   return (
     <>
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-4">
+      <div className={pageStackClass}>
+        <div className="flex items-center justify-between gap-3">
           <h1 className="font-semibold text-lg tracking-tight">Dashboard</h1>
           <Button type="button" size="sm" onClick={openCreate}>
             New project
