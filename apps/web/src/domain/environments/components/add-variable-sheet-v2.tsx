@@ -1,7 +1,7 @@
 "use client";
 
 import { variableKeySchema } from "@env-manager/api/validation";
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";
 import {
@@ -11,13 +11,13 @@ import {
   FormSheetHeader,
   FormSheetPopup,
 } from "@/components/patterns/form-sheet";
+import { GuardedSheet } from "@/components/patterns/guarded-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
-  Sheet,
   SheetClose,
   SheetDescription,
   SheetTrigger,
@@ -71,6 +71,7 @@ export function AddVariableSheetV2({
   triggerLayout = "toolbar",
 }: AddVariableSheetV2Props) {
   const isToolbar = triggerLayout === "toolbar";
+  const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const [open, setOpen] = useState(false);
   const [environmentIds, setEnvironmentIds] = useState<string[]>([
     defaultEnvironmentId,
@@ -136,6 +137,7 @@ export function AddVariableSheetV2({
 
     try {
       await onConfirm({ environmentIds, variables: payload });
+      closeWithoutPromptRef.current?.();
       setOpen(false);
       reset();
     } catch {
@@ -158,8 +160,17 @@ export function AddVariableSheetV2({
     }
   };
 
+  const isDirty = useMemo(() => {
+    const envChanged =
+      environmentIds.length !== 1 || environmentIds[0] !== defaultEnvironmentId;
+    const rowsDirty = rows.some(
+      (row) => row.key.trim() || row.value.trim() || row.note.trim(),
+    );
+    return envChanged || rowsDirty || rows.length > 1;
+  }, [defaultEnvironmentId, environmentIds, rows]);
+
   return (
-    <Sheet
+    <GuardedSheet
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
@@ -169,6 +180,10 @@ export function AddVariableSheetV2({
             ids.length > 0 ? ids : [defaultEnvironmentId],
           );
       }}
+      isDirty={isDirty}
+      onDiscard={reset}
+      onClosed={reset}
+      closeWithoutPromptRef={closeWithoutPromptRef}
     >
       <SheetTrigger
         render={
@@ -310,6 +325,6 @@ export function AddVariableSheetV2({
           </FormSheetFooter>
         </FormSheetForm>
       </FormSheetPopup>
-    </Sheet>
+    </GuardedSheet>
   );
 }

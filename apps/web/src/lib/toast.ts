@@ -70,7 +70,7 @@ toastFn.promise = <T>(
     })
     .catch((error: unknown) => {
       if (isBenignClientError(error)) {
-        toastManager.update(id, { title: "", open: false });
+        toastManager.close(id);
         throw error;
       }
       const description =

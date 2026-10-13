@@ -3,7 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   invitationsEmpty,
   membersTableEmpty,
@@ -12,7 +12,6 @@ import { useActiveOrganization } from "@/components/org/active-organization-cont
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { OrganizationMembersTable } from "@/components/org/organization-members-table";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { RoleBadge } from "@/components/patterns/status-badge";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { ErrorState } from "@/components/patterns/error-state";
 import { FormField } from "@/components/patterns/form-field";
@@ -37,6 +36,7 @@ import {
   SettingsTabsTab,
 } from "@/components/patterns/settings-tabs";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
+import { RoleBadge } from "@/components/patterns/status-badge";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import {
   AlertDialog,
@@ -66,18 +66,6 @@ import {
 } from "@/components/ui/select";
 import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
-import { useSession } from "@/domain/auth/lib/auth-actions";
-import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
-import { authClient } from "@/lib/auth-client";
-import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
-import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
-import { isPersonalOrganization } from "@/lib/org-personal";
-import {
-  formatOrganizationCreateError,
-  resolveOrgSlugForSave,
-} from "@/lib/org-slug";
-import { formatDateTime } from "@/lib/format";
-import { toast } from "@/lib/toast";
 import {
   Table,
   TableBody,
@@ -86,6 +74,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useSession } from "@/domain/auth/lib/auth-actions";
+import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
+import { authClient } from "@/lib/auth-client";
+import { isInviteMemberFormDirty } from "@/lib/form-dirty";
+import { formatDateTime } from "@/lib/format";
+import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
+import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
+import { isPersonalOrganization } from "@/lib/org-personal";
+import {
+  formatOrganizationCreateError,
+  resolveOrgSlugForSave,
+} from "@/lib/org-slug";
+import { toast } from "@/lib/toast";
 
 type MemberRow = {
   id: string;
@@ -179,6 +180,8 @@ export function OrganizationSettingsForm({
   const [savePending, setSavePending] = useState(false);
   const [editOrgOpen, setEditOrgOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const editOrgCloseWithoutPromptRef = useRef<(() => void) | null>(null);
+  const inviteCloseWithoutPromptRef = useRef<(() => void) | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirmName, setDeleteConfirmName] = useState("");
   const [deletePending, setDeletePending] = useState(false);
@@ -197,6 +200,13 @@ export function OrganizationSettingsForm({
   );
   const isOwner = myMembership?.role === "owner";
   const isPersonal = isPersonalOrganization({ metadata: orgMetadata });
+
+  const resetInviteFields = useCallback(() => {
+    setInviteEmail("");
+    setInviteRole("member");
+  }, []);
+
+  const inviteIsDirty = isInviteMemberFormDirty(inviteEmail, inviteRole);
 
   const loadOrganization = useCallback(async (targetOrgId: string) => {
     const org = await authClient.organization.getFullOrganization({
@@ -260,7 +270,8 @@ export function OrganizationSettingsForm({
           error: "Could not send invitation",
         },
       );
-      setInviteEmail("");
+      resetInviteFields();
+      inviteCloseWithoutPromptRef.current?.();
       setInviteOpen(false);
       await loadOrganization(organizationId);
       if (isNotificationsEnabledOnClient() && currentUserId) {
@@ -337,6 +348,7 @@ export function OrganizationSettingsForm({
           error: "Could not update organization",
         },
       );
+      editOrgCloseWithoutPromptRef.current?.();
       setEditOrgOpen(false);
       await loadOrganization(organizationId);
       await refreshOrganizations();
@@ -738,7 +750,9 @@ export function OrganizationSettingsForm({
         onDiscard={() => {
           setOrgName(editSnapshot.name);
           setOrgSlug(editSnapshot.slug);
+          setSlugError(undefined);
         }}
+        closeWithoutPromptRef={editOrgCloseWithoutPromptRef}
       >
         <FormSheetPopup>
           <FormSheetHeader>
@@ -795,7 +809,13 @@ export function OrganizationSettingsForm({
         </FormSheetPopup>
       </FormSheet>
 
-      <FormSheet open={inviteOpen} onOpenChange={setInviteOpen}>
+      <FormSheet
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        isDirty={inviteIsDirty}
+        onDiscard={resetInviteFields}
+        closeWithoutPromptRef={inviteCloseWithoutPromptRef}
+      >
         <FormSheetPopup>
           <FormSheetHeader>
             <SheetTitleWithIcon icon="invite">Invite member</SheetTitleWithIcon>

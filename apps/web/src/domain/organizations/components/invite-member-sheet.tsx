@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FormField } from "@/components/patterns/form-field";
 import {
   FormSheet,
@@ -25,6 +25,7 @@ import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
 import { authClient } from "@/lib/auth-client";
+import { isInviteMemberFormDirty } from "@/lib/form-dirty";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { toast } from "@/lib/toast";
 
@@ -48,9 +49,21 @@ export function InviteMemberSheet({
   const { data: session } = useSession();
   const { syncInvitationReceived } = useNotificationMutations();
   const currentUserId = session?.user?.id;
+  const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<string>("member");
   const [invitePending, setInvitePending] = useState(false);
+
+  const resetInviteForm = () => {
+    setInviteEmail("");
+    setInviteRole("member");
+  };
+
+  useEffect(() => {
+    if (!open) resetInviteForm();
+  }, [open]);
+
+  const inviteDirty = isInviteMemberFormDirty(inviteEmail, inviteRole);
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +83,8 @@ export function InviteMemberSheet({
           error: "Could not send invitation",
         },
       );
-      setInviteEmail("");
+      resetInviteForm();
+      closeWithoutPromptRef.current?.();
       onOpenChange(false);
       onInvited?.();
       if (isNotificationsEnabledOnClient() && currentUserId) {
@@ -87,7 +101,13 @@ export function InviteMemberSheet({
   };
 
   return (
-    <FormSheet open={open} onOpenChange={onOpenChange}>
+    <FormSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      isDirty={inviteDirty}
+      onDiscard={resetInviteForm}
+      closeWithoutPromptRef={closeWithoutPromptRef}
+    >
       <FormSheetPopup>
         <FormSheetHeader>
           <SheetTitleWithIcon icon="invite">Invite member</SheetTitleWithIcon>

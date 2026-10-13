@@ -1,13 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { FormField } from "@/components/patterns/form-field";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";
+import { FormField } from "@/components/patterns/form-field";
+import { GuardedDialog } from "@/components/patterns/guarded-dialog";
 import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { isTeamCreateFormDirty } from "@/lib/form-dirty";
 import { appIcons } from "@/lib/icons";
 import { toast } from "@/lib/toast";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
@@ -37,32 +38,44 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
   const [teams, setTeams] = useState<TeamRow[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [teamsEnabled, setTeamsEnabled] = useState(true);
+  const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [teamName, setTeamName] = useState("");
   const [createPending, setCreatePending] = useState(false);
 
+  const resetCreateForm = () => {
+    setTeamName("");
+  };
+
+  useEffect(() => {
+    if (!createOpen) resetCreateForm();
+  }, [createOpen]);
+
   const teamsClient = authClient.organization as OrganizationTeamsClient;
 
-  const loadTeams = useCallback(async (organizationId: string) => {
-    setLoading(true);
-    try {
-      if (!teamsClient.listOrganizationTeams) {
+  const loadTeams = useCallback(
+    async (organizationId: string) => {
+      setLoading(true);
+      try {
+        if (!teamsClient.listOrganizationTeams) {
+          setTeamsEnabled(false);
+          setTeams([]);
+          return;
+        }
+        const result = await teamsClient.listOrganizationTeams({
+          query: { organizationId },
+        });
+        setTeams(result.data ?? []);
+        setTeamsEnabled(true);
+      } catch {
         setTeamsEnabled(false);
         setTeams([]);
-        return;
+      } finally {
+        setLoading(false);
       }
-      const result = await teamsClient.listOrganizationTeams({
-        query: { organizationId },
-      });
-      setTeams(result.data ?? []);
-      setTeamsEnabled(true);
-    } catch {
-      setTeamsEnabled(false);
-      setTeams([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [teamsClient.listOrganizationTeams]);
+    },
+    [teamsClient.listOrganizationTeams],
+  );
 
   useEffect(() => {
     if (!organization?.id) return;
@@ -88,7 +101,8 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
           error: "Could not create team",
         },
       );
-      setTeamName("");
+      resetCreateForm();
+      closeWithoutPromptRef.current?.();
       setCreateOpen(false);
       await loadTeams(organization.id);
     } finally {
@@ -147,7 +161,13 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
         />
       )}
 
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+      <GuardedDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        isDirty={isTeamCreateFormDirty(teamName)}
+        onDiscard={resetCreateForm}
+        closeWithoutPromptRef={closeWithoutPromptRef}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create team</DialogTitle>
@@ -177,7 +197,7 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </GuardedDialog>
     </OrganizationSectionPage>
   );
 }

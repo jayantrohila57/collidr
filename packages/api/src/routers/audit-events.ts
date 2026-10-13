@@ -1,9 +1,9 @@
 import { isActionsAuditEnabled } from "@env-manager/actions";
 import { db } from "@env-manager/db";
-import { user } from "@env-manager/db/schema/auth";
 import { auditEvent } from "@env-manager/db/schema/audit-event";
+import { user } from "@env-manager/db/schema/auth";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, lte, not, or, sql, type SQL } from "drizzle-orm";
+import { and, desc, eq, lte, not, or, type SQL, sql } from "drizzle-orm";
 import { z } from "zod/v3";
 import { requireAction } from "../actions/require-action";
 import { orgAwareProcedure, router } from "../index";
@@ -21,13 +21,15 @@ const listInput = z.object({
 });
 
 function passiveActionFilter() {
-  return not(
-    or(
-      sql`${auditEvent.action} like '%.read'`,
-      sql`${auditEvent.action} like '%.view.%'`,
-      sql`${auditEvent.action} like '%.view'`,
-    ),
+  const passive = or(
+    sql`${auditEvent.action} like '%.read'`,
+    sql`${auditEvent.action} like '%.view.%'`,
+    sql`${auditEvent.action} like '%.view'`,
   );
+  if (!passive) {
+    throw new Error("passiveActionFilter: expected non-empty OR clause");
+  }
+  return not(passive);
 }
 
 export const auditEventsRouter = router({

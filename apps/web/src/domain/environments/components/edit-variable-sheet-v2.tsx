@@ -1,7 +1,7 @@
 "use client";
 
 import { variableKeySchema } from "@env-manager/api/validation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FormField } from "@/components/patterns/form-field";
 import {
   FormSheetBody,
@@ -10,13 +10,14 @@ import {
   FormSheetHeader,
   FormSheetPopup,
 } from "@/components/patterns/form-sheet";
+import { GuardedSheet } from "@/components/patterns/guarded-sheet";
 import type { ProvenanceUser } from "@/components/patterns/provenance-attribution";
 import { ProvenanceDetail } from "@/components/patterns/provenance-attribution";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetClose, SheetDescription } from "@/components/ui/sheet";
+import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -57,21 +58,53 @@ export function EditVariableSheetV2({
   onConfirm,
   isPending,
 }: EditVariableSheetV2Props) {
+  const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const [key, setKey] = useState(variable.key);
   const [value, setValue] = useState(variable.value || "");
   const [type, setType] = useState<VariableType>(variable.type ?? "secret");
   const [note, setNote] = useState(variable.note ?? "");
   const [error, setError] = useState<string | null>(null);
 
+  const baselineKey = variable.key;
+  const baselineValue = variable.value ?? "";
+  const baselineType = variable.type ?? "secret";
+  const baselineNote = variable.note ?? "";
+
   useEffect(() => {
     if (open) {
-      setKey(variable.key);
-      setValue(variable.value ?? "");
-      setType(variable.type ?? "secret");
-      setNote(variable.note ?? "");
+      setKey(baselineKey);
+      setValue(baselineValue);
+      setType(baselineType);
+      setNote(baselineNote);
       setError(null);
     }
-  }, [open, variable.key, variable.value, variable.type, variable.note]);
+  }, [open, baselineKey, baselineValue, baselineType, baselineNote]);
+
+  const isDirty = useMemo(
+    () =>
+      key.trim().toUpperCase() !== baselineKey.trim().toUpperCase() ||
+      value !== baselineValue ||
+      type !== baselineType ||
+      note !== baselineNote,
+    [
+      baselineKey,
+      baselineNote,
+      baselineType,
+      baselineValue,
+      key,
+      note,
+      type,
+      value,
+    ],
+  );
+
+  const revertFields = () => {
+    setKey(baselineKey);
+    setValue(baselineValue);
+    setType(baselineType);
+    setNote(baselineNote);
+    setError(null);
+  };
 
   const validateKey = (rawKey: string) => {
     const result = variableKeySchema.safeParse(rawKey);
@@ -97,6 +130,7 @@ export function EditVariableSheetV2({
         type,
         note: note.trim() || null,
       });
+      closeWithoutPromptRef.current?.();
       onOpenChange(false);
     } catch {
       // Toast + sheet stay open on failure.
@@ -104,7 +138,13 @@ export function EditVariableSheetV2({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <GuardedSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      isDirty={isDirty}
+      onDiscard={revertFields}
+      closeWithoutPromptRef={closeWithoutPromptRef}
+    >
       <FormSheetPopup>
         <FormSheetHeader>
           <SheetTitleWithIcon icon="variable">Edit variable</SheetTitleWithIcon>
@@ -200,6 +240,6 @@ export function EditVariableSheetV2({
           </FormSheetFooter>
         </FormSheetForm>
       </FormSheetPopup>
-    </Sheet>
+    </GuardedSheet>
   );
 }

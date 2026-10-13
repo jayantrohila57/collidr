@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod/v3";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
@@ -51,6 +51,7 @@ export function CreateOrganizationSheet({
   onOpenChange,
 }: CreateOrganizationSheetProps) {
   const router = useRouter();
+  const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const { afterOrganizationCreated } = useActiveOrganization();
   const form = useForm({
     resolver: zodResolver(schema),
@@ -88,6 +89,7 @@ export function CreateOrganizationSheet({
       if (orgId) {
         await afterOrganizationCreated(orgId);
         const slug = result.data?.slug ?? values.slug;
+        closeWithoutPromptRef.current?.();
         onOpenChange(false);
         router.push(`/dashboard/organizations/${slug}` as Route);
       }
@@ -99,7 +101,13 @@ export function CreateOrganizationSheet({
   const pending = form.formState.isSubmitting;
 
   return (
-    <FormSheet open={open} onOpenChange={onOpenChange}>
+    <FormSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      isDirty={form.formState.isDirty}
+      onDiscard={() => form.reset()}
+      closeWithoutPromptRef={closeWithoutPromptRef}
+    >
       <FormSheetPopup>
         <FormSheetHeader>
           <SheetTitleWithIcon icon="organization">

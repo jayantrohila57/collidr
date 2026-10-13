@@ -21,4 +21,28 @@ test.describe("unsaved changes guard", () => {
     await expect(discardDialog).toBeVisible();
     await expect(discardDialog.getByText("Discard changes?")).toBeVisible();
   });
+
+  test("create organization sheet prompts before dismiss", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/dashboard/organizations?create=1");
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await page.getByLabel(/^name$/i).fill("Guard test org");
+    await page.keyboard.press("Escape");
+    const discardDialog = page.getByRole("alertdialog");
+    await expect(discardDialog).toBeVisible();
+    await expect(discardDialog.getByText("Discard changes?")).toBeVisible();
+  });
+
+  test("account profile tab warns before switching tabs", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/dashboard/settings?tab=profile");
+    await page.waitForLoadState("networkidle");
+    const nameInput = page.getByRole("textbox", { name: /display name/i });
+    await nameInput.fill("Guard test name");
+    await page.getByRole("tab", { name: /sessions/i }).click();
+    const discardDialog = page.getByRole("alertdialog");
+    await expect(discardDialog).toBeVisible();
+    await expect(discardDialog.getByText("Discard changes?")).toBeVisible();
+  });
 });
