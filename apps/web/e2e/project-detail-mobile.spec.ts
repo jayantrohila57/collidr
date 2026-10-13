@@ -204,6 +204,52 @@ test.describe("project overview layout", () => {
     });
   });
 
+  const HEADER_ARTIFACT_DIR =
+    process.env.PROJECT_HEADER_SCREENSHOT_DIR ??
+    "/opt/cursor/artifacts/screenshots/project-header-taskflow";
+
+  for (const width of [1280, 1440, 768, 390] as const) {
+    test(`project header taskflow-style @ ${width}px`, async ({
+      page,
+      request,
+    }) => {
+      await seedE2eDemoVariable(request);
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(PROJECT_OVERVIEW_LONG_DESC_PATH);
+      await page.waitForLoadState("networkidle");
+      await setColorScheme(page, "dark");
+
+      const metadata = page.locator('[data-slot="page-header-metadata"]');
+      await expect(metadata.getByText("Slug", { exact: true })).toBeVisible();
+      await expect(
+        metadata.getByText("Updated", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("link", { name: "Repository" }),
+      ).toBeVisible();
+      await expect(page.getByRole("link", { name: "Website" })).toBeVisible();
+      await expect(page.getByText("Repository", { exact: true })).toHaveCount(
+        1,
+      );
+      await expect(page.getByText("Website", { exact: true })).toHaveCount(1);
+
+      const description = page.locator('[data-slot="page-header-description"]');
+      const more = description.getByRole("button", { name: "… more" });
+      await expect(more).toBeVisible();
+      const descBox = await description.boundingBox();
+      const moreBox = await more.boundingBox();
+      if (descBox && moreBox) {
+        expect(moreBox.x).toBeLessThan(descBox.x + descBox.width * 0.92);
+      }
+
+      await assertNoHorizontalOverflow(page);
+      await page.screenshot({
+        path: `${HEADER_ARTIFACT_DIR}/project-header-${width}.png`,
+        fullPage: false,
+      });
+    });
+  }
+
   test("page header description collapsed and expanded @ 1280", async ({
     page,
   }) => {

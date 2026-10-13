@@ -31,6 +31,11 @@ export async function ensureE2eDemoProject() {
     )
     .limit(1);
 
+  const demoUrls = {
+    repositoryUrl: "https://github.com/env-manager/e2e-demo",
+    websiteUrl: "https://example.com/e2e-demo",
+  };
+
   if (!projectRow) {
     const projectId = crypto.randomUUID();
     await db.insert(project).values({
@@ -40,8 +45,11 @@ export async function ensureE2eDemoProject() {
       description: "Seeded for Playwright local verification.",
       userId: userRow.id,
       organizationId: null,
+      ...demoUrls,
     });
     projectRow = { id: projectId };
+  } else {
+    await db.update(project).set(demoUrls).where(eq(project.id, projectRow.id));
   }
 
   const [envRow] = await db

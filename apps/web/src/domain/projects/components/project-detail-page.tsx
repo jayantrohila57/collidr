@@ -21,7 +21,7 @@ import {
 } from "./project-overview-sections";
 
 const E2E_LONG_DESCRIPTION =
-  "Seeded for Playwright local verification. This paragraph is intentionally long so the page header clamps the project description to three lines on desktop and mobile while metadata stays aligned in the header grid without shifting surrounding chrome.";
+  "Taskflow-style workspace for coordinating work across teams. This description is intentionally long so the page header keeps a single truncated line with an inline more control hugging the ellipsis, while metadata stays compact beside the title with repository and website links on one row without duplicate labels.";
 
 interface ProjectDetailPageProps {
   slug: string;
