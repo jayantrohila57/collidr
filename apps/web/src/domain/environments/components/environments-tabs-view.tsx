@@ -116,19 +116,16 @@ export function EnvironmentsTabsView({
         onValueChange={onTabChange}
         className="min-w-0 gap-2"
       >
-        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-          <HorizontalScrollRail className="w-full min-w-0 sm:flex-1">
-            <TabsList
-              size="sm"
-              className="h-auto w-max min-w-full justify-start"
-            >
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <HorizontalScrollRail className="min-w-0 flex-1">
+            <TabsList size="sm" className="h-auto w-fit justify-start">
               {environments.map((env) => {
                 const count = variableCounts[env.id];
                 return (
                   <TabsTab
                     key={env.id}
                     value={env.id}
-                    className="shrink-0 gap-1.5 whitespace-nowrap"
+                    className="shrink-0 grow-0 gap-1.5 whitespace-nowrap"
                   >
                     <span>{env.name}</span>
                     {count !== undefined ? (
@@ -146,7 +143,7 @@ export function EnvironmentsTabsView({
             </TabsList>
           </HorizontalScrollRail>
           {activeEnvironment ? (
-            <div className="flex shrink-0 justify-end sm:justify-start">
+            <div className="ms-auto flex shrink-0">
               <Menu>
                 <Tooltip>
                   <TooltipTrigger

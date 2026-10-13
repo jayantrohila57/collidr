@@ -24,13 +24,20 @@ export function ProjectMetadataRow({
 
   return (
     <div className={cn("flex min-w-0 flex-col gap-2 text-sm", className)}>
-      <dl className="grid gap-x-4 gap-y-1 text-xs sm:grid-cols-[auto_1fr_auto_1fr] sm:items-center">
-        <dt className="text-muted-foreground">Slug</dt>
-        <dd className="truncate font-mono">{project.slug}</dd>
-        <dt className="text-muted-foreground sm:ps-2">Updated</dt>
-        <dd className="truncate tabular-nums">
-          {formatDateTime(project.updatedAt)}
-        </dd>
+      <dl className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <dt className="shrink-0 text-muted-foreground">Slug</dt>
+          <dd className="truncate font-mono">{project.slug}</dd>
+        </div>
+        <span className="hidden text-muted-foreground/40 sm:inline" aria-hidden>
+          ·
+        </span>
+        <div className="flex min-w-0 items-center gap-1.5">
+          <dt className="shrink-0 text-muted-foreground">Updated</dt>
+          <dd className="truncate tabular-nums">
+            {formatDateTime(project.updatedAt)}
+          </dd>
+        </div>
       </dl>
 
       {hasLinks ? (

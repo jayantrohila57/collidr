@@ -127,4 +127,4 @@ export function SettingsField({
   );
 }
 
-export const settingsControlWidthClass = "w-full max-w-sm";
+export const settingsControlWidthClass = "w-full min-w-0";

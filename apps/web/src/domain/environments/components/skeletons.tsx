@@ -61,15 +61,13 @@ export function ProjectDetailSkeleton() {
       aria-live="polite"
       aria-busy="true"
     >
-      <div className="grid gap-x-4 gap-y-1 text-xs sm:grid-cols-[auto_1fr_auto_1fr]">
-        <Skeleton className="h-3 w-10" />
-        <Skeleton className="h-3 w-24" />
-        <Skeleton className="h-3 w-14" />
-        <Skeleton className="h-3 w-28" />
+      <div className="flex flex-wrap items-center gap-3">
+        <Skeleton className="h-3 w-32" />
+        <Skeleton className="h-3 w-36" />
       </div>
 
       <SectionCardSkeleton titleWidth="w-36" descriptionWidth="w-56">
-        <Skeleton className="h-8 w-full max-w-md rounded-lg" />
+        <Skeleton className="h-8 w-fit max-w-full rounded-lg sm:w-64" />
         <VariablesSkeleton />
       </SectionCardSkeleton>
     </div>

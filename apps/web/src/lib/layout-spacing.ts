@@ -17,8 +17,8 @@ export const layoutGutterClass = "p-2";
 /** Dashboard inset horizontal padding — aligns header and scrollable main */
 export const layoutInsetXClass = "px-4 md:px-6";
 
-/** Centered content columns inside the dashboard inset (header + main share this width) */
-export const layoutInsetContainerWideClass = "mx-auto w-full max-w-6xl";
+/** Full-width content inside the dashboard inset (header + main share this width). */
+export const layoutInsetContainerWideClass = "w-full min-w-0";
 export const layoutInsetContainerNarrowClass = layoutInsetContainerWideClass;
 
 /** Default flex gap between blocks — SidebarContent */
