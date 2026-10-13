@@ -1,4 +1,4 @@
-import { protectedProcedure, publicProcedure, router } from "../index";
+import { publicProcedure, router } from "../index";
 import { accountRouter } from "./account";
 import { auditLogsRouter } from "./audit";
 import { auditEventsRouter } from "./audit-events";
@@ -14,12 +14,6 @@ import { environmentVariablesRouter } from "./variables";
 export const appRouter = router({
   healthCheck: publicProcedure.query(() => {
     return "OK";
-  }),
-  privateData: protectedProcedure.query(({ ctx }) => {
-    return {
-      message: "This is private",
-      user: ctx.session.user,
-    };
   }),
   dashboard: dashboardRouter,
   projects: projectsRouter,
