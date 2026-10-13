@@ -27,7 +27,7 @@ export function ProjectCard({ project }: { project: ProjectOutput }) {
   const description = project.description?.trim() || "No description";
 
   return (
-    <Card className="flex h-full min-w-0 flex-col">
+    <Card className="flex h-full w-full min-w-0 flex-col">
       <CardHeader className="gap-2 p-4 pb-2">
         <div className="flex items-start gap-3">
           <Avatar className="size-9 shrink-0">

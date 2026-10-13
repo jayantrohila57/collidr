@@ -101,6 +101,7 @@ export function ProjectsListContent({
             onViewChange={params.setView}
           />
         }
+        primaryAction={newProjectButton}
       />
 
       {filtered.length === 0 ? (
@@ -108,12 +109,7 @@ export function ProjectsListContent({
           emptyNoResults
         ) : null
       ) : params.view === "grid" ? (
-        <div className={cn(layoutSectionStackClass)}>
-          <ProjectsGridView projects={filtered} />
-          {newProjectButton ? (
-            <div className="flex justify-end">{newProjectButton}</div>
-          ) : null}
-        </div>
+        <ProjectsGridView projects={filtered} />
       ) : (
         <ProjectsTableView
           projects={filtered}
