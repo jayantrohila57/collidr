@@ -6,6 +6,7 @@ import {
   StatCardRow,
   StatCardRowSkeleton,
 } from "@/components/patterns/stat-card";
+import { RoleBadge } from "@/components/patterns/status-badge";
 import { useOrgQueryEnabled } from "@/hooks/use-org-query-enabled";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { trpc } from "@/utils/trpc";
@@ -52,7 +53,7 @@ export function OrgSettingsStats() {
     },
     {
       label: "Your role",
-      value: data.role.charAt(0).toUpperCase() + data.role.slice(1),
+      value: <RoleBadge role={data.role} />,
       hint: "Organization permissions",
       icon: "user",
     },

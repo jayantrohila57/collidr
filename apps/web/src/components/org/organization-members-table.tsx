@@ -7,6 +7,7 @@ import {
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import type { DataTableEmptyConfig } from "@/components/data-table/data-table-empty-types";
+import { RoleBadge } from "@/components/patterns/status-badge";
 import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -80,6 +81,10 @@ export function OrganizationMembersTable({
       ),
       cell: ({ row }) => {
         const member = row.original;
+        if (!isOwner) {
+          return <RoleBadge role={member.role} />;
+        }
+
         return (
           <Select
             value={member.role}
@@ -87,15 +92,20 @@ export function OrganizationMembersTable({
             onValueChange={(role) => {
               if (role) onRoleChange(member.id, role);
             }}
-            disabled={rolePendingId === member.id || !isOwner}
+            disabled={rolePendingId === member.id}
           >
-            <SelectTrigger aria-label={`Role for ${member.user.email}`}>
-              <SelectValue />
+            <SelectTrigger
+              aria-label={`Role for ${member.user.email}`}
+              className="h-auto w-fit gap-1.5 border-0 bg-transparent p-0 shadow-none"
+            >
+              <SelectValue>
+                <RoleBadge role={member.role} />
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {ROLES.map((role) => (
                 <SelectItem key={role} value={role}>
-                  {role}
+                  <RoleBadge role={role} />
                 </SelectItem>
               ))}
             </SelectContent>

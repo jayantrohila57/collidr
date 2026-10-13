@@ -6,6 +6,10 @@ import {
   StatCardRow,
   StatCardRowSkeleton,
 } from "@/components/patterns/stat-card";
+import {
+  StatusBadge,
+  VisibilityBadge,
+} from "@/components/patterns/status-badge";
 import { useOrgQueryEnabled } from "@/hooks/use-org-query-enabled";
 import { formatRelativeShort } from "@/lib/format-relative-short";
 import { projectDetailQueryStaleTime } from "@/lib/prefetch-project-detail";
@@ -30,11 +34,6 @@ export function ProjectDetailStats({ slug }: { slug: string }) {
 
   const updatedLabel = formatRelativeShort(data.updatedAt);
 
-  const visibility = data.isPublic ? "Public" : "Private";
-  const statusLabel = data.isArchived
-    ? "Archived"
-    : data.status.replace(/^./, (c) => c.toUpperCase());
-
   const items: StatCardItem[] = [
     {
       label: "Environments",
@@ -56,8 +55,17 @@ export function ProjectDetailStats({ slug }: { slug: string }) {
     },
     {
       label: "Visibility & status",
-      value: visibility,
-      hint: statusLabel,
+      value: (
+        <span className="flex flex-wrap items-center gap-1.5">
+          <VisibilityBadge isPublic={data.isPublic} />
+          {data.isArchived ? (
+            <StatusBadge status="archived" />
+          ) : (
+            <StatusBadge status={data.status} />
+          )}
+        </span>
+      ),
+      hint: "Project access",
       icon: data.isPublic ? "globe" : "lock",
     },
   ];

@@ -7,9 +7,12 @@ import {
   SettingsRow,
   SettingsSectionHeader,
 } from "@/components/patterns/settings-layout";
+import {
+  StatusBadge,
+  VisibilityBadge,
+} from "@/components/patterns/status-badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
-import type { AppIconName } from "@/lib/icons";
 import { toast } from "@/lib/toast";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { ProjectDangerZone } from "./project-danger-zone";
@@ -20,13 +23,7 @@ interface ProjectSettingsSectionProps {
 
 const STATUS_OPTIONS: {
   value: "active" | "inactive" | "maintenance";
-  label: string;
-  icon: AppIconName;
-}[] = [
-  { value: "active", label: "Active", icon: "statusActive" },
-  { value: "inactive", label: "Inactive", icon: "statusInactive" },
-  { value: "maintenance", label: "Maintenance", icon: "statusMaintenance" },
-];
+}[] = [{ value: "active" }, { value: "inactive" }, { value: "maintenance" }];
 
 export function ProjectSettingsSection({
   project,
@@ -63,33 +60,32 @@ export function ProjectSettingsSection({
           description="Operational state for this project."
           icon="statusActive"
         >
-          <Tabs
-            value={project.status}
-            onValueChange={(value) => {
-              if (value) {
-                void handleStatusChange(
-                  value as "active" | "inactive" | "maintenance",
-                );
-              }
-            }}
-          >
-            <TabsList size="sm" className="h-auto w-fit justify-start">
-              {STATUS_OPTIONS.map((option) => (
-                <TabsTab
-                  key={option.value}
-                  value={option.value}
-                  className="gap-2"
-                  disabled={isChangingStatus}
-                >
-                  <AppIcon
-                    name={option.icon}
-                    className="size-3.5 text-current"
-                  />
-                  {option.label}
-                </TabsTab>
-              ))}
-            </TabsList>
-          </Tabs>
+          <div className="flex flex-col items-start gap-2 sm:items-end">
+            <StatusBadge status={project.status} />
+            <Tabs
+              value={project.status}
+              onValueChange={(value) => {
+                if (value) {
+                  void handleStatusChange(
+                    value as "active" | "inactive" | "maintenance",
+                  );
+                }
+              }}
+            >
+              <TabsList size="sm" className="h-auto w-fit justify-start">
+                {STATUS_OPTIONS.map((option) => (
+                  <TabsTab
+                    key={option.value}
+                    value={option.value}
+                    disabled={isChangingStatus}
+                    className="capitalize"
+                  >
+                    {option.value}
+                  </TabsTab>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
         </SettingsRow>
         <SettingsRow
           label="Visibility"
@@ -100,26 +96,29 @@ export function ProjectSettingsSection({
               : "Only organization members can access."
           }
         >
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-fit gap-2"
-            disabled={isTogglingPublic}
-            onClick={() => void toggleProjectPublic()}
-          >
-            {project.isPublic ? (
-              <>
-                <AppIcon name="lock" className="text-current" />
-                Make private
-              </>
-            ) : (
-              <>
-                <AppIcon name="globe" className="text-current" />
-                Make public
-              </>
-            )}
-          </Button>
+          <div className="flex flex-col items-start gap-2 sm:items-end">
+            <VisibilityBadge isPublic={project.isPublic} />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-fit gap-2"
+              disabled={isTogglingPublic}
+              onClick={() => void toggleProjectPublic()}
+            >
+              {project.isPublic ? (
+                <>
+                  <AppIcon name="lock" className="text-current" />
+                  Make private
+                </>
+              ) : (
+                <>
+                  <AppIcon name="globe" className="text-current" />
+                  Make public
+                </>
+              )}
+            </Button>
+          </div>
         </SettingsRow>
       </SettingsPanel>
       <ProjectDangerZone project={project} />

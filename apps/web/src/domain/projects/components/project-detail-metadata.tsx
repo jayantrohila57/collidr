@@ -2,7 +2,10 @@
 
 import type { ProjectOutput } from "@env-manager/api/types";
 import type { ReactNode } from "react";
-import { StatusBadge } from "@/components/patterns/status-badge";
+import {
+  StatusBadge,
+  VisibilityBadge,
+} from "@/components/patterns/status-badge";
 import {
   Card,
   CardDescription,
@@ -49,7 +52,7 @@ export function ProjectDetailMetadata({ project }: ProjectDetailMetadataProps) {
             <StatusBadge status={project.status} />
           </MetadataItem>
           <MetadataItem label="Visibility">
-            {project.isPublic ? "Public" : "Private"}
+            <VisibilityBadge isPublic={project.isPublic} />
           </MetadataItem>
           <MetadataItem label="Archived">
             {project.isArchived ? "Yes" : "No"}

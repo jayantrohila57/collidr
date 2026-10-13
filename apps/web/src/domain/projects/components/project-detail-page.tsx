@@ -3,9 +3,11 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ErrorState } from "@/components/patterns/error-state";
-import { StatusBadge } from "@/components/patterns/status-badge";
+import {
+  StatusBadge,
+  VisibilityBadge,
+} from "@/components/patterns/status-badge";
 import DashboardSection from "@/components/section-dashboard";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
 import { useEnvironments } from "@/domain/environments/hooks/use-environments";
@@ -31,13 +33,9 @@ function ProjectHeaderBadges({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      {isPublic ? (
-        <Badge variant="outline">Public</Badge>
-      ) : (
-        <Badge variant="secondary">Private</Badge>
-      )}
-      {isArchived && <Badge variant="secondary">Archived</Badge>}
-      <StatusBadge status={status} />
+      <VisibilityBadge isPublic={isPublic} />
+      {isArchived ? <StatusBadge status="archived" /> : null}
+      {!isArchived ? <StatusBadge status={status} /> : null}
     </div>
   );
 }

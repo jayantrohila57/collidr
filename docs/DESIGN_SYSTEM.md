@@ -93,7 +93,7 @@ Product concepts map to a single Lucide glyph in `apps/web/src/lib/icons.ts` (`a
 | Tone | `text-muted-foreground` for inline/decorative icons |
 | Spacing | Pair with labels using coss default **`gap-2`** on flex rows (buttons, sheet titles, settings rows) |
 | Tables | Leading avatar or `AppIcon` in the primary column (`TableLeadingCell`); row menus use `rowActions` + tooltip |
-| Status | `StatusBadge` + status keys in the map; visibility uses `lock` / `globe` (`VisibilityBadge`) |
+| Status | `StatusBadge` (outline `sm` + colored dot via coss tokens); `VisibilityBadge` (outline + globe/lock); `RoleBadge` (secondary `sm`); audit columns use `AuditActionBadge` / `AuditEntityBadge` |
 | Links | `github`, `externalLink` with tooltips on outline buttons |
 | Settings | `SettingsSectionHeader` / `SettingsRow` optional `icon` prop; danger sections use `danger` |
 | Sheets | `FormSheet` + `SheetTitleWithIcon`; full viewport height, scrollable body |
