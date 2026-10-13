@@ -1,5 +1,11 @@
 import { isActionsAuditEnabled } from "@env-manager/actions";
+import { z } from "zod/v3";
 import { requireAction } from "../actions/require-action";
+
+export const platformPaginationInput = z.object({
+  limit: z.number().int().min(1).max(100).default(50),
+  offset: z.number().int().min(0).default(0),
+});
 
 export function toIsoString(value: Date | string | null | undefined): string {
   if (value instanceof Date) {
