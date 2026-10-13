@@ -8,7 +8,7 @@ import {
   type LegacyColumnDef,
   useLegacyTable,
 } from "@tanstack/react-table/legacy";
-import { CardFrame } from "@/components/ui/card";
+import { Frame } from "@/components/ui/frame";
 import {
   Table,
   TableBody,
@@ -102,7 +102,7 @@ export function DataTable<TData extends RowData>({
   );
 
   if (framed) {
-    return <CardFrame>{tableMarkup}</CardFrame>;
+    return <Frame className="w-full">{tableMarkup}</Frame>;
   }
 
   return tableMarkup;

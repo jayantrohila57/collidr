@@ -5,19 +5,17 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod/v3";
-import { PageContainer } from "@/components/layout/page-container";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { FormField } from "@/components/patterns/form-field";
-import { PageHeader } from "@/components/patterns/page-header";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardPanel,
-  CardTitle,
-} from "@/components/ui/card";
+  Frame,
+  FrameDescription,
+  FrameHeader,
+  FramePanel,
+  FrameTitle,
+} from "@/components/ui/frame";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -97,74 +95,70 @@ export default function OnboardingClient() {
   };
 
   return (
-    <PageContainer
-      size="narrow"
-      className="mx-auto w-full max-w-lg justify-center"
-    >
-      <PageHeader
-        title="Create your organization"
-        description="Set up a workspace to manage projects and environment variables."
-        showBack={false}
-      />
-      <Card>
-        <CardHeader>
-          <CardTitle>Organization details</CardTitle>
-          <CardDescription>
+    <Frame className="w-full">
+      <FrameHeader>
+        <FrameTitle>Create your organization</FrameTitle>
+        <FrameDescription>
+          Set up a workspace to manage projects and environment variables.
+        </FrameDescription>
+      </FrameHeader>
+      <FramePanel>
+        <FrameHeader>
+          <FrameTitle>Organization details</FrameTitle>
+          <FrameDescription>
             Choose a name and URL slug for your workspace.
-          </CardDescription>
-        </CardHeader>
-        <CardPanel>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <FormField
-                  id="org-name"
-                  label="Organization name"
-                  required
-                  error={fieldState.error?.message}
-                >
-                  <Input {...field} id="org-name" placeholder="Acme Inc." />
-                </FormField>
-              )}
-            />
-            <Controller
-              name="slug"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <FormField
-                  id="org-slug"
-                  label="URL slug"
-                  required
-                  hint="Slugs use lowercase letters, numbers, and hyphens."
-                  error={fieldState.error?.message}
-                >
-                  <OrgSlugInput
-                    id="org-slug"
-                    placeholder="acme-inc"
-                    autoComplete="off"
-                    value={field.value}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                    ref={field.ref}
-                  />
-                </FormField>
-              )}
-            />
-            <div className="flex justify-end pt-2">
-              <SubmitButton
-                isLoading={isBusy}
-                loadingLabel="Creating…"
-                disabled={!form.formState.isValid || isBusy}
+          </FrameDescription>
+        </FrameHeader>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Controller
+            name="name"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <FormField
+                id="org-name"
+                label="Organization name"
+                required
+                error={fieldState.error?.message}
               >
-                Continue
-              </SubmitButton>
-            </div>
-          </form>
-        </CardPanel>
-      </Card>
-    </PageContainer>
+                <Input {...field} id="org-name" placeholder="Acme Inc." />
+              </FormField>
+            )}
+          />
+          <Controller
+            name="slug"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <FormField
+                id="org-slug"
+                label="URL slug"
+                required
+                hint="Slugs use lowercase letters, numbers, and hyphens."
+                error={fieldState.error?.message}
+              >
+                <OrgSlugInput
+                  id="org-slug"
+                  placeholder="acme-inc"
+                  autoComplete="off"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                />
+              </FormField>
+            )}
+          />
+          <div className="flex justify-end pt-2">
+            <SubmitButton
+              isLoading={isBusy}
+              loadingLabel="Creating…"
+              disabled={!form.formState.isValid || isBusy}
+            >
+              Continue
+            </SubmitButton>
+          </div>
+        </form>
+      </FramePanel>
+    </Frame>
   );
 }

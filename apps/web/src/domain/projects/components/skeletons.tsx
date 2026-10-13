@@ -37,6 +37,7 @@ export function ProjectsSkeleton() {
             data={[]}
             isLoading
             skeletonRowCount={4}
+            framed
           />
         </div>
       </div>

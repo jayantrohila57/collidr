@@ -1,6 +1,11 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import {
+  FrameDescription,
+  FrameHeader,
+  FrameTitle,
+} from "@/components/ui/frame";
 
 interface SectionHeadingProps {
   badge?: string;
@@ -18,19 +23,15 @@ export default function SectionHeading({
   badgeVariant = "outline",
 }: SectionHeadingProps) {
   return (
-    <div className="mb-16">
-      {badge && (
-        <Badge variant={badgeVariant} className="mb-4">
-          {badge}
-        </Badge>
-      )}
-      <h2 className="mb-4 font-bold text-2xl tracking-tight sm:text-4xl lg:text-5xl">
+    <FrameHeader>
+      {badge ? <Badge variant={badgeVariant}>{badge}</Badge> : null}
+      <FrameTitle>
         {title}
-        {titleHighlight && (
+        {titleHighlight ? (
           <span className="block text-primary">{titleHighlight}</span>
-        )}
-      </h2>
-      <p className="text-lg text-muted-foreground">{description}</p>
-    </div>
+        ) : null}
+      </FrameTitle>
+      <FrameDescription>{description}</FrameDescription>
+    </FrameHeader>
   );
 }

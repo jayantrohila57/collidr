@@ -154,6 +154,7 @@ export function ProjectsTableView({
       isLoading={isLoading}
       emptyMessage={emptyMessage}
       caption={caption}
+      framed
     />
   );
 }

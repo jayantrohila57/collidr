@@ -2,11 +2,11 @@
 
 import { ErrorState } from "@/components/patterns/error-state";
 import {
-  CardFrame,
-  CardFrameAction,
-  CardFrameHeader,
-  CardFrameTitle,
-} from "@/components/ui/card";
+  Frame,
+  FrameHeader,
+  FramePanel,
+  FrameTitle,
+} from "@/components/ui/frame";
 import { useVariables } from "../hooks/use-variables";
 import { AddVariableDialog } from "./add-variable-dialog";
 import { VariablesSkeleton } from "./skeletons";
@@ -60,15 +60,14 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
 
   if (status === "loading") {
     return (
-      <CardFrame>
-        <CardFrameHeader>
-          <CardFrameTitle>Variables</CardFrameTitle>
-          <CardFrameAction>
-            <div className="h-7 w-28 shrink-0" aria-hidden />
-          </CardFrameAction>
-        </CardFrameHeader>
-        <VariablesSkeleton />
-      </CardFrame>
+      <Frame>
+        <FrameHeader>
+          <FrameTitle>Variables</FrameTitle>
+        </FrameHeader>
+        <FramePanel>
+          <VariablesSkeleton />
+        </FramePanel>
+      </Frame>
     );
   }
 
@@ -83,25 +82,25 @@ export function EnvironmentPanel({ environmentId }: { environmentId: string }) {
   }
 
   return (
-    <CardFrame>
-      <CardFrameHeader>
-        <CardFrameTitle>Variables</CardFrameTitle>
-        <CardFrameAction>
-          <AddVariableDialog onConfirm={handleCreate} isPending={isCreating} />
-        </CardFrameAction>
-      </CardFrameHeader>
-      <VariablesTableView
-        variables={variablesWithValues}
-        revealedIds={revealedIds}
-        revealingIds={revealingIds}
-        onReveal={toggleReveal}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onAddVariable={handleCreate}
-        onFetchValue={fetchVariableValue}
-        isAddingVariable={isCreating}
-        isUpdating={isUpdating}
-      />
-    </CardFrame>
+    <Frame>
+      <FrameHeader>
+        <FrameTitle>Variables</FrameTitle>
+        <AddVariableDialog onConfirm={handleCreate} isPending={isCreating} />
+      </FrameHeader>
+      <FramePanel>
+        <VariablesTableView
+          variables={variablesWithValues}
+          revealedIds={revealedIds}
+          revealingIds={revealingIds}
+          onReveal={toggleReveal}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onAddVariable={handleCreate}
+          onFetchValue={fetchVariableValue}
+          isAddingVariable={isCreating}
+          isUpdating={isUpdating}
+        />
+      </FramePanel>
+    </Frame>
   );
 }

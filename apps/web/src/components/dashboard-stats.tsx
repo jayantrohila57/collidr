@@ -46,6 +46,7 @@ import type {
   // ChartTooltipContent,
   ChartConfig,
 } from "@/components/ui/chart";
+import { Frame, FrameHeader, FrameTitle } from "@/components/ui/frame";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { DashboardPageSkeleton } from "@/domain/dashboard/components/skeletons";
@@ -286,21 +287,17 @@ export default function DashboardStats() {
       </div>
 
       {activity && (
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Projects</CardTitle>
-            </CardHeader>
-            <CardPanel>
-              <DataTable
-                columns={recentProjectColumns}
-                data={activity.recentProjects}
-                emptyMessage="No projects yet"
-                caption="Recently created projects"
-              />
-            </CardPanel>
-          </Card>
-        </div>
+        <Frame className="w-full">
+          <FrameHeader>
+            <FrameTitle>Recent Projects</FrameTitle>
+          </FrameHeader>
+          <DataTable
+            columns={recentProjectColumns}
+            data={activity.recentProjects}
+            emptyMessage="No projects yet"
+            caption="Recently created projects"
+          />
+        </Frame>
       )}
     </div>
   );

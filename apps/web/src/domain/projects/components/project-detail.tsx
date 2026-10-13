@@ -6,7 +6,12 @@ import type { Route } from "next";
 import Link from "next/link";
 import { TruncatedText } from "@/components/patterns/truncated-text";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardPanel, CardTitle } from "@/components/ui/card";
+import {
+  Frame,
+  FrameHeader,
+  FramePanel,
+  FrameTitle,
+} from "@/components/ui/frame";
 import {
   Tooltip,
   TooltipContent,
@@ -41,88 +46,88 @@ export default function ProjectDetail({
   const hasLinks = Boolean(project.repositoryUrl || project.websiteUrl);
 
   return (
-    <div className="flex min-w-0 max-w-full flex-col gap-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>About this project</CardTitle>
-        </CardHeader>
-        <CardPanel>
-          <TruncatedText
-            text={project.description ?? ""}
-            emptyFallback="No description provided."
-          />
-          {hasLinks && (
-            <div className="flex flex-wrap items-center gap-2">
-              {project.repositoryUrl && (
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        render={
-                          <Link
-                            href={project.repositoryUrl as Route}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          />
-                        }
-                      />
-                    }
-                  >
-                    <Github className="h-4 w-4" aria-hidden />
-                    Repository
-                  </TooltipTrigger>
-                  <TooltipContent>Open GitHub repository</TooltipContent>
-                </Tooltip>
-              )}
-              {project.websiteUrl && (
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        render={
-                          <Link
-                            href={project.websiteUrl as Route}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          />
-                        }
-                      />
-                    }
-                  >
-                    <Globe className="h-4 w-4" aria-hidden />
-                    Website
-                  </TooltipTrigger>
-                  <TooltipContent>Open project website</TooltipContent>
-                </Tooltip>
-              )}
-            </div>
-          )}
-        </CardPanel>
-      </Card>
-      <EnvironmentsTabsView
-        environments={environments}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        onCreate={async (name) => {
-          if (!projectId) return;
-          await createEnvironment({ projectId, name });
-        }}
-        onUpdate={async (id, name) => {
-          await updateEnvironment({ id, name });
-        }}
-        onDelete={async (id) => {
-          await deleteEnvironment({ id });
-        }}
-        isCreating={isCreating}
-        isUpdating={isUpdating}
-        isDeleting={isDeleting}
-      >
-        {(env) => <EnvironmentPanel environmentId={env.id} />}
-      </EnvironmentsTabsView>
-    </div>
+    <Frame className="w-full">
+      <FrameHeader>
+        <FrameTitle>About this project</FrameTitle>
+      </FrameHeader>
+      <FramePanel>
+        <TruncatedText
+          text={project.description ?? ""}
+          emptyFallback="No description provided."
+        />
+        {hasLinks && (
+          <div className="flex flex-wrap items-center gap-2">
+            {project.repositoryUrl && (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      render={
+                        <Link
+                          href={project.repositoryUrl as Route}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        />
+                      }
+                    />
+                  }
+                >
+                  <Github className="h-4 w-4" aria-hidden />
+                  Repository
+                </TooltipTrigger>
+                <TooltipContent>Open GitHub repository</TooltipContent>
+              </Tooltip>
+            )}
+            {project.websiteUrl && (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      render={
+                        <Link
+                          href={project.websiteUrl as Route}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        />
+                      }
+                    />
+                  }
+                >
+                  <Globe className="h-4 w-4" aria-hidden />
+                  Website
+                </TooltipTrigger>
+                <TooltipContent>Open project website</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        )}
+      </FramePanel>
+      <FramePanel>
+        <EnvironmentsTabsView
+          environments={environments}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onCreate={async (name) => {
+            if (!projectId) return;
+            await createEnvironment({ projectId, name });
+          }}
+          onUpdate={async (id, name) => {
+            await updateEnvironment({ id, name });
+          }}
+          onDelete={async (id) => {
+            await deleteEnvironment({ id });
+          }}
+          isCreating={isCreating}
+          isUpdating={isUpdating}
+          isDeleting={isDeleting}
+        >
+          {(env) => <EnvironmentPanel environmentId={env.id} />}
+        </EnvironmentsTabsView>
+      </FramePanel>
+    </Frame>
   );
 }

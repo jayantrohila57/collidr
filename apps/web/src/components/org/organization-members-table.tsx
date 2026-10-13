@@ -91,6 +91,7 @@ export function OrganizationMembersTable({
       data={members}
       caption="Organization members"
       emptyMessage="No members yet."
+      framed
     />
   );
 }

@@ -44,11 +44,8 @@ See `docs/COSS_MIGRATION.md` for the full migration map.
 
 | Component | Path |
 |-----------|------|
-| `PageContainer` | `apps/web/src/components/layout/page-container.tsx` |
-| `PageSection` | `apps/web/src/components/layout/page-section.tsx` |
-| `PageShell` | `apps/web/src/components/layout/page-shell.tsx` |
+| `Frame` (page/section layout) | `apps/web/src/components/ui/frame.tsx` |
 | `FormSection` | `apps/web/src/components/layout/form-section.tsx` |
-| `PageHeader` | `apps/web/src/components/patterns/page-header.tsx` |
 
 Use coss defaults for control density and visuals—avoid custom overrides on generated `ui/*` primitives.
 

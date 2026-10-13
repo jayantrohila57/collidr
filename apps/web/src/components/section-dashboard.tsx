@@ -1,5 +1,16 @@
+import type { Route } from "next";
+import Link from "next/link";
 import type { ReactNode } from "react";
-import { PageShell } from "@/components/layout/page-shell";
+import GoBackButton from "@/components/go-back";
+import { Button } from "@/components/ui/button";
+import {
+  Frame,
+  FrameDescription,
+  FrameFooter,
+  FrameHeader,
+  FramePanel,
+  FrameTitle,
+} from "@/components/ui/frame";
 
 interface SectionProps {
   title?: string;
@@ -26,17 +37,37 @@ export default function DashboardSection({
   showBack = true,
 }: SectionProps) {
   const resolvedActionHref = actionHref ?? actionUrl;
+  const trailingAction =
+    action ??
+    (actionLabel && resolvedActionHref ? (
+      <Button
+        variant="default"
+        render={<Link href={resolvedActionHref as Route} />}
+      >
+        {actionLabel}
+      </Button>
+    ) : null);
+
   return (
-    <PageShell
-      title={title}
-      description={description}
-      titleAccessory={titleAccessory}
-      action={action}
-      actionLabel={actionLabel}
-      actionHref={resolvedActionHref}
-      showBack={showBack}
-    >
-      {children}
-    </PageShell>
+    <Frame>
+      {showBack ? (
+        <FramePanel>
+          <GoBackButton />
+        </FramePanel>
+      ) : null}
+      {title ? (
+        <FrameHeader>
+          <FrameTitle>
+            {title}
+            {titleAccessory}
+          </FrameTitle>
+          {description ? (
+            <FrameDescription>{description}</FrameDescription>
+          ) : null}
+        </FrameHeader>
+      ) : null}
+      <FramePanel>{children}</FramePanel>
+      {trailingAction ? <FrameFooter>{trailingAction}</FrameFooter> : null}
+    </Frame>
   );
 }
