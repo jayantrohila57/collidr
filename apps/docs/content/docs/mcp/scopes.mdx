@@ -1,30 +1,28 @@
 ---
 title: OAuth scopes
-description: Indicative MCP OAuth scopes for Env Manager clients.
+description: MCP OAuth scopes from MCP_OAUTH_SCOPES and requiredOAuthScopesForAction.
 ---
 
 MCP clients obtain tokens from **`apps/auth`** (Better Auth OAuth 2.1 + MCP plugin). Scopes are coarse-grained; each tool still checks the canonical action at runtime.
 
-## Scope reference
+## Advertised scopes
 
-| Scope | Grants access to |
+From `MCP_OAUTH_SCOPES` in `@env-manager/actions`:
+
+| Scope | Purpose |
 | --- | --- |
-| `organizations:read` | Organization metadata, teams, invitations (read) |
-| `projects:read` | Projects and environments (read) |
-| `variables:read` | Variable metadata without secret values |
-| `variables:reveal` | Decrypt and return secret values |
-| `variables:write` | Create, update, delete variables |
-| `variables:export` | Bulk export flows |
-| `audit:read` | Timeline / audit events |
-| `notifications:read` | In-app notifications |
-| `account:read` | Self-scoped account operations (not exposed as MCP tools) |
-| `platform:admin` | Platform operator APIs (console only — **not** MCP) |
+| `openid`, `profile`, `offline_access` | Standard OAuth |
+| `mcp:tools` | **Required** base scope for any MCP tool |
+| `organizations:read` / `organizations:write` | Org, member, team, invitation tools |
+| `projects:read` / `projects:write` | Projects and environments |
+| `variables:read` / `variables:write` | Variable metadata and mutations |
+| `variables:reveal` | Decrypted secret values |
+| `variables:export` | Bulk export |
+| `audit:read` | Timeline tools |
+| `notifications:read` / `notifications:write` | Notification tools |
+
+`requiredOAuthScopesForAction(action)` maps each canonical action to `mcp:tools` plus one resource scope. Platform actions use `platform:admin` and are **not** exposed via MCP product tools.
 
 ## Public documentation
 
-All scope and tool documentation is **public** — knowing a scope name does not grant access without a valid token and passing `requireAction` checks.
-
-## Auth & studio links
-
-- **Sign in** — configure `NEXT_PUBLIC_AUTH_URL` (phase 1: `https://auth-env-manager.vercel.app`)
-- **Studio** — configure `NEXT_PUBLIC_STUDIO_URL` (phase 1: current web dashboard URL)
+Documenting scope names does not grant access — callers still need a valid token and passing RBAC checks.

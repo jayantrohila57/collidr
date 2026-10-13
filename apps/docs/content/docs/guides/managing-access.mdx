@@ -1,0 +1,22 @@
+---
+title: Managing access
+description: Project managers, teams, and member grants.
+---
+
+Access beyond org role uses app tables evaluated after `requireAction`:
+
+| Mechanism | Action examples |
+| --- | --- |
+| Project manager | `project.assign_manager` |
+| Team on project | `project.assign_team` |
+| Per-member grants | `project.permission.grant` with a `grants` string array |
+
+Many environment and variable mutations set `requiresProjectGrant: true` in the registry — members need explicit grants even when they belong to the org.
+
+## Blocks
+
+`action_block` rows can deny specific actions for a user, project, or organization. Blocks are checked before role evaluation.
+
+## MCP
+
+Use `project_assign_manager`, `project_assign_team`, and `project_permission_grant` with organization context. Read project metadata with `project_read` (`projects:read`).

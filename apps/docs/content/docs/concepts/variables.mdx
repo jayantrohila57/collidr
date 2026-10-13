@@ -1,0 +1,18 @@
+---
+title: Variables
+description: Encrypted configuration values, reveal, export, and bulk import.
+---
+
+**Variables** hold configuration and secrets for an environment. List and metadata endpoints mask secret values; `variable.reveal` and MCP `variable_reveal` return decrypted values when authorized and when the token includes `variables:reveal`.
+
+## Actions
+
+| Operation | Action |
+| --- | --- |
+| List / metadata | `variable.read` |
+| Create / update / delete | `variable.create`, `variable.update`, `variable.delete` |
+| Decrypt value | `variable.reveal` (scope `variables:reveal`) |
+| Bulk | `variable.bulk_import`, `variable.export` (`variables:export`) |
+| Restore | `variable.restore` |
+
+The variables router in `@env-manager/api` encrypts values on write using `@env-manager/crypto`.

@@ -1,4 +1,18 @@
 {
   "title": "Documentation",
-  "pages": ["index", "getting-started", "api", "mcp"]
+  "pages": [
+    "index",
+    "getting-started",
+    "---Concepts---",
+    "concepts",
+    "---Guides---",
+    "guides",
+    "---MCP---",
+    "mcp",
+    "---API---",
+    "api",
+    "---Deploy---",
+    "deploy",
+    "faq"
+  ]
 }

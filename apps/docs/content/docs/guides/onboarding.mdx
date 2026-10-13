@@ -1,0 +1,24 @@
+---
+title: Onboarding
+description: First sign-in, organization, and project setup.
+---
+
+## 1. Sign in
+
+Use **Sign in** in the header (or the marketing site) to open `apps/auth` with `return_to` pointing at studio `/dashboard`. Authentication is GitHub OAuth via Better Auth.
+
+## 2. Create or join an organization
+
+After sign-in, create an organization or accept an invitation (`invitation.accept`). Members need at least `organization.list` and `organization.view` (all org roles include list/view for members).
+
+## 3. Create a project and environments
+
+Create a project (`project.create`), then add environments (`environment.create`). Managers and owners can create projects; members may need project grants for write operations.
+
+## 4. Add variables
+
+Use the studio UI or MCP tools `variable_create` / `variable_bulk_import` with `variables:write`. Secrets are encrypted on the server before insert.
+
+## 5. Optional features
+
+Enable paired server and `NEXT_PUBLIC_*` flags for organizations UI, notifications, variables v2, audit timeline, and soft deletes — see [Self-hosting](/docs/deploy/self-hosting).

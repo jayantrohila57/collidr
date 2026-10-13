@@ -1,0 +1,1955 @@
+[
+  {
+    "action": "audit.timeline.view.org",
+    "toolName": "audit_timeline_view_org",
+    "description": "View organization audit timeline",
+    "scopes": ["mcp:tools", "audit:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/audit_timeline_view_org",
+      "definitions": {
+        "audit_timeline_view_org": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "action": {
+              "type": "string"
+            },
+            "cursor": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "audit.timeline.view.project",
+    "toolName": "audit_timeline_view_project",
+    "description": "View project audit timeline",
+    "scopes": ["mcp:tools", "audit:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/audit_timeline_view_project",
+      "definitions": {
+        "audit_timeline_view_project": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "projectId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "cursor": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "required": ["projectId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "audit.timeline.view.user",
+    "toolName": "audit_timeline_view_user",
+    "description": "View another user audit timeline",
+    "scopes": ["mcp:tools", "audit:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/audit_timeline_view_user",
+      "definitions": {
+        "audit_timeline_view_user": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "targetUserId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "cursor": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "required": ["targetUserId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "environment.create",
+    "toolName": "environment_create",
+    "description": "Create environment",
+    "scopes": ["mcp:tools", "projects:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/environment_create",
+      "definitions": {
+        "environment_create": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "projectId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9 _-]*$"
+            },
+            "slug": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "branch": {
+              "type": "string"
+            },
+            "deployedUrl": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "not": {}
+                    },
+                    {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  ]
+                },
+                {
+                  "type": "string",
+                  "const": ""
+                }
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": ["active", "inactive", "building", "failed"],
+              "default": "active"
+            },
+            "isProduction": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": ["projectId", "name"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "environment.delete",
+    "toolName": "environment_delete",
+    "description": "Delete environment",
+    "scopes": ["mcp:tools", "projects:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/environment_delete",
+      "definitions": {
+        "environment_delete": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "environment.read",
+    "toolName": "environment_read",
+    "description": "Read environment",
+    "scopes": ["mcp:tools", "projects:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/environment_read",
+      "definitions": {
+        "environment_read": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "projectId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "environment.restore",
+    "toolName": "environment_restore",
+    "description": "Restore environment",
+    "scopes": ["mcp:tools", "projects:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/environment_restore",
+      "definitions": {
+        "environment_restore": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "projectId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "environmentId": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": ["projectId", "environmentId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "environment.update",
+    "toolName": "environment_update",
+    "description": "Update environment",
+    "scopes": ["mcp:tools", "projects:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/environment_update",
+      "definitions": {
+        "environment_update": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9 _-]*$"
+            },
+            "slug": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "branch": {
+              "type": "string"
+            },
+            "deployedUrl": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "not": {}
+                    },
+                    {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  ]
+                },
+                {
+                  "type": "string",
+                  "const": ""
+                }
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": ["active", "inactive", "building", "failed"]
+            },
+            "isProduction": {
+              "type": "boolean"
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "invitation.accept",
+    "toolName": "invitation_accept",
+    "description": "Accept invitation",
+    "scopes": ["mcp:tools", "organizations:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/invitation_accept",
+      "definitions": {
+        "invitation_accept": {
+          "type": "object",
+          "properties": {
+            "invitationId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["invitationId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager", "member"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "invitation.cancel",
+    "toolName": "invitation_cancel",
+    "description": "Cancel invitation",
+    "scopes": ["mcp:tools", "organizations:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/invitation_cancel",
+      "definitions": {
+        "invitation_cancel": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "invitationId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["invitationId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "invitation.reject",
+    "toolName": "invitation_reject",
+    "description": "Reject invitation",
+    "scopes": ["mcp:tools", "organizations:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/invitation_reject",
+      "definitions": {
+        "invitation_reject": {
+          "type": "object",
+          "properties": {
+            "invitationId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["invitationId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager", "member"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "member.invite",
+    "toolName": "member_invite",
+    "description": "Invite member to organization",
+    "scopes": ["mcp:tools", "organizations:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/member_invite",
+      "definitions": {
+        "member_invite": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "role": {
+              "type": "string"
+            },
+            "teamId": {
+              "type": "string"
+            }
+          },
+          "required": ["email"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "member.list",
+    "toolName": "member_list",
+    "description": "List organization members",
+    "scopes": ["mcp:tools", "organizations:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/member_list",
+      "definitions": {
+        "member_list": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "member.remove",
+    "toolName": "member_remove",
+    "description": "Remove organization member",
+    "scopes": ["mcp:tools", "organizations:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/member_remove",
+      "definitions": {
+        "member_remove": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "userId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["userId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "member.role.update",
+    "toolName": "member_role_update",
+    "description": "Update member role",
+    "scopes": ["mcp:tools", "organizations:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/member_role_update",
+      "definitions": {
+        "member_role_update": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "userId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "role": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["userId", "role"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "organization.create",
+    "toolName": "organization_create",
+    "description": "Create organization",
+    "scopes": ["mcp:tools", "organizations:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/organization_create",
+      "definitions": {
+        "organization_create": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "slug": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["name"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "organization.delete",
+    "toolName": "organization_delete",
+    "description": "Delete organization",
+    "scopes": ["mcp:tools", "organizations:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/organization_delete",
+      "definitions": {
+        "organization_delete": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "organization.hub.view",
+    "toolName": "organization_hub_view",
+    "description": "View organization hub",
+    "scopes": ["mcp:tools", "organizations:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/organization_hub_view",
+      "definitions": {
+        "organization_hub_view": {
+          "type": "object",
+          "properties": {
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["organizationSlug"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager", "member"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "organization.list",
+    "toolName": "organization_list",
+    "description": "List organizations",
+    "scopes": ["mcp:tools", "organizations:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/organization_list",
+      "definitions": {
+        "organization_list": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager", "member"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "organization.restore",
+    "toolName": "organization_restore",
+    "description": "Restore soft-deleted organization",
+    "scopes": ["mcp:tools", "organizations:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/organization_restore",
+      "definitions": {
+        "organization_restore": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["organizationId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "organization.settings.update",
+    "toolName": "organization_settings_update",
+    "description": "Update organization settings",
+    "scopes": ["mcp:tools", "organizations:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/organization_settings_update",
+      "definitions": {
+        "organization_settings_update": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "logo": {
+              "type": ["string", "null"]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "organization.settings.view",
+    "toolName": "organization_settings_view",
+    "description": "View organization settings",
+    "scopes": ["mcp:tools", "organizations:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/organization_settings_view",
+      "definitions": {
+        "organization_settings_view": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "organization.transfer_ownership",
+    "toolName": "organization_transfer_ownership",
+    "description": "Transfer organization ownership",
+    "scopes": ["mcp:tools", "organizations:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/organization_transfer_ownership",
+      "definitions": {
+        "organization_transfer_ownership": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "targetUserId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["targetUserId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "organization.update",
+    "toolName": "organization_update",
+    "description": "Update organization",
+    "scopes": ["mcp:tools", "organizations:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/organization_update",
+      "definitions": {
+        "organization_update": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "logo": {
+              "type": ["string", "null"]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "organization.view",
+    "toolName": "organization_view",
+    "description": "View organization",
+    "scopes": ["mcp:tools", "organizations:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/organization_view",
+      "definitions": {
+        "organization_view": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager", "member"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "project.archive",
+    "toolName": "project_archive",
+    "description": "Archive project",
+    "scopes": ["mcp:tools", "projects:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/project_archive",
+      "definitions": {
+        "project_archive": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "project.assign_manager",
+    "toolName": "project_assign_manager",
+    "description": "Assign project manager",
+    "scopes": ["mcp:tools", "projects:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/project_assign_manager",
+      "definitions": {
+        "project_assign_manager": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "projectId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "userId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["projectId", "userId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "project.assign_team",
+    "toolName": "project_assign_team",
+    "description": "Assign team to project",
+    "scopes": ["mcp:tools", "projects:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/project_assign_team",
+      "definitions": {
+        "project_assign_team": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "projectId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "teamId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["projectId", "teamId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "project.create",
+    "toolName": "project_create",
+    "description": "Create project",
+    "scopes": ["mcp:tools", "projects:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/project_create",
+      "definitions": {
+        "project_create": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "repositoryUrl": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "not": {}
+                    },
+                    {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  ]
+                },
+                {
+                  "type": "string",
+                  "const": ""
+                }
+              ]
+            },
+            "websiteUrl": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "not": {}
+                    },
+                    {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  ]
+                },
+                {
+                  "type": "string",
+                  "const": ""
+                }
+              ]
+            },
+            "isPublic": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "required": ["name"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "project.delete",
+    "toolName": "project_delete",
+    "description": "Delete project",
+    "scopes": ["mcp:tools", "projects:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/project_delete",
+      "definitions": {
+        "project_delete": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "project.permission.grant",
+    "toolName": "project_permission_grant",
+    "description": "Grant project permissions to member",
+    "scopes": ["mcp:tools", "projects:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/project_permission_grant",
+      "definitions": {
+        "project_permission_grant": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "projectId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "userId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "grants": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["projectId", "userId", "grants"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "project.public.toggle",
+    "toolName": "project_public_toggle",
+    "description": "Toggle project public flag",
+    "scopes": ["mcp:tools", "projects:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/project_public_toggle",
+      "definitions": {
+        "project_public_toggle": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "project.read",
+    "toolName": "project_read",
+    "description": "Read project",
+    "scopes": ["mcp:tools", "projects:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/project_read",
+      "definitions": {
+        "project_read": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "slug": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "project.restore",
+    "toolName": "project_restore",
+    "description": "Restore project",
+    "scopes": ["mcp:tools", "projects:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/project_restore",
+      "definitions": {
+        "project_restore": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "projectId": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": ["projectId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "project.status.change",
+    "toolName": "project_status_change",
+    "description": "Change project status",
+    "scopes": ["mcp:tools", "projects:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/project_status_change",
+      "definitions": {
+        "project_status_change": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["active", "inactive", "maintenance"]
+            }
+          },
+          "required": ["id", "status"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "project.unarchive",
+    "toolName": "project_unarchive",
+    "description": "Unarchive project",
+    "scopes": ["mcp:tools", "projects:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/project_unarchive",
+      "definitions": {
+        "project_unarchive": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "project.update",
+    "toolName": "project_update",
+    "description": "Update project",
+    "scopes": ["mcp:tools", "projects:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/project_update",
+      "definitions": {
+        "project_update": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 500
+            },
+            "repositoryUrl": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "not": {}
+                    },
+                    {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  ]
+                },
+                {
+                  "type": "string",
+                  "const": ""
+                }
+              ]
+            },
+            "websiteUrl": {
+              "anyOf": [
+                {
+                  "anyOf": [
+                    {
+                      "not": {}
+                    },
+                    {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  ]
+                },
+                {
+                  "type": "string",
+                  "const": ""
+                }
+              ]
+            },
+            "isPublic": {
+              "type": "boolean"
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "team.create",
+    "toolName": "team_create",
+    "description": "Create team",
+    "scopes": ["mcp:tools", "organizations:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/team_create",
+      "definitions": {
+        "team_create": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["name"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "team.delete",
+    "toolName": "team_delete",
+    "description": "Delete team",
+    "scopes": ["mcp:tools", "organizations:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/team_delete",
+      "definitions": {
+        "team_delete": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "teamId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["teamId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "team.member.add",
+    "toolName": "team_member_add",
+    "description": "Add member to team",
+    "scopes": ["mcp:tools", "organizations:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/team_member_add",
+      "definitions": {
+        "team_member_add": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "teamId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "userId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["teamId", "userId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "team.member.remove",
+    "toolName": "team_member_remove",
+    "description": "Remove member from team",
+    "scopes": ["mcp:tools", "organizations:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/team_member_remove",
+      "definitions": {
+        "team_member_remove": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "teamId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "userId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["teamId", "userId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "team.restore",
+    "toolName": "team_restore",
+    "description": "Restore team",
+    "scopes": ["mcp:tools", "organizations:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/team_restore",
+      "definitions": {
+        "team_restore": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "teamId": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["teamId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "team.update",
+    "toolName": "team_update",
+    "description": "Update team",
+    "scopes": ["mcp:tools", "organizations:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/team_update",
+      "definitions": {
+        "team_update": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "teamId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["teamId", "name"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": false
+  },
+  {
+    "action": "variable.bulk_import",
+    "toolName": "variable_bulk_import",
+    "description": "Bulk import variables",
+    "scopes": ["mcp:tools", "variables:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/variable_bulk_import",
+      "definitions": {
+        "variable_bulk_import": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "environmentId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "variables": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": ["key", "value"],
+                "additionalProperties": false
+              }
+            },
+            "overwrite": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "required": ["environmentId", "variables"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "variable.create",
+    "toolName": "variable_create",
+    "description": "Create variable",
+    "scopes": ["mcp:tools", "variables:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/variable_create",
+      "definitions": {
+        "variable_create": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "environmentId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "key": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+            },
+            "value": {
+              "type": "string",
+              "maxLength": 100000
+            },
+            "type": {
+              "type": "string",
+              "enum": ["secret", "config"]
+            },
+            "note": {
+              "type": "string",
+              "maxLength": 2000
+            }
+          },
+          "required": ["environmentId", "key", "value"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "variable.delete",
+    "toolName": "variable_delete",
+    "description": "Delete variable",
+    "scopes": ["mcp:tools", "variables:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/variable_delete",
+      "definitions": {
+        "variable_delete": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "variable.export",
+    "toolName": "variable_export",
+    "description": "Export variables",
+    "scopes": ["mcp:tools", "variables:export"],
+    "inputSchema": {
+      "$ref": "#/definitions/variable_export",
+      "definitions": {
+        "variable_export": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "environmentId": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": ["environmentId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "variable.read",
+    "toolName": "variable_read",
+    "description": "Read variable metadata",
+    "scopes": ["mcp:tools", "variables:read"],
+    "inputSchema": {
+      "$ref": "#/definitions/variable_read",
+      "definitions": {
+        "variable_read": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "environmentId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "variable.restore",
+    "toolName": "variable_restore",
+    "description": "Restore variable",
+    "scopes": ["mcp:tools", "variables:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/variable_restore",
+      "definitions": {
+        "variable_restore": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "projectId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "variableId": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": ["projectId", "variableId"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "variable.reveal",
+    "toolName": "variable_reveal",
+    "description": "Reveal secret variable value",
+    "scopes": ["mcp:tools", "variables:reveal"],
+    "inputSchema": {
+      "$ref": "#/definitions/variable_reveal",
+      "definitions": {
+        "variable_reveal": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  },
+  {
+    "action": "variable.update",
+    "toolName": "variable_update",
+    "description": "Update variable",
+    "scopes": ["mcp:tools", "variables:write"],
+    "inputSchema": {
+      "$ref": "#/definitions/variable_update",
+      "definitions": {
+        "variable_update": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "organizationSlug": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "key": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+            },
+            "value": {
+              "type": "string",
+              "maxLength": 100000
+            },
+            "type": {
+              "type": "string",
+              "enum": ["secret", "config"]
+            },
+            "note": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "orgRoles": ["owner", "manager"],
+    "requiresProjectGrant": true
+  }
+]

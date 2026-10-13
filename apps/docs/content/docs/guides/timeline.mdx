@@ -1,0 +1,21 @@
+---
+title: Timeline and audit
+description: audit_event, timeline routes, and MCP audit tools.
+---
+
+When `ACTIONS_AUDIT_ENABLED` is true (with `NEXT_PUBLIC_ACTIONS_AUDIT_ENABLED` for the client), successful and denied operations can be stored in `audit_event` and shown in timeline UIs.
+
+## Actions
+
+| Action | Purpose |
+| --- | --- |
+| `audit.timeline.view.org` | Org-wide feed with optional project filter |
+| `audit.timeline.view.project` | Project-scoped feed |
+| `audit.timeline.view.user` | Another member's events (owner) |
+| `audit.timeline.view.self` | Signed-in user's own events |
+
+## MCP
+
+MCP exposes `audit_timeline_view_org`, `audit_timeline_view_project`, and `audit_timeline_view_user` (see [tool index](/docs/mcp/tools)). `audit.timeline.view.self` is user-scoped and is **not** registered as an MCP tool — use the studio API for your own timeline.
+
+Legacy `audit_log` remains for older paths; new work prefers `audit_event` per `docs/ACTIONS_PERMISSIONS_AUDIT.md`.

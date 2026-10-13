@@ -1,0 +1,28 @@
+---
+title: FAQ
+description: Frequently asked questions about Env Manager behavior in code.
+---
+
+## Is the hosted service paid?
+
+Not in the product code — marketing lists **free** pricing with no billing integration.
+
+## Which roles exist?
+
+Organization roles are **owner**, **manager**, and **member** (legacy `admin` → manager). Platform admin actions exist in the registry but are not enabled in production UI.
+
+## Does MCP expose every action?
+
+No. `listMcpExposedActions()` includes actions that have handlers in `@env-manager/api/mcp`, excludes `platform.*` and user-scoped account actions, and adds `permissions_snapshot` from `@env-manager/mcp`.
+
+## How are tool names formed?
+
+`mcpToolNameFromAction` replaces dots with underscores (`organization.list` → `organization_list`).
+
+## Where is encryption configured?
+
+`@env-manager/crypto` — see [Encryption](/docs/concepts/encryption) and environment variables in the repository README.
+
+## How do I report a security issue?
+
+Use GitHub security advisories on the repository or contact the maintainer listed on the marketing **About** page.

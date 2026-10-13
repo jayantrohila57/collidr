@@ -1,0 +1,17 @@
+---
+title: Projects
+description: Project containers, status, visibility, and access grants.
+---
+
+A **project** belongs to one organization and contains environments and variables. Access is enforced with org role plus optional project manager, team assignment, and per-member CRUD grants.
+
+## Actions
+
+| Area | Example actions |
+| --- | --- |
+| CRUD | `project.create`, `project.read`, `project.update`, `project.delete` |
+| Lifecycle | `project.archive`, `project.unarchive`, `project.status.change`, `project.public.toggle` |
+| Access | `project.assign_manager`, `project.assign_team`, `project.permission.grant` |
+| Soft delete | `project.restore` when `SOFT_DELETES_ENABLED` |
+
+MCP tools mirror these names with underscores (for example `project_create`).

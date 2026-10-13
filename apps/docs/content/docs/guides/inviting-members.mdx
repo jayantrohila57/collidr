@@ -1,0 +1,23 @@
+---
+title: Inviting members
+description: Invitations, roles, and MCP member tools.
+---
+
+## Studio
+
+Organization **managers** and **owners** can invite users by email from the Organizations module. The action `member.invite` records audit metadata and can emit `invitation.received` notifications when notifications are enabled.
+
+## Roles on invite
+
+Invitations accept a role (owner-only flows may restrict role changes). Updating roles after join uses `member.role.update` (owner only). Removing a member uses `member.remove` (owner).
+
+## MCP
+
+| Tool | Action | Scopes |
+| --- | --- | --- |
+| `member_invite` | `member.invite` | `mcp:tools`, `organizations:write` |
+| `member_list` | `member.list` | `mcp:tools`, `organizations:read` |
+| `member_remove` | `member.remove` | `mcp:tools`, `organizations:write` |
+| `member_role_update` | `member.role.update` | `mcp:tools`, `organizations:write` |
+
+Provide `organizationId` or `organizationSlug` on each call.

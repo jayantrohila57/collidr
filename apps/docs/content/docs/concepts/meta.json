@@ -1,0 +1,12 @@
+{
+  "title": "Concepts",
+  "pages": [
+    "organizations",
+    "teams",
+    "roles-and-permissions",
+    "projects",
+    "environments",
+    "variables",
+    "encryption"
+  ]
+}

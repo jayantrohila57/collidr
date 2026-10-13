@@ -1,11 +1,9 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
-import type { ComponentProps, ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { Badge } from "../components/ui/badge";
-import { buttonVariants } from "../components/ui/button";
 import {
   Card,
   CardDescription,
@@ -16,6 +14,11 @@ import {
 import { marketingContainerClass } from "../lib/layout-spacing";
 import { cn } from "../lib/utils";
 import { marketingFeatures } from "./features";
+import {
+  MarketingLinkButton,
+  MarketingSiteFooter,
+  MarketingSiteHeader,
+} from "./marketing-shell";
 import { marketingSiteConfig } from "./site-config";
 
 export type MarketingLandingProps = {
@@ -23,87 +26,6 @@ export type MarketingLandingProps = {
   /** Optional slot for theme toggle (rendered in header). */
   headerActions?: ReactNode;
 };
-
-type MarketingLinkButtonProps = ComponentProps<"a"> & {
-  variant?: "default" | "outline" | "ghost";
-  size?: "default" | "sm" | "lg";
-};
-
-function MarketingLinkButton({
-  className,
-  variant = "default",
-  size = "default",
-  children,
-  ...props
-}: MarketingLinkButtonProps) {
-  return (
-    <a className={cn(buttonVariants({ className, size, variant }))} {...props}>
-      {children}
-    </a>
-  );
-}
-
-function SiteHeader({
-  signInHref,
-  headerActions,
-}: {
-  signInHref: string;
-  headerActions?: ReactNode;
-}) {
-  return (
-    <header className="sticky top-0 z-50 border-border/60 border-b bg-background/80 backdrop-blur-md">
-      <div
-        className={cn(
-          marketingContainerClass,
-          "flex h-14 items-center justify-between gap-4",
-        )}
-      >
-        <Link
-          href="/"
-          className="flex min-w-0 items-center gap-2.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <img
-            src="/favicon/favicon.ico"
-            alt=""
-            className="size-8 shrink-0 rounded-lg border bg-background object-cover"
-            width={32}
-            height={32}
-          />
-          <span className="truncate font-semibold text-sm tracking-tight">
-            {marketingSiteConfig.name}
-          </span>
-        </Link>
-        <nav className="flex items-center gap-2 sm:gap-3" aria-label="Primary">
-          <MarketingLinkButton
-            variant="ghost"
-            size="sm"
-            href="#features"
-            className="hidden scroll-smooth sm:inline-flex"
-          >
-            Features
-          </MarketingLinkButton>
-          <MarketingLinkButton
-            variant="ghost"
-            size="sm"
-            href={marketingSiteConfig.links.github}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GitHub
-          </MarketingLinkButton>
-          {headerActions}
-          <MarketingLinkButton
-            size="sm"
-            href={signInHref}
-            data-testid="marketing-cta-sign-in"
-          >
-            Sign in
-          </MarketingLinkButton>
-        </nav>
-      </div>
-    </header>
-  );
-}
 
 function HeroSection({ signInHref }: { signInHref: string }) {
   return (
@@ -232,33 +154,6 @@ function CtaSection({ signInHref }: { signInHref: string }) {
   );
 }
 
-function SiteFooter() {
-  return (
-    <footer className="border-t">
-      <div
-        className={cn(
-          marketingContainerClass,
-          "flex flex-wrap items-center justify-between gap-4 py-8 text-muted-foreground text-sm",
-        )}
-      >
-        <span>
-          © {new Date().getFullYear()} {marketingSiteConfig.name}
-        </span>
-        <div className="flex flex-wrap gap-4">
-          <a
-            href={marketingSiteConfig.links.github}
-            className="hover:text-foreground"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GitHub
-          </a>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
 export function MarketingLanding({
   signInHref,
   headerActions,
@@ -268,13 +163,16 @@ export function MarketingLanding({
       data-testid="marketing-landing"
       className="flex min-h-svh flex-col bg-background"
     >
-      <SiteHeader signInHref={signInHref} headerActions={headerActions} />
+      <MarketingSiteHeader
+        signInHref={signInHref}
+        headerActions={headerActions}
+      />
       <main className="flex-1">
         <HeroSection signInHref={signInHref} />
         <FeaturesSection />
         <CtaSection signInHref={signInHref} />
       </main>
-      <SiteFooter />
+      <MarketingSiteFooter />
     </div>
   );
 }

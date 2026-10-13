@@ -1,28 +1,26 @@
 ---
 title: API overview
-description: How Env Manager exposes server APIs today and where docs will expand.
+description: tRPC studio API, Better Auth, and MCP tools sharing one action layer.
 ---
 
-## tRPC (current product app)
+## tRPC (studio)
 
-The live dashboard (`apps/web`) mounts a tRPC router at `/api/trpc`. Procedures live in `@env-manager/api` and enforce permissions via `requireAction` and organization/project membership.
+The dashboard (`apps/web`) mounts a tRPC router at `/api/trpc`. Procedures live in `@env-manager/api` and enforce permissions via `requireAction` and organization/project membership.
 
-Typical client usage is through the React Query integration in `apps/web` — there is no separate public REST surface for product CRUD in v1.
+Typical clients use React Query integration in `apps/web` — there is no separate public REST CRUD surface for product data in v1.
 
 ## Authentication
 
-Sessions use **Better Auth** with GitHub OAuth. Browser clients call `/api/auth/*` on the app origin.
+Sessions use **Better Auth** with GitHub OAuth. Browser clients call `/api/auth/*` on the app origin (migrating to **`apps/auth`** for SSO).
 
-As the platform split lands, authentication moves to **`apps/auth`** with SSO across studio and account apps. Set `NEXT_PUBLIC_AUTH_URL` in the docs deployment to point the header **Sign in** link at your auth hostname.
+Header **Sign in** links use `buildSignInUrl()` from `@env-manager/ui/auth-links` with `NEXT_PUBLIC_AUTH_URL`.
 
-## Studio link
+## MCP
 
-Set `NEXT_PUBLIC_STUDIO_URL` for the docs header **Studio** button. Until studio ships, this can remain the current web dashboard URL (`https://env-manager-web.vercel.app`).
+`apps/mcp` exposes JSON-RPC MCP over HTTP. Tools are registered in `@env-manager/mcp` and execute through `runMcpTool` → `executeMcpAction` in `@env-manager/api/mcp`.
 
-## Future surfaces
+See the [tool index](/docs/mcp/tools) for per-tool inputs, scopes, and examples.
 
-| Surface | App | Notes |
-| --- | --- | --- |
-| MCP tools | `apps/mcp` | OAuth 2.1 + MCP plugin; same action layer as tRPC |
-| Operator console | `apps/console` | Platform admin + email allowlist |
-| Public HTTP docs | `apps/docs` | This site — MDX + search only |
+## Operator console
+
+`platform.*` actions and `apps/console` are reserved for future platform admin work and are not part of the MCP product surface.

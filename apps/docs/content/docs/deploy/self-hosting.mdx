@@ -1,0 +1,38 @@
+---
+title: Self-hosting and deploy
+description: Vercel, Neon, feature flags, and monorepo build commands.
+---
+
+Production deployments for this repository target **Vercel** (per app) and **Neon** PostgreSQL. The canonical runbook is [`docs/PRODUCTION_DEPLOY.md`](https://github.com/jayantrohila57/env-manager/blob/main/docs/PRODUCTION_DEPLOY.md).
+
+## Apps to deploy
+
+| App | Purpose |
+| --- | --- |
+| `apps/web` | Studio dashboard |
+| `apps/auth` | Authentication + MCP OAuth |
+| `apps/mcp` | MCP server |
+| `apps/docs` | Documentation (this site) |
+| `apps/www` | Marketing |
+
+Set platform URLs (`NEXT_PUBLIC_AUTH_URL`, `NEXT_PUBLIC_STUDIO_URL`, `NEXT_PUBLIC_DOCS_URL`, `NEXT_PUBLIC_WWW_URL`, `NEXT_PUBLIC_MCP_URL`) so CTAs and SSO redirects resolve correctly.
+
+## Database
+
+Apply schema with `pnpm db:push` against your Neon branch. Major migrations may ship as reviewed SQL under `packages/db/migrations/`.
+
+## Feature flags
+
+Pair server flags with `NEXT_PUBLIC_*` mirrors and redeploy after changes (values are inlined at `next build`). See the production deploy checklist for organizations, notifications, variables v2, audit, and soft deletes.
+
+## Local build verification
+
+```bash
+pnpm install
+pnpm check-types
+pnpm build
+```
+
+## Destructive seed
+
+`pnpm db:reset-seed` is documented in `docs/DB_RESET.md` and requires explicit confirmation — do not run against production without a backup branch.

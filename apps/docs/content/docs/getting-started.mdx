@@ -1,6 +1,6 @@
 ---
 title: Getting started
-description: Product concepts and where to run Env Manager locally.
+description: Run Env Manager locally and learn core concepts.
 ---
 
 ## Prerequisites
@@ -10,7 +10,7 @@ description: Product concepts and where to run Env Manager locally.
 - PostgreSQL (`DATABASE_URL`)
 - GitHub OAuth credentials
 
-## Run the dashboard locally
+## Run the studio locally
 
 From the repository root:
 
@@ -22,21 +22,21 @@ pnpm dev:web
 
 The dashboard runs at `http://localhost:3000`.
 
-## Run the docs site locally
+## Run marketing and docs
 
 ```bash
-pnpm --filter docs dev
+pnpm --filter www dev    # http://localhost:3006
+pnpm --filter docs dev   # http://localhost:3001 → /docs
 ```
-
-Docs default to `http://localhost:3001` and redirect `/` → `/docs`.
 
 ## Core concepts
 
-| Concept | Description |
+| Concept | Doc |
 | --- | --- |
-| **Organization** | Workspace boundary for members, teams, and projects |
-| **Project** | Container for environments and variables |
-| **Environment** | Named slice (e.g. development, staging, production) |
-| **Actions** | Canonical permission names in `@env-manager/actions` |
+| Organization | [Organizations](/docs/concepts/organizations) |
+| Roles | [Roles and permissions](/docs/concepts/roles-and-permissions) |
+| Project / environment / variable | [Projects](/docs/concepts/projects), [Environments](/docs/concepts/environments), [Variables](/docs/concepts/variables) |
+| Encryption | [Encryption](/docs/concepts/encryption) |
+| MCP | [MCP setup](/docs/mcp/setup) |
 
-Deep dives: [Actions & audit](https://github.com/jayantrohila57/env-manager/blob/main/docs/ACTIONS_PERMISSIONS_AUDIT.md), [Design system](https://github.com/jayantrohila57/env-manager/blob/main/docs/DESIGN_SYSTEM.md).
+Authoritative permission spec: [ACTIONS_PERMISSIONS_AUDIT.md](https://github.com/jayantrohila57/env-manager/blob/main/docs/ACTIONS_PERMISSIONS_AUDIT.md).

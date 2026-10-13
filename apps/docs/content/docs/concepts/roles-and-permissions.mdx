@@ -1,0 +1,29 @@
+---
+title: Roles and permissions
+description: Owner, manager, member, project grants, and requireAction.
+---
+
+Authorization is driven by **canonical action names** in `@env-manager/actions`. Server code calls `requireAction(action, ctx)` which evaluates, in order:
+
+1. **Platform admin** (reserved — `isPlatformAdmin()` is false in production UI today)
+2. **Action blocks** at org, project, or user scope
+3. **Organization role** — owner, manager, or member (legacy DB `admin` normalizes to manager via `normalizeOrgRole`)
+4. **Project grants** when `requiresProjectGrant` is set on the action (`project_manager`, `project_team`, `project_member_grant` tables)
+
+## Organization roles
+
+| Role | Typical capabilities |
+| --- | --- |
+| **Owner** | Full org control including delete org, transfer ownership, remove members, cancel invitations |
+| **Manager** | Invite members, list members, view org settings, many project operations with grants |
+| **Member** | Baseline access; additional project/env/variable access via grants |
+
+Each action definition includes `orgRoles` (when applicable) and `requiresProjectGrant` in the registry (`registry-data.ts`).
+
+## User scope
+
+Account settings actions (`scope: "user"`) do not require an active organization. These are **not** exposed as MCP tools.
+
+## MCP
+
+OAuth scopes are coarse (`organizations:read`, `projects:write`, etc.). Every MCP tool call still runs `requireAction` for the mapped canonical action. See [OAuth scopes](/docs/mcp/scopes).

@@ -1,0 +1,13 @@
+---
+title: Environments
+description: Named targets within a project (development, staging, production).
+---
+
+An **environment** is a named slice inside a project (for example `development`, `staging`, `production`). Variables are stored per environment.
+
+## Actions
+
+- `environment.create`, `environment.read`, `environment.update`, `environment.delete`
+- `environment.restore` for soft-deleted rows when enabled
+
+MCP `environment_read` accepts `projectId` to list environments or `id` to fetch one record.

@@ -1,0 +1,16 @@
+---
+title: Organizations
+description: Multi-tenant workspaces, membership, and org-scoped API context.
+---
+
+An **organization** is the top-level tenant boundary. Members belong to exactly one org role at a time (owner, manager, or member). Projects, teams, invitations, and org settings are scoped to an organization.
+
+## In the product
+
+- The studio app uses an **active organization** cookie for browser sessions.
+- tRPC procedures call `requireActiveOrganization` and evaluate actions with org context.
+- MCP tools accept `organizationId` or `organizationSlug` on each call because bearer tokens do not carry the active-org cookie (`organizationRefSchema` in `@env-manager/api/mcp`).
+
+## Related actions
+
+Examples from `@env-manager/actions`: `organization.list`, `organization.view`, `organization.create`, `organization.update`, `organization.delete`, `organization.settings.view`, `organization.transfer_ownership`.

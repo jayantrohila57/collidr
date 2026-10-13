@@ -1,0 +1,14 @@
+---
+title: Teams
+description: Org-scoped teams and project assignment.
+---
+
+**Teams** group members inside an organization. They are stored in application tables and managed through org administration routes (not separate MCP-only concepts).
+
+## Permissions
+
+Team CRUD uses organization-scoped actions such as `team.create`, `team.update`, `team.delete`, `team.member.add`, and `team.member.remove`. Managers and owners can manage teams per the action registry.
+
+## Projects
+
+Projects can be linked to teams via `project.assign_team` and `project.assign_manager`. Project-level member grants (`project.permission.grant`) layer on top of org roles for environment and variable access.

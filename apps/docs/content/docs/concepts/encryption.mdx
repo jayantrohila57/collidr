@@ -1,0 +1,14 @@
+---
+title: Encryption
+description: How secret values are encrypted at rest in PostgreSQL.
+---
+
+Secret variable values are stored in the `encryptedValue` column. The API uses `encrypt()` and `decrypt()` from `@env-manager/crypto` when creating, updating, importing, or revealing variables (`packages/api/src/routers/variables.ts`).
+
+## Runtime requirements
+
+Self-hosted and production deployments must provide the encryption key material expected by `@env-manager/crypto` (see repository `README.md` and `packages/crypto` for environment variables). Without correct keys, decrypt operations fail and reveal endpoints return errors.
+
+## UI behavior
+
+The studio UI masks secrets until a user with `variable.reveal` successfully loads the decrypted value. MCP `variable_reveal` follows the same server path and requires the `variables:reveal` OAuth scope in addition to passing `requireAction`.

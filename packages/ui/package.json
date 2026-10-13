@@ -21,6 +21,9 @@
       "default": "./src/components/ui/card.tsx"
     },
     "./layout-spacing": "./src/lib/layout-spacing.ts",
+    "./platform-urls": {
+      "default": "./src/lib/platform-urls.ts"
+    },
     "./page-header-grid-classes": "./src/lib/page-header-grid-classes.ts",
     "./patterns/impersonation-banner": "./src/patterns/impersonation-banner.tsx",
     "./utils": {

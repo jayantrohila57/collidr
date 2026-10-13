@@ -1,0 +1,33 @@
+---
+title: MCP setup
+description: Connect an MCP client to apps/mcp with OAuth from apps/auth.
+---
+
+The MCP HTTP server lives in **`apps/mcp`** and delegates tool registration to **`@env-manager/mcp`** (`registerMcpTools`). Each tool maps to a canonical action implemented in **`@env-manager/api/mcp`**.
+
+## Endpoints
+
+Configure your client with:
+
+- **Auth issuer** — `NEXT_PUBLIC_AUTH_URL` (default `https://auth-env-manager.vercel.app`)
+- **MCP URL** — `NEXT_PUBLIC_MCP_URL` (deployment-specific)
+
+Tokens must include the base scope **`mcp:tools`** plus resource scopes listed on each tool page. The auth app advertises scopes from `MCP_OAUTH_SCOPES` in `@env-manager/actions`.
+
+## Tool discovery
+
+Call the built-in **`permissions_snapshot`** tool (requires only `mcp:tools`) to list exposed actions, tool names, required scopes, and descriptions — same data as the [tool index](/docs/mcp/tools).
+
+## Rate limits
+
+`@env-manager/mcp` applies per-user and per-client rate limits (`rate-limit.ts`). Write and reveal verbs use stricter limits than reads.
+
+## Authorization
+
+Scopes gate whether a tool may be invoked; **`requireAction`** still enforces org role and project grants on the server. A token with `projects:write` cannot bypass missing org membership.
+
+## Related
+
+- [OAuth scopes](/docs/mcp/scopes)
+- [Tool reference](/docs/mcp/tools)
+- [Better Auth MCP plugin](https://www.better-auth.com/docs/plugins/mcp)
