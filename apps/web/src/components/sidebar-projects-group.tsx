@@ -1,7 +1,7 @@
 "use client";
 
 import type { ProjectOutput } from "@env-manager/api/types";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronUp, MoreHorizontal } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -182,8 +182,17 @@ export function SidebarProjectsGroup({
                     className="text-muted-foreground hover:text-sidebar-accent-foreground"
                     onClick={() => persistListExpanded(!listExpanded)}
                   >
-                    <span className="size-5 shrink-0" aria-hidden />
-                    <span className="truncate text-sm">
+                    <span
+                      className="flex size-5 shrink-0 items-center justify-center"
+                      aria-hidden
+                    >
+                      {listExpanded ? (
+                        <ChevronUp className="size-3.5 text-muted-foreground" />
+                      ) : (
+                        <MoreHorizontal className="size-3.5 text-muted-foreground" />
+                      )}
+                    </span>
+                    <span className="truncate">
                       {listExpanded ? "Less" : "More"}
                     </span>
                   </SidebarMenuButton>
