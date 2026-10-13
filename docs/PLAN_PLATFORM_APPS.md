@@ -146,7 +146,7 @@ flowchart TB
 
 ## 4. Better Auth — official building blocks (cited)
 
-Implement **`apps/auth`** strictly from current Better Auth docs (target **≥ 1.7.x** after upgrade from catalog 1.4.x).
+Implement **`apps/auth`** strictly from Better Auth **≥ 1.7.x** docs (**Decision 20** — upgrade merged on `main` before any `apps/auth` scaffold).
 
 | Concern | Doc | Usage on `apps/auth` |
 |---------|-----|----------------------|
@@ -487,8 +487,8 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 | Phase | Deliverable | Acceptance |
 |-------|-------------|------------|
 | **P0** | This plan approved | Open decisions closed |
-| **P1** | `@env-manager/ui`, `@env-manager/auth-client`, Better Auth 1.7 upgrade | Storybook or visual snapshot; client gets session from auth |
-| **P2** | Auth + account + studio ready on staging / Neon branch | §8.2 verification complete |
+| **P1** | **Better Auth 1.7 upgrade** (Decision 20, [#93](https://github.com/jayantrohila57/env-manager/issues/93)) — **before `apps/auth`**; then `@env-manager/ui`, `@env-manager/auth-client` | `packages/auth` + catalog on 1.7.x; existing `apps/web` auth flows still pass |
+| **P2** | `apps/auth` + account + studio ready on staging / Neon branch | §8.2 verification complete |
 | **P3** | **Big-bang cutover** (Decision 5) — auth + account + studio prod; decommission `apps/web` | §8.3 smoke tests pass; no `/api/auth` on studio |
 | **P4** | Custom apex DNS (optional, later) | §2.1 hostnames when approved |
 | **P5** | `apps/docs` MVP | Fumadocs content + coss shell; MCP scope page |
@@ -686,6 +686,17 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 **Implication:** Operators cannot impersonate from console and lose context on navigation to studio/account; users always see when a session is impersonated.
 
+### Decision 20 — Better Auth 1.7 before `apps/auth` (accepted)
+
+| Topic | Choice |
+|-------|--------|
+| **Order** | Upgrade the monorepo to **Better Auth 1.7.x** (catalog, `packages/auth`, `@better-auth/*` peers) as the **first platform implementation milestone** — **complete before** creating or deploying **`apps/auth`**. |
+| **Gate** | No `apps/auth` Vercel project, MCP plugin wiring, or auth-app cutover work until 1.7 is on `main` and `apps/web` still authenticates successfully. |
+| **Rationale** | 1.7 documents `@better-auth/mcp`, JWT, device authorization, and OAuth 2.1 provider paths required by Decisions 7–8 and 15. |
+| **Implementation** | GitHub **[#93](https://github.com/jayantrohila57/env-manager/issues/93)** — `[Feature] Upgrade Better Auth to 1.7`. |
+
+**Implication:** P1 starts with #93; shared UI/auth-client packages follow on the same phase but **after** the version bump lands.
+
 ---
 
 ## 15. Open decisions (numbered)
@@ -693,7 +704,6 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 1. **Cookie domain** (custom apex) — `env-manager.com` vs `.env-manager.com` vs per-subdomain only?
 2. **Auth proxy vs cookie-only** (custom apex) — rewrites on every sibling app or only `crossSubDomainCookies`?
 3. **Marketing site** — `www` → docs, studio landing, or separate?
-4. **Better Auth upgrade** — before P2 or as part of P2?
 
 ---
 
