@@ -9,6 +9,7 @@ import type {
   ProjectsStatusFilter,
   ProjectsVisibilityFilter,
 } from "../lib/filter-projects";
+import { parseListUrlParam } from "../lib/parse-list-url-param";
 
 const VIEW_STORAGE_KEY = "env-manager-projects-view";
 
@@ -30,23 +31,6 @@ function readStoredView(): ProjectsViewMode {
   if (typeof window === "undefined") return "list";
   const stored = window.localStorage.getItem(VIEW_STORAGE_KEY);
   return stored === "grid" ? "grid" : "list";
-}
-
-function parseListParam<T extends string>(
-  value: string | null,
-  allowed: Set<T>,
-): T[] {
-  if (!value?.trim()) return [];
-  const seen = new Set<T>();
-  const result: T[] = [];
-  for (const part of value.split(",")) {
-    const token = part.trim() as T;
-    if (allowed.has(token) && !seen.has(token)) {
-      seen.add(token);
-      result.push(token);
-    }
-  }
-  return result;
 }
 
 function parseSort(value: string | null): ProjectsSort {
@@ -71,8 +55,8 @@ export function useProjectsListParams() {
   const searchParams = useSearchParams();
 
   const urlSearch = searchParams.get("q") ?? "";
-  const status = parseListParam(searchParams.get("status"), STATUS_VALUES);
-  const visibility = parseListParam(
+  const status = parseListUrlParam(searchParams.get("status"), STATUS_VALUES);
+  const visibility = parseListUrlParam(
     searchParams.get("visibility"),
     VISIBILITY_VALUES,
   );

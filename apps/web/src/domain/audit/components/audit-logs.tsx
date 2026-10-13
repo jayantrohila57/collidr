@@ -15,6 +15,7 @@ export default function AuditLogs() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProjectId, setSelectedProjectId] =
     useState<ProjectFilterValue>(ALL_PROJECTS);
+  const [filterApplying, setFilterApplying] = useState(false);
 
   const {
     logs,
@@ -61,8 +62,12 @@ export default function AuditLogs() {
       ariaLabel="Filter by project"
       multiple={false}
       isLoading={status === "loading" && projects.length === 0}
+      disabled={filterApplying || isFetching}
       value={selectedProjectId === ALL_PROJECTS ? [] : [selectedProjectId]}
       badgeCount={selectedProjectId === ALL_PROJECTS ? 0 : 1}
+      onApplyingChange={setFilterApplying}
+      refetch={refetch}
+      getResultCount={() => logs.length}
       onValueChange={async (next) => {
         setSelectedProjectId(next[0] ?? ALL_PROJECTS);
       }}
@@ -91,7 +96,7 @@ export default function AuditLogs() {
     );
   }
 
-  const tableLoading = status === "loading" || isFetching;
+  const tableLoading = status === "loading" || isFetching || filterApplying;
 
   return (
     <AuditLogTableView

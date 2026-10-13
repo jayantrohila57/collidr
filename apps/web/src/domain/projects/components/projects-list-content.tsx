@@ -3,7 +3,6 @@
 import type { ProjectOutput } from "@env-manager/api/types";
 import { useCallback, useMemo, useState } from "react";
 import { projectsTableEmpty } from "@/components/data-table/data-table-empty-presets";
-import { waitForClientTableRefresh } from "@/components/data-table/data-table-filter-refetch";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { runDataTableClearAllFilters } from "@/components/data-table/run-data-table-clear-all-filters";
 import { AppIcon } from "@/components/patterns/app-icon";
@@ -12,7 +11,11 @@ import { Button } from "@/components/ui/button";
 import { layoutSectionStackClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 import { useProjectsListParams } from "../hooks/use-projects-list-params";
-import { filterAndSortProjects } from "../lib/filter-projects";
+import {
+  filterAndSortProjects,
+  type ProjectsStatusFilter,
+  type ProjectsVisibilityFilter,
+} from "../lib/filter-projects";
 import { ProjectsGridView } from "./projects-grid-view";
 import { ProjectsListFiltersBar } from "./projects-list-filters";
 import { ProjectsTableView } from "./projects-table-view";
@@ -30,17 +33,30 @@ export function ProjectsListContent({
   const params = useProjectsListParams();
   const [filterTableLoading, setFilterTableLoading] = useState(false);
 
-  const withFilterApply = useCallback(
-    async (apply: () => void | Promise<void>) => {
-      setFilterTableLoading(true);
-      try {
-        await apply();
-        await waitForClientTableRefresh();
-      } finally {
-        setFilterTableLoading(false);
-      }
-    },
-    [],
+  const countForFilters = useCallback(
+    (
+      overrides: Partial<{
+        status: ProjectsStatusFilter[];
+        visibility: ProjectsVisibilityFilter[];
+      }>,
+    ) =>
+      filterAndSortProjects(projects, {
+        search: params.search,
+        status: overrides.status ?? params.status,
+        visibility: overrides.visibility ?? params.visibility,
+        sort: params.sort,
+      }).length,
+    [params.search, params.sort, params.status, params.visibility, projects],
+  );
+
+  const getStatusResultCount = useCallback(
+    (next: ProjectsStatusFilter[]) => countForFilters({ status: next }),
+    [countForFilters],
+  );
+
+  const getVisibilityResultCount = useCallback(
+    (next: ProjectsVisibilityFilter[]) => countForFilters({ visibility: next }),
+    [countForFilters],
   );
 
   const handleClearAllFilters = useCallback(async () => {
@@ -86,18 +102,15 @@ export function ProjectsListContent({
             status={params.status}
             visibility={params.visibility}
             sort={params.sort}
-            onStatusChange={(value) =>
-              withFilterApply(() => params.setStatus(value))
-            }
-            onVisibilityChange={(value) =>
-              withFilterApply(() => params.setVisibility(value))
-            }
-            onSortChange={(value) =>
-              withFilterApply(() => params.setSort(value))
-            }
+            onStatusChange={params.setStatus}
+            onVisibilityChange={params.setVisibility}
+            onSortChange={params.setSort}
             onClear={() => void handleClearAllFilters()}
             filtersActive={params.filtersActive}
             tableLoading={filterTableLoading}
+            onFilterApplyingChange={setFilterTableLoading}
+            getStatusResultCount={getStatusResultCount}
+            getVisibilityResultCount={getVisibilityResultCount}
           />
         }
         trailing={

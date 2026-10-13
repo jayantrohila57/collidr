@@ -21,7 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import type { AppIconName } from "@/lib/icons";
 import { cn } from "@/lib/utils";
-import { formatDataTableFilterLabel } from "./data-table-filter-label";
+import { formatDataTableFilterLabel } from "./data-table-filter-labels";
 import {
   type UseDataTableFacetedFilterOptions,
   useDataTableFacetedFilter,
@@ -50,6 +50,8 @@ export type DataTableFacetedFilterProps<T extends string = string> = {
   badgeCount?: number;
   /** Show combobox search field (default true). */
   searchable?: boolean;
+  /** Disable trigger (e.g. while table refetch is in flight). */
+  disabled?: boolean;
 } & UseDataTableFacetedFilterOptions<T>;
 
 function FilterTriggerIcon({
@@ -87,6 +89,7 @@ export function DataTableFacetedFilter<T extends string = string>({
   ariaLabel,
   badgeCount,
   searchable = true,
+  disabled = false,
   refetch,
   getResultCount,
   onApplyingChange,
@@ -136,6 +139,7 @@ export function DataTableFacetedFilter<T extends string = string>({
       onInputValueChange={setQuery}
     >
       <ComboboxTrigger
+        disabled={disabled || isApplying}
         className={cn(
           selectTriggerVariants({ size: "sm" }),
           "h-8 w-auto min-w-[8.5rem] max-w-full justify-start gap-1.5",
