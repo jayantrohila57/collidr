@@ -9,7 +9,7 @@ Drizzle tables that support soft delete expose nullable:
 - `deleted_at` (`timestamp`)
 - `deleted_by` (`text`, FK → `user.id`, `ON DELETE SET NULL`)
 
-Applied in schema for: `project`, `environment`, `environment_variable`, `organization`, `member`, `invitation`, `notification`, and `user`.
+Applied in schema for: `project`, `environment`, `environment_variable`, `organization`, `member`, `invitation`, and `notification`. (`user` stays hard-delete only for Better Auth compatibility.)
 
 **Exceptions (hard delete only):** `session`, `account`, `verification`, and immutable `audit_log`.
 

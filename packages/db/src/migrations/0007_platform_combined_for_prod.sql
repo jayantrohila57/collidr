@@ -200,6 +200,10 @@ ALTER TABLE "environment_variable" ADD COLUMN IF NOT EXISTS "deleted_at" timesta
 ALTER TABLE "environment_variable" ADD COLUMN IF NOT EXISTS "deleted_by" text REFERENCES "user"("id") ON DELETE SET NULL;
 ALTER TABLE "notification" ADD COLUMN IF NOT EXISTS "deleted_at" timestamptz;
 ALTER TABLE "notification" ADD COLUMN IF NOT EXISTS "deleted_by" text REFERENCES "user"("id") ON DELETE SET NULL;
+ALTER TABLE "member" ADD COLUMN IF NOT EXISTS "deleted_at" timestamptz;
+ALTER TABLE "member" ADD COLUMN IF NOT EXISTS "deleted_by" text REFERENCES "user"("id") ON DELETE SET NULL;
+ALTER TABLE "invitation" ADD COLUMN IF NOT EXISTS "deleted_at" timestamptz;
+ALTER TABLE "invitation" ADD COLUMN IF NOT EXISTS "deleted_by" text REFERENCES "user"("id") ON DELETE SET NULL;
 
 -- Partial unique: project slug among active rows
 ALTER TABLE "project" DROP CONSTRAINT IF EXISTS "project_slug_unique";

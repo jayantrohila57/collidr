@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -7,8 +7,6 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-
-import { softDeleteColumns } from "./soft-delete-columns";
 
 export const user = pgTable(
   "user",
@@ -23,13 +21,8 @@ export const user = pgTable(
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
-    ...softDeleteColumns,
   },
-  (table) => [
-    uniqueIndex("user_email_active_uidx")
-      .on(table.email)
-      .where(sql`${table.deletedAt} IS NULL`),
-  ],
+  (table) => [uniqueIndex("user_email_active_uidx").on(table.email)],
 );
 
 export const session = pgTable(
