@@ -1,9 +1,13 @@
 import { platformSessionMiddleware } from "@env-manager/auth/platform-middleware";
 import { DEFAULT_SUPPORT_URL } from "@env-manager/env/platform";
+import { resolvePublicServiceUrl } from "@env-manager/env/vercel-services";
 import { type NextRequest, NextResponse } from "next/server";
 
 const appOrigin = (
-  process.env.NEXT_PUBLIC_SUPPORT_URL ?? DEFAULT_SUPPORT_URL
+  process.env.NEXT_PUBLIC_SUPPORT_URL ??
+  (process.env.VERCEL_SERVICES === "1"
+    ? resolvePublicServiceUrl("support")
+    : DEFAULT_SUPPORT_URL)
 ).replace(/\/$/, "");
 
 export function middleware(request: NextRequest) {

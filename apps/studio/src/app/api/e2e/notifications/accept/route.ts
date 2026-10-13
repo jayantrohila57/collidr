@@ -1,5 +1,6 @@
 import { auth } from "@env-manager/auth";
 import { env } from "@env-manager/env/server";
+import { resolveAuthServiceUrl } from "@env-manager/env/vercel-services";
 import { NextResponse } from "next/server";
 import { isE2eAuthRouteAllowed } from "@/lib/e2e-auth-allowed";
 import { isValidE2eSecret } from "@/lib/e2e-secret";
@@ -43,7 +44,10 @@ export async function POST(request: Request) {
   }
 
   const cookie = signIn.headers.get("set-cookie");
-  const baseUrl = env.BETTER_AUTH_URL.replace(/\/$/, "");
+  const baseUrl = (env.BETTER_AUTH_URL || resolveAuthServiceUrl()).replace(
+    /\/$/,
+    "",
+  );
   const accept = await fetch(
     `${baseUrl}/api/auth/organization/accept-invitation`,
     {

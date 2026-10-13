@@ -1,8 +1,9 @@
-import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { cimd } from "@better-auth/cimd";
+import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { mcp } from "@better-auth/mcp";
 import { MCP_OAUTH_SCOPES } from "@env-manager/actions";
 import { env } from "@env-manager/env/server";
+import { resolvePlatformPublicOrigin } from "@env-manager/env/vercel-services";
 import type { BetterAuthPlugin } from "better-auth";
 import { betterAuth } from "better-auth";
 import { deviceAuthorization, jwt, oneTimeToken } from "better-auth/plugins";
@@ -27,7 +28,9 @@ function buildMcpPlugins(): BetterAuthPlugin[] {
   const mcpHost = trimTrailingSlash(
     process.env.MCP_RESOURCE_URL ??
       process.env.NEXT_PUBLIC_MCP_URL ??
-      DEFAULT_MCP_URL,
+      (process.env.VERCEL_SERVICES === "1"
+        ? `${resolvePlatformPublicOrigin()}/api/mcp`
+        : DEFAULT_MCP_URL),
   );
   const mcpResource = mcpHost.endsWith("/api/mcp")
     ? mcpHost
@@ -53,7 +56,12 @@ function buildMcpPlugins(): BetterAuthPlugin[] {
  * Import only from the auth app route handler.
  */
 export function createPlatformAuth() {
-  const baseURL = env.BETTER_AUTH_URL ?? DEFAULT_AUTH_URL;
+  const baseURL = trimTrailingSlash(
+    env.BETTER_AUTH_URL ??
+      (process.env.VERCEL_SERVICES === "1"
+        ? `${resolvePlatformPublicOrigin()}/auth`
+        : DEFAULT_AUTH_URL),
+  );
   const trustedOrigins = getPlatformProductionOrigins({
     authUrl: baseURL,
     legacyWebUrl: env.CORS_ORIGIN,
@@ -62,8 +70,7 @@ export function createPlatformAuth() {
   return betterAuth({
     baseURL,
     secret:
-      env.BETTER_AUTH_SECRET ??
-      "local-build-placeholder-secret-min-32-chars",
+      env.BETTER_AUTH_SECRET ?? "local-build-placeholder-secret-min-32-chars",
     databaseHooks: sharedDatabaseHooks(),
     session: sharedSessionConfig(),
     ...sharedE2eEmailPassword(),

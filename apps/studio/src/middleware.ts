@@ -1,9 +1,13 @@
 import { platformSessionMiddleware } from "@env-manager/auth/platform-middleware";
 import { DEFAULT_STUDIO_URL } from "@env-manager/env/platform";
+import { resolvePublicServiceUrl } from "@env-manager/env/vercel-services";
 import { type NextRequest, NextResponse } from "next/server";
 
 const appOrigin = (
-  process.env.NEXT_PUBLIC_STUDIO_URL ?? DEFAULT_STUDIO_URL
+  process.env.NEXT_PUBLIC_STUDIO_URL ??
+  (process.env.VERCEL_SERVICES === "1"
+    ? resolvePublicServiceUrl("studio")
+    : DEFAULT_STUDIO_URL)
 ).replace(/\/$/, "");
 
 export function middleware(request: NextRequest) {
@@ -17,19 +21,14 @@ export function middleware(request: NextRequest) {
         ? legacyRedirect
         : "/dashboard";
     const returnTo = `${appOrigin}${returnPath}`;
-    const authBase = (
-      process.env.NEXT_PUBLIC_AUTH_URL ?? "https://auth-env-manager.vercel.app"
-    ).replace(/\/$/, "");
+    const authBase = resolvePublicServiceUrl("auth").replace(/\/$/, "");
     const signIn = new URL(`${authBase}/sign-in`);
     signIn.searchParams.set("return_to", returnTo);
     return NextResponse.redirect(signIn.toString());
   }
 
   if (pathname.startsWith("/dashboard/settings")) {
-    const accountBase = (
-      process.env.NEXT_PUBLIC_ACCOUNT_URL ??
-      "https://account-env-manager.vercel.app"
-    ).replace(/\/$/, "");
+    const accountBase = resolvePublicServiceUrl("account").replace(/\/$/, "");
     const suffix = pathname.replace("/dashboard/settings", "/settings");
     return NextResponse.redirect(
       `${accountBase}${suffix}${request.nextUrl.search}`,

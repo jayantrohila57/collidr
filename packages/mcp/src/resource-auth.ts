@@ -1,5 +1,7 @@
 import { createMcpProtectedRequestHandler } from "@better-auth/mcp";
+import { resolveAuthServiceUrl } from "@env-manager/env/vercel-services";
 import type { JWTPayload } from "jose";
+
 import {
   MCP_BASE_SCOPE,
   parseGrantedScopes,
@@ -17,7 +19,7 @@ export function resolveMcpResourceAuthConfig(): McpResourceAuthConfig {
   const authUrl = (
     process.env.BETTER_AUTH_URL ??
     process.env.NEXT_PUBLIC_AUTH_URL ??
-    "https://auth-env-manager.vercel.app"
+    resolveAuthServiceUrl()
   ).replace(/\/$/, "");
 
   const audience = (

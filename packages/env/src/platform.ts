@@ -11,7 +11,10 @@ export const platformUrlSchema = {
   NEXT_PUBLIC_ACCOUNT_URL: z.string().url().optional(),
   NEXT_PUBLIC_MCP_URL: z.string().url().optional(),
   NEXT_PUBLIC_WWW_URL: z.string().url().optional(),
+  NEXT_PUBLIC_CONSOLE_URL: z.string().url().optional(),
   NEXT_PUBLIC_SUPPORT_URL: z.string().url().optional(),
+  NEXT_PUBLIC_DOCS_URL: z.string().url().optional(),
+  NEXT_PUBLIC_PLATFORM_ORIGIN: z.string().url().optional(),
 } as const;
 
 export const platformUrlRuntimeEnv = {
@@ -20,7 +23,10 @@ export const platformUrlRuntimeEnv = {
   NEXT_PUBLIC_ACCOUNT_URL: process.env.NEXT_PUBLIC_ACCOUNT_URL,
   NEXT_PUBLIC_MCP_URL: process.env.NEXT_PUBLIC_MCP_URL,
   NEXT_PUBLIC_WWW_URL: process.env.NEXT_PUBLIC_WWW_URL,
+  NEXT_PUBLIC_CONSOLE_URL: process.env.NEXT_PUBLIC_CONSOLE_URL,
   NEXT_PUBLIC_SUPPORT_URL: process.env.NEXT_PUBLIC_SUPPORT_URL,
+  NEXT_PUBLIC_DOCS_URL: process.env.NEXT_PUBLIC_DOCS_URL,
+  NEXT_PUBLIC_PLATFORM_ORIGIN: process.env.NEXT_PUBLIC_PLATFORM_ORIGIN,
 };
 
 const featureFlagClient = {

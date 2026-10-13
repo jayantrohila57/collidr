@@ -1,6 +1,7 @@
 "use client";
 
 import { validateReturnTo } from "@env-manager/auth/return-to";
+import { publicServicePath } from "@env-manager/env/vercel-services";
 import { Button } from "@env-manager/ui/button";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -23,8 +24,7 @@ export function GitHubSignInButton({
       returnToOverride ?? searchParams.get("return_to"),
     );
     const finishUrl = new URL(
-      "/api/auth/cross-app/finish",
-      window.location.origin,
+      publicServicePath("auth", "/api/auth/cross-app/finish"),
     );
     finishUrl.searchParams.set("return_to", returnTo);
 

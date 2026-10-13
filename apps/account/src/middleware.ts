@@ -1,9 +1,13 @@
 import { platformSessionMiddleware } from "@env-manager/auth/platform-middleware";
 import { DEFAULT_ACCOUNT_URL } from "@env-manager/env/platform";
+import { resolvePublicServiceUrl } from "@env-manager/env/vercel-services";
 import { type NextRequest, NextResponse } from "next/server";
 
 const appOrigin = (
-  process.env.NEXT_PUBLIC_ACCOUNT_URL ?? DEFAULT_ACCOUNT_URL
+  process.env.NEXT_PUBLIC_ACCOUNT_URL ??
+  (process.env.VERCEL_SERVICES === "1"
+    ? resolvePublicServiceUrl("account")
+    : DEFAULT_ACCOUNT_URL)
 ).replace(/\/$/, "");
 
 const LEGACY_TAB_PATHS: Record<string, string> = {

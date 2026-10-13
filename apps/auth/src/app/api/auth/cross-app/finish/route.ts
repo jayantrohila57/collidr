@@ -1,6 +1,10 @@
 import { appendOttToUrl, isCrossOriginReturnTo } from "@env-manager/auth";
 import { validateReturnTo } from "@env-manager/auth/return-to";
 import { env } from "@env-manager/env/server";
+import {
+  resolveAuthServiceUrl,
+  resolvePublicServiceUrl,
+} from "@env-manager/env/vercel-services";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { platformAuth } from "@/lib/platform-auth";
@@ -21,14 +25,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(signIn);
   }
 
-  if (!isCrossOriginReturnTo(returnTo, env.BETTER_AUTH_URL)) {
+  const authPublicOrigin =
+    env.BETTER_AUTH_URL ?? resolvePublicServiceUrl("auth");
+  if (!isCrossOriginReturnTo(returnTo, authPublicOrigin)) {
     return NextResponse.redirect(returnTo);
   }
 
-  const tokenUrl = new URL(
-    "/api/auth/one-time-token/generate",
-    env.BETTER_AUTH_URL,
-  );
+  const authService = resolveAuthServiceUrl();
+  const tokenUrl = new URL("/api/auth/one-time-token/generate", authService);
   const tokenResponse = await fetch(tokenUrl, {
     headers: {
       cookie: headerList.get("cookie") ?? "",

@@ -1,6 +1,8 @@
+import { resolvePublicServiceUrl } from "@env-manager/env/vercel-services";
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 import { readOttFromSearchParams, stripOttFromPath } from "./cross-app-session";
+
 import { DEFAULT_AUTH_URL, trimTrailingSlash } from "./platform-urls";
 import { validateReturnTo } from "./return-to";
 
@@ -13,7 +15,10 @@ export type PlatformMiddlewareOptions = {
 
 function buildAuthSignInUrl(returnTo: string): string {
   const auth = trimTrailingSlash(
-    process.env.NEXT_PUBLIC_AUTH_URL ?? DEFAULT_AUTH_URL,
+    process.env.NEXT_PUBLIC_AUTH_URL ??
+      (process.env.VERCEL_SERVICES === "1"
+        ? resolvePublicServiceUrl("auth")
+        : DEFAULT_AUTH_URL),
   );
   const params = new URLSearchParams({ return_to: returnTo });
   return `${auth}/sign-in?${params.toString()}`;
@@ -43,8 +48,6 @@ export function platformSessionMiddleware(
     return undefined;
   }
 
-  const returnTo = validateReturnTo(
-    `${options.appOrigin}${pathname}${search}`,
-  );
+  const returnTo = validateReturnTo(`${options.appOrigin}${pathname}${search}`);
   return NextResponse.redirect(buildAuthSignInUrl(returnTo));
 }

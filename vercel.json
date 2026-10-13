@@ -1,0 +1,192 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "web": {
+      "root": "apps/web",
+      "framework": "nextjs",
+      "installCommand": "cd ../.. && pnpm install",
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=web",
+      "env": {
+        "VERCEL_SERVICES": "1",
+        "NEXT_BASE_PATH": "/app"
+      },
+      "bindings": [
+        {
+          "type": "service",
+          "service": "auth",
+          "format": "url",
+          "env": "AUTH_SERVICE_URL"
+        }
+      ]
+    },
+    "www": {
+      "root": "apps/www",
+      "framework": "nextjs",
+      "installCommand": "cd ../.. && pnpm install",
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=www",
+      "env": {
+        "VERCEL_SERVICES": "1"
+      }
+    },
+    "docs": {
+      "root": "apps/docs",
+      "framework": "nextjs",
+      "installCommand": "cd ../.. && pnpm install",
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=docs",
+      "env": {
+        "VERCEL_SERVICES": "1",
+        "NEXT_BASE_PATH": "/docs"
+      }
+    },
+    "auth": {
+      "root": "apps/auth",
+      "framework": "nextjs",
+      "installCommand": "cd ../.. && pnpm install",
+      "buildCommand": "cd ../.. && PLATFORM_AUTH_ENABLE_MCP=1 pnpm turbo run build --filter=auth",
+      "env": {
+        "VERCEL_SERVICES": "1",
+        "NEXT_BASE_PATH": "/auth",
+        "PLATFORM_AUTH_ENABLE_MCP": "1"
+      }
+    },
+    "account": {
+      "root": "apps/account",
+      "framework": "nextjs",
+      "installCommand": "cd ../.. && pnpm install",
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=account",
+      "env": {
+        "VERCEL_SERVICES": "1",
+        "NEXT_BASE_PATH": "/account"
+      }
+    },
+    "studio": {
+      "root": "apps/studio",
+      "framework": "nextjs",
+      "installCommand": "cd ../.. && pnpm install",
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=studio",
+      "env": {
+        "VERCEL_SERVICES": "1",
+        "NEXT_BASE_PATH": "/studio"
+      },
+      "bindings": [
+        {
+          "type": "service",
+          "service": "auth",
+          "format": "url",
+          "env": "AUTH_SERVICE_URL"
+        }
+      ]
+    },
+    "console": {
+      "root": "apps/console",
+      "framework": "nextjs",
+      "installCommand": "cd ../.. && pnpm install",
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=console",
+      "env": {
+        "VERCEL_SERVICES": "1",
+        "NEXT_BASE_PATH": "/console"
+      }
+    },
+    "mcp": {
+      "root": "apps/mcp",
+      "framework": "nextjs",
+      "installCommand": "cd ../.. && pnpm install",
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=mcp",
+      "env": {
+        "VERCEL_SERVICES": "1"
+      },
+      "bindings": [
+        {
+          "type": "service",
+          "service": "auth",
+          "format": "url",
+          "env": "AUTH_SERVICE_URL"
+        }
+      ]
+    },
+    "support": {
+      "root": "apps/support",
+      "framework": "nextjs",
+      "installCommand": "cd ../.. && pnpm install",
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=support",
+      "env": {
+        "VERCEL_SERVICES": "1",
+        "NEXT_BASE_PATH": "/support"
+      }
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/docs/:path*",
+      "destination": { "service": "docs" }
+    },
+    {
+      "source": "/auth/:path*",
+      "destination": { "service": "auth" }
+    },
+    {
+      "source": "/account/:path*",
+      "destination": { "service": "account" }
+    },
+    {
+      "source": "/console/:path*",
+      "destination": { "service": "console" }
+    },
+    {
+      "source": "/support/:path*",
+      "destination": { "service": "support" }
+    },
+    {
+      "source": "/studio/:path*",
+      "destination": { "service": "studio" }
+    },
+    {
+      "source": "/api/mcp",
+      "destination": { "service": "mcp" }
+    },
+    {
+      "source": "/api/mcp/:path*",
+      "destination": { "service": "mcp" }
+    },
+    {
+      "source": "/.well-known/oauth-protected-resource",
+      "destination": { "service": "mcp" }
+    },
+    {
+      "source": "/.well-known/oauth-protected-resource/:path*",
+      "destination": { "service": "mcp" }
+    },
+    {
+      "source": "/.well-known/oauth-authorization-server",
+      "destination": { "service": "mcp" }
+    },
+    {
+      "source": "/.well-known/oauth-authorization-server/:path*",
+      "destination": { "service": "mcp" }
+    },
+    {
+      "source": "/.well-known/openid-configuration",
+      "destination": { "service": "mcp" }
+    },
+    {
+      "source": "/.well-known/openid-configuration/:path*",
+      "destination": { "service": "mcp" }
+    },
+    {
+      "source": "/app",
+      "destination": { "service": "web" }
+    },
+    {
+      "source": "/app/:path*",
+      "destination": { "service": "web" }
+    },
+    {
+      "source": "/",
+      "destination": { "service": "www" }
+    },
+    {
+      "source": "/:path*",
+      "destination": { "service": "www" }
+    }
+  ]
+}
