@@ -11,25 +11,19 @@ type CanProps = {
   children: React.ReactNode;
 };
 
-export function Can({
-  action,
-  projectId,
-  fallback = null,
-  children,
-}: CanProps) {
+export function Can({ action, projectId, fallback, children }: CanProps) {
   const { allowed, isLoading } = useCan(action, { projectId });
   if (isLoading) {
     return <SettingsPanelSkeleton rows={2} />;
   }
   if (!allowed) {
+    if (fallback !== undefined) {
+      return <>{fallback}</>;
+    }
     return (
-      <>
-        {fallback ?? (
-          <p className="text-muted-foreground text-sm">
-            You do not have permission to view this section.
-          </p>
-        )}
-      </>
+      <p className="text-muted-foreground text-sm">
+        You do not have permission to view this section.
+      </p>
     );
   }
   return <>{children}</>;
