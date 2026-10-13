@@ -9,6 +9,7 @@ export default function DashboardLoading() {
       <PageTitleRow
         title="Dashboard"
         description="Workspace overview and recent projects."
+        back={false}
         action={
           <Skeleton className="size-8 rounded-md sm:h-8 sm:w-auto sm:min-w-[8.5rem]" />
         }

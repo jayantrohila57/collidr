@@ -36,6 +36,7 @@ export function OrganizationsPageClient() {
       <DashboardSection
         title="Organizations"
         description="Workspaces you belong to, with members, teams, and access settings."
+        back={false}
         action={
           <Can action="organization.create">
             <PageHeaderActionButton

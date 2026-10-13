@@ -63,6 +63,7 @@ export function DashboardHome() {
         <PageTitleRow
           title="Dashboard"
           description="Workspace overview and recent projects."
+          back={false}
           action={
             <PageHeaderActionButton label="New project" onClick={openCreate} />
           }

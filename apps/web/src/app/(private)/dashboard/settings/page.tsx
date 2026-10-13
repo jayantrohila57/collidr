@@ -24,6 +24,7 @@ export default async function SettingsRoute() {
     <DashboardSection
       title="Settings"
       description="Account information and security preferences."
+      back={false}
       action={<AccountSettingsHeaderActions />}
       stats={<UserSettingsStats />}
     >

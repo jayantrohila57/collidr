@@ -38,6 +38,7 @@ export function ProjectsPageClient() {
       <DashboardSection
         title="Projects"
         description="All workspace projects in one searchable list."
+        back={false}
         action={
           <Can action="project.create">
             <PageHeaderActionButton label="New project" onClick={openCreate} />

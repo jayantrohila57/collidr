@@ -5,13 +5,22 @@ import type { ReactNode } from "react";
 import { PageBackButton } from "@/components/layout/page-back-button";
 import { PageHeaderDescription } from "@/components/layout/page-header-description";
 import { Separator } from "@/components/ui/separator";
-import { layoutGapClass, layoutPageTitleClass } from "@/lib/layout-spacing";
+import {
+  layoutGapClass,
+  layoutPageHeaderRowClass,
+  layoutPageTitleClass,
+} from "@/lib/layout-spacing";
 import {
   getPageBackFallback,
   getPageBackHref,
   isDashboardRootPath,
   type PageBackHref,
 } from "@/lib/page-back";
+import {
+  pageHeaderDescriptionGridActionClass,
+  pageHeaderDescriptionGridDescClass,
+  pageHeaderDescriptionGridTitleClass,
+} from "@/lib/page-header-grid-classes";
 import { cn } from "@/lib/utils";
 
 export type PageHeaderBackProp =
@@ -141,20 +150,13 @@ function PageHeaderSimple({
 
   if (description && !hasBack) {
     return (
-      <div
-        className={cn(
-          "flex w-full min-w-0 flex-col gap-2 py-0.5",
-          layoutGapClass,
-        )}
-      >
-        <div className="flex min-w-0 items-start justify-between gap-2">
-          <TitleBlock
-            title={title}
-            titleAccessory={titleAccessory}
-            description={description}
-          />
-          {action ? <div className="shrink-0">{action}</div> : null}
-        </div>
+      <div className={cn(layoutPageHeaderRowClass, "items-start")}>
+        <TitleBlock
+          title={title}
+          titleAccessory={titleAccessory}
+          description={description}
+        />
+        {action ? <div className="shrink-0">{action}</div> : null}
       </div>
     );
   }
@@ -207,16 +209,16 @@ function PageHeaderSimple({
         <TitleHeading
           title={title}
           titleAccessory={titleAccessory}
-          className="[grid-area:title] md:col-start-2"
+          className={pageHeaderDescriptionGridTitleClass(hasBack)}
         />
         {action ? (
-          <div className="shrink-0 self-center [grid-area:action] md:col-start-3">
+          <div className={pageHeaderDescriptionGridActionClass(hasBack)}>
             {action}
           </div>
         ) : null}
         <PageHeaderDescriptionSlot
           description={description}
-          className="[grid-area:desc] md:col-start-2"
+          className={pageHeaderDescriptionGridDescClass(hasBack)}
         />
       </div>
     );

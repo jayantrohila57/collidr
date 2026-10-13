@@ -24,7 +24,7 @@ interface SectionProps {
   metadata?: ReactNode;
   /** Rendered under metadata (e.g. stat cards). */
   stats?: ReactNode;
-  /** `auto` shows back everywhere; `false` hides; string sets parent href */
+  /** `auto` is route-aware (no back on dashboard list routes); `false` hides; string sets parent href */
   back?: PageHeaderBackProp;
 }
 
