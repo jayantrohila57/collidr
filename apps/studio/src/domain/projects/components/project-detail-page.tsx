@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { PageHeaderMetadataSkeleton } from "@/components/layout/page-header-metadata-skeleton";
 import { ErrorState } from "@/components/patterns/error-state";
 import {
@@ -48,7 +48,7 @@ function ProjectHeaderBadges({
   );
 }
 
-export default function ProjectDetailPage({
+function ProjectDetailPageContent({
   slug,
   initialName,
   initialDescription,
@@ -158,5 +158,31 @@ export default function ProjectDetailPage({
         onOpenChange={handleEditOpenChange}
       />
     </>
+  );
+}
+
+function ProjectDetailPageFallback({
+  initialName,
+  initialDescription,
+}: Pick<ProjectDetailPageProps, "initialName" | "initialDescription">) {
+  return (
+    <DashboardSection title={initialName} description={initialDescription}>
+      <ProjectOverviewSectionsSkeleton />
+    </DashboardSection>
+  );
+}
+
+export default function ProjectDetailPage(props: ProjectDetailPageProps) {
+  return (
+    <Suspense
+      fallback={
+        <ProjectDetailPageFallback
+          initialName={props.initialName}
+          initialDescription={props.initialDescription}
+        />
+      }
+    >
+      <ProjectDetailPageContent {...props} />
+    </Suspense>
   );
 }

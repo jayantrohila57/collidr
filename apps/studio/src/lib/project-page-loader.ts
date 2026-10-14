@@ -5,8 +5,6 @@ import { cache } from "react";
 import { hydrateProjectDetailQueries } from "@/lib/project-prefetch";
 import { getServerSession } from "@/lib/server-auth";
 import { ServerTiming } from "@/lib/server-timing";
-import { trpcQueryOptions } from "@/utils/trpc-query-options";
-
 export type ProjectPageData = {
   slug: string;
   name: string;
@@ -27,21 +25,12 @@ export const loadProjectPageData = cache(
 
     const queryClient = new QueryClient();
 
-    await hydrateProjectDetailQueries(queryClient, slug, session, timing);
-
-    const projectPayload = queryClient.getQueryData(
-      trpcQueryOptions.projects.getBySlug.queryKey({ slug }),
-    ) as
-      | {
-          data?: {
-            project?: {
-              name: string;
-              description: string | null;
-              slug: string;
-            } | null;
-          };
-        }
-      | undefined;
+    const projectPayload = await hydrateProjectDetailQueries(
+      queryClient,
+      slug,
+      session,
+      timing,
+    );
 
     const project = projectPayload?.data?.project;
     if (!project) {

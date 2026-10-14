@@ -6,7 +6,7 @@ const emailListSchema = z
   .min(1)
   .transform((raw) =>
     raw
-      .split(",")
+      .split(/[,\n]+/)
       .map((e) => e.trim().toLowerCase())
       .filter(Boolean),
   );

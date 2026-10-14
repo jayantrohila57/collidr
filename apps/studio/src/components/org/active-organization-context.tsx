@@ -84,6 +84,8 @@ export function ActiveOrganizationProvider({
     }
     if (sessionActiveOrganizationId) {
       setActiveOrganizationId(sessionActiveOrganizationId);
+      setInitialLoadDone(true);
+      setLoading(false);
     }
   }, [enabled, isSwitching, sessionActiveOrganizationId, sessionPending]);
 
@@ -147,7 +149,7 @@ export function ActiveOrganizationProvider({
             trpc.dashboard.getOverview.queryOptions(),
           );
           void queryClient.prefetchQuery(
-            trpc.permissions.snapshot.queryOptions(),
+            trpc.permissions.snapshot.queryOptions({}),
           );
           void queryClient.prefetchQuery(
             trpc.notifications.unreadCount.queryOptions(),

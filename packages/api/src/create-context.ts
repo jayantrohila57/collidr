@@ -1,5 +1,6 @@
 import type { AuthSession } from "@collidr/auth/session-types";
 import type { NextRequest } from "next/server";
+import { enrichSessionUserRole } from "./enrich-session-user";
 
 type SessionAuth = {
   api: {
@@ -11,9 +12,11 @@ export async function createContextWithAuth(
   req: NextRequest,
   auth: SessionAuth,
 ) {
-  const session = await auth.api.getSession({
-    headers: req.headers,
-  });
+  const session = await enrichSessionUserRole(
+    await auth.api.getSession({
+      headers: req.headers,
+    }),
+  );
   return {
     session,
   };

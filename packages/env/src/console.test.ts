@@ -8,6 +8,10 @@ test("parseConsoleAllowedEmails normalizes list", () => {
     "a@x.com",
     "b@x.com",
   ]);
+  assert.deepEqual(parseConsoleAllowedEmails("a@x.com\nb@x.com"), [
+    "a@x.com",
+    "b@x.com",
+  ]);
 });
 
 test("isEmailAllowedForConsole enforces list in production", () => {

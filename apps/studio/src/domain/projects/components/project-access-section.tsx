@@ -72,7 +72,7 @@ export function ProjectAccessSection({ project }: ProjectAccessSectionProps) {
       }),
     });
     void queryClient.invalidateQueries({
-      queryKey: trpc.permissions.snapshot.queryKey(),
+      queryKey: trpc.permissions.snapshot.queryKey({}),
     });
   };
 

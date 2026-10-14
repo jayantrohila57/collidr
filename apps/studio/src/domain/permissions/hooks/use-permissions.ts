@@ -7,10 +7,9 @@ import { trpc } from "@/utils/trpc";
 const POLL_MS = 30_000;
 
 export function usePermissionsSnapshot(projectId?: string) {
+  const input = projectId ? { projectId } : {};
   return useQuery({
-    ...trpc.permissions.snapshot.queryOptions(
-      projectId ? { projectId } : undefined,
-    ),
+    ...trpc.permissions.snapshot.queryOptions(input),
     staleTime: POLL_MS,
     refetchInterval: POLL_MS,
   });

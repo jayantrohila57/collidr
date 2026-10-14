@@ -11,6 +11,10 @@ export function isRecognizedDashboardPath(
     "/dashboard/activity",
     "/dashboard/notifications",
     "/dashboard/onboarding",
+    "/dashboard/support",
+    "/dashboard/support/tickets",
+    "/dashboard/support/tickets/new",
+    "/dashboard/support/help",
     "/dashboard/projects",
     "/dashboard/projects/new",
     "/dashboard/settings",
@@ -32,14 +36,12 @@ export function isRecognizedDashboardPath(
   if (projectDetail) {
     const slug = projectDetail[1];
     if (slug === "new" || slug === "edit") return true;
-    if (!projectsLoaded) return true;
-    return projectSlugs.has(slug);
+    return true;
   }
 
   const projectEdit = /^\/dashboard\/projects\/([^/]+)\/edit$/.exec(pathname);
   if (projectEdit) {
-    if (!projectsLoaded) return true;
-    return projectSlugs.has(projectEdit[1]);
+    return true;
   }
 
   const projectEnvironments =
@@ -47,8 +49,18 @@ export function isRecognizedDashboardPath(
   if (projectEnvironments) {
     const slug = projectEnvironments[1];
     if (slug === "new" || slug === "edit") return true;
-    if (!projectsLoaded) return true;
-    return projectSlugs.has(slug);
+    return true;
+  }
+
+  const supportTicket =
+    /^\/dashboard\/support\/tickets\/([^/]+)$/.exec(pathname);
+  if (supportTicket) {
+    return true;
+  }
+
+  const supportHelp = /^\/dashboard\/support\/help\/([^/]+)$/.exec(pathname);
+  if (supportHelp) {
+    return true;
   }
 
   const organizationDetail = /^\/dashboard\/organizations\/([^/]+)$/.exec(

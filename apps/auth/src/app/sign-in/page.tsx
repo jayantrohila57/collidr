@@ -8,17 +8,25 @@ import {
 } from "@collidr/ui/card";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { GitHubSignInButton } from "@/components/github-sign-in-button";
 import { platformAuth } from "@/lib/platform-auth";
+import {
+  readSignInReturnTo,
+  redirectIfAlreadySignedIn,
+} from "./already-signed-in-redirect";
 
-export default async function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const session = await platformAuth.api.getSession({
     headers: await headers(),
   });
+  const params = await searchParams;
   if (session) {
-    redirect("/settings/profile");
+    redirectIfAlreadySignedIn(await readSignInReturnTo(params));
   }
 
   return (

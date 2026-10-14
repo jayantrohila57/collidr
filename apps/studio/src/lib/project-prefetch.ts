@@ -8,12 +8,18 @@ import { getServerSession } from "@/lib/server-auth";
 import type { ServerTiming } from "@/lib/server-timing";
 import { trpcQueryOptions } from "@/utils/trpc-query-options";
 
+type ProjectBySlugPayload = Awaited<
+  ReturnType<
+    ReturnType<typeof studioRouter.createCaller>["projects"]["getBySlug"]
+  >
+>;
+
 export async function hydrateProjectDetailQueries(
   queryClient: QueryClient,
   slug: string,
   session: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>,
   timing?: ServerTiming,
-) {
+): Promise<ProjectBySlugPayload> {
   const caller = studioRouter.createCaller({ session });
 
   const measure = async <T>(name: string, fn: () => Promise<T>) =>
@@ -58,6 +64,8 @@ export async function hydrateProjectDetailQueries(
       ),
     );
   }
+
+  return projectRes;
 }
 
 export async function dehydrateProjectDetail(slug: string) {

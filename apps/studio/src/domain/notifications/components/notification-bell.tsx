@@ -90,7 +90,7 @@ export function NotificationBell() {
             </LoadingButton>
           ) : null}
         </div>
-        <div className="max-h-80 space-y-0.5 overflow-y-auto">
+        <div className="flex max-h-80 flex-col gap-0.5 overflow-y-auto">
           {listQuery.isError ? (
             <p className="px-2 py-6 text-center text-muted-foreground text-sm">
               Could not load notifications. Try again shortly.

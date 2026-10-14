@@ -69,9 +69,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const actionsAudit = isActionsAuditEnabledOnClient();
   const permissions = useCan("organization.list");
   const canTimeline = useCan("audit.timeline.view.org");
-  const platformNavLoading =
-    actionsAudit &&
-    (!initialLoadDone || permissions.isLoading || canTimeline.isLoading);
+  const platformNavLoading = actionsAudit && !initialLoadDone;
 
   const menuItems = actionsAudit
     ? platformNav
