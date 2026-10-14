@@ -96,7 +96,7 @@ export function getPlatformProductionOrigins(
     env.legacyWebUrl ?? process.env.CORS_ORIGIN,
     process.env.NEXT_PUBLIC_DOCS_URL ?? DEFAULT_DOCS_URL,
     ...(process.env.VERCEL_SERVICES === "1"
-      ? [resolvePublicServiceUrl("web")]
+      ? [resolvePublicServiceUrl("studio")]
       : []),
   ].filter(Boolean) as string[];
 

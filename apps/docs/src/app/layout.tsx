@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={cn("font-sans", inter.variable, geistMono.variable)}
     >
       <body className="flex min-h-screen flex-col antialiased">
-        <RootProvider>{children}</RootProvider>
+        <RootProvider search={{ enabled: false }}>{children}</RootProvider>
       </body>
     </html>
   );

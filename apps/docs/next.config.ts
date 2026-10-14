@@ -6,6 +6,8 @@ const docsBasePath =
   (process.env.VERCEL_SERVICES === "1" ? "/docs" : "");
 
 const config: NextConfig = {
+  output: "export" as const,
+  images: { unoptimized: true },
   reactStrictMode: true,
   typedRoutes: true,
   reactCompiler: true,

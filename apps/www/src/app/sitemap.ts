@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 
 import { getWwwSiteUrl } from "@/lib/site-metadata";
 
+export const dynamic = "force-static";
+
 const paths = [
   "",
   "/features",
