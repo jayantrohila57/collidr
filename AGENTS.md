@@ -1,6 +1,6 @@
 # Agent & contributor workflow
 
-This repository is maintained on **`main` only**. All work is tracked in GitHub.
+This repository uses **`dev`** for integration and **`main`** for production. All work is tracked in GitHub.
 
 ## Issues first
 
@@ -12,11 +12,13 @@ This repository is maintained on **`main` only**. All work is tracked in GitHub.
 
 | Rule | Detail |
 |------|--------|
-| Branch | Work on **`main`** — no feature branches for routine delivery |
-| Before push | `git pull --rebase origin main` |
-| Push target | **`origin main` only** — production deploys from `main` |
-| Forbidden | Force-push, `git commit --amend` on shared history, preview deploys from branches |
-| PRs | Not used for this repo’s delivery model (issue → commit on `main`) |
+| Branches | Feature branch (e.g. `chore/…`, `fix/…`) → merge into **`dev`** → merge **`dev`** into **`main`** |
+| Integration | **`dev`** holds merged work; push `dev` after feature merges (no Vercel production deploy) |
+| Production | **`main` only** — Vercel production deploys when `main` is pushed |
+| Vercel | Per-app `vercel.json` sets `git.deploymentEnabled` so only **`main`** builds; `ignoreCommand` skips non-`main` refs |
+| Before push | `git pull --rebase` on the branch you are updating |
+| Forbidden | Force-push, `git commit --amend` on shared history |
+| PRs | Optional; merges may be direct on GitHub or locally |
 
 ## What to read before coding
 

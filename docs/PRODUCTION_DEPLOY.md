@@ -1,6 +1,13 @@
 # Production deploy (Vercel)
 
-Collidr ships from **`main` only**. Production is **five separate Vercel Hobby projects** (no monorepo Services router): `auth`, `studio`, `console`, `mcp`, and `docs`. Each project uses **Root Directory** `apps/<app>` and `apps/<app>/vercel.json` (`turbo-ignore` skips unchanged apps). Cross-app URLs use explicit `NEXT_PUBLIC_*` env vars; session SSO uses auth **cross-app finish** + sibling **establish-session** (not shared cookies on `*.vercel.app`). There are **no** branch preview deploys for this repo.
+Collidr ships from **`main` only**. Day-to-day work merges **feature branch → `dev` → `main`**; only pushes to **`main`** trigger Vercel production builds.
+
+Production is **five separate Vercel Hobby projects** (no monorepo Services router): `auth`, `studio`, `console`, `mcp`, and `docs`. Each project uses **Root Directory** `apps/<app>` and `apps/<app>/vercel.json`:
+
+- `git.deploymentEnabled`: `{ "*": false, "main": true }` — no deploys from `dev` or feature branches.
+- `ignoreCommand`: exit `0` (skip build) when `VERCEL_GIT_COMMIT_REF` is not `main`; on `main`, run `turbo-ignore` for unchanged apps.
+
+Cross-app URLs use explicit `NEXT_PUBLIC_*` env vars; session SSO uses auth **cross-app finish** + sibling **establish-session** (not shared cookies on `*.vercel.app`).
 
 This runbook addresses **Hobby / Pro deploy limits**, **feature-flag reliability** (`NEXT_PUBLIC_*` + Turbo cache), and the **approved production schema path** (`drizzle-kit push`).
 
@@ -15,7 +22,8 @@ Use this before and after every intentional production release.
 ### 1. Prepare the change
 
 - [ ] GitHub issue exists and describes the change.
-- [ ] `git pull --rebase origin main` on a clean working tree.
+- [ ] Changes merged to **`dev`**, then **`main`** (see [scripts/commit-workflow.md](../scripts/commit-workflow.md)).
+- [ ] `git pull --rebase origin main` on a clean working tree before the production merge.
 - [ ] Schema changes reviewed locally (`pnpm db:push` against dev/staging first) — see [Database](#database-production-schema-path) below.
 - [ ] Batch unrelated fixes into **one commit push** when possible (reduces deploy count).
 

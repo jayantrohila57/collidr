@@ -1,6 +1,20 @@
 # Commit workflow (collidr)
 
-This repository ships from **`main`** only. Every change should reference a GitHub issue.
+Production ships from **`main`**. Integration happens on **`dev`**. Every change should reference a GitHub issue.
+
+## Branch flow
+
+```text
+feature branch  →  dev  →  main  →  Vercel production (five apps)
+```
+
+| Branch | Purpose |
+|--------|---------|
+| `chore/…`, `fix/…`, `feat/…` | Implement one issue; open from `dev` |
+| **`dev`** | Merge feature branches; run CI locally; **no** production deploy |
+| **`main`** | Merge `dev` when ready to release; **only** branch that deploys on Vercel |
+
+Vercel: each `apps/<app>/vercel.json` disables Git deployments except `main` and skips builds on other refs via `ignoreCommand`.
 
 ## Standard workflow
 
@@ -8,11 +22,12 @@ This repository ships from **`main`** only. Every change should reference a GitH
 
 Create or pick an issue on [jayantrohila57/collidr](https://github.com/jayantrohila57/collidr/issues).
 
-### 2. Implement on `main`
+### 2. Implement on a feature branch
 
 ```bash
-git checkout main
-git pull --rebase origin main
+git checkout dev
+git pull --rebase origin dev
+git checkout -b fix/short-description
 # … make changes …
 ```
 
@@ -29,38 +44,42 @@ Fixes #41"
 
 Conventional types (`feat`, `fix`, `docs`, `chore`, …) are encouraged but not required.
 
-### 4. Push (deploy)
+### 4. Merge to `dev`
 
 ```bash
+git checkout dev
+git pull --rebase origin dev
+git merge fix/short-description
+git push origin dev
+```
+
+### 5. Release to production (`main`)
+
+When `dev` is ready:
+
+```bash
+git checkout main
 git pull --rebase origin main
+git merge dev
 git push origin main
 ```
 
-Production Vercel deploys from this push. **No** preview deployments from feature branches.
+Vercel production deploys from this push only.
 
-Before pushing risky releases, follow [docs/PRODUCTION_DEPLOY.md](../docs/PRODUCTION_DEPLOY.md) (batch commits, `NEXT_PUBLIC_*` redeploy, `pnpm turbo run build --filter=web`).
+### 6. Keep `dev` in sync (after release)
+
+```bash
+git checkout dev
+git merge main
+git push origin dev
+```
 
 ## Rules
 
-| Do | Don't |
-|----|--------|
-| `git pull --rebase` before push | `git push --force` |
-| `Fixes #N` on completing issues | `git commit --amend` after push to shared `main` |
-| Work tracked in GitHub issues | Drive-by commits without an issue |
-| Test `pnpm build` / `pnpm check-types` for risky changes | Skip UI smoke test after visual changes |
+- **No force-push** on shared branches.
+- **No** production deploys from `dev` or feature branches (enforced in `vercel.json`).
+- Pull requests are optional; direct merges are fine.
 
-## Releases (optional)
+## Agents
 
-Version bumps use [CHANGELOG.md](../CHANGELOG.md) and `pnpm run release:*` — see [scripts/README.md](./README.md). Releases still land on **`main`**.
-
-## Pre-commit checklist
-
-- [ ] Linked GitHub issue exists
-- [ ] `pnpm check-types` / `pnpm build` when touching API or types
-- [ ] UI verified in browser when touching `apps/web`
-- [ ] Docs updated when behavior or flags change
-- [ ] No secrets in the diff
-
-## Historical note
-
-Older versions of this guide described feature branches and `git commit --amend` / force-push recovery. **That does not apply to this repo’s main-only deploy model.**
+See [AGENTS.md](../AGENTS.md) for the same rules in contributor/agent form.
