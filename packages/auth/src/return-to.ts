@@ -37,7 +37,11 @@ export function validateReturnTo(
   }
 
   const trimmed = raw.trim();
-  if (!trimmed.startsWith("https://")) {
+  const isHttps = trimmed.startsWith("https://");
+  const isLocalHttp =
+    trimmed.startsWith("http://localhost") ||
+    trimmed.startsWith("http://127.0.0.1");
+  if (!isHttps && !isLocalHttp) {
     return fallback;
   }
 

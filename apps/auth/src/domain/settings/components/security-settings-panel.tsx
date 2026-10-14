@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   SettingsPanel,
   SettingsRow,
-  SettingsSectionHeader,
 } from "@/components/patterns/settings-layout";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/domain/auth/lib/auth-actions";
@@ -20,10 +19,6 @@ export function SecuritySettingsPanel() {
 
   return (
     <SettingsPanel>
-      <SettingsSectionHeader
-        title="Security"
-        description="How you sign in and protect your account."
-      />
       <SettingsRow
         label="Sign-in email"
         description="Used for authentication and account recovery."

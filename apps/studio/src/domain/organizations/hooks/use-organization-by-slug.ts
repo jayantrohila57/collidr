@@ -24,6 +24,7 @@ type LoadStatus = "loading" | "success" | "error" | "not-found";
 export function useOrganizationBySlug(slug: string) {
   const {
     orgs,
+    initialLoadDone,
     refreshOrganizations,
     setActiveOrganization,
     activeOrganizationId,
@@ -55,6 +56,13 @@ export function useOrganizationBySlug(slug: string) {
       const pendingInvites = Array.isArray(invitations)
         ? countPendingInvitations(invitations)
         : undefined;
+      const isMember = orgs.some((o) => o.id === data.id);
+      if (initialLoadDone && !isMember) {
+        setOrganization(null);
+        setStatus("not-found");
+        return;
+      }
+
       setOrganization({
         id: data.id,
         name: data.name,
@@ -72,21 +80,30 @@ export function useOrganizationBySlug(slug: string) {
       setError(err instanceof Error ? err : new Error("Failed to load"));
       setStatus("error");
     }
-  }, [slug]);
+  }, [initialLoadDone, orgs, slug]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
   useEffect(() => {
-    if (
-      status === "success" &&
-      organization?.id &&
-      organization.id !== activeOrganizationId
-    ) {
+    if (status !== "success" || !organization?.id) {
+      return;
+    }
+    const isMember = orgs.some((o) => o.id === organization.id);
+    if (!isMember) {
+      return;
+    }
+    if (organization.id !== activeOrganizationId) {
       void setActiveOrganization(organization.id);
     }
-  }, [activeOrganizationId, organization?.id, setActiveOrganization, status]);
+  }, [
+    activeOrganizationId,
+    organization?.id,
+    orgs,
+    setActiveOrganization,
+    status,
+  ]);
 
   return {
     organization,

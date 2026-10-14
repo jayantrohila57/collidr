@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@loftlancer/actions": "workspace:*",
+    "@loftlancer/auth": "workspace:*",
     "@loftlancer/api": "workspace:*",
     "@loftlancer/db": "workspace:*",
     "@loftlancer/env": "workspace:*",

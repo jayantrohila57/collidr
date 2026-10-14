@@ -632,18 +632,20 @@ export function OrganizationSettingsForm({
                 description="Invite teammates and manage roles."
                 icon="member"
               />
-              <SettingsRow label="Invite" description="Add someone by email.">
-                <Button
-                  type="button"
-                  size="sm"
-                  className="w-fit gap-2"
-                  onClick={() => setInviteOpen(true)}
-                >
-                  <AppIcon name="invite" className="text-current" />
-                  Invite member
-                </Button>
-              </SettingsRow>
-              {members.length <= 1 ? (
+              {mode !== "members" ? (
+                <SettingsRow label="Invite" description="Add someone by email.">
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="w-fit gap-2"
+                    onClick={() => setInviteOpen(true)}
+                  >
+                    <AppIcon name="invite" className="text-current" />
+                    Invite member
+                  </Button>
+                </SettingsRow>
+              ) : null}
+              {members.length === 0 ? (
                 <div className="px-4 py-6">
                   <Empty className="border border-dashed py-8">
                     <EmptyHeader>

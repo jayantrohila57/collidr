@@ -78,7 +78,7 @@ export function OrganizationInvitationsTable({
           return <span className="text-muted-foreground text-xs">—</span>;
         }
         return (
-          <Can action="member.invite">
+          <Can action="member.invite" fallback={null}>
             <div className="flex flex-wrap justify-end gap-2">
               <Button
                 type="button"

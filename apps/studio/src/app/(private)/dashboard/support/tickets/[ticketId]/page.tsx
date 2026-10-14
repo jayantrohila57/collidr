@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import DashboardSection from "@/components/section-dashboard";
 import { Badge } from "@/components/ui/badge";
+import { LoadingButton } from "@/components/patterns/loading-button";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/utils/trpc";
@@ -102,9 +103,14 @@ export default function SupportTicketDetailPage() {
             placeholder="Write a reply…"
             required
           />
-          <Button type="submit" disabled={replyMutation.isPending}>
+          <LoadingButton
+            type="submit"
+            loading={replyMutation.isPending}
+            loadingLabel="Sending…"
+            disabled={!reply.trim()}
+          >
             Send reply
-          </Button>
+          </LoadingButton>
         </form>
         <p className="text-muted-foreground text-xs">
           Need more help? Browse the{" "}

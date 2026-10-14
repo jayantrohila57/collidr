@@ -20,13 +20,9 @@ const DEFAULT_ROLES = ["owner", "manager", "member", "admin"] as const;
 
 export function OrganizationRolesPage({ slug }: { slug: string }) {
   const { organization, status, error } = useOrganizationBySlug(slug);
-  const { activeOrganizationId, isSwitching } = useActiveOrganization();
+  const { isSwitching } = useActiveOrganization();
   const rolesAction = orgSectionAction("roles");
   const { allowed, isLoading: permissionsLoading } = useCan(rolesAction);
-
-  const sessionMatchesOrg =
-    Boolean(organization?.id) && activeOrganizationId === organization?.id;
-  const permissionsReady = sessionMatchesOrg && !isSwitching;
 
   let body: ReactNode;
   if (status === "loading" || !organization) {
@@ -38,7 +34,7 @@ export function OrganizationRolesPage({ slug }: { slug: string }) {
         description={error?.message ?? "Try refreshing the page."}
       />
     );
-  } else if (!permissionsReady || permissionsLoading) {
+  } else if (isSwitching || permissionsLoading) {
     body = <SettingsPanelSkeleton rows={3} />;
   } else if (!allowed) {
     body = (
@@ -70,7 +66,7 @@ export function OrganizationRolesPage({ slug }: { slug: string }) {
                       : "Project access via teams and explicit grants."
               }
             >
-              <RoleBadge role={role === "admin" ? "manager" : role} />
+              <RoleBadge role={role} />
             </SettingsRow>
           ))}
         </SettingsPanel>

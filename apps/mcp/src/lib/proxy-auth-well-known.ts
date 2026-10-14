@@ -1,3 +1,4 @@
+import { withMcpCors } from "@loftlancer/mcp/http-cors";
 import { resolveAuthServiceUrl } from "@loftlancer/env/vercel-services";
 
 /** Proxy OAuth discovery documents from the auth service (private binding at runtime). */
@@ -15,8 +16,11 @@ export async function proxyAuthWellKnown(request: Request): Promise<Response> {
 
   const headers = new Headers(upstream.headers);
   headers.delete("content-encoding");
-  return new Response(upstream.body, {
-    status: upstream.status,
-    headers,
-  });
+  return withMcpCors(
+    request,
+    new Response(upstream.body, {
+      status: upstream.status,
+      headers,
+    }),
+  );
 }

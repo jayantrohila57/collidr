@@ -20,6 +20,7 @@ import {
 
 export type AppRouteStateLinks = {
   homeHref: string;
+  homeLabel?: string;
   dashboardHref?: string;
 };
 
@@ -64,11 +65,14 @@ export function AppForbiddenPage({ links }: { links: AppRouteStateLinks }) {
             >
               Back to dashboard
             </Button>
-          ) : (
-            <Button size="sm" render={<Link href={links.homeHref as Route} />}>
-              Go home
-            </Button>
-          )}
+          ) : null}
+          <Button
+            size="sm"
+            variant={links.dashboardHref ? "outline" : "default"}
+            render={<Link href={links.homeHref as Route} />}
+          >
+            {links.homeLabel ?? "Go home"}
+          </Button>
         </div>
       }
     />

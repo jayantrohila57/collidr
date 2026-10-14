@@ -14,6 +14,9 @@ type CanProps = {
 export function Can({ action, projectId, fallback, children }: CanProps) {
   const { allowed, isLoading } = useCan(action, { projectId });
   if (isLoading) {
+    if (fallback === null) {
+      return null;
+    }
     return <SettingsPanelSkeleton rows={2} />;
   }
   if (!allowed) {

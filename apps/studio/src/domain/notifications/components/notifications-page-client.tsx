@@ -89,7 +89,7 @@ export function NotificationsPageClient() {
               </p>
             </div>
           ) : (
-            <div className="divide-y rounded-lg border">
+            <div className="flex flex-col divide-y rounded-lg border">
               {items.map((item) => (
                 <NotificationListItem
                   key={item.id}

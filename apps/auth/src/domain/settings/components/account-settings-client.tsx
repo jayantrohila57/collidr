@@ -156,7 +156,9 @@ export function AccountSettingsClient({
   const exportMutation = useMutation(trpc.account.exportData.mutationOptions());
 
   const [sessions, setSessions] = useState<AuthSessionRow[]>([]);
-  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [sessionsLoading, setSessionsLoading] = useState(
+    () => forcedSection === "sessions",
+  );
   const [sessionsError, setSessionsError] = useState<string | null>(null);
   const [revokeToken, setRevokeToken] = useState<string | null>(null);
   const [revokeOthersOpen, setRevokeOthersOpen] = useState(false);
