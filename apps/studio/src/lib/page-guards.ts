@@ -144,3 +144,23 @@ export async function guardProjectSlugPage(slug: string) {
   );
   return { session, project: projectRow };
 }
+
+export async function guardSupportManagerPage(): Promise<AuthSession> {
+  const session = await guardAuthenticatedPage();
+  const { requireSupportManagerPage } = await import(
+    "@collidr/api/page-guards"
+  );
+  await runPageGuard(() => requireSupportManagerPage(session.user.id));
+  return session;
+}
+
+export async function guardSupportTicketPage(
+  ticketId: string,
+): Promise<AuthSession> {
+  const session = await guardAuthenticatedPage();
+  const { requireSupportTicketPage } = await import("@collidr/api/page-guards");
+  await runPageGuard(() =>
+    requireSupportTicketPage(session.user.id, ticketId),
+  );
+  return session;
+}

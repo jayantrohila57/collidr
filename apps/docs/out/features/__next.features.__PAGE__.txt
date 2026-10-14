@@ -1,0 +1,44 @@
+1:"$Sreact.fragment"
+2:"/_next/static/chunks/0d0piz9h8fjp2.js"
+3:"/_next/static/chunks/36n-ntjlt-3za.js"
+4:I[33013,["$2","$3"],"RootProvider"]
+5:I[83740,["$2","$3"],"default"]
+6:"/_next/static/chunks/1abd0-z90q928.js"
+7:"/_next/static/chunks/1ck08i5-phln-.js"
+8:I[45780,["$2","$3","$6","$7"],"default"]
+9:I[47612,["$2","$3"],"default"]
+a:"/_next/static/chunks/1dthqwnktfxpx.js"
+b:I[4283,["$2","$3","$a","$7"],"AppNotFoundPage"]
+12:"/_next/static/chunks/379wpmjow1n4s.js"
+13:"MarketingPageShell"
+14:I[52926,["$2","$3","$12","$7"],"$13"]
+15:I[85026,["$2","$3","$12","$7"],"ModeToggle"]
+1e:"ViewportBoundary"
+1f:I[78158,["$2","$3"],"$1e"]
+20:"MetadataBoundary"
+21:I[78158,["$2","$3"],"$20"]
+22:"$Sreact.suspense"
+:HL["/_next/static/chunks/1bd-20uxo7o9i.css","style"]
+d:X
+10:X
+10:C
+11:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$1","c",{"children":[["$","$L14",null,{"signInHref":"https://collidr-auth.vercel.app/sign-in?return_to=https%3A%2F%2Fcollidr-studio.vercel.app%2Fdashboard","headerActions":["$","$L15",null,{}],"children":["$","div",null,{"className":"mx-auto w-full max-w-6xl px-4 md:px-6 py-12 md:py-16","children":[["$","header",null,{"className":"mx-auto max-w-3xl","children":[["$","h1",null,{"className":"font-semibold text-3xl tracking-tight md:text-4xl","children":"Features"}],["$","p",null,{"className":"mt-4 text-lg text-muted-foreground","children":"Everything in the product today — grounded in how the studio app and MCP server actually behave."}]]}],["$","div",null,{"className":"mx-auto mt-10 max-w-3xl space-y-4 text-muted-foreground [&_a]:text-primary [&_a]:underline [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_h2]:mt-8 [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:text-xl [&_p]:leading-relaxed","children":[["$","ul",null,{"className":"not-prose grid gap-4 sm:grid-cols-2","children":[["$","li","Encrypted at rest",{"className":"rounded-lg border bg-card p-5 text-card-foreground","children":[["$","h2",null,{"className":"font-semibold text-base","children":"Encrypted at rest"}],["$","p",null,{"className":"mt-2 text-muted-foreground text-sm","children":"Secrets are encrypted in the database and masked in the UI until you choose to reveal them."}]]}],["$","li","Per-environment targets",{"className":"rounded-lg border bg-card p-5 text-card-foreground","children":[["$","h2",null,{"className":"font-semibold text-base","children":"Per-environment targets"}],["$","p",null,{"className":"mt-2 text-muted-foreground text-sm","children":"Dev, staging, and production variables live in one project—with clear separation."}]]}],["$","li","Projects & organizations",{"className":"rounded-lg border bg-card p-5 text-card-foreground","children":[["$","h2",null,{"className":"font-semibold text-base","children":"Projects & organizations"}],["$","p",null,{"className":"mt-2 text-muted-foreground text-sm","children":"Group repositories, invite teammates, and control access with org roles."}]]}],["$","li","Activity timeline",{"className":"rounded-lg border bg-card p-5 text-card-foreground","children":[["$","h2",null,{"className":"font-semibold text-base","children":"Activity timeline"}],["$","p",null,{"className":"mt-2 text-muted-foreground text-sm","children":"See who changed what with an audit-style feed across your workspace."}]]}],["$","li","GitHub sign-in",{"className":"rounded-lg border bg-card p-5 text-card-foreground","children":[["$","h2",null,{"className":"font-semibold text-base","children":"GitHub sign-in"}],["$","p",null,{"className":"mt-2 text-muted-foreground text-sm","children":"Authenticate with GitHub—no extra passwords to rotate or forget."}]]}]]}],["$","h2",null,{"className":"mt-12","children":"Permissions and audit"}],["$","p",null,{"children":["Every sensitive operation maps to a canonical action in"," ",["$","code",null,{"children":"@collidr/actions"}],". The studio API checks"," ","$L16"," using organization role, optional project grants, and action blocks. When ","$L17"," is on, successful and denied operations can be recorded for the timeline."]}],"$L18","$L19"]}]]}]}],["$L1a","$L1b"],"$L1c"]}],"p":"$@1d","v":null,"s":"$d"}}]]
+e:[["children",{"s":"features","h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L5",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@f","v":"$10","s":"$d"},"c":"$Q11"}]]
+0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/1bd-20uxo7o9i.css","precedence":"next"}],["$","script","script-0",{"src":"/_next/static/chunks/0d0piz9h8fjp2.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/36n-ntjlt-3za.js","async":true}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"className":"font-sans _9mH_6q_variable YeGXRW_variable","children":["$","body",null,{"className":"flex min-h-screen flex-col antialiased","children":["$","$L4",null,{"search":{"enabled":false},"children":["$","$L5",null,{"parallelRouterKey":"children","error":"$8","errorStyles":[],"errorScripts":[["$","script","script-0",{"src":"/_next/static/chunks/1abd0-z90q928.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/1ck08i5-phln-.js","async":true}]],"template":["$","$L9",null,{}],"notFound":[["$","$Lb",null,{"links":{"homeHref":"/"}}],[]]}]}]}]}]]}],"p":"$@c","v":null,"s":"$d"},"c":"$Qe"},"h":{"r":["$","$1","h",{"children":[null,["$","$L1f",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L21",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$22",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Features · Collidr Docs"}],["$","meta","1",{"name":"description","content":"Encryption, organizations, projects, audit timeline, and MCP access for Collidr."}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@23","v":null,"s":"$d"}},"a":"$@24","u":"$@25","b":"2B4JbbMra1TxWSRskfJrx"}
+26:I[78158,["$2","$3"],"OutletBoundary"]
+16:["$","code",null,{"children":"requireAction"}]
+17:["$","code",null,{"children":"ACTIONS_AUDIT_ENABLED"}]
+18:["$","h2",null,{"className":"mt-8","children":"MCP for agents"}]
+19:["$","p",null,{"children":["The MCP server (",["$","code",null,{"children":"apps/mcp"}],", package ",["$","code",null,{"children":"@collidr/mcp"}],") exposes the same action layer over OAuth 2.1. Tools call studio tRPC with the authenticated user — scopes gate which tools a token may invoke; each call still enforces RBAC."]}]
+1a:["$","script","script-0",{"src":"/_next/static/chunks/379wpmjow1n4s.js","async":true}]
+1b:["$","script","script-1",{"src":"/_next/static/chunks/1ck08i5-phln-.js","async":true}]
+1c:["$","$L26",null,{"children":["$","$22",null,{"name":"Next.MetadataOutlet","children":"$@27"}]}]
+d:300
+27:null
+25:true
+d:C
+24:0
+f:"$undefined"
+c:"$undefined"
+23:"$undefined"
+1d:"$undefined"

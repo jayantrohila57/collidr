@@ -1,21 +1,63 @@
 "use client";
 
 import { ImpersonationBanner } from "@collidr/ui/patterns/impersonation-banner";
-import { ThemeProvider } from "@collidr/ui/theme-provider";
-import { authClient } from "@/lib/auth-client";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useEffect, useState } from "react";
+import { OfflineBanner } from "@/components/patterns/offline-banner";
+import { SkipLink } from "@/components/patterns/skip-link";
+import { DirectionProvider } from "@/components/ui/direction";
+import { ToastProvider } from "@/components/ui/toast";
+import {
+  getClientErrorMessage,
+  isBenignClientError,
+} from "@/lib/errors/client-errors";
+import { toast } from "@/lib/toast";
+import { createTrpcClient, getQueryClient, TRPCProvider } from "@/utils/trpc";
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  const { data: session } = authClient.useSession();
+import { ThemeProvider } from "./theme-provider";
+
+export default function Providers({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(() => getQueryClient());
+  const [trpcClient] = useState(() => createTrpcClient());
+
+  useEffect(() => {
+    const onUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (isBenignClientError(event.reason)) {
+        event.preventDefault();
+        return;
+      }
+      event.preventDefault();
+      toast.error(
+        getClientErrorMessage(event.reason, "An unexpected error occurred."),
+      );
+    };
+    window.addEventListener("unhandledrejection", onUnhandledRejection);
+    return () => {
+      window.removeEventListener("unhandledrejection", onUnhandledRejection);
+    };
+  }, []);
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <ImpersonationBanner
-        impersonatedByUserId={
-          (session?.session as { impersonatedBy?: string } | undefined)
-            ?.impersonatedBy ?? null
-        }
-      />
-      {children}
-    </ThemeProvider>
+    <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <DirectionProvider direction="ltr">
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ToastProvider position="bottom-left">
+              <SkipLink />
+              <ImpersonationBanner />
+              <OfflineBanner />
+              {children}
+              <ReactQueryDevtools />
+            </ToastProvider>
+          </ThemeProvider>
+        </DirectionProvider>
+      </QueryClientProvider>
+    </TRPCProvider>
   );
 }

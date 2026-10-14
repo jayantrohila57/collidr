@@ -2,5 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "cd ../.. && pnpm install",
-  "buildCommand": "cd ../.. && PLATFORM_AUTH_ENABLE_MCP=1 pnpm turbo run build --filter=auth"
+  "buildCommand": "cd ../.. && pnpm turbo run build --filter=auth",
+  "ignoreCommand": "cd ../.. && npx turbo-ignore auth"
 }

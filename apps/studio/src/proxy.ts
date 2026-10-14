@@ -28,7 +28,7 @@ export function proxy(request: NextRequest) {
   }
 
   if (pathname.startsWith("/dashboard/settings")) {
-    const accountBase = resolvePublicServiceUrl("account").replace(/\/$/, "");
+    const accountBase = resolvePublicServiceUrl("auth").replace(/\/$/, "");
     const suffix = pathname.replace("/dashboard/settings", "/settings");
     return NextResponse.redirect(
       `${accountBase}${suffix}${request.nextUrl.search}`,

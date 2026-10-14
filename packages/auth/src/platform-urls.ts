@@ -1,17 +1,15 @@
-import {
-  resolvePlatformPublicOrigin,
-  resolvePublicServiceUrl,
-} from "@collidr/env/vercel-services";
+import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
 
-/** Production phase-1 hostnames (PLAN §2.0); overridden when `VERCEL_SERVICES=1`. */
-export const DEFAULT_AUTH_URL = "https://collidr.vercel.app/auth";
-export const DEFAULT_STUDIO_URL = "https://collidr.vercel.app/studio";
-export const DEFAULT_ACCOUNT_URL = "https://collidr.vercel.app/account";
-export const DEFAULT_WWW_URL = "https://collidr.vercel.app";
-export const DEFAULT_MCP_URL = "https://collidr.vercel.app";
-export const DEFAULT_CONSOLE_URL = "https://collidr.vercel.app/console";
-export const DEFAULT_SUPPORT_URL = "https://collidr.vercel.app/support";
-export const DEFAULT_DOCS_URL = "https://collidr.vercel.app/docs";
+/** Default production URLs — one Vercel project per app (no path prefix). */
+export const DEFAULT_AUTH_URL = "https://collidr-auth.vercel.app";
+export const DEFAULT_STUDIO_URL = "https://collidr-studio.vercel.app";
+export const DEFAULT_ACCOUNT_URL = DEFAULT_AUTH_URL;
+export const DEFAULT_WWW_URL = "https://collidr-docs.vercel.app";
+export const DEFAULT_MCP_URL = "https://collidr-mcp.vercel.app";
+export const DEFAULT_CONSOLE_URL = "https://collidr-console.vercel.app";
+export const DEFAULT_SUPPORT_URL =
+  "https://collidr-studio.vercel.app/dashboard/support/tickets";
+export const DEFAULT_DOCS_URL = "https://collidr-docs.vercel.app";
 
 function defaultAuthUrl(): string {
   return process.env.VERCEL_SERVICES === "1"
@@ -26,9 +24,11 @@ function defaultStudioUrl(): string {
 }
 
 function defaultAccountUrl(): string {
-  return process.env.VERCEL_SERVICES === "1"
-    ? resolvePublicServiceUrl("account")
-    : DEFAULT_ACCOUNT_URL;
+  return process.env.NEXT_PUBLIC_AUTH_URL?.trim() ||
+    process.env.NEXT_PUBLIC_ACCOUNT_URL?.trim() ||
+    (process.env.VERCEL_SERVICES === "1"
+      ? resolvePublicServiceUrl("auth")
+      : DEFAULT_ACCOUNT_URL);
 }
 
 function defaultWwwUrl(): string {
@@ -39,10 +39,14 @@ function defaultWwwUrl(): string {
 
 function defaultMcpPublicUrl(): string {
   if (process.env.VERCEL_SERVICES === "1") {
-    const origin = resolvePlatformPublicOrigin();
-    return `${origin}/api/mcp`;
+    const origin = resolvePublicServiceUrl("mcp");
+    return `${origin.replace(/\/$/, "")}/api/mcp`;
   }
-  return DEFAULT_MCP_URL;
+  const fromEnv = process.env.NEXT_PUBLIC_MCP_URL?.trim();
+  if (fromEnv) {
+    return fromEnv.replace(/\/$/, "");
+  }
+  return `${DEFAULT_MCP_URL.replace(/\/$/, "")}/api/mcp`;
 }
 
 export function trimTrailingSlash(url: string): string {
@@ -70,15 +74,6 @@ export function getPlatformProductionOrigins(
     legacyWebUrl?: string;
   } = {},
 ): string[] {
-  if (
-    process.env.PLATFORM_PUBLIC_ORIGIN?.trim() ||
-    process.env.NEXT_PUBLIC_PLATFORM_ORIGIN?.trim() ||
-    process.env.VERCEL_SERVICES === "1"
-  ) {
-    const single = resolvePlatformPublicOrigin();
-    return [trimTrailingSlash(single)];
-  }
-
   const origins = [
     env.authUrl ?? process.env.BETTER_AUTH_URL ?? defaultAuthUrl(),
     env.studioUrl ?? process.env.NEXT_PUBLIC_STUDIO_URL ?? defaultStudioUrl(),
@@ -95,9 +90,6 @@ export function getPlatformProductionOrigins(
     env.mcpUrl ?? process.env.NEXT_PUBLIC_MCP_URL ?? defaultMcpPublicUrl(),
     env.legacyWebUrl ?? process.env.CORS_ORIGIN,
     process.env.NEXT_PUBLIC_DOCS_URL ?? DEFAULT_DOCS_URL,
-    ...(process.env.VERCEL_SERVICES === "1"
-      ? [resolvePublicServiceUrl("studio")]
-      : []),
   ].filter(Boolean) as string[];
 
   return [...new Set(origins.map((o) => toTrustedOrigin(o)))];

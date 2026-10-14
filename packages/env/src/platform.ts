@@ -1,9 +1,13 @@
 import { z } from "zod/v3";
 
-export const DEFAULT_AUTH_URL = "https://collidr.vercel.app/auth";
-export const DEFAULT_STUDIO_URL = "https://collidr.vercel.app/studio";
-export const DEFAULT_ACCOUNT_URL = "https://collidr.vercel.app/account";
-export const DEFAULT_SUPPORT_URL = "https://collidr.vercel.app/support";
+export const DEFAULT_AUTH_URL = "https://collidr-auth.vercel.app";
+export const DEFAULT_STUDIO_URL = "https://collidr-studio.vercel.app";
+/** Account settings live on the auth app (`/settings/*`). */
+export const DEFAULT_ACCOUNT_URL = DEFAULT_AUTH_URL;
+export const DEFAULT_SUPPORT_URL = "https://collidr-studio.vercel.app/dashboard/support/tickets";
+export const DEFAULT_CONSOLE_URL = "https://collidr-console.vercel.app";
+export const DEFAULT_DOCS_URL = "https://collidr-docs.vercel.app";
+export const DEFAULT_MCP_URL = "https://collidr-mcp.vercel.app";
 
 export const platformUrlSchema = {
   NEXT_PUBLIC_AUTH_URL: z.string().url().optional(),

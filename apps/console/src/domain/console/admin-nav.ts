@@ -49,6 +49,16 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
     label: "Compliance",
     items: [{ href: "/dashboard/audit", label: "Audit" }],
   },
+  {
+    label: "Support",
+    items: [
+      {
+        href: "/dashboard/support/tickets" as Route,
+        label: "Ticket queue",
+      },
+      { href: "/dashboard/support/faq" as Route, label: "FAQ articles" },
+    ],
+  },
 ];
 
 export const ADMIN_NAV_ITEMS: AdminNavItem[] = ADMIN_NAV_GROUPS.flatMap(

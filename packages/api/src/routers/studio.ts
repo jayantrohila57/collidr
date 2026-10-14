@@ -8,6 +8,7 @@ import { organizationsRouter } from "./organizations";
 import { permissionsRouter } from "./permissions";
 import { projectAccessRouter } from "./project-access-router";
 import { projectsRouter } from "./projects";
+import { supportRouter } from "./support";
 import { teamsRouter } from "./teams";
 import { environmentVariablesRouter } from "./variables";
 
@@ -25,6 +26,7 @@ export const studioRouter = router({
   organizations: organizationsRouter,
   projectAccess: projectAccessRouter,
   teams: teamsRouter,
+  support: supportRouter,
 });
 
 export type StudioRouter = typeof studioRouter;

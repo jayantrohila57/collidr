@@ -1,0 +1,33 @@
+1:"$Sreact.fragment"
+2:"/_next/static/chunks/0d0piz9h8fjp2.js"
+3:"/_next/static/chunks/36n-ntjlt-3za.js"
+4:I[33013,["$2","$3"],"RootProvider"]
+5:I[83740,["$2","$3"],"default"]
+6:"/_next/static/chunks/1abd0-z90q928.js"
+7:"/_next/static/chunks/1ck08i5-phln-.js"
+8:I[45780,["$2","$3","$6","$7"],"default"]
+9:I[47612,["$2","$3"],"default"]
+a:"/_next/static/chunks/1dthqwnktfxpx.js"
+b:I[4283,["$2","$3","$a","$7"],"AppNotFoundPage"]
+f:"/_next/static/chunks/379wpmjow1n4s.js"
+10:"MarketingPageShell"
+11:I[52926,["$2","$3","$f","$7"],"$10"]
+12:I[85026,["$2","$3","$f","$7"],"ModeToggle"]
+13:I[78158,["$2","$3"],"OutletBoundary"]
+14:"$Sreact.suspense"
+16:"ViewportBoundary"
+17:I[78158,["$2","$3"],"$16"]
+19:"MetadataBoundary"
+1a:I[78158,["$2","$3"],"$19"]
+1c:I[81794,["$2","$3"],"default",1]
+:HL["/_next/static/chunks/1bd-20uxo7o9i.css","style"]
+:HL["/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+d:X
+e:[["children",{"s":"__PAGE__","h":512,"d":{"r":["$","$1","c",{"children":[["$","$L11",null,{"signInHref":"https://collidr-auth.vercel.app/sign-in?return_to=https%3A%2F%2Fcollidr-studio.vercel.app%2Fdashboard","headerActions":["$","$L12",null,{}],"children":["$","div",null,{"className":"mx-auto w-full max-w-6xl px-4 md:px-6 py-12 md:py-16","children":[["$","header",null,{"className":"mx-auto max-w-3xl","children":[["$","h1",null,{"className":"font-semibold text-3xl tracking-tight md:text-4xl","children":"About Collidr"}],["$","p",null,{"className":"mt-4 text-lg text-muted-foreground","children":"A multi-tenant workspace for environment variables, built as a TypeScript monorepo on Vercel and Neon."}]]}],["$","div",null,{"className":"mx-auto mt-10 max-w-3xl space-y-4 text-muted-foreground [&_a]:text-primary [&_a]:underline [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_h2]:mt-8 [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:text-xl [&_p]:leading-relaxed","children":[["$","p",null,{"children":"Collidr helps teams store configuration and secrets per project and environment. Values are encrypted at rest; the UI masks secrets until an authorized user reveals them. Organizations add members, teams, and fine-grained project access on top of owner / manager / member roles."}],["$","p",null,{"children":["The product ships as several apps: studio (dashboard), auth (SSO), account (user settings), docs (this documentation site), www (marketing), and mcp (agent tools). See the"," ",["$","a",null,{"href":"https://collidr-docs.vercel.app","children":"documentation"}]," for setup and API details."]}],["$","p",null,{"children":["Source code is open on"," ",["$","a",null,{"href":"https://github.com/jayantrohila57/collidr","target":"_blank","rel":"noopener noreferrer","children":"GitHub"}],"."]}]]}]]}]}],[["$","script","script-0",{"src":"/_next/static/chunks/379wpmjow1n4s.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/_next/static/chunks/1ck08i5-phln-.js","async":true,"nonce":"$undefined"}]],["$","$L13",null,{"children":["$","$14",null,{"name":"Next.MetadataOutlet","children":"$@15"}]}]]}],"p":false,"v":null}}]]
+c:[["children",{"s":"about","h":512,"d":{"r":["$","$1","c",{"children":[null,["$","$L5",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L9",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],"p":false,"v":"$d"},"c":"$Qe"}]]
+0:{"P":null,"c":["","about"],"q":"","i":false,"t":{"t":{"s":"","h":528,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/1bd-20uxo7o9i.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/_next/static/chunks/0d0piz9h8fjp2.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/_next/static/chunks/36n-ntjlt-3za.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"className":"font-sans _9mH_6q_variable YeGXRW_variable","children":["$","body",null,{"className":"flex min-h-screen flex-col antialiased","children":["$","$L4",null,{"search":{"enabled":false},"children":["$","$L5",null,{"parallelRouterKey":"children","error":"$8","errorStyles":[],"errorScripts":[["$","script","script-0",{"src":"/_next/static/chunks/1abd0-z90q928.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/_next/static/chunks/1ck08i5-phln-.js","async":true,"nonce":"$undefined"}]],"template":["$","$L9",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","$Lb",null,{"links":{"homeHref":"/"}}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]}]]}],"p":false,"v":null},"c":"$Qc"},"h":{"r":["$","$1","h",{"children":[null,["$","$L17",null,{"children":"$L18"}],["$","$L1a",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$14",null,{"name":"Next.Metadata","children":"$L1b"}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":false,"v":null}},"m":"$undefined","G":["$1c",[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/1bd-20uxo7o9i.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]]],"S":true,"r":"$undefined","s":"$undefined","a":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"2B4JbbMra1TxWSRskfJrx"}
+d:C
+18:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+15:null
+1b:[["$","title","0",{"children":"About · Collidr Docs"}],["$","meta","1",{"name":"description","content":"What Collidr is and how the monorepo is structured."}]]

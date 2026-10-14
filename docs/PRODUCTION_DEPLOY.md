@@ -1,6 +1,6 @@
 # Production deploy (Vercel)
 
-Collidr ships from **`main` only** — each push to `origin/main` triggers a **production** deployment on Vercel (`collidr-web.vercel.app`). There are **no** branch preview deploys for this repo.
+Collidr ships from **`main` only**. Production is **five separate Vercel Hobby projects** (no monorepo Services router): `auth`, `studio`, `console`, `mcp`, and `docs`. Each project uses **Root Directory** `apps/<app>` and `apps/<app>/vercel.json` (`turbo-ignore` skips unchanged apps). Cross-app URLs use explicit `NEXT_PUBLIC_*` env vars; session SSO uses auth **cross-app finish** + sibling **establish-session** (not shared cookies on `*.vercel.app`). There are **no** branch preview deploys for this repo.
 
 This runbook addresses **Hobby / Pro deploy limits**, **feature-flag reliability** (`NEXT_PUBLIC_*` + Turbo cache), and the **approved production schema path** (`drizzle-kit push`).
 

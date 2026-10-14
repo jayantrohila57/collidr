@@ -88,10 +88,11 @@ export function resolvePublicServiceUrl(service: VercelServiceName): string {
  * Server-side URL for the auth service (service binding at runtime on Vercel).
  * Falls back to public auth URL when bindings are unavailable (local dev, build).
  */
+/** Public auth origin for server-side fetches (cross-app, MCP well-known proxy). */
 export function resolveAuthServiceUrl(): string {
-  const bound = process.env.AUTH_SERVICE_URL?.trim();
-  if (bound) {
-    return trimTrailingSlash(bound);
+  const betterAuth = process.env.BETTER_AUTH_URL?.trim();
+  if (betterAuth) {
+    return trimTrailingSlash(betterAuth);
   }
   return resolvePublicServiceUrl("auth");
 }

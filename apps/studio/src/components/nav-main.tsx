@@ -4,6 +4,7 @@ import {
   ChevronRight,
   FolderClosedIcon,
   LayoutDashboardIcon,
+  LifeBuoyIcon,
   type LucideIcon,
 } from "lucide-react";
 import type { Route } from "next";
@@ -78,6 +79,22 @@ export function NavMain() {
       url: "/dashboard/projects",
       icon: FolderClosedIcon,
       isActive: true,
+    },
+    {
+      title: "Support",
+      url: "/dashboard/support/tickets",
+      icon: LifeBuoyIcon,
+      isActive: true,
+      items: [
+        {
+          title: "My tickets",
+          url: "/dashboard/support/tickets",
+        },
+        {
+          title: "Help center",
+          url: "/dashboard/support/help",
+        },
+      ],
     },
   ];
   return (

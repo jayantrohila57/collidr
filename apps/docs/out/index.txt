@@ -1,0 +1,30 @@
+1:"$Sreact.fragment"
+2:"/_next/static/chunks/0d0piz9h8fjp2.js"
+3:"/_next/static/chunks/36n-ntjlt-3za.js"
+4:I[33013,["$2","$3"],"RootProvider"]
+5:I[83740,["$2","$3"],"default"]
+6:"/_next/static/chunks/1abd0-z90q928.js"
+7:"/_next/static/chunks/1ck08i5-phln-.js"
+8:I[45780,["$2","$3","$6","$7"],"default"]
+9:I[47612,["$2","$3"],"default"]
+a:"/_next/static/chunks/1dthqwnktfxpx.js"
+b:I[4283,["$2","$3","$a","$7"],"AppNotFoundPage"]
+d:"/_next/static/chunks/379wpmjow1n4s.js"
+e:"MarketingLanding"
+f:I[18496,["$2","$3","$d","$7"],"$e"]
+10:I[85026,["$2","$3","$d","$7"],"ModeToggle"]
+11:I[78158,["$2","$3"],"OutletBoundary"]
+12:"$Sreact.suspense"
+14:"ViewportBoundary"
+15:I[78158,["$2","$3"],"$14"]
+17:"MetadataBoundary"
+18:I[78158,["$2","$3"],"$17"]
+1a:I[81794,["$2","$3"],"default",1]
+:HL["/_next/static/chunks/1bd-20uxo7o9i.css","style"]
+:HL["/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+c:[["children",{"s":"__PAGE__","h":512,"d":{"r":["$","$1","c",{"children":[["$","$Lf",null,{"signInHref":"https://collidr-auth.vercel.app/sign-in?return_to=https%3A%2F%2Fcollidr-studio.vercel.app%2Fdashboard","headerActions":["$","$L10",null,{}]}],[["$","script","script-0",{"src":"/_next/static/chunks/379wpmjow1n4s.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/_next/static/chunks/1ck08i5-phln-.js","async":true,"nonce":"$undefined"}]],["$","$L11",null,{"children":["$","$12",null,{"name":"Next.MetadataOutlet","children":"$@13"}]}]]}],"p":false,"v":null}}]]
+0:{"P":null,"c":["",""],"q":"","i":false,"t":{"t":{"s":"","h":528,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/1bd-20uxo7o9i.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/_next/static/chunks/0d0piz9h8fjp2.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/_next/static/chunks/36n-ntjlt-3za.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"className":"font-sans _9mH_6q_variable YeGXRW_variable","children":["$","body",null,{"className":"flex min-h-screen flex-col antialiased","children":["$","$L4",null,{"search":{"enabled":false},"children":["$","$L5",null,{"parallelRouterKey":"children","error":"$8","errorStyles":[],"errorScripts":[["$","script","script-0",{"src":"/_next/static/chunks/1abd0-z90q928.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/_next/static/chunks/1ck08i5-phln-.js","async":true,"nonce":"$undefined"}]],"template":["$","$L9",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","$Lb",null,{"links":{"homeHref":"/"}}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]}]]}],"p":false,"v":null},"c":"$Qc"},"h":{"r":["$","$1","h",{"children":[null,["$","$L15",null,{"children":"$L16"}],["$","$L18",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$12",null,{"name":"Next.Metadata","children":"$L19"}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":false,"v":null}},"m":"$undefined","G":["$1a",[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/1bd-20uxo7o9i.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]]],"S":true,"r":"$undefined","s":"$undefined","a":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"2B4JbbMra1TxWSRskfJrx"}
+16:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+13:null
+19:[["$","title","0",{"children":"Collidr"}],["$","meta","1",{"name":"description","content":"Organizations, projects, environments, and MCP for agentic workflows."}]]

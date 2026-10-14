@@ -1,9 +1,10 @@
 import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
 
-const DEFAULT_AUTH_URL = "https://collidr.vercel.app/auth";
-const DEFAULT_STUDIO_URL = "https://collidr.vercel.app/studio";
-const DEFAULT_CONSOLE_URL = "https://collidr.vercel.app/console";
-const DEFAULT_SUPPORT_URL = "https://collidr.vercel.app/support";
+const DEFAULT_AUTH_URL = "https://collidr-auth.vercel.app";
+const DEFAULT_STUDIO_URL = "https://collidr-studio.vercel.app";
+const DEFAULT_CONSOLE_URL = "https://collidr-console.vercel.app";
+const DEFAULT_SUPPORT_URL =
+  "https://collidr-studio.vercel.app/dashboard/support/tickets";
 
 function authUrlDefault(): string {
   return process.env.VERCEL_SERVICES === "1"
@@ -36,7 +37,9 @@ export function defaultSupportReturnTo(env: PlatformUrlEnv = {}): string {
       process.env.NEXT_PUBLIC_SUPPORT_URL ??
       DEFAULT_SUPPORT_URL,
   );
-  return `${supportOrigin}/tickets`;
+  return supportOrigin.includes("/dashboard/support")
+    ? supportOrigin
+    : `${supportOrigin}/dashboard/support/tickets`;
 }
 
 function trimTrailingSlash(url: string): string {

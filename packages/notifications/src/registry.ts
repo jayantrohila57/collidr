@@ -80,7 +80,7 @@ export const notificationRenderers: Record<
       title: `Reply on ticket #${data.ticketNumber}`,
       body: data.subject,
       icon: "organization",
-      href: `/tickets/${data.ticketId}`,
+      href: `/dashboard/support/tickets/${data.ticketId}`,
     };
   },
 };

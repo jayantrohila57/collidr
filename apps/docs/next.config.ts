@@ -11,6 +11,7 @@ const config: NextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
   reactCompiler: true,
+  transpilePackages: ["@collidr/ui"],
   ...(docsBasePath ? { basePath: docsBasePath } : {}),
 };
 

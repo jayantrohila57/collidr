@@ -52,3 +52,23 @@ export async function guardConsoleOperatorPage(): Promise<AuthSession> {
   await runPageGuard(() => requireConsoleOperatorPage(session));
   return session;
 }
+
+export async function guardSupportManagerPage(): Promise<AuthSession> {
+  const session = await guardConsoleAuthenticatedPage();
+  const { requireSupportManagerPage } = await import(
+    "@collidr/api/page-guards"
+  );
+  await runPageGuard(() => requireSupportManagerPage(session.user.id));
+  return session;
+}
+
+export async function guardSupportTicketPage(
+  ticketId: string,
+): Promise<AuthSession> {
+  const session = await guardConsoleAuthenticatedPage();
+  const { requireSupportTicketPage } = await import("@collidr/api/page-guards");
+  await runPageGuard(() =>
+    requireSupportTicketPage(session.user.id, ticketId),
+  );
+  return session;
+}
