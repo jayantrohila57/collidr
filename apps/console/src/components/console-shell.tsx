@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { ConsoleBreadcrumbs } from "@/components/console-breadcrumbs";
 import { ConsoleSidebar } from "@/components/console-sidebar";
+import { ConsoleUserMenu } from "@/domain/console/components/console-user-menu";
 import Shell from "@/components/shell";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -84,11 +85,7 @@ export function ConsoleShell({ children }: { children: React.ReactNode }) {
             components={shellComponents}
             sidebar={<ConsoleSidebar />}
             breadcrumbs={<ConsoleBreadcrumbs className="flex-nowrap" />}
-            headerActions={
-              <span className="max-w-[12rem] truncate text-muted-foreground text-xs">
-                {session.data.user.email}
-              </span>
-            }
+            headerActions={<ConsoleUserMenu />}
           >
             {children}
           </DashboardAppShell>

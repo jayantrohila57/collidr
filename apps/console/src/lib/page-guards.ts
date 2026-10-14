@@ -58,7 +58,12 @@ export async function guardSupportManagerPage(): Promise<AuthSession> {
   const { requireSupportManagerPage } = await import(
     "@loftlancer/api/page-guards"
   );
-  await runPageGuard(() => requireSupportManagerPage(session.user.id));
+  await runPageGuard(() =>
+    requireSupportManagerPage(
+      session.user.id,
+      session.user as { role?: string | null },
+    ),
+  );
   return session;
 }
 
@@ -68,7 +73,11 @@ export async function guardSupportTicketPage(
   const session = await guardConsoleAuthenticatedPage();
   const { requireSupportTicketPage } = await import("@loftlancer/api/page-guards");
   await runPageGuard(() =>
-    requireSupportTicketPage(session.user.id, ticketId),
+    requireSupportTicketPage(
+      session.user.id,
+      ticketId,
+      session.user as { role?: string | null },
+    ),
   );
   return session;
 }

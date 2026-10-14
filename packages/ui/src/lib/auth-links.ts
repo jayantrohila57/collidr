@@ -77,3 +77,31 @@ export function buildSignInUrl(
   const params = new URLSearchParams({ return_to: returnTo });
   return `${auth}/sign-in?${params.toString()}`;
 }
+
+/** Auth app sign-out with allowlisted `return_to` (revokes shared session). */
+export function buildSignOutUrl(
+  options: PlatformUrlEnv & { returnTo?: string } = {},
+): string {
+  const auth = trimTrailingSlash(
+    options.authUrl ?? process.env.NEXT_PUBLIC_AUTH_URL ?? authUrlDefault(),
+  );
+  const returnTo = options.returnTo ?? buildSignInUrl(options);
+  const params = new URLSearchParams({ return_to: returnTo });
+  return `${auth}/sign-out?${params.toString()}`;
+}
+
+export function resolveAuthAppOrigin(env: PlatformUrlEnv = {}): string {
+  return trimTrailingSlash(
+    env.authUrl ?? process.env.NEXT_PUBLIC_AUTH_URL ?? authUrlDefault(),
+  );
+}
+
+/** Post sign-out landing: sign-in for this app with dashboard as return target. */
+export function defaultAppSignInAfterSignOut(
+  appOrigin: string,
+  env: PlatformUrlEnv = {},
+): string {
+  const origin = trimTrailingSlash(appOrigin);
+  const returnTo = `${origin}/dashboard`;
+  return buildSignInUrl({ ...env, returnTo });
+}

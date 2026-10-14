@@ -11,6 +11,9 @@
     "./auth-links": {
       "default": "./src/lib/auth-links.ts"
     },
+    "./platform-sign-out": {
+      "default": "./src/lib/platform-sign-out.ts"
+    },
     "./theme-provider": {
       "default": "./src/components/theme-provider.tsx"
     },
