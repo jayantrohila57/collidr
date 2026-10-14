@@ -1,4 +1,5 @@
 import type { ActionName } from "@collidr/actions";
+import { TRPCError } from "@trpc/server";
 import { t } from "../index";
 import type { RequireActionContext } from "./require-action";
 import { requireAction } from "./require-action";
@@ -19,6 +20,13 @@ export function actionGuard(
     const { ctx, next } = opts;
 
     const input = "input" in opts ? opts.input : undefined;
+    if (resolve && (input === undefined || input === null)) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message:
+          "actionGuard ran before procedure input was parsed — declare .input() before .use(actionGuard)",
+      });
+    }
     const guardCtx = ctx as GuardCtx;
     const partial = await Promise.resolve(resolve?.(input, guardCtx) ?? {});
 

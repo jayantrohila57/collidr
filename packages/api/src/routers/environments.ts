@@ -13,11 +13,12 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, ne, sql } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
-import { createAuditLog } from "../audit";
 import {
-  assertEnvironmentAccess,
-  lookupProjectIdByEnvironmentId,
-} from "../environment-access";
+  projectIdForEnvironmentInput,
+  projectIdFromInput,
+} from "../actions/guard-resolve";
+import { createAuditLog } from "../audit";
+import { assertEnvironmentAccess } from "../environment-access";
 import {
   assertValidEnvironmentName,
   normalizeEnvironmentName,
@@ -45,12 +46,8 @@ import { isVariablesV2Enabled } from "../variables-v2";
 export const environmentsRouter = router({
   // List all environments for a project
   list: orgProcedure
-    .use(
-      actionGuard("environment.read", (input) => ({
-        projectId: (input as { projectId: string }).projectId,
-      })),
-    )
     .input(listEnvironmentsInput)
+    .use(actionGuard("environment.read", projectIdFromInput))
     .output(makeResponseSchema(z.array(environmentOutput)))
     .query(async ({ ctx, input }) => {
       try {
@@ -112,20 +109,19 @@ export const environmentsRouter = router({
 
   // Get a single environment with its variables
   get: orgProcedure
+    .input(getEnvironmentInput)
     .use(
       actionGuard("environment.read", async (input) => {
-        const id = (input as { id: string }).id;
-        const projectId = await lookupProjectIdByEnvironmentId(id);
-        if (!projectId) {
+        const partial = await projectIdForEnvironmentInput(input);
+        if (!partial.projectId) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Environment not found",
           });
         }
-        return { projectId };
+        return partial;
       }),
     )
-    .input(getEnvironmentInput)
     .output(
       makeResponseSchema(
         z.object({
@@ -255,12 +251,8 @@ export const environmentsRouter = router({
 
   // Create a new environment
   create: orgProcedure
-    .use(
-      actionGuard("environment.create", (input) => ({
-        projectId: (input as { projectId: string }).projectId,
-      })),
-    )
     .input(createEnvironmentInput)
+    .use(actionGuard("environment.create", projectIdFromInput))
     .output(makeResponseSchema(environmentOutput.nullable()))
     .mutation(async ({ ctx, input }) => {
       try {
@@ -348,20 +340,19 @@ export const environmentsRouter = router({
 
   // Update an environment
   update: orgProcedure
+    .input(updateEnvironmentInput)
     .use(
       actionGuard("environment.update", async (input) => {
-        const id = (input as { id: string }).id;
-        const projectId = await lookupProjectIdByEnvironmentId(id);
-        if (!projectId) {
+        const partial = await projectIdForEnvironmentInput(input);
+        if (!partial.projectId) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Environment not found",
           });
         }
-        return { projectId };
+        return partial;
       }),
     )
-    .input(updateEnvironmentInput)
     .output(makeResponseSchema(environmentOutput.nullable()))
     .mutation(async ({ ctx, input }) => {
       let access: { projectId: string };
@@ -471,20 +462,19 @@ export const environmentsRouter = router({
 
   // Delete an environment (and all its variables)
   delete: orgProcedure
+    .input(getEnvironmentInput)
     .use(
       actionGuard("environment.delete", async (input) => {
-        const id = (input as { id: string }).id;
-        const projectId = await lookupProjectIdByEnvironmentId(id);
-        if (!projectId) {
+        const partial = await projectIdForEnvironmentInput(input);
+        if (!partial.projectId) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Environment not found",
           });
         }
-        return { projectId };
+        return partial;
       }),
     )
-    .input(getEnvironmentInput)
     .output(z.object({ success: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       try {

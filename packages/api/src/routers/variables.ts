@@ -13,7 +13,10 @@ import { TRPCError } from "@trpc/server";
 import { and, count, eq, inArray } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
-import { projectIdForEnvironmentInput } from "../actions/guard-resolve";
+import {
+  projectIdForEnvironmentInput,
+  projectIdForVariableInput,
+} from "../actions/guard-resolve";
 import { createAuditLog, getProjectEnvironmentIds } from "../audit";
 import {
   executeBulkVariableImport,
@@ -22,7 +25,6 @@ import {
 import {
   assertEnvironmentAccess,
   assertEnvironmentsAccess,
-  lookupProjectIdByEnvironmentId,
 } from "../environment-access";
 import { throwFriendlyError } from "../errors";
 import { orgProcedure, router } from "../index";
@@ -161,33 +163,19 @@ export const environmentVariablesRouter = router({
 
   // Get a single variable with decrypted value
   get: orgProcedure
+    .input(getVariableInput)
     .use(
       actionGuard("variable.reveal", async (input) => {
-        const variableId = (input as { id: string }).id;
-        const [row] = await db
-          .select({ environmentId: environmentVariable.environmentId })
-          .from(environmentVariable)
-          .where(eq(environmentVariable.id, variableId))
-          .limit(1);
-        if (!row) {
+        const partial = await projectIdForVariableInput(input);
+        if (!partial.projectId) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Variable not found",
           });
         }
-        const projectId = await lookupProjectIdByEnvironmentId(
-          row.environmentId,
-        );
-        if (!projectId) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Variable not found",
-          });
-        }
-        return { projectId };
+        return partial;
       }),
     )
-    .input(getVariableInput)
     .output(makeResponseSchema(variableWithDecryptedValueOutput.nullable()))
     .query(async ({ ctx, input }) => {
       const getWhere = eq(environmentVariable.id, input.id);
@@ -286,21 +274,19 @@ export const environmentVariablesRouter = router({
 
   // Create a new variable
   create: orgProcedure
+    .input(createVariableInput)
     .use(
       actionGuard("variable.create", async (input) => {
-        const environmentId = (input as { environmentId: string })
-          .environmentId;
-        const projectId = await lookupProjectIdByEnvironmentId(environmentId);
-        if (!projectId) {
+        const partial = await projectIdForEnvironmentInput(input);
+        if (!partial.projectId) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Environment not found",
           });
         }
-        return { projectId };
+        return partial;
       }),
     )
-    .input(createVariableInput)
     .output(makeResponseSchema(variableOutput.nullable()))
     .mutation(async ({ ctx, input }) => {
       try {
@@ -502,33 +488,19 @@ export const environmentVariablesRouter = router({
 
   // Update a variable
   update: orgProcedure
+    .input(updateVariableInput)
     .use(
       actionGuard("variable.update", async (input) => {
-        const variableId = (input as { id: string }).id;
-        const [row] = await db
-          .select({ environmentId: environmentVariable.environmentId })
-          .from(environmentVariable)
-          .where(eq(environmentVariable.id, variableId))
-          .limit(1);
-        if (!row) {
+        const partial = await projectIdForVariableInput(input);
+        if (!partial.projectId) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Variable not found",
           });
         }
-        const projectId = await lookupProjectIdByEnvironmentId(
-          row.environmentId,
-        );
-        if (!projectId) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Variable not found",
-          });
-        }
-        return { projectId };
+        return partial;
       }),
     )
-    .input(updateVariableInput)
     .output(makeResponseSchema(variableOutput.nullable()))
     .mutation(async ({ ctx, input }) => {
       const existing = await db
@@ -658,33 +630,19 @@ export const environmentVariablesRouter = router({
 
   // Delete a variable
   delete: orgProcedure
+    .input(getVariableInput)
     .use(
       actionGuard("variable.delete", async (input) => {
-        const variableId = (input as { id: string }).id;
-        const [row] = await db
-          .select({ environmentId: environmentVariable.environmentId })
-          .from(environmentVariable)
-          .where(eq(environmentVariable.id, variableId))
-          .limit(1);
-        if (!row) {
+        const partial = await projectIdForVariableInput(input);
+        if (!partial.projectId) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Variable not found",
           });
         }
-        const projectId = await lookupProjectIdByEnvironmentId(
-          row.environmentId,
-        );
-        if (!projectId) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Variable not found",
-          });
-        }
-        return { projectId };
+        return partial;
       }),
     )
-    .input(getVariableInput)
     .output(z.object({ success: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       const existing = await db
@@ -739,21 +697,19 @@ export const environmentVariablesRouter = router({
 
   // Bulk import variables (supports .env file style imports)
   bulkImport: orgProcedure
+    .input(bulkImportVariablesInput)
     .use(
       actionGuard("variable.bulk_import", async (input) => {
-        const environmentId = (input as { environmentId: string })
-          .environmentId;
-        const projectId = await lookupProjectIdByEnvironmentId(environmentId);
-        if (!projectId) {
+        const partial = await projectIdForEnvironmentInput(input);
+        if (!partial.projectId) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Environment not found",
           });
         }
-        return { projectId };
+        return partial;
       }),
     )
-    .input(bulkImportVariablesInput)
     .output(makeResponseSchema(bulkImportResultOutput))
     .mutation(async ({ ctx, input }) => {
       try {
@@ -820,21 +776,19 @@ export const environmentVariablesRouter = router({
 
   // Export variables as .env format string
   export: orgProcedure
+    .input(exportVariablesInput)
     .use(
       actionGuard("variable.export", async (input) => {
-        const environmentId = (input as { environmentId: string })
-          .environmentId;
-        const projectId = await lookupProjectIdByEnvironmentId(environmentId);
-        if (!projectId) {
+        const partial = await projectIdForEnvironmentInput(input);
+        if (!partial.projectId) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Environment not found",
           });
         }
-        return { projectId };
+        return partial;
       }),
     )
-    .input(exportVariablesInput)
     .output(makeResponseSchema(exportVariablesOutput))
     .query(async ({ ctx, input }) => {
       try {

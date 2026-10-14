@@ -18,8 +18,8 @@ import {
 
 export const auditLogsRouter = router({
   list: protectedProcedure
-    .use(actionGuard("audit.timeline.view.self"))
     .input(listAuditLogsInput)
+    .use(actionGuard("audit.timeline.view.self"))
     .output(makeResponseSchema(z.array(auditLogOutput)))
     .query(async ({ ctx, input }) => {
       // Build where conditions for filtering and access control
@@ -84,8 +84,8 @@ export const auditLogsRouter = router({
 
   // Get audit log statistics for dashboard
   stats: protectedProcedure
-    .use(actionGuard("audit.timeline.view.self"))
     .input(z.object({ projectId: z.string().uuid().optional() }))
+    .use(actionGuard("audit.timeline.view.self"))
     .output(
       makeResponseSchema(
         z.object({

@@ -18,7 +18,6 @@ export function ConsoleShell({ children }: { children: React.ReactNode }) {
   const session = authClient.useSession();
   const access = useQuery({
     ...trpc.platform.accessStatus.queryOptions(),
-    enabled: Boolean(session.data?.user),
     retry: false,
   });
 
@@ -32,7 +31,14 @@ export function ConsoleShell({ children }: { children: React.ReactNode }) {
   }, [session.data, session.isPending]);
 
   useEffect(() => {
-    if (access.isSuccess && access.data && !access.data.allowed) {
+    if (!access.isSuccess || !access.data) {
+      return;
+    }
+    if (access.data.needsSignIn) {
+      window.location.href = consoleSignInUrl();
+      return;
+    }
+    if (!access.data.allowed) {
       router.replace("/forbidden");
     }
   }, [access.data, access.isSuccess, router]);
@@ -43,11 +49,20 @@ export function ConsoleShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (access.isPending) {
+  if (
+    access.isPending ||
+    (access.isSuccess && access.data?.needsSignIn)
+  ) {
     return (
       <p className="p-6 text-muted-foreground text-sm">
         Verifying console access…
       </p>
+    );
+  }
+
+  if (access.isSuccess && access.data && !access.data.allowed) {
+    return (
+      <p className="p-6 text-muted-foreground text-sm">Redirecting…</p>
     );
   }
 

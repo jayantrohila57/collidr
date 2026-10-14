@@ -50,8 +50,14 @@ export function OrgSwitcher() {
     return null;
   }
 
-  const showInitialLoading = !initialLoadDone && loading;
   const active = orgs.find((o) => o.id === activeOrganizationId) ?? orgs[0];
+  const resolvingActiveLabel =
+    Boolean(activeOrganizationId) &&
+    orgs.length > 0 &&
+    !active?.name &&
+    !loading;
+  const showInitialLoading =
+    (!initialLoadDone && loading) || resolvingActiveLabel;
 
   const onSelectOrg = async (organizationId: string) => {
     if (organizationId === activeOrganizationId) return;

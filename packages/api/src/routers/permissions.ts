@@ -7,7 +7,6 @@ import { getActiveOrganizationId } from "../org-access";
 
 export const permissionsRouter = router({
   snapshot: orgAwareProcedure
-    .use(actionGuard("organization.view", projectIdFromInput))
     .input(
       z
         .object({
@@ -15,6 +14,7 @@ export const permissionsRouter = router({
         })
         .optional(),
     )
+    .use(actionGuard("organization.view", projectIdFromInput))
     .query(async ({ ctx, input }) => {
       const organizationId = getActiveOrganizationId(ctx.session);
       return buildPermissionsSnapshot({

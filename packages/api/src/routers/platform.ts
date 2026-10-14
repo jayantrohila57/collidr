@@ -22,8 +22,11 @@ import {
   sql,
 } from "drizzle-orm";
 import { z } from "zod/v3";
-import { isConsoleOperator } from "../console-access";
-import { consoleProcedure, protectedProcedure, router } from "../index";
+import {
+  evaluateConsoleOperatorAccess,
+  logConsoleOperatorAccess,
+} from "../console-operator-access";
+import { consoleProcedure, publicProcedure, router } from "../index";
 import { makeResponseSchema, respond } from "../validation";
 import { platformAdminEndpoints } from "./platform-admin";
 import {
@@ -49,11 +52,15 @@ const userRowSchema = z.object({
 
 export const platformRouter = router({
   ...platformAdminEndpoints,
-  accessStatus: protectedProcedure.query(({ ctx }) => {
-    const allowed = isConsoleOperator(ctx.session);
+  accessStatus: publicProcedure.query(({ ctx }) => {
+    const evaluation = evaluateConsoleOperatorAccess(ctx.session);
+    if (!evaluation.allowed) {
+      logConsoleOperatorAccess(evaluation, { surface: "trpc" });
+    }
     return {
-      allowed,
-      reason: allowed ? null : "forbidden",
+      allowed: evaluation.allowed,
+      reason: evaluation.reason,
+      needsSignIn: evaluation.reason === "unauthenticated",
     };
   }),
 

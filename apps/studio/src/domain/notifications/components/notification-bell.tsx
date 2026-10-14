@@ -90,7 +90,7 @@ export function NotificationBell() {
             </LoadingButton>
           ) : null}
         </div>
-        <div className="flex max-h-80 flex-col gap-0.5 overflow-y-auto">
+        <div className="flex max-h-80 flex-col gap-1 overflow-y-auto overflow-x-hidden">
           {listQuery.isError ? (
             <p className="px-2 py-6 text-center text-muted-foreground text-sm">
               Could not load notifications. Try again shortly.
@@ -107,7 +107,7 @@ export function NotificationBell() {
             </p>
           ) : (
             items.map((item) => (
-              <div key={item.id} className="min-h-0 w-full shrink-0">
+              <div key={item.id} className="w-full shrink-0 border-border/60 border-b last:border-b-0">
                 <NotificationListItem
                   item={item}
                   compact

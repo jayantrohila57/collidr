@@ -497,6 +497,7 @@ export const dashboardRouter = router({
     }),
 
   getProjectDetailStats: orgProcedure
+    .input(z.object({ slug: z.string().min(1) }))
     .use(
       actionGuard("project.read", async (input) => {
         const slug =
@@ -512,7 +513,6 @@ export const dashboardRouter = router({
         return { projectId: row[0]?.id ?? null };
       }),
     )
-    .input(z.object({ slug: z.string().min(1) }))
     .query(async ({ ctx, input }) => fetchProjectDetailStats(ctx, input.slug)),
 
   getOrgSettingsStats: orgProcedure

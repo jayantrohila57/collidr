@@ -100,8 +100,8 @@ export const projectsRouter = router({
 
   // Get a single project with its environments by ID
   get: orgProcedure
-    .use(actionGuard("project.read", projectIdFromInput))
     .input(getProjectInput)
+    .use(actionGuard("project.read", projectIdFromInput))
     .output(
       makeResponseSchema(
         z.object({
@@ -152,6 +152,7 @@ export const projectsRouter = router({
 
   // Get a single project with its environments by slug
   getBySlug: orgProcedure
+    .input(getProjectBySlugInput)
     .use(
       actionGuard("project.read", async (input, ctx) => {
         const slug =
@@ -172,7 +173,6 @@ export const projectsRouter = router({
         return { projectId: row[0]?.id ?? null };
       }),
     )
-    .input(getProjectBySlugInput)
     .output(
       makeResponseSchema(
         z.object({
@@ -233,8 +233,8 @@ export const projectsRouter = router({
 
   // Create a new project
   create: orgProcedure
-    .use(actionGuard("project.create"))
     .input(createProjectInput)
+    .use(actionGuard("project.create"))
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
       try {
@@ -297,8 +297,8 @@ export const projectsRouter = router({
 
   // Update a project
   update: orgProcedure
-    .use(actionGuard("project.update", projectIdFromInput))
     .input(updateProjectInput)
+    .use(actionGuard("project.update", projectIdFromInput))
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
       const existingProject = await db
@@ -380,8 +380,8 @@ export const projectsRouter = router({
 
   // Delete a project (and all its environments and variables)
   delete: orgProcedure
-    .use(actionGuard("project.delete", projectIdFromInput))
     .input(getProjectInput)
+    .use(actionGuard("project.delete", projectIdFromInput))
     .output(makeResponseSchema(z.object({ success: z.boolean() })))
     .mutation(async ({ ctx, input }) => {
       const existingProject = await db
@@ -423,8 +423,8 @@ export const projectsRouter = router({
 
   // Archive a project
   archive: orgProcedure
-    .use(actionGuard("project.archive", projectIdFromInput))
     .input(getProjectInput)
+    .use(actionGuard("project.archive", projectIdFromInput))
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
       const existingProject = await db
@@ -466,8 +466,8 @@ export const projectsRouter = router({
 
   // Unarchive a project
   unarchive: orgProcedure
-    .use(actionGuard("project.unarchive", projectIdFromInput))
     .input(getProjectInput)
+    .use(actionGuard("project.unarchive", projectIdFromInput))
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
       const existingProject = await db
@@ -512,8 +512,8 @@ export const projectsRouter = router({
 
   // Change project status
   changeStatus: orgProcedure
-    .use(actionGuard("project.status.change", projectIdFromInput))
     .input(changeProjectStatusInput)
+    .use(actionGuard("project.status.change", projectIdFromInput))
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
       const existingProject = await db
@@ -558,8 +558,8 @@ export const projectsRouter = router({
 
   // Toggle project public/private visibility
   togglePublic: orgProcedure
-    .use(actionGuard("project.public.toggle", projectIdFromInput))
     .input(toggleProjectPublicInput)
+    .use(actionGuard("project.public.toggle", projectIdFromInput))
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
       const existingProject = await db

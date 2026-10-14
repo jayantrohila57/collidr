@@ -82,7 +82,6 @@ export const notificationsRouter = router({
     }),
 
   list: protectedProcedure
-    .use(actionGuard("notification.list"))
     .input(
       z.object({
         cursor: z
@@ -95,6 +94,7 @@ export const notificationsRouter = router({
         unreadOnly: z.boolean().optional(),
       }),
     )
+    .use(actionGuard("notification.list"))
     .output(
       makeResponseSchema(
         z.object({
@@ -182,8 +182,8 @@ export const notificationsRouter = router({
     }),
 
   markRead: protectedProcedure
-    .use(actionGuard("notification.mark_read"))
     .input(z.object({ id: z.string() }))
+    .use(actionGuard("notification.mark_read"))
     .output(makeResponseSchema(z.boolean()))
     .mutation(async ({ ctx, input }) => {
       assertNotificationsEnabled();
@@ -204,8 +204,8 @@ export const notificationsRouter = router({
     }),
 
   markUnread: protectedProcedure
-    .use(actionGuard("notification.mark_unread"))
     .input(z.object({ id: z.string() }))
+    .use(actionGuard("notification.mark_unread"))
     .output(makeResponseSchema(z.boolean()))
     .mutation(async ({ ctx, input }) => {
       assertNotificationsEnabled();
@@ -250,13 +250,13 @@ export const notificationsRouter = router({
     }),
 
   syncInvitationReceived: protectedProcedure
-    .use(actionGuard("member.invite", organizationIdFromInviteSyncInput))
     .input(
       z.object({
         organizationId: z.string(),
         email: z.string().email(),
       }),
     )
+    .use(actionGuard("member.invite", organizationIdFromInviteSyncInput))
     .output(makeResponseSchema(z.boolean()))
     .mutation(async ({ ctx, input }) => {
       assertNotificationsEnabled();
@@ -274,13 +274,13 @@ export const notificationsRouter = router({
     }),
 
   syncInvitationAccepted: protectedProcedure
-    .use(actionGuard("invitation.accept", organizationIdFromInviteSyncInput))
     .input(
       z.object({
         organizationId: z.string(),
         email: z.string().email(),
       }),
     )
+    .use(actionGuard("invitation.accept", organizationIdFromInviteSyncInput))
     .output(makeResponseSchema(z.boolean()))
     .mutation(async ({ ctx, input }) => {
       assertNotificationsEnabled();
