@@ -18,6 +18,8 @@ import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
 import { isRecognizedDashboardPath } from "@/lib/dashboard-path";
 import { cn, deSlug } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { trpc } from "@/utils/trpc";
 
 const STATIC_LABELS: Record<string, string> = {
   dashboard: "Dashboard",
@@ -38,6 +40,9 @@ const STATIC_LABELS: Record<string, string> = {
   new: "New Project",
   edit: "Edit",
   environments: "Environments",
+  support: "Support",
+  tickets: "Tickets",
+  help: "Help",
 };
 
 const SETTINGS_TAB_SEGMENTS = new Set([
@@ -71,6 +76,7 @@ function breadcrumbLabel(
   projectFromList?: { name: string },
   orgFromList?: { name: string },
   showNotFound?: boolean,
+  supportTicketLabel?: string,
 ) {
   if (showNotFound && index === breadcrumbs.length - 1) {
     return "Not found";
@@ -93,13 +99,21 @@ function breadcrumbLabel(
     breadcrumbs[1]?.segment === "organizations" &&
     breadcrumb.segment !== "new";
 
+  const isSupportTicketId =
+    index === 3 &&
+    breadcrumbs[1]?.segment === "support" &&
+    breadcrumbs[2]?.segment === "tickets" &&
+    breadcrumb.segment !== "new";
+
   return formatSegmentLabel(
     breadcrumb.segment,
     isProjectSlug
       ? projectFromList?.name
       : isOrgSlug
         ? orgFromList?.name
-        : undefined,
+        : isSupportTicketId
+          ? supportTicketLabel
+          : undefined,
   );
 }
 
@@ -133,6 +147,26 @@ export function Breadcrumbs({ className }: { className?: string }) {
   const orgFromList = orgSlugFromPath
     ? orgs.find((o) => o.slug === orgSlugFromPath)
     : undefined;
+
+  const supportTicketId =
+    breadcrumbs[1]?.segment === "support" &&
+    breadcrumbs[2]?.segment === "tickets" &&
+    breadcrumbs[3]?.segment &&
+    breadcrumbs[3].segment !== "new"
+      ? breadcrumbs[3].segment
+      : undefined;
+  const supportTicketQuery = useQuery({
+    ...trpc.support.getTicket.queryOptions({
+      ticketId: supportTicketId ?? "",
+    }),
+    enabled: Boolean(supportTicketId),
+    staleTime: 60_000,
+  });
+  const supportTicketLabel = supportTicketQuery.data?.ticket
+    ? `#${supportTicketQuery.data.ticket.ticketNumber} ${supportTicketQuery.data.ticket.subject}`
+    : supportTicketId
+      ? "Ticket"
+      : undefined;
 
   const handleBreadcrumbClick = (href: string) => {
     router.push(href as Route);
@@ -197,6 +231,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
                             projectFromList,
                             orgFromList,
                             showNotFound,
+                            supportTicketLabel,
                           )}
                         </MenuItem>
                       ))}
@@ -217,6 +252,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
                   projectFromList,
                   orgFromList,
                   showNotFound,
+                  supportTicketLabel,
                 )}
               </BreadcrumbPage>
             </BreadcrumbItem>
@@ -252,6 +288,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
             projectFromList,
             orgFromList,
             showNotFound,
+            supportTicketLabel,
           );
 
           return (

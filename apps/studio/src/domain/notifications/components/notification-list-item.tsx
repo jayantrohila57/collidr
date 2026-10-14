@@ -57,9 +57,9 @@ export function NotificationListItem({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "h-auto w-full min-w-0 shrink-0 justify-start gap-3 whitespace-normal text-start font-normal",
+        "relative h-auto w-full min-w-0 shrink-0 justify-start gap-3 whitespace-normal text-start font-normal",
         unread && "bg-muted/30",
-        compact ? "items-start py-2" : "items-center",
+        compact ? "items-start py-2.5" : "items-center",
       )}
     >
       <span className="relative mt-0.5 shrink-0">

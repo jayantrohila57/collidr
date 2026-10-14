@@ -8,8 +8,9 @@ import type { BetterAuthPlugin } from "better-auth";
 import { betterAuth } from "better-auth";
 import { deviceAuthorization, jwt, oneTimeToken } from "better-auth/plugins";
 import {
-  basePlugins,
+  coreAuthPlugins,
   platformDatabaseConfig,
+  withNextCookies,
   sharedAuthAdvanced,
   sharedDatabaseHooks,
   sharedE2eEmailPassword,
@@ -84,8 +85,8 @@ export function createPlatformAuth() {
         clientSecret: env.GITHUB_CLIENT_SECRET ?? "build-placeholder",
       },
     },
-    plugins: [
-      ...basePlugins(),
+    plugins: withNextCookies([
+      ...coreAuthPlugins(),
       jwt(),
       oneTimeToken({
         expiresIn: 5,
@@ -94,6 +95,6 @@ export function createPlatformAuth() {
         verificationUri: "/device",
       }),
       ...buildMcpPlugins(),
-    ] as BetterAuthPlugin[],
+    ]) as BetterAuthPlugin[],
   });
 }

@@ -13,6 +13,7 @@ import { TRPCError } from "@trpc/server";
 import { and, count, eq, inArray } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
+import { projectIdForEnvironmentInput } from "../actions/guard-resolve";
 import { createAuditLog, getProjectEnvironmentIds } from "../audit";
 import {
   executeBulkVariableImport,
@@ -50,21 +51,19 @@ import { isVariablesV2Enabled } from "../variables-v2";
 export const environmentVariablesRouter = router({
   // List variables for an environment (metadata only)
   list: orgProcedure
+    .input(z.object({ environmentId: z.string().uuid() }))
     .use(
       actionGuard("variable.read", async (input) => {
-        const environmentId = (input as { environmentId: string })
-          .environmentId;
-        const projectId = await lookupProjectIdByEnvironmentId(environmentId);
-        if (!projectId) {
+        const partial = await projectIdForEnvironmentInput(input);
+        if (!partial.projectId) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Environment not found",
           });
         }
-        return { projectId };
+        return partial;
       }),
     )
-    .input(z.object({ environmentId: z.string().uuid() }))
     .output(makeResponseSchema(z.array(variableOutput)))
     .query(async ({ ctx, input }) => {
       try {

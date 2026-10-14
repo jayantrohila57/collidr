@@ -1,34 +1,38 @@
 import { sessionUserIsPlatformAdmin } from "@collidr/actions/platform-admin-flag";
-import { isEmailAllowedForConsole } from "@collidr/env/console";
 import { TRPCError } from "@trpc/server";
+import {
+  evaluateConsoleOperatorAccess,
+  logConsoleOperatorAccess,
+} from "./console-operator-access";
 
 type SessionPayload = {
   user: { id: string; email: string; role?: string | null };
 };
 
-export function assertConsoleOperator(session: SessionPayload): void {
-  if (!sessionUserIsPlatformAdmin(session.user)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "Platform admin role required",
+export function assertConsoleOperator(
+  session: SessionPayload,
+  options: { surface?: "page" | "trpc" } = {},
+): void {
+  const evaluation = evaluateConsoleOperatorAccess(session);
+  if (!evaluation.allowed) {
+    logConsoleOperatorAccess(evaluation, {
+      surface: options.surface ?? "trpc",
     });
-  }
-  if (!isEmailAllowedForConsole(session.user.email)) {
+    const message =
+      evaluation.reason === "not_platform_admin"
+        ? "Platform admin role required"
+        : evaluation.reason === "email_not_allowed"
+          ? "Console access is restricted to authorized operators"
+          : "Console access denied";
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "Console access is restricted to authorized operators",
+      message,
     });
   }
 }
 
 export function isConsoleOperator(session: SessionPayload | null): boolean {
-  if (!session) return false;
-  try {
-    assertConsoleOperator(session);
-    return true;
-  } catch {
-    return false;
-  }
+  return evaluateConsoleOperatorAccess(session).allowed;
 }
 
 export function getPlatformAdminFromSession(

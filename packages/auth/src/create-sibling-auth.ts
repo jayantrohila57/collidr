@@ -2,8 +2,9 @@ import { env } from "@collidr/env/server";
 import { betterAuth } from "better-auth";
 import { oneTimeToken } from "better-auth/plugins";
 import {
-  basePlugins,
+  coreAuthPlugins,
   sharedAuthAdvanced,
+  withNextCookies,
   sharedDatabaseConfig,
   sharedDatabaseHooks,
   sharedE2eEmailPassword,
@@ -38,11 +39,11 @@ export function createSiblingAuth(options: CreateSiblingAuthOptions) {
     ...sharedE2eEmailPassword(),
     database: sharedDatabaseConfig(),
     trustedOrigins,
-    plugins: [
-      ...basePlugins(),
+    plugins: withNextCookies([
+      ...coreAuthPlugins(),
       oneTimeToken({
         expiresIn: 5,
       }),
-    ],
+    ]),
   });
 }

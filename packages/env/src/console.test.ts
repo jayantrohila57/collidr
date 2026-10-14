@@ -12,6 +12,19 @@ test("parseConsoleAllowedEmails normalizes list", () => {
     "a@x.com",
     "b@x.com",
   ]);
+  assert.deepEqual(parseConsoleAllowedEmails('"jrohila55@gmail.com"'), [
+    "jrohila55@gmail.com",
+  ]);
+});
+
+test("isEmailAllowedForConsole matches quoted allowlist entries", () => {
+  assert.equal(
+    isEmailAllowedForConsole("jrohila55@gmail.com", {
+      nodeEnv: "production",
+      allowedEmails: ['"jrohila55@gmail.com"'],
+    }),
+    true,
+  );
 });
 
 test("isEmailAllowedForConsole enforces list in production", () => {

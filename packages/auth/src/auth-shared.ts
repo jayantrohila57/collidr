@@ -264,14 +264,25 @@ export function sharedE2eEmailPassword(): Pick<
     : {};
 }
 
-export function basePlugins() {
+/** Auth plugins excluding Next.js cookie forwarding — append `withNextCookies()` last. */
+export function coreAuthPlugins() {
   return [
     sessionCookieMigrationPlugin(),
-    nextCookies(),
     admin({
       defaultRole: "user",
       adminRoles: ["admin"],
     }),
     ...organizationPlugin(),
   ];
+}
+
+export function withNextCookies<T extends readonly unknown[]>(
+  plugins: T,
+): [...T, ReturnType<typeof nextCookies>] {
+  return [...plugins, nextCookies()];
+}
+
+/** @deprecated Prefer `withNextCookies(coreAuthPlugins())` so cookies run last. */
+export function basePlugins() {
+  return withNextCookies(coreAuthPlugins());
 }

@@ -1,8 +1,9 @@
 import { env } from "@collidr/env/server";
 import { betterAuth } from "better-auth";
 import {
-  basePlugins,
+  coreAuthPlugins,
   sharedAuthAdvanced,
+  withNextCookies,
   sharedDatabaseConfig,
   sharedDatabaseHooks,
   sharedE2eEmailPassword,
@@ -23,5 +24,5 @@ export const auth = betterAuth({
       clientSecret: env.GITHUB_CLIENT_SECRET,
     },
   },
-  plugins: basePlugins(),
+  plugins: withNextCookies(coreAuthPlugins()),
 });

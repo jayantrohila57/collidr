@@ -1,13 +1,21 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod/v3";
 
+function normalizeAllowlistEmail(raw: string): string {
+  return raw
+    .trim()
+    .replace(/^["']+|["']+$/g, "")
+    .trim()
+    .toLowerCase();
+}
+
 const emailListSchema = z
   .string()
   .min(1)
   .transform((raw) =>
     raw
       .split(/[,\n]+/)
-      .map((e) => e.trim().toLowerCase())
+      .map(normalizeAllowlistEmail)
       .filter(Boolean),
   );
 
@@ -52,9 +60,13 @@ export function isEmailAllowedForConsole(
   if (allowed.length === 0 && nodeEnv !== "production") {
     return true;
   }
-  const normalized = email?.trim().toLowerCase();
+  if (!email?.trim()) {
+    return false;
+  }
+  const normalized = normalizeAllowlistEmail(email);
   if (!normalized) {
     return false;
   }
-  return allowed.includes(normalized);
+  const normalizedAllowlist = allowed.map(normalizeAllowlistEmail).filter(Boolean);
+  return normalizedAllowlist.includes(normalized);
 }

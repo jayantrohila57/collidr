@@ -25,44 +25,42 @@ export async function hydrateProjectDetailQueries(
   const measure = async <T>(name: string, fn: () => Promise<T>) =>
     timing ? timing.measure(name, fn) : fn();
 
-  const projectRes = await measure("project", () =>
-    prefetchWithCaller(
-      queryClient,
-      trpcQueryOptions.projects.getBySlug.queryOptions({ slug }),
-      () => caller.projects.getBySlug({ slug }),
-    ),
-  );
-
-  if (projectRes.data.project) {
-    try {
-      await measure("stats", () =>
-        prefetchWithCaller(
-          queryClient,
-          trpcQueryOptions.dashboard.getProjectDetailStats.queryOptions({
-            slug,
-          }),
-          () => caller.dashboard.getProjectDetailStats({ slug }),
-        ),
-      );
-    } catch {
-      // Stats are optional for first paint; client will refetch.
-    }
-  }
+  const projectRes = await measure("project+stats", async () => {
+    const [projectPayload] = await Promise.all([
+      prefetchWithCaller(
+        queryClient,
+        trpcQueryOptions.projects.getBySlug.queryOptions({ slug }),
+        () => caller.projects.getBySlug({ slug }),
+      ),
+      prefetchWithCaller(
+        queryClient,
+        trpcQueryOptions.dashboard.getProjectDetailStats.queryOptions({
+          slug,
+        }),
+        () => caller.dashboard.getProjectDetailStats({ slug }),
+      ).catch(() => undefined),
+    ]);
+    return projectPayload;
+  });
 
   const firstEnvironmentId = projectRes.data.environments[0]?.id;
   if (firstEnvironmentId) {
-    await measure("variables", () =>
-      prefetchWithCaller(
-        queryClient,
-        trpcQueryOptions.environmentVariables.list.queryOptions({
-          environmentId: firstEnvironmentId,
-        }),
-        () =>
-          caller.environmentVariables.list({
+    try {
+      await measure("variables", () =>
+        prefetchWithCaller(
+          queryClient,
+          trpcQueryOptions.environmentVariables.list.queryOptions({
             environmentId: firstEnvironmentId,
           }),
-      ),
-    );
+          () =>
+            caller.environmentVariables.list({
+              environmentId: firstEnvironmentId,
+            }),
+        ),
+      );
+    } catch {
+      // Variables are optional for first paint; client will refetch.
+    }
   }
 
   return projectRes;

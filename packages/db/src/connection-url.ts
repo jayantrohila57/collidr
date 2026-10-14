@@ -40,8 +40,12 @@ function finalizeConnectionString(connectionString: string): string {
  * Prefer Neon pooler in serverless production to avoid cold direct connections.
  * Override with DATABASE_URL_POOLED when set in Vercel/Neon integration.
  */
-export function resolveDatabaseConnectionString(raw: string): string {
-  const explicit = process.env.DATABASE_URL_POOLED?.trim();
+export function resolveDatabaseConnectionString(
+  raw: string,
+  pooledOverride?: string,
+): string {
+  const explicit =
+    pooledOverride?.trim() || process.env.DATABASE_URL_POOLED?.trim();
   if (explicit) {
     return finalizeConnectionString(explicit);
   }

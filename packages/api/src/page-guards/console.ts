@@ -10,7 +10,7 @@ export async function requireConsoleOperatorPage(
   session: AuthSession,
 ): Promise<void> {
   try {
-    assertConsoleOperator(session);
+    assertConsoleOperator(session, { surface: "page" });
   } catch (error) {
     if (error instanceof TRPCError && error.code === "FORBIDDEN") {
       throw new PageForbiddenError(error.message);

@@ -107,11 +107,11 @@ export function NotificationBell() {
             </p>
           ) : (
             items.map((item) => (
-              <NotificationListItem
-                key={item.id}
-                item={item}
-                compact
-                onClick={() => {
+              <div key={item.id} className="min-h-0 w-full shrink-0">
+                <NotificationListItem
+                  item={item}
+                  compact
+                  onClick={() => {
                   void (async () => {
                     if (!item.readAt) {
                       try {
@@ -123,8 +123,9 @@ export function NotificationBell() {
                     router.push(item.href as Route);
                   })();
                 }}
-                disabled={isMarkingRead}
-              />
+                  disabled={isMarkingRead}
+                />
+              </div>
             ))
           )}
         </div>
