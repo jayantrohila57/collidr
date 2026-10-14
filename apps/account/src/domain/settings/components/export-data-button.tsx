@@ -22,7 +22,7 @@ export function ExportDataButton() {
           const url = URL.createObjectURL(blob);
           const anchor = document.createElement("a");
           anchor.href = url;
-          anchor.download = `collidr-export-${new Date().toISOString()}.json`;
+          anchor.download = `loftlancer-export-${new Date().toISOString()}.json`;
           anchor.click();
           URL.revokeObjectURL(url);
         }}

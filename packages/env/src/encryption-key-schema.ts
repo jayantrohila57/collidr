@@ -1,6 +1,6 @@
 import { z } from "zod/v3";
 
-/** 32-byte AES-256 key as 64 hex characters (see @collidr/crypto). */
+/** 32-byte AES-256 key as 64 hex characters (see @loftlancer/crypto). */
 export const encryptionKeySchema = z
   .string()
   .regex(

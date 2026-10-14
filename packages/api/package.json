@@ -1,5 +1,5 @@
 {
-  "name": "@collidr/api",
+  "name": "@loftlancer/api",
   "type": "module",
   "exports": {
     ".": {
@@ -26,12 +26,12 @@
     "test": "SKIP_ENV_VALIDATION=1 node --import tsx --test src/actions/action-guard-input-order.test.ts src/actions/evaluate-rbac.test.ts src/actions/require-action-membership.test.ts src/actions/require-user-action.test.ts src/audit-passive-actions.test.ts src/bulk-import-variables-plan.test.ts src/console-audit-context.test.ts src/console-operator-access.test.ts src/environment-access.test.ts src/invitation-sync-auth.test.ts src/page-guards/page-guards.test.ts src/routers/audit-stats-mappers.test.ts src/routers/index.test.ts src/routers/notifications-action-guard.test.ts src/routers/organizations-member-filter.test.ts src/routers/project-access-router.test.ts src/routers/projects-action-guard.test.ts src/routers/projects-not-found.test.ts src/routers/sole-owner-blockers.test.ts src/routers/variables-create-batch-access.test.ts src/support/permissions.test.ts src/variable-audit-payload.test.ts"
   },
   "dependencies": {
-    "@collidr/actions": "workspace:*",
-    "@collidr/auth": "workspace:*",
-    "@collidr/crypto": "workspace:*",
-    "@collidr/db": "workspace:*",
-    "@collidr/env": "workspace:*",
-    "@collidr/notifications": "workspace:*",
+    "@loftlancer/actions": "workspace:*",
+    "@loftlancer/auth": "workspace:*",
+    "@loftlancer/crypto": "workspace:*",
+    "@loftlancer/db": "workspace:*",
+    "@loftlancer/env": "workspace:*",
+    "@loftlancer/notifications": "workspace:*",
     "@tanstack/react-query": "^5.104.2",
     "@trpc/client": "catalog:",
     "@trpc/server": "catalog:",
@@ -43,7 +43,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@collidr/config": "workspace:*",
+    "@loftlancer/config": "workspace:*",
     "tsx": "^4.23.15",
     "typescript": "catalog:"
   }

@@ -1,4 +1,4 @@
-import { auditEvent } from "@collidr/db/schema/audit-event";
+import { auditEvent } from "@loftlancer/db/schema/audit-event";
 import { not, or, type SQL, sql } from "drizzle-orm";
 
 /** Low-signal actions hidden from timeline by default (reads and views). */

@@ -1,4 +1,4 @@
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 
 /** Canonical gates for Organizations hub sections (UI owned by other agents). */
 export const orgHubSectionActions = {

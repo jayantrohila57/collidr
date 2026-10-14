@@ -1,4 +1,4 @@
-import { cn as cnBase } from "@collidr/ui/utils";
+import { cn as cnBase } from "@loftlancer/ui/utils";
 
 export const cn = cnBase;
 

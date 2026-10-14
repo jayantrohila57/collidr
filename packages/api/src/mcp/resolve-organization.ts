@@ -1,5 +1,5 @@
-import { activeMemberWhere, db } from "@collidr/db";
-import { member, organization } from "@collidr/db/schema/organization";
+import { activeMemberWhere, db } from "@loftlancer/db";
+import { member, organization } from "@loftlancer/db/schema/organization";
 import { and, eq, isNull } from "drizzle-orm";
 import type { OrganizationRef } from "./inputs";
 

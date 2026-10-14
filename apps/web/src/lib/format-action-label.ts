@@ -1,4 +1,4 @@
-import { type ActionName, getActionDefinition } from "@collidr/actions";
+import { type ActionName, getActionDefinition } from "@loftlancer/actions";
 
 export function formatActionLabel(action: string): string {
   try {

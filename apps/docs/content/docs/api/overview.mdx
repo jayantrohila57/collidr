@@ -5,7 +5,7 @@ description: tRPC studio API, Better Auth, and MCP tools sharing one action laye
 
 ## tRPC (studio)
 
-The dashboard (`apps/web`) mounts a tRPC router at `/api/trpc`. Procedures live in `@collidr/api` and enforce permissions via `requireAction` and organization/project membership.
+The dashboard (`apps/web`) mounts a tRPC router at `/api/trpc`. Procedures live in `@loftlancer/api` and enforce permissions via `requireAction` and organization/project membership.
 
 Typical clients use React Query integration in `apps/web` — there is no separate public REST CRUD surface for product data in v1.
 
@@ -13,11 +13,11 @@ Typical clients use React Query integration in `apps/web` — there is no separa
 
 Sessions use **Better Auth** with GitHub OAuth. Browser clients call `/api/auth/*` on the app origin (migrating to **`apps/auth`** for SSO).
 
-Header **Sign in** links use `buildSignInUrl()` from `@collidr/ui/auth-links` with `NEXT_PUBLIC_AUTH_URL`.
+Header **Sign in** links use `buildSignInUrl()` from `@loftlancer/ui/auth-links` with `NEXT_PUBLIC_AUTH_URL`.
 
 ## MCP
 
-`apps/mcp` exposes JSON-RPC MCP over HTTP. Tools are registered in `@collidr/mcp` and execute through `runMcpTool` → `executeMcpAction` in `@collidr/api/mcp`.
+`apps/mcp` exposes JSON-RPC MCP over HTTP. Tools are registered in `@loftlancer/mcp` and execute through `runMcpTool` → `executeMcpAction` in `@loftlancer/api/mcp`.
 
 See the [tool index](/docs/mcp/tools) for per-tool inputs, scopes, and examples.
 

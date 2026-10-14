@@ -1,5 +1,5 @@
-import { activeEnvironmentWhere, db } from "@collidr/db";
-import { environment } from "@collidr/db/schema/projects";
+import { activeEnvironmentWhere, db } from "@loftlancer/db";
+import { environment } from "@loftlancer/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { eq, inArray } from "drizzle-orm";
 import { assertProjectAccess } from "./org-access";

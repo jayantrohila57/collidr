@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Collidr Support",
+  title: "Loftlancer Support",
   description: "Help center, support tickets, and legal information",
 };
 

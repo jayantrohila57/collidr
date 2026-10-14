@@ -1,5 +1,5 @@
 {
-  "name": "@collidr/notifications",
+  "name": "@loftlancer/notifications",
   "type": "module",
   "exports": {
     ".": {
@@ -10,13 +10,13 @@
     }
   },
   "dependencies": {
-    "@collidr/db": "workspace:*",
-    "@collidr/env": "workspace:*",
+    "@loftlancer/db": "workspace:*",
+    "@loftlancer/env": "workspace:*",
     "drizzle-orm": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@collidr/config": "workspace:*",
+    "@loftlancer/config": "workspace:*",
     "tsx": "^4.23.15",
     "typescript": "catalog:"
   },

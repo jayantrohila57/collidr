@@ -1,8 +1,8 @@
-import { sessionUserIsPlatformAdmin } from "@collidr/actions/platform-admin-flag";
+import { sessionUserIsPlatformAdmin } from "@loftlancer/actions/platform-admin-flag";
 import {
   isEmailAllowedForConsole,
   parseConsoleAllowedEmails,
-} from "@collidr/env/console";
+} from "@loftlancer/env/console";
 
 type ConsoleAccessUser = {
   id: string;

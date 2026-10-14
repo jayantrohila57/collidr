@@ -1,6 +1,6 @@
 "use client";
 
-import type { FeatureFlagSnapshotRow } from "@collidr/env/feature-flags";
+import type { FeatureFlagSnapshotRow } from "@loftlancer/env/feature-flags";
 import type { Route } from "next";
 import Link from "next/link";
 import { AppIcon } from "@/components/patterns/app-icon";

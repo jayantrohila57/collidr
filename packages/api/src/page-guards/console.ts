@@ -1,5 +1,5 @@
-import { sessionUserIsPlatformAdmin } from "@collidr/actions/platform-admin-flag";
-import type { AuthSession } from "@collidr/auth/session-types";
+import { sessionUserIsPlatformAdmin } from "@loftlancer/actions/platform-admin-flag";
+import type { AuthSession } from "@loftlancer/auth/session-types";
 import { TRPCError } from "@trpc/server";
 import { requireAction } from "../actions/require-action";
 import { assertConsoleOperator } from "../console-access";

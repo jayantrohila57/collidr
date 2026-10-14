@@ -1,5 +1,5 @@
-import { createSiblingAuth } from "@collidr/auth/sibling-auth";
-import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
+import { createSiblingAuth } from "@loftlancer/auth/sibling-auth";
+import { resolvePublicServiceUrl } from "@loftlancer/env/vercel-services";
 
 export const siblingAuth = createSiblingAuth({
   baseURL: resolvePublicServiceUrl("account"),

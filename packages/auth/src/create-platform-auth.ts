@@ -1,9 +1,9 @@
 import { cimd } from "@better-auth/cimd";
 import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { mcp } from "@better-auth/mcp";
-import { MCP_OAUTH_SCOPES } from "@collidr/actions";
-import { env } from "@collidr/env/server";
-import { resolvePlatformPublicOrigin } from "@collidr/env/vercel-services";
+import { MCP_OAUTH_SCOPES } from "@loftlancer/actions";
+import { env } from "@loftlancer/env/server";
+import { resolvePlatformPublicOrigin } from "@loftlancer/env/vercel-services";
 import type { BetterAuthPlugin } from "better-auth";
 import { betterAuth } from "better-auth";
 import { deviceAuthorization, jwt, oneTimeToken } from "better-auth/plugins";

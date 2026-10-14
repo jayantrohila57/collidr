@@ -1,4 +1,4 @@
-import { encrypt } from "@collidr/crypto";
+import { encrypt } from "@loftlancer/crypto";
 import { and, eq, inArray } from "drizzle-orm";
 
 import { db } from "./client";

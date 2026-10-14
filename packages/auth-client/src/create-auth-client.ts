@@ -1,5 +1,5 @@
 import { oauthProviderClient } from "@better-auth/oauth-provider/client";
-import { orgAc, orgBetterAuthRoles } from "@collidr/actions";
+import { orgAc, orgBetterAuthRoles } from "@loftlancer/actions";
 import {
   adminClient,
   deviceAuthorizationClient,
@@ -7,7 +7,7 @@ import {
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
-export type CreateCollidrAuthClientOptions = {
+export type CreateLoftlancerAuthClientOptions = {
   /** Auth app origin when the client runs on a sibling app (e.g. studio). Omit on same host as `/api/auth`. */
   baseURL?: string;
   organizationsEnabled?: boolean;
@@ -17,8 +17,8 @@ export type CreateCollidrAuthClientOptions = {
   platformOAuth?: boolean;
 };
 
-export function createCollidrAuthClient(
-  options: CreateCollidrAuthClientOptions = {},
+export function createLoftlancerAuthClient(
+  options: CreateLoftlancerAuthClientOptions = {},
 ) {
   const {
     baseURL,

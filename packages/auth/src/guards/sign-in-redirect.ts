@@ -1,4 +1,4 @@
-import { buildSignInUrl } from "@collidr/ui/auth-links";
+import { buildSignInUrl } from "@loftlancer/ui/auth-links";
 import { trimTrailingSlash } from "../platform-urls";
 import {
   absoluteReturnToFromRelativePath,

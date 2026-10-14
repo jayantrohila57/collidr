@@ -2,11 +2,11 @@ import {
   type ActionName,
   getActionDefinition,
   isActionsAuditEnabled,
-} from "@collidr/actions";
-import { db } from "@collidr/db";
-import { auditEvent } from "@collidr/db/schema/audit-event";
-import { isNotificationsEnabled } from "@collidr/notifications";
-import { notifyFromAuditEvent } from "@collidr/notifications/from-audit";
+} from "@loftlancer/actions";
+import { db } from "@loftlancer/db";
+import { auditEvent } from "@loftlancer/db/schema/audit-event";
+import { isNotificationsEnabled } from "@loftlancer/notifications";
+import { notifyFromAuditEvent } from "@loftlancer/notifications/from-audit";
 
 export type AuthAuditResult = "success" | "failure" | "denied";
 

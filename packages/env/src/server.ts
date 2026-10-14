@@ -11,6 +11,10 @@ export const env = createEnv({
     DATABASE_URL_POOLED: z.string().min(1).optional(),
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.string().url(),
+    /** Session cookie Domain for apex SSO (e.g. `.loftlancer.com`). */
+    AUTH_COOKIE_DOMAIN: z.string().min(1).optional(),
+    /** Set to `false` to disable Better Auth crossSubDomainCookies (local dev). */
+    AUTH_CROSS_SUBDOMAIN_COOKIES: z.enum(["true", "false"]).optional(),
     GITHUB_CLIENT_ID: z.string().min(1),
     GITHUB_CLIENT_SECRET: z.string().min(1),
     /** Comma-separated allowed browser origins (studio, console, docs, mcp, …). */

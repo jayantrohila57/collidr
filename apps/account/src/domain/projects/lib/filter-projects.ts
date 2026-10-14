@@ -1,4 +1,4 @@
-import type { ProjectOutput } from "@collidr/api/types";
+import type { ProjectOutput } from "@loftlancer/api/types";
 
 export type ProjectsStatusFilter =
   | "active"

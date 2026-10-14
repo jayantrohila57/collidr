@@ -11,7 +11,7 @@ const config: NextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
   reactCompiler: true,
-  transpilePackages: ["@collidr/ui"],
+  transpilePackages: ["@loftlancer/ui"],
   ...(docsBasePath ? { basePath: docsBasePath } : {}),
   async redirects() {
     return [

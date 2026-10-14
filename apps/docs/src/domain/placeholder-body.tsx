@@ -2,7 +2,7 @@ export function PlaceholderLegalBody({ topic }: { topic: string }) {
   return (
     <div className="space-y-4 text-muted-foreground text-sm leading-relaxed">
       <p>
-        This {topic} page describes how Collidr intends to operate. Replace this
+        This {topic} page describes how Loftlancer intends to operate. Replace this
         section with counsel-approved language before production use.
       </p>
       <p>

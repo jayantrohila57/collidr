@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { actionRegistry } from "@collidr/actions";
+import { actionRegistry } from "@loftlancer/actions";
 import { mcpActionHandlers } from "./handlers";
 import { listMcpExposedActions } from "./list-exposed-actions";
 

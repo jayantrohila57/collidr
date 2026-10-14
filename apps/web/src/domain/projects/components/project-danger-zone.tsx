@@ -1,6 +1,6 @@
 "use client";
 
-import type { ProjectOutput } from "@collidr/api/types";
+import type { ProjectOutput } from "@loftlancer/api/types";
 import { useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import {

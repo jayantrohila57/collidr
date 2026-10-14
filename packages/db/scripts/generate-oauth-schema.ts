@@ -22,7 +22,7 @@ const options = {
     mcp({
       loginPage: "/sign-in",
       consentPage: "/consent",
-      resource: "https://collidr.vercel.app/api/mcp",
+      resource: "https://loftlancer.com/api/mcp",
     }),
   ],
 };

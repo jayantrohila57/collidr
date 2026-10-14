@@ -1,6 +1,6 @@
-import { activeMemberWhere, db } from "@collidr/db";
-import { member } from "@collidr/db/schema/organization";
-import { isOrganizationsEnabled } from "@collidr/env/organizations";
+import { activeMemberWhere, db } from "@loftlancer/db";
+import { member } from "@loftlancer/db/schema/organization";
+import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
 import { asc, eq } from "drizzle-orm";
 
 /** First org membership for a user, used to seed session.activeOrganizationId on sign-in. */

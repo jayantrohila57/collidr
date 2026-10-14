@@ -1,5 +1,5 @@
-import type { ActionName } from "@collidr/actions";
-import { isActionsAuditEnabled } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
+import { isActionsAuditEnabled } from "@loftlancer/actions";
 import { writeAuditEvent } from "../actions/audit-event-writer";
 
 export async function auditSupportSuccess(

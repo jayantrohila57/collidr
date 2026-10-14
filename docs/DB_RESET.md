@@ -10,8 +10,8 @@ Use this workflow when applying the combined platform migration (`0007`) to **pr
 
 - `RESET_CONFIRM=yes` and `KEEP_USER_EMAIL` set to the owner account that must keep Better Auth `user`, `account`, `session`, and `verification` rows.
 - `DATABASE_URL` pointing at the target database (branch or production).
-- App env vars required by `@collidr/env` (`ENCRYPTION_KEY`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `CORS_ORIGIN`) or `SKIP_ENV_VALIDATION=1` for scripted runs with only `DATABASE_URL` + crypto key.
-- Schema at or beyond `packages/db/src/migrations/0007_platform_combined_for_prod.sql` (run migration SQL or `pnpm --filter @collidr/db db:push` on the target).
+- App env vars required by `@loftlancer/env` (`ENCRYPTION_KEY`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `CORS_ORIGIN`) or `SKIP_ENV_VALIDATION=1` for scripted runs with only `DATABASE_URL` + crypto key.
+- Schema at or beyond `packages/db/src/migrations/0007_platform_combined_for_prod.sql` (run migration SQL or `pnpm --filter @loftlancer/db db:push` on the target).
 
 ## Recommended production workflow
 

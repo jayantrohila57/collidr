@@ -92,7 +92,7 @@ export function resolvePlatformPublicOrigin(): string {
     const host = preview.replace(/^https?:\/\//, "");
     return `https://${host}`;
   }
-  return "https://collidr.vercel.app";
+  return "https://loftlancer.com";
 }
 
 /** Browser-facing URL for a service (includes base path, no trailing slash). */

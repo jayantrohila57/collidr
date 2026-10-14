@@ -1,6 +1,6 @@
-import { createCollidrAuthClient } from "@collidr/auth-client";
+import { createLoftlancerAuthClient } from "@loftlancer/auth-client";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 
-export const authClient = createCollidrAuthClient({
+export const authClient = createLoftlancerAuthClient({
   organizationsEnabled: isOrganizationsEnabledOnClient(),
 });

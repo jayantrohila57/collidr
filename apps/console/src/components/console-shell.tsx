@@ -71,7 +71,7 @@ export function ConsoleShell({ children }: { children: React.ReactNode }) {
       <header className="border-b bg-background">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div>
-            <p className="font-semibold text-sm">Collidr Console</p>
+            <p className="font-semibold text-sm">Loftlancer Console</p>
             <p className="text-muted-foreground text-xs">
               Signed in as {session.data.user.email}
             </p>

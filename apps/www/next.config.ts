@@ -1,5 +1,5 @@
-import "@collidr/env/www";
-import { withServiceBasePath } from "@collidr/env/next-service-base-path";
+import "@loftlancer/env/www";
+import { withServiceBasePath } from "@loftlancer/env/next-service-base-path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = withServiceBasePath("www", {
@@ -7,7 +7,7 @@ const nextConfig: NextConfig = withServiceBasePath("www", {
   images: { unoptimized: true },
   typedRoutes: true,
   reactCompiler: true,
-  transpilePackages: ["@collidr/ui"],
+  transpilePackages: ["@loftlancer/ui"],
 });
 
 export default nextConfig;

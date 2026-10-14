@@ -1,8 +1,8 @@
-import { isActionsAuditEnabled } from "@collidr/actions";
-import { db } from "@collidr/db";
-import { auditEvent } from "@collidr/db/schema/audit-event";
-import { user } from "@collidr/db/schema/auth";
-import { project } from "@collidr/db/schema/projects";
+import { isActionsAuditEnabled } from "@loftlancer/actions";
+import { db } from "@loftlancer/db";
+import { auditEvent } from "@loftlancer/db/schema/audit-event";
+import { user } from "@loftlancer/db/schema/auth";
+import { project } from "@loftlancer/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, lte, type SQL } from "drizzle-orm";
 import { z } from "zod/v3";

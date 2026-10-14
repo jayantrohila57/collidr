@@ -1,5 +1,5 @@
-import { db } from "@collidr/db";
-import { user } from "@collidr/db/schema/auth";
+import { db } from "@loftlancer/db";
+import { user } from "@loftlancer/db/schema/auth";
 import { eq, sql } from "drizzle-orm";
 
 /**

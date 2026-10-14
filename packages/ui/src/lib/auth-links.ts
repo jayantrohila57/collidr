@@ -1,10 +1,10 @@
-import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
+import { resolvePublicServiceUrl } from "@loftlancer/env/vercel-services";
 
-const DEFAULT_AUTH_URL = "https://collidr-auth.vercel.app";
-const DEFAULT_STUDIO_URL = "https://collidr-studio.vercel.app";
-const DEFAULT_CONSOLE_URL = "https://collidr-console.vercel.app";
+const DEFAULT_AUTH_URL = "https://auth.loftlancer.com";
+const DEFAULT_STUDIO_URL = "https://studio.loftlancer.com";
+const DEFAULT_CONSOLE_URL = "https://console.loftlancer.com";
 const DEFAULT_SUPPORT_URL =
-  "https://collidr-studio.vercel.app/dashboard/support/tickets";
+  "https://studio.loftlancer.com/dashboard/support/tickets";
 
 function authUrlDefault(): string {
   return process.env.VERCEL_SERVICES === "1"

@@ -3,9 +3,9 @@ import {
   actionNames,
   evaluatePermission,
   normalizeOrgRole,
-} from "@collidr/actions";
-import { db } from "@collidr/db";
-import { member } from "@collidr/db/schema/organization";
+} from "@loftlancer/actions";
+import { db } from "@loftlancer/db";
+import { member } from "@loftlancer/db/schema/organization";
 import { and, eq } from "drizzle-orm";
 import { isActionBlocked } from "./is-action-blocked";
 import {

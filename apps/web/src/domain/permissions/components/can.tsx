@@ -1,6 +1,6 @@
 "use client";
 
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { useCan } from "../hooks/use-permissions";
 

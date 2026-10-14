@@ -9,8 +9,8 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@collidr/env": "workspace:*",
-    "@collidr/ui": "workspace:*",
+    "@loftlancer/env": "workspace:*",
+    "@loftlancer/ui": "workspace:*",
     "babel-plugin-react-compiler": "^1.0.0",
     "lucide-react": "^1.56.0",
     "next": "catalog:",
@@ -19,7 +19,7 @@
     "react-dom": "^19.3.0"
   },
   "devDependencies": {
-    "@collidr/config": "workspace:*",
+    "@loftlancer/config": "workspace:*",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26",
     "@types/react": "^19.3.0",

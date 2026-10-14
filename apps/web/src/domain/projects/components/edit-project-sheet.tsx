@@ -1,7 +1,7 @@
 "use client";
 
-import type { ProjectOutput } from "@collidr/api/types";
-import { updateProjectInput } from "@collidr/api/validation";
+import type { ProjectOutput } from "@loftlancer/api/types";
+import { updateProjectInput } from "@loftlancer/api/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";

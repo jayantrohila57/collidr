@@ -1,6 +1,6 @@
 # Design system (coss ui)
 
-Collidr uses [coss ui](https://coss.com/ui) on [Base UI](https://base-ui.com/) via the shadcn registry (`@coss/*`). Components live under `apps/web/src/components/ui/` as copied source (not Radix).
+Loftlancer uses [coss ui](https://coss.com/ui) on [Base UI](https://base-ui.com/) via the shadcn registry (`@coss/*`). Components live under `apps/web/src/components/ui/` as copied source (not Radix).
 
 ## Stack
 

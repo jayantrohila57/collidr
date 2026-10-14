@@ -3,12 +3,12 @@ import {
   activeProjectWhere,
   activeUserWhere,
   db,
-} from "@collidr/db";
-import { auditEvent } from "@collidr/db/schema/audit-event";
-import { session, user } from "@collidr/db/schema/auth";
-import { member, organization } from "@collidr/db/schema/organization";
-import { project } from "@collidr/db/schema/projects";
-import { platformSupportManager } from "@collidr/db/schema/support";
+} from "@loftlancer/db";
+import { auditEvent } from "@loftlancer/db/schema/audit-event";
+import { session, user } from "@loftlancer/db/schema/auth";
+import { member, organization } from "@loftlancer/db/schema/organization";
+import { project } from "@loftlancer/db/schema/projects";
+import { platformSupportManager } from "@loftlancer/db/schema/support";
 import { TRPCError } from "@trpc/server";
 import {
   and,

@@ -1,8 +1,8 @@
 import {
   DEFAULT_AUTH_URL,
   trimTrailingSlash,
-} from "@collidr/auth/platform-urls";
-import { validateReturnTo } from "@collidr/auth/return-to";
+} from "@loftlancer/auth/platform-urls";
+import { validateReturnTo } from "@loftlancer/auth/return-to";
 
 /** Absolute HTTPS return URL for post–sign-in flows on the auth app (device, consent). */
 export function authAppReturnTo(pathWithQuery: string): string {

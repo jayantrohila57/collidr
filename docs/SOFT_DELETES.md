@@ -33,7 +33,7 @@ When on (after migration):
 - `notDeleted()` / `active*Where()` helpers add `deleted_at IS NULL`.
 - Delete mutations call `softDelete*ById` helpers (cascade soft-delete for project → environments → variables).
 
-## Code helpers (`@collidr/db`)
+## Code helpers (`@loftlancer/db`)
 
 | Helper | Purpose |
 |--------|---------|

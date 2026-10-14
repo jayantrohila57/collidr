@@ -20,7 +20,7 @@ export function SupportManagerShell({
     <div className="flex min-h-dvh flex-col">
       <header className="border-b bg-background">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <p className="font-semibold text-sm">Collidr Support (manager)</p>
+          <p className="font-semibold text-sm">Loftlancer Support (manager)</p>
           <nav className="flex flex-wrap gap-2 text-sm">
             {nav.map((item) => (
               <Link

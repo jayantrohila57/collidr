@@ -1,4 +1,4 @@
-import { isActionsAuditEnabled } from "@collidr/actions";
+import { isActionsAuditEnabled } from "@loftlancer/actions";
 import {
   activeEnvironmentVariableWhere,
   activeEnvironmentWhere,
@@ -6,17 +6,17 @@ import {
   activeProjectWhere,
   db,
   deletedAccountUserUpdate,
-} from "@collidr/db";
-import { auditLog } from "@collidr/db/schema/audit";
-import { auditEvent } from "@collidr/db/schema/audit-event";
-import { account, session, user } from "@collidr/db/schema/auth";
-import { notification } from "@collidr/db/schema/notifications";
-import { member } from "@collidr/db/schema/organization";
+} from "@loftlancer/db";
+import { auditLog } from "@loftlancer/db/schema/audit";
+import { auditEvent } from "@loftlancer/db/schema/audit-event";
+import { account, session, user } from "@loftlancer/db/schema/auth";
+import { notification } from "@loftlancer/db/schema/notifications";
+import { member } from "@loftlancer/db/schema/organization";
 import {
   environment,
   environmentVariable,
   project,
-} from "@collidr/db/schema/projects";
+} from "@loftlancer/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod/v3";

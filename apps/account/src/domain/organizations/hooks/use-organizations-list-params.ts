@@ -9,7 +9,7 @@ import type {
   OrganizationsTypeFilter,
 } from "../lib/filter-organizations";
 
-const VIEW_STORAGE_KEY = "collidr-organizations-view";
+const VIEW_STORAGE_KEY = "loftlancer-organizations-view";
 
 export type OrganizationsViewMode = "grid" | "list";
 

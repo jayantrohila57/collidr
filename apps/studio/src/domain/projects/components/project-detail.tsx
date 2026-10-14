@@ -1,6 +1,6 @@
 "use client";
 
-import type { ProjectOutput } from "@collidr/api/types";
+import type { ProjectOutput } from "@loftlancer/api/types";
 import { PageStack } from "@/components/layout/app-layout";
 import { EnvironmentPanel } from "../../environments/components/environment-panel";
 import { EnvironmentsTabsView } from "../../environments/components/environments-tabs-view";

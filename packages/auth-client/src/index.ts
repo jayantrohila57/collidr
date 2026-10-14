@@ -1,9 +1,9 @@
 export { createAuthClient } from "better-auth/react";
 export {
-  type CreateCollidrAuthClientOptions,
-  createCollidrAuthClient,
+  type CreateLoftlancerAuthClientOptions,
+  createLoftlancerAuthClient,
 } from "./create-auth-client";
 export {
-  CollidrImpersonationBanner,
+  LoftlancerImpersonationBanner,
   getImpersonatedByUserId,
 } from "./impersonation-banner";

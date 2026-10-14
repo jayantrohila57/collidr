@@ -3,11 +3,11 @@ title: Encryption
 description: How secret values are encrypted at rest in PostgreSQL.
 ---
 
-Secret variable values are stored in the `encryptedValue` column. The API uses `encrypt()` and `decrypt()` from `@collidr/crypto` when creating, updating, importing, or revealing variables (`packages/api/src/routers/variables.ts`).
+Secret variable values are stored in the `encryptedValue` column. The API uses `encrypt()` and `decrypt()` from `@loftlancer/crypto` when creating, updating, importing, or revealing variables (`packages/api/src/routers/variables.ts`).
 
 ## Runtime requirements
 
-Self-hosted and production deployments must provide the encryption key material expected by `@collidr/crypto` (see repository `README.md` and `packages/crypto` for environment variables). Without correct keys, decrypt operations fail and reveal endpoints return errors.
+Self-hosted and production deployments must provide the encryption key material expected by `@loftlancer/crypto` (see repository `README.md` and `packages/crypto` for environment variables). Without correct keys, decrypt operations fail and reveal endpoints return errors.
 
 ## UI behavior
 

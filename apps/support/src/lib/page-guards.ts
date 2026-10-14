@@ -5,13 +5,13 @@ import {
   requireSupportManagerPage,
   requireSupportTicketPage,
   runPageGuard,
-} from "@collidr/api/page-guards";
+} from "@loftlancer/api/page-guards";
 import {
   type RequirePageSessionResult,
   requirePageSession,
-} from "@collidr/auth/guards";
-import type { AuthSession } from "@collidr/auth/session-types";
-import { DEFAULT_SUPPORT_URL } from "@collidr/env/platform";
+} from "@loftlancer/auth/guards";
+import type { AuthSession } from "@loftlancer/auth/session-types";
+import { DEFAULT_SUPPORT_URL } from "@loftlancer/env/platform";
 import type { Route } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";

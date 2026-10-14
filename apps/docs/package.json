@@ -11,9 +11,9 @@
     "postinstall": "SKIP_ENV_VALIDATION=1 DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres node --import tsx scripts/generate-mcp-tool-pages.ts && node --input-type=module -e \"import('fumadocs-mdx/next').then((m) => m.postInstall())\""
   },
   "dependencies": {
-    "@collidr/actions": "workspace:*",
-    "@collidr/api": "workspace:*",
-    "@collidr/ui": "workspace:*",
+    "@loftlancer/actions": "workspace:*",
+    "@loftlancer/api": "workspace:*",
+    "@loftlancer/ui": "workspace:*",
     "@base-ui/react": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -31,7 +31,7 @@
     "zod-to-json-schema": "^3.25.2"
   },
   "devDependencies": {
-    "@collidr/config": "workspace:*",
+    "@loftlancer/config": "workspace:*",
     "tsx": "^4.23.15",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/mdx": "^2.0.14",

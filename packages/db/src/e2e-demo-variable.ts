@@ -10,7 +10,7 @@ import {
   activeUserWhere,
 } from "./soft-delete";
 
-const E2E_EMAIL = "e2e-playwright@collidr.local";
+const E2E_EMAIL = "e2e-playwright@loftlancer.local";
 const E2E_PROJECT_SLUG = "e2e-demo-project";
 const E2E_ENV_SLUG = "development";
 

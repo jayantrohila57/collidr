@@ -1,6 +1,6 @@
-import "@collidr/env/server";
-import "@collidr/env/studio";
-import { withServiceBasePath } from "@collidr/env/next-service-base-path";
+import "@loftlancer/env/server";
+import "@loftlancer/env/studio";
+import { withServiceBasePath } from "@loftlancer/env/next-service-base-path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = withServiceBasePath("studio", {

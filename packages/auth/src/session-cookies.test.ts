@@ -1,36 +1,45 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
-  COLLIDR_COOKIE_PREFIX,
   findLegacySessionCookie,
-  getCollidrSessionToken,
+  getLoftlancerSessionToken,
   hasSessionCookieFromAnyPrefix,
   isLegacySessionCookieName,
   legacySessionCookieNamesToExpire,
+  LOFTLANCER_COOKIE_PREFIX,
 } from "./session-cookies";
 
 describe("session-cookies", () => {
-  it("reads collidr session token", () => {
+  it("reads loftlancer session token", () => {
     const headers = new Headers({
-      cookie: "collidr.session_token=signed-token-value",
+      cookie: "loftlancer.session_token=signed-token-value",
     });
-    assert.equal(getCollidrSessionToken(headers), "signed-token-value");
+    assert.equal(getLoftlancerSessionToken(headers), "signed-token-value");
   });
 
-  it("finds legacy better-auth cookie when collidr is absent", () => {
+  it("finds legacy collidr cookie when loftlancer is absent", () => {
+    const headers = new Headers({
+      cookie: "collidr.session_token=legacy-signed-value",
+    });
+    const hit = findLegacySessionCookie(headers);
+    assert.ok(hit);
+    assert.equal(hit.prefix, "collidr");
+    assert.equal(hit.rawValue, "legacy-signed-value");
+  });
+
+  it("finds legacy better-auth cookie when loftlancer is absent", () => {
     const headers = new Headers({
       cookie: "better-auth.session_token=legacy-signed-value",
     });
     const hit = findLegacySessionCookie(headers);
     assert.ok(hit);
     assert.equal(hit.prefix, "better-auth");
-    assert.equal(hit.rawValue, "legacy-signed-value");
   });
 
-  it("prefers collidr over legacy", () => {
+  it("prefers loftlancer over legacy collidr", () => {
     const headers = new Headers({
       cookie:
-        "collidr.session_token=new&better-auth.session_token=legacy-signed-value",
+        "loftlancer.session_token=new&collidr.session_token=legacy-signed-value",
     });
     assert.equal(findLegacySessionCookie(headers), null);
     assert.equal(hasSessionCookieFromAnyPrefix(headers), true);
@@ -48,8 +57,9 @@ describe("session-cookies", () => {
       true,
     );
     assert.equal(
-      isLegacySessionCookieName(`${COLLIDR_COOKIE_PREFIX}.session_token`),
+      isLegacySessionCookieName(`${LOFTLANCER_COOKIE_PREFIX}.session_token`),
       false,
     );
+    assert.equal(isLegacySessionCookieName("collidr.session_token"), true);
   });
 });

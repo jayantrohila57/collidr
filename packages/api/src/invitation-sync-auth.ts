@@ -1,6 +1,6 @@
-import { activeInvitationWhere, activeUserWhere, db } from "@collidr/db";
-import { user } from "@collidr/db/schema/auth";
-import { invitation } from "@collidr/db/schema/organization";
+import { activeInvitationWhere, activeUserWhere, db } from "@loftlancer/db";
+import { user } from "@loftlancer/db/schema/auth";
+import { invitation } from "@loftlancer/db/schema/organization";
 import { TRPCError } from "@trpc/server";
 import { and, eq, sql } from "drizzle-orm";
 import { normalizeInviteEmail } from "./invitation-sync-input";

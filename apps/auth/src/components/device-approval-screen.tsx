@@ -1,14 +1,14 @@
 "use client";
 
-import { describeMcpOAuthScopes } from "@collidr/actions";
-import { Button } from "@collidr/ui/button";
+import { describeMcpOAuthScopes } from "@loftlancer/actions";
+import { Button } from "@loftlancer/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@collidr/ui/card";
+} from "@loftlancer/ui/card";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

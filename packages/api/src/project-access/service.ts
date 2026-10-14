@@ -1,17 +1,17 @@
 import {
   DEFAULT_TEAM_PROJECT_GRANTS,
   mergeProjectMemberGrants,
-} from "@collidr/actions";
-import { db, softDeleteSet } from "@collidr/db";
-import { user } from "@collidr/db/schema/auth";
-import { member } from "@collidr/db/schema/organization";
+} from "@loftlancer/actions";
+import { db, softDeleteSet } from "@loftlancer/db";
+import { user } from "@loftlancer/db/schema/auth";
+import { member } from "@loftlancer/db/schema/organization";
 import {
   projectManager,
   projectMemberGrant,
   projectTeam,
-} from "@collidr/db/schema/project-access";
-import { team, teamMember } from "@collidr/db/schema/team";
-import { isSoftDeletesEnabled } from "@collidr/env/soft-deletes";
+} from "@loftlancer/db/schema/project-access";
+import { team, teamMember } from "@loftlancer/db/schema/team";
+import { isSoftDeletesEnabled } from "@loftlancer/env/soft-deletes";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 
 export async function applyDefaultGrantsForTeamOnProject(input: {

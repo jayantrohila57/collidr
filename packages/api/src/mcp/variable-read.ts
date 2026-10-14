@@ -1,5 +1,5 @@
-import { activeEnvironmentVariableWhere, db } from "@collidr/db";
-import { environmentVariable } from "@collidr/db/schema/projects";
+import { activeEnvironmentVariableWhere, db } from "@loftlancer/db";
+import { environmentVariable } from "@loftlancer/db/schema/projects";
 import { eq } from "drizzle-orm";
 import { requireAction } from "../actions/require-action";
 import { lookupProjectIdByEnvironmentId } from "../environment-access";

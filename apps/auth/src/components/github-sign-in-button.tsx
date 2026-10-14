@@ -1,7 +1,7 @@
 "use client";
 
-import { validateReturnTo } from "@collidr/auth/return-to";
-import { Button } from "@collidr/ui/button";
+import { validateReturnTo } from "@loftlancer/auth/return-to";
+import { Button } from "@loftlancer/ui/button";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";

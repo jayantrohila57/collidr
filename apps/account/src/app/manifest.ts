@@ -3,15 +3,15 @@ import { siteConfig } from "@/lib/siteConfig";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Collidr",
-    short_name: "Collidr",
+    name: "Loftlancer",
+    short_name: "Loftlancer",
     description: siteConfig.description,
     start_url: "/",
     display: "standalone",
     background_color: "#000000",
     theme_color: "#5EA500",
     scope: "/",
-    id: "collidr-pwa",
+    id: "loftlancer-pwa",
     icons: [
       {
         src: "/favicon/web-app-manifest-192x192.png",
@@ -44,14 +44,14 @@ export default function manifest(): MetadataRoute.Manifest {
         sizes: "1200x630",
         type: "image/png",
         form_factor: "wide",
-        label: "collidr dashboard",
+        label: "Loftlancer dashboard",
       },
       {
         src: "/favicon/screenshot-narrow.png",
         sizes: "1024x1536",
         type: "image/png",
         form_factor: "narrow",
-        label: "collidr dashboard mobile",
+        label: "Loftlancer dashboard mobile",
       },
     ],
     protocol_handlers: [

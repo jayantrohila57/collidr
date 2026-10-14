@@ -82,7 +82,7 @@ export default function ConsoleSupportFaqPage() {
             </span>
             <a
               className="underline"
-              href={`${(process.env.NEXT_PUBLIC_STUDIO_URL ?? "https://collidr-studio.vercel.app").replace(/\/$/, "")}/dashboard/support/help/${item.slug}`}
+              href={`${(process.env.NEXT_PUBLIC_STUDIO_URL ?? "https://studio.loftlancer.com").replace(/\/$/, "")}/dashboard/support/help/${item.slug}`}
               rel="noopener noreferrer"
             >
               Preview in Studio

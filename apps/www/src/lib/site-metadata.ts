@@ -1,7 +1,7 @@
-import { marketingSiteConfig } from "@collidr/ui/marketing";
+import { marketingSiteConfig } from "@loftlancer/ui/marketing";
 import type { Metadata } from "next";
 
-const defaultWwwUrl = "https://collidr.vercel.app";
+const defaultWwwUrl = "https://loftlancer.com";
 
 export function getWwwSiteUrl(): string {
   return process.env.NEXT_PUBLIC_WWW_URL ?? defaultWwwUrl;

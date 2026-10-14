@@ -1,5 +1,5 @@
-import { type ActionName, actionRegistry } from "@collidr/actions";
-import { listMcpExposedActions, runMcpTool } from "@collidr/api/mcp";
+import { type ActionName, actionRegistry } from "@loftlancer/actions";
+import { listMcpExposedActions, runMcpTool } from "@loftlancer/api/mcp";
 import type { McpServer } from "@modelcontextprotocol/server";
 import type { JWTPayload } from "jose";
 import { z } from "zod";
@@ -25,7 +25,7 @@ function listMcpActions(): ActionName[] {
   return listMcpExposedActions();
 }
 
-/** Tool args validated in `@collidr/api/mcp` (Zod v3 handler schemas). */
+/** Tool args validated in `@loftlancer/api/mcp` (Zod v3 handler schemas). */
 const mcpToolInputSchema = z.object({}).passthrough();
 
 async function runWithMcpGates(
@@ -125,7 +125,7 @@ export function registerMcpTools(server: McpServer, claims: JWTPayload): void {
         title: toolName,
         description:
           actionRegistry[action]?.description ??
-          `Execute ${action} via collidr MCP.`,
+          `Execute ${action} via Loftlancer MCP.`,
         inputSchema: mcpToolInputSchema,
       },
       async (input: Record<string, unknown>) => {

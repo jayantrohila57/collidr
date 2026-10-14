@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Security fixes are applied on the **`main`** branch and released via Vercel deploys from `main`. Use the latest production deployment at [collidr-web.vercel.app](https://collidr.vercel.app/studio).
+Security fixes are applied on the **`main`** branch and released via Vercel deploys from `main`. Use the latest production deployment at [studio.loftlancer.com](https://loftlancer.com/studio).
 
 | Version (package.json) | Supported |
 | ---------------------- | --------- |

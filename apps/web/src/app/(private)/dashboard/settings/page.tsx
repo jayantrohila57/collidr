@@ -1,4 +1,4 @@
-import { DEFAULT_ACCOUNT_URL } from "@collidr/env/platform";
+import { DEFAULT_ACCOUNT_URL } from "@loftlancer/env/platform";
 import { redirect } from "next/navigation";
 
 const accountOrigin = (

@@ -1,7 +1,7 @@
-import { type ActionName, getActionDefinition } from "@collidr/actions";
-import { db } from "@collidr/db";
-import { auditEvent } from "@collidr/db/schema/audit-event";
-import { isNotificationsEnabled } from "@collidr/notifications";
+import { type ActionName, getActionDefinition } from "@loftlancer/actions";
+import { db } from "@loftlancer/db";
+import { auditEvent } from "@loftlancer/db/schema/audit-event";
+import { isNotificationsEnabled } from "@loftlancer/notifications";
 import { getConsoleAuditContext } from "../console-audit-context";
 import { getMcpAuditContext } from "../mcp-audit-context";
 import { notifyFromAuditEvent } from "./notify-from-audit";

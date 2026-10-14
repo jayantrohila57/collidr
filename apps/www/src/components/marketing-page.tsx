@@ -1,7 +1,7 @@
-import { buildSignInUrl } from "@collidr/ui/auth-links";
-import { marketingContainerClass } from "@collidr/ui/layout-spacing";
-import { MarketingPageShell } from "@collidr/ui/marketing";
-import { cn } from "@collidr/ui/utils";
+import { buildSignInUrl } from "@loftlancer/ui/auth-links";
+import { marketingContainerClass } from "@loftlancer/ui/layout-spacing";
+import { MarketingPageShell } from "@loftlancer/ui/marketing";
+import { cn } from "@loftlancer/ui/utils";
 import type { ReactNode } from "react";
 
 import { ModeToggle } from "@/components/mode-toggle";

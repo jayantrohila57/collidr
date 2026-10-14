@@ -1,5 +1,5 @@
 {
-  "name": "@collidr/actions",
+  "name": "@loftlancer/actions",
   "type": "module",
   "exports": {
     ".": {
@@ -18,7 +18,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@collidr/config": "workspace:*",
+    "@loftlancer/config": "workspace:*",
     "tsx": "^4.23.15",
     "typescript": "catalog:"
   }

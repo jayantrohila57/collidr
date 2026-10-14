@@ -1,6 +1,6 @@
-import { isActionsAuditEnabled } from "@collidr/actions";
-import { activeMemberWhere, db } from "@collidr/db";
-import { member, organization } from "@collidr/db/schema/organization";
+import { isActionsAuditEnabled } from "@loftlancer/actions";
+import { activeMemberWhere, db } from "@loftlancer/db";
+import { member, organization } from "@loftlancer/db/schema/organization";
 import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod/v3";

@@ -12,7 +12,7 @@ Technical deployment notes live in [MCP setup](/docs/mcp/setup). This page focus
 
 ## What MCP can do
 
-Tools are registered in `@collidr/mcp` and map one-to-one to canonical actions in `@collidr/actions`. Each call runs `requireAction` for your user, organization, and project grants.
+Tools are registered in `@loftlancer/mcp` and map one-to-one to canonical actions in `@loftlancer/actions`. Each call runs `requireAction` for your user, organization, and project grants.
 
 Typical capabilities (when your role, grants, and token scopes allow):
 
@@ -48,7 +48,7 @@ Most desktop and IDE clients open a browser for OAuth 2.1 against <AuthAppUrl />
 3. On **`/consent`**, the **Authorize application** screen shows:
    - **Title:** “Authorize application”
    - **Application name** loaded via `oauth2.publicClient` for the requesting `client_id`
-   - **Requested access** — bullet list from `describeMcpOAuthScopes` (human-readable labels from `@collidr/actions`, plus scope ids in parentheses)
+   - **Requested access** — bullet list from `describeMcpOAuthScopes` (human-readable labels from `@loftlancer/actions`, plus scope ids in parentheses)
    - **Approve** / **Deny** — calls `oauth2.consent`; on success the browser redirects back to the client
 4. If the consent link is invalid or expired, you see **Authorization request invalid** with a link back to sign-in.
 
@@ -75,7 +75,7 @@ Only approve codes you started on a machine you control.
 
 ## Choosing scopes (least privilege)
 
-Every tool needs **`mcp:tools`** plus a resource scope. Labels shown on consent/device screens come from `MCP_OAUTH_SCOPE_DESCRIPTIONS` in `@collidr/actions`.
+Every tool needs **`mcp:tools`** plus a resource scope. Labels shown on consent/device screens come from `MCP_OAUTH_SCOPE_DESCRIPTIONS` in `@loftlancer/actions`.
 
 | Scope | When you need it |
 | --- | --- |
@@ -128,7 +128,7 @@ Org owners/managers can inspect timeline via studio or MCP `audit_timeline_view_
 
 ## Rate limits
 
-Per user, OAuth client, and tool name, `@collidr/mcp` uses a Postgres-backed fixed window (`rate_limit_bucket`). Defaults (per 60s unless `MCP_RATE_LIMIT_WINDOW_MS` is set):
+Per user, OAuth client, and tool name, `@loftlancer/mcp` uses a Postgres-backed fixed window (`rate_limit_bucket`). Defaults (per 60s unless `MCP_RATE_LIMIT_WINDOW_MS` is set):
 
 | Class | Default max |
 | --- | --- |

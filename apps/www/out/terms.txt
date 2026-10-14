@@ -1,0 +1,33 @@
+1:"$Sreact.fragment"
+2:"/_next/static/chunks/09x1l2r_9vsqu.js"
+3:"/_next/static/chunks/2f5-0m5ds0yu3.js"
+4:I[10626,["$2","$3"],"Providers"]
+5:I[83740,["$2","$3"],"default"]
+6:"/_next/static/chunks/0ak5zkfy5p__d.js"
+7:I[77375,["$2","$3","$6"],"default"]
+8:I[47612,["$2","$3"],"default"]
+9:"/_next/static/chunks/31ytre-anjdv5.js"
+a:I[4283,["$2","$3","$9"],"AppNotFoundPage"]
+e:"/_next/static/chunks/3zca5zcb32r7p.js"
+f:"MarketingPageShell"
+10:I[52926,["$2","$3","$e"],"$f"]
+11:I[5367,["$2","$3","$e"],"ModeToggle"]
+12:I[78158,["$2","$3"],"OutletBoundary"]
+13:"$Sreact.suspense"
+15:"ViewportBoundary"
+16:I[78158,["$2","$3"],"$15"]
+18:"MetadataBoundary"
+19:I[78158,["$2","$3"],"$18"]
+1b:"/_next/static/chunks/24ae5y7309xkp.js"
+1c:I[63952,["$2","$3","$1b"],"default"]
+:HL["/_next/static/chunks/2-dyk8q26e5-_.css","style"]
+:HL["/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+c:X
+d:[["children",{"s":"__PAGE__","h":512,"d":{"r":["$","$1","c",{"children":[["$","$L10",null,{"signInHref":"https://auth.loftlancer.com/sign-in?return_to=https%3A%2F%2Fstudio.loftlancer.com%2Fdashboard","headerActions":["$","$L11",null,{}],"children":["$","div",null,{"className":"mx-auto w-full max-w-6xl px-4 md:px-6 py-12 md:py-16","children":[["$","header",null,{"className":"mx-auto max-w-3xl","children":[["$","h1",null,{"className":"font-semibold text-3xl tracking-tight md:text-4xl","children":"Terms of use"}],["$","p",null,{"className":"mt-4 text-lg text-muted-foreground","children":"Last updated October 2026."}]]}],["$","div",null,{"className":"mx-auto mt-10 max-w-3xl space-y-4 text-muted-foreground [&_a]:text-primary [&_a]:underline [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_h2]:mt-8 [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:text-xl [&_p]:leading-relaxed","children":[["$","h2",null,{"children":"Service"}],["$","p",null,{"children":["Loftlancer is provided as-is during early access. Features may change as the platform split (auth, studio, mcp, docs) rolls out on"," ",["$","code",null,{"children":"main"}],"."]}],["$","h2",null,{"children":"Acceptable use"}],["$","p",null,{"children":"Do not use the service to store malware, violate others' rights, or attempt to bypass encryption, authorization, or rate limits enforced by the API and MCP server."}],["$","h2",null,{"children":"Secrets"}],["$","p",null,{"children":"You are responsible for the configuration and secrets you store. Use organization roles, project grants, and OAuth scopes to limit access."}],["$","h2",null,{"children":"Availability"}],["$","p",null,{"children":"There is no uptime SLA on the free tier. Self-hosters should follow the deployment documentation in the docs site."}]]}]]}]}],[["$","script","script-0",{"src":"/_next/static/chunks/3zca5zcb32r7p.js","async":true,"nonce":"$undefined"}]],["$","$L12",null,{"children":["$","$13",null,{"name":"Next.MetadataOutlet","children":"$@14"}]}]]}],"p":false,"v":null}}]]
+b:[["children",{"s":"terms","h":512,"d":{"r":["$","$1","c",{"children":[null,["$","$L5",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],"p":false,"v":"$c"},"c":"$Qd"}]]
+0:{"P":null,"c":["","terms"],"q":"","i":false,"t":{"t":{"s":"","h":528,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/2-dyk8q26e5-_.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/_next/static/chunks/09x1l2r_9vsqu.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/_next/static/chunks/2f5-0m5ds0yu3.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"className":"font-sans _9mH_6q_variable YeGXRW_variable","children":["$","body",null,{"className":"relative antialiased","children":["$","$L4",null,{"children":["$","$L5",null,{"parallelRouterKey":"children","error":"$7","errorStyles":[],"errorScripts":[["$","script","script-0",{"src":"/_next/static/chunks/0ak5zkfy5p__d.js","async":true,"nonce":"$undefined"}]],"template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","$La",null,{"links":{"homeHref":"/"}}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]}]]}],"p":false,"v":null},"c":"$Qb"},"h":{"r":["$","$1","h",{"children":[null,["$","$L16",null,{"children":"$L17"}],["$","$L19",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$13",null,{"name":"Next.Metadata","children":"$L1a"}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":false,"v":null}},"m":"$undefined","G":["$1c",[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/2-dyk8q26e5-_.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]]],"S":true,"r":"$undefined","s":"$undefined","a":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"SaFHxKdBmok5DwZHE5Aa-"}
+c:C
+17:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+14:null
+1a:[["$","title","0",{"children":"Terms | Loftlancer"}],["$","meta","1",{"name":"description","content":"Terms of use for the hosted Loftlancer service."}],["$","meta","2",{"name":"robots","content":"index, follow"}],["$","link","3",{"rel":"canonical","href":"https://loftlancer.com"}],["$","meta","4",{"property":"og:title","content":"Loftlancer"}],["$","meta","5",{"property":"og:description","content":"Securely manage environment variables and secrets across projects and environments—with encryption, audit history, and GitHub sign-in."}],["$","meta","6",{"property":"og:url","content":"https://loftlancer.com"}],["$","meta","7",{"property":"og:site_name","content":"Loftlancer"}],["$","meta","8",{"property":"og:locale","content":"en_US"}],["$","meta","9",{"property":"og:type","content":"website"}],["$","meta","10",{"name":"twitter:card","content":"summary"}],["$","meta","11",{"name":"twitter:title","content":"Loftlancer"}],["$","meta","12",{"name":"twitter:description","content":"Securely manage environment variables and secrets across projects and environments—with encryption, audit history, and GitHub sign-in."}]]

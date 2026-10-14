@@ -1,9 +1,9 @@
 import {
   isProjectMemberGrantKey,
   PROJECT_MEMBER_GRANT_KEYS,
-} from "@collidr/actions";
-import { db } from "@collidr/db";
-import { projectMemberGrant } from "@collidr/db/schema/project-access";
+} from "@loftlancer/actions";
+import { db } from "@loftlancer/db";
+import { projectMemberGrant } from "@loftlancer/db/schema/project-access";
 import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod/v3";

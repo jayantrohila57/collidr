@@ -1,4 +1,4 @@
-import { isSoftDeletesEnabled } from "@collidr/env/soft-deletes";
+import { isSoftDeletesEnabled } from "@loftlancer/env/soft-deletes";
 import { and, eq, inArray, isNull, type SQL } from "drizzle-orm";
 import type { PgColumn } from "drizzle-orm/pg-core";
 

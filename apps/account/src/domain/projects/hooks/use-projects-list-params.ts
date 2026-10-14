@@ -11,7 +11,7 @@ import type {
 } from "../lib/filter-projects";
 import { parseListUrlParam } from "../lib/parse-list-url-param";
 
-const VIEW_STORAGE_KEY = "collidr-projects-view";
+const VIEW_STORAGE_KEY = "loftlancer-projects-view";
 
 export type ProjectsViewMode = "grid" | "list";
 

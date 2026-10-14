@@ -1,0 +1,36 @@
+1:"$Sreact.fragment"
+2:"/_next/static/chunks/09x1l2r_9vsqu.js"
+3:"/_next/static/chunks/2f5-0m5ds0yu3.js"
+4:I[10626,["$2","$3"],"Providers"]
+5:I[83740,["$2","$3"],"default"]
+6:"/_next/static/chunks/0ak5zkfy5p__d.js"
+7:I[77375,["$2","$3","$6"],"default"]
+8:I[47612,["$2","$3"],"default"]
+9:"/_next/static/chunks/31ytre-anjdv5.js"
+a:I[4283,["$2","$3","$9"],"AppNotFoundPage"]
+11:"/_next/static/chunks/3zca5zcb32r7p.js"
+12:"MarketingPageShell"
+13:I[52926,["$2","$3","$11"],"$12"]
+14:I[5367,["$2","$3","$11"],"ModeToggle"]
+15:I[78158,["$2","$3"],"OutletBoundary"]
+16:"$Sreact.suspense"
+19:"ViewportBoundary"
+1a:I[78158,["$2","$3"],"$19"]
+1b:"MetadataBoundary"
+1c:I[78158,["$2","$3"],"$1b"]
+:HL["/_next/static/chunks/2-dyk8q26e5-_.css","style"]
+c:X
+f:X
+f:C
+10:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$1","c",{"children":[["$","$L13",null,{"signInHref":"https://auth.loftlancer.com/sign-in?return_to=https%3A%2F%2Fstudio.loftlancer.com%2Fdashboard","headerActions":["$","$L14",null,{}],"children":["$","div",null,{"className":"mx-auto w-full max-w-6xl px-4 md:px-6 py-12 md:py-16","children":[["$","header",null,{"className":"mx-auto max-w-3xl","children":[["$","h1",null,{"className":"font-semibold text-3xl tracking-tight md:text-4xl","children":"Pricing"}],["$","p",null,{"className":"mt-4 text-lg text-muted-foreground","children":"Simple and free for now — no paid plans are configured in the product."}]]}],["$","div",null,{"className":"mx-auto mt-10 max-w-3xl space-y-4 text-muted-foreground [&_a]:text-primary [&_a]:underline [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_h2]:mt-8 [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:text-xl [&_p]:leading-relaxed","children":[["$","div",null,{"className":"not-prose rounded-xl border bg-muted/30 p-8 text-center","children":[["$","p",null,{"className":"font-semibold text-2xl","children":"Free"}],["$","p",null,{"className":"mt-2 text-muted-foreground","children":"Use the studio, organizations, encryption, and MCP tools at no charge during early access."}]]}],["$","p",null,{"className":"mt-8","children":"Billing is not implemented in the codebase. When pricing changes, this page and the docs will be updated before any charges apply."}]]}]]}]}],[["$","script","script-0",{"src":"/_next/static/chunks/3zca5zcb32r7p.js","async":true}]],["$","$L15",null,{"children":["$","$16",null,{"name":"Next.MetadataOutlet","children":"$@17"}]}]]}],"p":"$@18","v":null,"s":"$c"}}]]
+d:[["children",{"s":"pricing","h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L5",null,{"parallelRouterKey":"children","template":["$","$L8",null,{}]}]]}],"p":"$@e","v":"$f","s":"$c"},"c":"$Q10"}]]
+0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/2-dyk8q26e5-_.css","precedence":"next"}],["$","script","script-0",{"src":"/_next/static/chunks/09x1l2r_9vsqu.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/2f5-0m5ds0yu3.js","async":true}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"className":"font-sans _9mH_6q_variable YeGXRW_variable","children":["$","body",null,{"className":"relative antialiased","children":["$","$L4",null,{"children":["$","$L5",null,{"parallelRouterKey":"children","error":"$7","errorStyles":[],"errorScripts":[["$","script","script-0",{"src":"/_next/static/chunks/0ak5zkfy5p__d.js","async":true}]],"template":["$","$L8",null,{}],"notFound":[["$","$La",null,{"links":{"homeHref":"/"}}],[]]}]}]}]}]]}],"p":"$@b","v":null,"s":"$c"},"c":"$Qd"},"h":{"r":["$","$1","h",{"children":[null,["$","$L1a",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L1c",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$16",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Pricing | Loftlancer"}],["$","meta","1",{"name":"description","content":"Loftlancer is free while we ship the platform split."}],["$","meta","2",{"name":"robots","content":"index, follow"}],["$","link","3",{"rel":"canonical","href":"https://loftlancer.com"}],["$","meta","4",{"property":"og:title","content":"Loftlancer"}],["$","meta","5",{"property":"og:description","content":"Securely manage environment variables and secrets across projects and environments—with encryption, audit history, and GitHub sign-in."}],["$","meta","6",{"property":"og:url","content":"https://loftlancer.com"}],["$","meta","7",{"property":"og:site_name","content":"Loftlancer"}],["$","meta","8",{"property":"og:locale","content":"en_US"}],["$","meta","9",{"property":"og:type","content":"website"}],["$","meta","10",{"name":"twitter:card","content":"summary"}],["$","meta","11",{"name":"twitter:title","content":"Loftlancer"}],["$","meta","12",{"name":"twitter:description","content":"Securely manage environment variables and secrets across projects and environments—with encryption, audit history, and GitHub sign-in."}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@1d","v":null,"s":"$c"}},"a":"$@1e","u":"$@1f","b":"SaFHxKdBmok5DwZHE5Aa-"}
+17:null
+c:300
+1f:true
+c:C
+1e:0
+e:"$undefined"
+b:"$undefined"
+1d:"$undefined"
+18:"$undefined"

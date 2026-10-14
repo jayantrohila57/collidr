@@ -1,14 +1,14 @@
 "use client";
 
-import { validateReturnTo } from "@collidr/auth/return-to";
-import { Button } from "@collidr/ui/button";
+import { validateReturnTo } from "@loftlancer/auth/return-to";
+import { Button } from "@loftlancer/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@collidr/ui/card";
+} from "@loftlancer/ui/card";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -42,7 +42,7 @@ export function SignOutScreen() {
         <CardHeader>
           <CardTitle>Sign out</CardTitle>
           <CardDescription>
-            You will be signed out of Collidr on this browser and returned to
+            You will be signed out of Loftlancer on this browser and returned to
             your application.
           </CardDescription>
         </CardHeader>

@@ -4,10 +4,10 @@ let cachedHandler: ((request: Request) => Promise<Response>) | undefined;
 
 async function getHandler() {
   if (!cachedHandler) {
-    const { createCollidrMcpHttpHandler } = await import(
-      "@collidr/mcp/handler"
+    const { createLoftlancerMcpHttpHandler } = await import(
+      "@loftlancer/mcp/handler"
     );
-    cachedHandler = createCollidrMcpHttpHandler();
+    cachedHandler = createLoftlancerMcpHttpHandler();
   }
   return cachedHandler;
 }
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 export async function GET() {
   return new Response(
     JSON.stringify({
-      name: "collidr-mcp",
+      name: "loftlancer-mcp",
       protocol: "mcp-2026-07-28",
       endpoint: "/api/mcp",
       auth: "oauth2",

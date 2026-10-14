@@ -1,14 +1,14 @@
-import { decrypt, encrypt } from "@collidr/crypto";
+import { decrypt, encrypt } from "@loftlancer/crypto";
 import {
   activeEnvironmentVariableWhere,
   db,
   softDeleteEnvironmentVariableById,
-} from "@collidr/db";
+} from "@loftlancer/db";
 import {
   environment,
   environmentVariable,
   project,
-} from "@collidr/db/schema/projects";
+} from "@loftlancer/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { and, count, eq, inArray } from "drizzle-orm";
 import { z } from "zod/v3";

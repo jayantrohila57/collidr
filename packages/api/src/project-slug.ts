@@ -1,5 +1,5 @@
-import { activeProjectWhere, db } from "@collidr/db";
-import { project } from "@collidr/db/schema/projects";
+import { activeProjectWhere, db } from "@loftlancer/db";
+import { project } from "@loftlancer/db/schema/projects";
 import { eq } from "drizzle-orm";
 
 export function slugifyProjectName(name: string): string {

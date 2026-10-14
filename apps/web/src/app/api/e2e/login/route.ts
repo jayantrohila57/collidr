@@ -1,4 +1,4 @@
-import { auth } from "@collidr/auth";
+import { auth } from "@loftlancer/auth";
 import { NextResponse } from "next/server";
 import { isE2eAuthRouteAllowed } from "@/lib/e2e-auth-allowed";
 import { isValidE2eSecret } from "@/lib/e2e-secret";
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
   });
 
   if (persona === "primary") {
-    const { ensureE2eDemoProject } = await import("@collidr/db");
+    const { ensureE2eDemoProject } = await import("@loftlancer/db");
     await ensureE2eDemoProject();
   }
 

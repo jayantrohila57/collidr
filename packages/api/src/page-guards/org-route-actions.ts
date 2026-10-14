@@ -1,4 +1,4 @@
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 
 /** Canonical page actions for organization `[slug]` child routes. */
 export const organizationChildRouteActions: Record<string, ActionName> = {

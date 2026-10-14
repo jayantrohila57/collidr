@@ -16,7 +16,7 @@ export default async function ProfileSettingsPage() {
   return (
     <SettingsSectionShell
       title="Profile"
-      description="Your name and avatar shown across Collidr."
+      description="Your name and avatar shown across Loftlancer."
       showStats
     >
       <Suspense fallback={<AccountSettingsSkeleton />}>

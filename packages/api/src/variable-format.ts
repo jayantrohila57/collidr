@@ -1,5 +1,5 @@
-import { decrypt } from "@collidr/crypto";
-import type { environmentVariable } from "@collidr/db/schema/projects";
+import { decrypt } from "@loftlancer/crypto";
+import type { environmentVariable } from "@loftlancer/db/schema/projects";
 import { loadProvenanceUsers, mapProvenanceUser } from "./provenance-users";
 import { isVariablesV2Enabled } from "./variables-v2";
 

@@ -4,8 +4,8 @@ import {
   activeSupportTicketWhere,
   db,
   softDeleteSet,
-} from "@collidr/db";
-import { user } from "@collidr/db/schema/auth";
+} from "@loftlancer/db";
+import { user } from "@loftlancer/db/schema/auth";
 import {
   platformSupportManager,
   supportFaqArticle,
@@ -14,9 +14,9 @@ import {
   TICKET_CATEGORIES,
   TICKET_PRIORITIES,
   TICKET_STATUSES,
-} from "@collidr/db/schema/support";
-import { isSoftDeletesEnabled } from "@collidr/env/soft-deletes";
-import { notify } from "@collidr/notifications";
+} from "@loftlancer/db/schema/support";
+import { isSoftDeletesEnabled } from "@loftlancer/env/soft-deletes";
+import { notify } from "@loftlancer/notifications";
 import { TRPCError } from "@trpc/server";
 import { and, asc, desc, eq, ilike, or, type SQL, sql } from "drizzle-orm";
 import { z } from "zod/v3";

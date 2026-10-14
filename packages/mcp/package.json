@@ -1,5 +1,5 @@
 {
-  "name": "@collidr/mcp",
+  "name": "@loftlancer/mcp",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -16,10 +16,10 @@
     "test": "DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres SKIP_ENV_VALIDATION=1 node --import tsx --test src/mcp-auth.test.ts src/mcp-tools.test.ts"
   },
   "dependencies": {
-    "@collidr/actions": "workspace:*",
-    "@collidr/api": "workspace:*",
-    "@collidr/db": "workspace:*",
-    "@collidr/env": "workspace:*",
+    "@loftlancer/actions": "workspace:*",
+    "@loftlancer/api": "workspace:*",
+    "@loftlancer/db": "workspace:*",
+    "@loftlancer/env": "workspace:*",
     "@better-auth/mcp": "^1.7.7",
     "drizzle-orm": "catalog:",
     "jose": "^6.2.12",
@@ -28,7 +28,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@collidr/config": "workspace:*",
+    "@loftlancer/config": "workspace:*",
     "tsx": "^4.23.15",
     "typescript": "catalog:"
   }

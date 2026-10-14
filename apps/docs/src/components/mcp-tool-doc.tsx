@@ -1,4 +1,4 @@
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 
 import { getMcpToolMetadata } from "@/lib/mcp-tool-metadata";
 
@@ -82,7 +82,7 @@ export function McpToolDoc({ action }: { action: string }) {
       <div>
         <h3 className="mb-2 font-semibold text-base">Input (JSON)</h3>
         <p className="mb-2 text-muted-foreground">
-          Validated with Zod in <code>@collidr/api/mcp</code>. Organization
+          Validated with Zod in <code>@loftlancer/api/mcp</code>. Organization
           context uses <code>organizationId</code> or{" "}
           <code>organizationSlug</code> (MCP tokens do not carry an active-org
           cookie).
@@ -108,7 +108,7 @@ export function McpToolDoc({ action }: { action: string }) {
         <p className="text-muted-foreground">
           The MCP server returns a single <code>text</code> content block whose
           body is pretty-printed JSON from the underlying studio tRPC caller (
-          <code>runMcpTool</code> in <code>@collidr/api/mcp</code>). Errors
+          <code>runMcpTool</code> in <code>@loftlancer/api/mcp</code>). Errors
           surface as tool errors (for example <code>insufficient_scope</code>,{" "}
           <code>organization_required</code>, or validation messages).
         </p>

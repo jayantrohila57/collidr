@@ -1,4 +1,4 @@
-import { AppForbiddenPage } from "@collidr/ui/patterns/app-route-states";
+import { AppForbiddenPage } from "@loftlancer/ui/patterns/app-route-states";
 import { studioRouteStateLinks } from "@/lib/route-state-links";
 
 export default function ForbiddenPage() {

@@ -6,8 +6,8 @@ import {
   actionRegistry,
   mcpToolNameFromAction,
   requiredOAuthScopesForAction,
-} from "@collidr/actions";
-import { listMcpExposedActions, mcpActionHandlers } from "@collidr/api/mcp";
+} from "@loftlancer/actions";
+import { listMcpExposedActions, mcpActionHandlers } from "@loftlancer/api/mcp";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 const root = join(import.meta.dirname, "..");
@@ -62,10 +62,10 @@ description: MCP tool for the ${action} action.
 
 const indexBody = `---
 title: Tool index
-description: Every MCP tool registered by @collidr/mcp from implemented handlers.
+description: Every MCP tool registered by @loftlancer/mcp from implemented handlers.
 ---
 
-Each page documents one tool exposed by \`registerMcpTools\` in \`@collidr/mcp\`. Tools without a handler in \`@collidr/api/mcp\` are not listed.
+Each page documents one tool exposed by \`registerMcpTools\` in \`@loftlancer/mcp\`. Tools without a handler in \`@loftlancer/api/mcp\` are not listed.
 
 <McpToolsTable />
 `;

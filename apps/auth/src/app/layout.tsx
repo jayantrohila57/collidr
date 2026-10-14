@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sign in · Collidr",
-  description: "Authentication for Collidr platform apps.",
+  title: "Sign in · Loftlancer",
+  description: "Authentication for Loftlancer platform apps.",
 };
 
 export default function RootLayout({

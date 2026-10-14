@@ -5,9 +5,9 @@ import {
   isActionsAuditEnabled,
   isPlatformAdmin,
   normalizeOrgRole,
-} from "@collidr/actions";
-import { activeMemberWhere, db } from "@collidr/db";
-import { member } from "@collidr/db/schema/organization";
+} from "@loftlancer/actions";
+import { activeMemberWhere, db } from "@loftlancer/db";
+import { member } from "@loftlancer/db/schema/organization";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { writeAuditEvent } from "./audit-event-writer";

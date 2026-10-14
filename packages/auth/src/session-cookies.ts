@@ -5,13 +5,17 @@ import {
 } from "better-auth/cookies";
 
 /** Current Better Auth cookie prefix (session cookies). */
-export const COLLIDR_COOKIE_PREFIX = "collidr";
+export const LOFTLANCER_COOKIE_PREFIX = "loftlancer";
+
+/** @deprecated Renamed to {@link LOFTLANCER_COOKIE_PREFIX}. */
+export const COLLIDR_COOKIE_PREFIX = LOFTLANCER_COOKIE_PREFIX;
 
 /**
- * Legacy prefixes still accepted on read until clients receive `collidr.*` cookies.
- * `better-auth` is the Better Auth default; `env-manager` was a planned product prefix.
+ * Legacy prefixes still accepted on read until clients receive `loftlancer.*` cookies.
+ * Includes the prior `collidr` product prefix, Better Auth default, and `env-manager`.
  */
 export const LEGACY_SESSION_COOKIE_PREFIXES = [
+  "collidr",
   "better-auth",
   "env-manager",
 ] as const;
@@ -59,14 +63,17 @@ function readRawSessionCookie(
   return null;
 }
 
-/** Session token for the current `collidr` prefix, if present. */
-export function getCollidrSessionToken(
+/** Session token for the current `loftlancer` prefix, if present. */
+export function getLoftlancerSessionToken(
   headers: Headers | Request,
 ): string | null {
   return getSessionCookie(headers, {
-    cookiePrefix: COLLIDR_COOKIE_PREFIX,
+    cookiePrefix: LOFTLANCER_COOKIE_PREFIX,
   });
 }
+
+/** @deprecated Use {@link getLoftlancerSessionToken}. */
+export const getCollidrSessionToken = getLoftlancerSessionToken;
 
 /** First legacy session cookie on the request (raw signed value). */
 export function findLegacySessionCookie(
@@ -76,7 +83,7 @@ export function findLegacySessionCookie(
     headers instanceof Headers
       ? headers.get("cookie")
       : headers.headers.get("cookie");
-  if (getCollidrSessionToken(headers)) {
+  if (getLoftlancerSessionToken(headers)) {
     return null;
   }
   for (const prefix of LEGACY_SESSION_COOKIE_PREFIXES) {
@@ -93,7 +100,7 @@ export function hasSessionCookieFromAnyPrefix(
   headers: Headers | Request,
 ): boolean {
   return Boolean(
-    getCollidrSessionToken(headers) || findLegacySessionCookie(headers),
+    getLoftlancerSessionToken(headers) || findLegacySessionCookie(headers),
   );
 }
 
