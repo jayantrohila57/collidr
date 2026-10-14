@@ -9,15 +9,24 @@ import {
 import { formatDate } from "@/lib/format";
 import { formatRelativeShort } from "@/lib/format-relative-short";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+import { useSession } from "@/domain/auth/lib/auth-actions";
 import { trpc } from "@/utils/trpc";
 
 export function UserSettingsStats() {
-  const { data, isPending } = useQuery(
-    trpc.dashboard.getUserAccountStats.queryOptions(),
-  );
+  const { data: session, isPending: sessionPending } = useSession();
+  const { data, isPending, isError } = useQuery({
+    ...trpc.dashboard.getUserAccountStats.queryOptions(),
+    enabled: Boolean(session?.user?.id),
+  });
 
-  if (isPending) {
+  if (sessionPending || (isPending && Boolean(session?.user))) {
     return <StatCardRowSkeleton count={4} />;
+  }
+
+  if (isError) {
+    return (
+      <StatCardRowSkeleton count={4} className="opacity-60" aria-label="Could not load stats" />
+    );
   }
 
   if (!data) {

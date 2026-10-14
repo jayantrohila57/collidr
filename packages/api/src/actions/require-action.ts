@@ -132,7 +132,11 @@ export async function requireAction(
     }
     throw e;
   } finally {
-    if (auditEnabled) {
+    const skipDeniedSelfProbe =
+      result === "denied" &&
+      def.scope === "user" &&
+      def.selfOnly === true;
+    if (auditEnabled && !skipDeniedSelfProbe) {
       try {
         await writeAuditEvent({
           action,

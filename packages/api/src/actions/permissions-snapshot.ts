@@ -7,7 +7,10 @@ import {
 import { db } from "@loftlancer/db";
 import { member } from "@loftlancer/db/schema/organization";
 import { and, eq } from "drizzle-orm";
-import { isActionBlocked } from "./is-action-blocked";
+import {
+  isActionBlockedInSet,
+  loadBlockedActionsForScope,
+} from "./is-action-blocked";
 import {
   loadProjectAccessContext,
   userHasAnyProjectManagerAssignment,
@@ -64,14 +67,16 @@ export async function buildPermissionsSnapshot(input: {
     unassignedMember = (accessible?.length ?? 0) === 0;
   }
 
+  const blockedActions = await loadBlockedActionsForScope({
+    userId: input.userId,
+    organizationId: input.organizationId,
+    projectId: input.projectId,
+  });
+
   for (const name of actionNames) {
     const action = name as ActionName;
     if (
-      await isActionBlocked(action, {
-        userId: input.userId,
-        organizationId: input.organizationId,
-        projectId: input.projectId,
-      })
+      isActionBlockedInSet(action, blockedActions)
     ) {
       blocked.push(action);
       actions[name] = false;
