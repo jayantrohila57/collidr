@@ -96,13 +96,13 @@ function FeaturesSection() {
         </p>
       </div>
       <ul
-        className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-6 [&>li:nth-last-child(2)]:lg:col-start-2 [&>li:last-child:nth-child(5)]:lg:col-start-4"
         data-testid="marketing-features"
       >
         {marketingFeatures.map((feature) => {
           const Icon = feature.icon;
           return (
-            <li key={feature.title}>
+            <li key={feature.title} className="lg:col-span-2">
               <Card className="h-full transition-colors hover:bg-muted/30">
                 <CardHeader>
                   <div className="mb-2 flex size-9 items-center justify-center rounded-lg border bg-muted/40">

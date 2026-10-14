@@ -1,10 +1,10 @@
 import "server-only";
 
-import { auth } from "@collidr/auth";
 import { headers } from "next/headers";
 import { cache } from "react";
+import { siblingAuth } from "@/lib/sibling-auth";
 
 export const getServerSession = cache(async () => {
   const headerList = await headers();
-  return auth.api.getSession({ headers: headerList });
+  return siblingAuth.api.getSession({ headers: headerList });
 });

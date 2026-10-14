@@ -1,3 +1,13 @@
+import {
+  DEFAULT_ACCOUNT_URL,
+  DEFAULT_AUTH_URL,
+  DEFAULT_CONSOLE_URL,
+  DEFAULT_DOCS_URL,
+  DEFAULT_MCP_URL,
+  DEFAULT_STUDIO_URL,
+  DEFAULT_SUPPORT_URL,
+} from "./platform";
+
 function trimTrailingSlash(url: string): string {
   return url.endsWith("/") ? url.slice(0, -1) : url;
 }
@@ -16,6 +26,19 @@ export const SERVICE_BASE_PATHS = {
 } as const;
 
 export type VercelServiceName = keyof typeof SERVICE_BASE_PATHS;
+
+/** Canonical public URL per app when deployed as separate Vercel projects (no path prefix). */
+const STANDALONE_SERVICE_URL: Partial<Record<VercelServiceName, string>> = {
+  www: DEFAULT_DOCS_URL,
+  web: DEFAULT_STUDIO_URL,
+  docs: DEFAULT_DOCS_URL,
+  auth: DEFAULT_AUTH_URL,
+  account: DEFAULT_ACCOUNT_URL,
+  console: DEFAULT_CONSOLE_URL,
+  support: DEFAULT_SUPPORT_URL,
+  studio: DEFAULT_STUDIO_URL,
+  mcp: DEFAULT_MCP_URL,
+};
 
 const SERVICE_ENV_SUFFIX: Record<VercelServiceName, string> = {
   www: "WWW",
@@ -79,9 +102,29 @@ export function resolvePublicServiceUrl(service: VercelServiceName): string {
   if (fromEnv?.trim()) {
     return trimTrailingSlash(fromEnv.trim());
   }
-  const origin = resolvePlatformPublicOrigin();
   const base = readServiceBasePath(service);
-  return base ? `${origin}${base}` : origin;
+  if (base) {
+    const origin = resolvePlatformPublicOrigin();
+    return `${origin}${base}`;
+  }
+  const standalone = STANDALONE_SERVICE_URL[service];
+  if (standalone) {
+    return trimTrailingSlash(standalone);
+  }
+  return resolvePlatformPublicOrigin();
+}
+
+/** Browser- and server-safe public auth origin (never the docs/marketing platform origin). */
+export function resolveAuthPublicUrl(): string {
+  const fromPublic = process.env.NEXT_PUBLIC_AUTH_URL?.trim();
+  if (fromPublic) {
+    return trimTrailingSlash(fromPublic);
+  }
+  const betterAuth = process.env.BETTER_AUTH_URL?.trim();
+  if (betterAuth) {
+    return trimTrailingSlash(betterAuth);
+  }
+  return DEFAULT_AUTH_URL;
 }
 
 /**
@@ -94,7 +137,7 @@ export function resolveAuthServiceUrl(): string {
   if (betterAuth) {
     return trimTrailingSlash(betterAuth);
   }
-  return resolvePublicServiceUrl("auth");
+  return resolveAuthPublicUrl();
 }
 
 /** Join a path onto a service public URL. */
@@ -102,7 +145,8 @@ export function publicServicePath(
   service: VercelServiceName,
   pathname: string,
 ): string {
-  const base = resolvePublicServiceUrl(service);
+  const base =
+    service === "auth" ? resolveAuthPublicUrl() : resolvePublicServiceUrl(service);
   const path = pathname.startsWith("/") ? pathname : `/${pathname}`;
   return `${base}${path}`;
 }

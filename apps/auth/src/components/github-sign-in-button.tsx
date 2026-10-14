@@ -1,7 +1,6 @@
 "use client";
 
 import { validateReturnTo } from "@collidr/auth/return-to";
-import { publicServicePath } from "@collidr/env/vercel-services";
 import { Button } from "@collidr/ui/button";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -23,9 +22,7 @@ export function GitHubSignInButton({
     const returnTo = validateReturnTo(
       returnToOverride ?? searchParams.get("return_to"),
     );
-    const finishUrl = new URL(
-      publicServicePath("auth", "/api/auth/cross-app/finish"),
-    );
+    const finishUrl = new URL("/api/auth/cross-app/finish", window.location.origin);
     finishUrl.searchParams.set("return_to", returnTo);
 
     setLoading(true);

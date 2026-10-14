@@ -5,7 +5,6 @@ import type { ComponentProps, ReactNode } from "react";
 
 import { buttonVariants } from "../components/ui/button";
 import { marketingContainerClass } from "../lib/layout-spacing";
-import { docsSiteUrl } from "../lib/platform-urls";
 import { cn } from "../lib/utils";
 import { marketingSiteConfig } from "./site-config";
 
@@ -18,7 +17,7 @@ export type MarketingNavItem = {
 const primaryNav: MarketingNavItem[] = [
   { label: "Features", href: "/features" },
   { label: "Pricing", href: "/pricing" },
-  { label: "Docs", href: docsSiteUrl(), external: true },
+  { label: "Docs", href: "/docs" },
   { label: "About", href: "/about" },
 ];
 
@@ -27,7 +26,7 @@ const footerNav: MarketingNavItem[] = [
   { label: "Pricing", href: "/pricing" },
   { label: "About", href: "/about" },
   { label: "Changelog", href: "/changelog" },
-  { label: "Docs", href: docsSiteUrl(), external: true },
+  { label: "Docs", href: "/docs" },
   { label: "Privacy", href: "/privacy" },
   { label: "Terms", href: "/terms" },
   { label: "GitHub", href: marketingSiteConfig.links.github, external: true },

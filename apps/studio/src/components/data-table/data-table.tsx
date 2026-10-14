@@ -31,7 +31,9 @@ import { layoutSectionStackClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 import type { DataTableEmptyConfig } from "./data-table-empty-types";
 import { DataTablePagination } from "./data-table-pagination";
+import { DataTableEmpty } from "./data-table-empty";
 import { DataTableSkeletonBody } from "./data-table-skeleton-body";
+import { appIcons } from "@/lib/icons";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { resolveDataTableEmptyMarkup } from "./resolve-data-table-empty";
 
@@ -45,6 +47,10 @@ export type DataTableProps<TData extends RowData> = {
   columns: DataTableColumnDef<TData>[];
   data: TData[];
   isLoading?: boolean;
+  /** When true, show an error empty state instead of an infinite loading skeleton. */
+  isError?: boolean;
+  errorTitle?: string;
+  errorDescription?: string;
   skeletonRowCount?: number;
   emptyMessage?: string;
   /** Structured empty vs no-results states (rendered inside the table frame) */
@@ -116,6 +122,9 @@ export function DataTable<TData extends RowData>({
   columns,
   data,
   isLoading = false,
+  isError = false,
+  errorTitle = "Could not load data",
+  errorDescription = "Something went wrong. Try refreshing the page.",
   skeletonRowCount = 5,
   emptyMessage = "No results.",
   empty,
@@ -197,7 +206,8 @@ export function DataTable<TData extends RowData>({
     return () => observer.disconnect();
   }, [columns, data, isLoading, hasRows, rowModel.rows.length]);
 
-  const showEmpty = !isLoading && !hasRows;
+  const showEmpty = !isLoading && !isError && !hasRows;
+  const showError = isError && !isLoading;
   const hasClientSearch = Boolean(
     searchEnabled && String(searchValue ?? "").trim(),
   );
@@ -208,19 +218,32 @@ export function DataTable<TData extends RowData>({
         ? "noResults"
         : "empty";
 
+  const errorMarkup = showError
+    ? (
+        <DataTableEmpty
+          compact
+          icon={appIcons.danger}
+          title={errorTitle}
+          description={errorDescription}
+        />
+      )
+    : null;
+
   const emptyMarkup =
     emptyState ??
-    (showEmpty
-      ? resolveDataTableEmptyMarkup({
-          config: empty,
-          variant: emptyVariant,
-          onClearSearch:
-            onSearchChange && hasClientSearch
-              ? () => onSearchChange("")
-              : undefined,
-          fallbackTitle: emptyMessage,
-        })
-      : null);
+    (showError
+      ? errorMarkup
+      : showEmpty
+        ? resolveDataTableEmptyMarkup({
+            config: empty,
+            variant: emptyVariant,
+            onClearSearch:
+              onSearchChange && hasClientSearch
+                ? () => onSearchChange("")
+                : undefined,
+            fallbackTitle: emptyMessage,
+          })
+        : null);
 
   const tableMarkup = (
     <Table

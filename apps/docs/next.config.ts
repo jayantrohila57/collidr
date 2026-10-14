@@ -13,6 +13,15 @@ const config: NextConfig = {
   reactCompiler: true,
   transpilePackages: ["@collidr/ui"],
   ...(docsBasePath ? { basePath: docsBasePath } : {}),
+  async redirects() {
+    return [
+      {
+        source: "/favicon.ico",
+        destination: "/favicon/favicon.ico",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 const withMDX = createMDX();

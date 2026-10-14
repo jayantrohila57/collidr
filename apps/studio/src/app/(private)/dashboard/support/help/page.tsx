@@ -52,6 +52,11 @@ export default function SupportHelpPage() {
           onChange={(e) => setSearch(e.target.value)}
           aria-label="Search FAQ"
         />
+        {faq.isError ? (
+          <p className="text-destructive text-sm">
+            Could not load help articles. Try refreshing the page.
+          </p>
+        ) : null}
         {[...byCategory.entries()].map(([category, items]) => (
           <section key={category} className="space-y-2">
             <h2 className="font-medium text-sm capitalize">{category}</h2>

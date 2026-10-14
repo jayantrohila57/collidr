@@ -1,15 +1,16 @@
-import { createContext } from "@collidr/api/context";
+import { createContextWithAuth } from "@collidr/api/create-context";
 import { consoleAppRouter } from "@collidr/api/routers/console";
 import { logSchemaOutOfDateOnce } from "@collidr/db/postgres-errors";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";
+import { siblingAuth } from "@/lib/sibling-auth";
 
 function handler(req: NextRequest) {
   return fetchRequestHandler({
     endpoint: "/api/trpc",
     req,
     router: consoleAppRouter,
-    createContext: () => createContext(req),
+    createContext: () => createContextWithAuth(req, siblingAuth),
     onError({ error, path, type }) {
       const root = error.cause ?? error;
       if (logSchemaOutOfDateOnce(root, `tRPC ${type} ${path ?? "unknown"}`)) {

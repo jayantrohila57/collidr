@@ -1,15 +1,10 @@
 import { resolveAuthServiceUrl } from "@collidr/env/vercel-services";
 
 /** Proxy OAuth discovery documents from the auth service (private binding at runtime). */
-export async function proxyAuthWellKnown(
-  request: Request,
-  wellKnownPath: string,
-): Promise<Response> {
+export async function proxyAuthWellKnown(request: Request): Promise<Response> {
   const authBase = resolveAuthServiceUrl().replace(/\/$/, "");
   const incoming = new URL(request.url);
-  const relative = wellKnownPath.replace(/^\//, "");
-  const target = new URL(relative, `${authBase}/`);
-  target.search = incoming.search;
+  const target = new URL(`${incoming.pathname}${incoming.search}`, `${authBase}/`);
 
   const upstream = await fetch(target.toString(), {
     headers: {

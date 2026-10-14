@@ -74,6 +74,7 @@ export default function SupportTicketsPage() {
         columns={columns}
         data={tickets.data?.items ?? []}
         isLoading={tickets.isLoading}
+        isError={tickets.isError}
       />
     </DashboardSection>
   );

@@ -6,11 +6,21 @@ import {
   CardPanel,
   CardTitle,
 } from "@collidr/ui/card";
+import { headers } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { GitHubSignInButton } from "@/components/github-sign-in-button";
+import { platformAuth } from "@/lib/platform-auth";
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const session = await platformAuth.api.getSession({
+    headers: await headers(),
+  });
+  if (session) {
+    redirect("/settings/profile");
+  }
+
   return (
     <div className="flex min-h-svh flex-col items-center justify-center px-4 py-12">
       <Card className="w-full max-w-sm">

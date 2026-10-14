@@ -61,6 +61,18 @@ function toTrustedOrigin(url: string): string {
   }
 }
 
+/** Split comma-separated platform origins (e.g. `CORS_ORIGIN`). */
+export function parsePlatformOriginList(value?: string | null): string[] {
+  if (!value?.trim()) {
+    return [];
+  }
+  return value
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => toTrustedOrigin(part));
+}
+
 /** Origins allowed for `return_to` and Better Auth `trustedOrigins` (production only). */
 export function getPlatformProductionOrigins(
   env: {
@@ -88,8 +100,8 @@ export function getPlatformProductionOrigins(
       DEFAULT_SUPPORT_URL,
     env.wwwUrl ?? process.env.NEXT_PUBLIC_WWW_URL ?? defaultWwwUrl(),
     env.mcpUrl ?? process.env.NEXT_PUBLIC_MCP_URL ?? defaultMcpPublicUrl(),
-    env.legacyWebUrl ?? process.env.CORS_ORIGIN,
     process.env.NEXT_PUBLIC_DOCS_URL ?? DEFAULT_DOCS_URL,
+    ...parsePlatformOriginList(env.legacyWebUrl ?? process.env.CORS_ORIGIN),
   ].filter(Boolean) as string[];
 
   return [...new Set(origins.map((o) => toTrustedOrigin(o)))];

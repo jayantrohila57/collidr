@@ -2,8 +2,8 @@ import { appendOttToUrl, isCrossOriginReturnTo } from "@collidr/auth";
 import { validateReturnTo } from "@collidr/auth/return-to";
 import { env } from "@collidr/env/server";
 import {
+  resolveAuthPublicUrl,
   resolveAuthServiceUrl,
-  resolvePublicServiceUrl,
 } from "@collidr/env/vercel-services";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
@@ -25,8 +25,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(signIn);
   }
 
-  const authPublicOrigin =
-    env.BETTER_AUTH_URL ?? resolvePublicServiceUrl("auth");
+  const authPublicOrigin = env.BETTER_AUTH_URL ?? resolveAuthPublicUrl();
   if (!isCrossOriginReturnTo(returnTo, authPublicOrigin)) {
     return NextResponse.redirect(returnTo);
   }

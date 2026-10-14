@@ -14,11 +14,11 @@ export default function FeaturesPage() {
       title="Features"
       description="Everything in the product today — grounded in how the studio app and MCP server actually behave."
     >
-      <ul className="not-prose grid gap-4 sm:grid-cols-2">
+      <ul className="not-prose grid gap-4 sm:grid-cols-2 lg:grid-cols-6 [&>li:nth-last-child(2)]:lg:col-start-2 [&>li:last-child:nth-child(5)]:lg:col-start-4">
         {marketingFeatures.map((feature) => (
           <li
             key={feature.title}
-            className="rounded-lg border bg-card p-5 text-card-foreground"
+            className="rounded-lg border bg-card p-5 text-card-foreground lg:col-span-2"
           >
             <h2 className="font-semibold text-base">{feature.title}</h2>
             <p className="mt-2 text-muted-foreground text-sm">

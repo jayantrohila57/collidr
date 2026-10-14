@@ -31,7 +31,7 @@ function buildMcpPlugins(): BetterAuthPlugin[] {
       process.env.NEXT_PUBLIC_MCP_URL ??
       (process.env.VERCEL_SERVICES === "1"
         ? `${resolvePlatformPublicOrigin()}/api/mcp`
-        : DEFAULT_MCP_URL),
+        : `${DEFAULT_MCP_URL.replace(/\/$/, "")}/api/mcp`),
   );
   const mcpResource = mcpHost.endsWith("/api/mcp")
     ? mcpHost
