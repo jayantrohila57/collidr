@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
 import {
-  layoutChromeClass,
-  layoutChromeRowClass,
   layoutContentClass,
   layoutSectionStackClass,
   layoutToolbarClass,
@@ -40,36 +38,10 @@ export function PageStack({
   );
 }
 
-/** App chrome above the dashboard scroll region (not overlapping scroll content) */
-export function PageHeaderBar({
-  className,
-  children,
-}: {
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <header
-      className={cn(
-        "relative z-50 shrink-0 border-b bg-background",
-        layoutChromeClass,
-        className,
-      )}
-    >
-      {children}
-    </header>
-  );
-}
-
-export function PageHeaderRow({
-  className,
-  children,
-}: {
-  className?: string;
-  children: ReactNode;
-}) {
-  return <div className={cn(layoutChromeRowClass, className)}>{children}</div>;
-}
+export {
+  DashboardPageHeaderBar as PageHeaderBar,
+  DashboardPageHeaderRow as PageHeaderRow,
+} from "@loftlancer/ui/app-shell";
 
 export function PageToolbar({
   className,

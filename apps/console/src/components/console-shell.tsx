@@ -1,19 +1,30 @@
 "use client";
 
+import { DashboardAppShell } from "@loftlancer/ui/app-shell";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { ConsoleBreadcrumbs } from "@/components/console-breadcrumbs";
+import { ConsoleSidebar } from "@/components/console-sidebar";
+import Shell from "@/components/shell";
+import { Separator } from "@/components/ui/separator";
 import {
-  ADMIN_NAV_GROUPS,
-  isAdminNavItemActive,
-} from "@/domain/console/admin-nav";
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { authClient } from "@/lib/auth-client";
 import { consoleSignInUrl } from "@/lib/auth-url";
 import { trpc } from "@/utils/trpc";
 
+const shellComponents = {
+  SidebarInset,
+  SidebarTrigger,
+  Separator,
+};
+
 export function ConsoleShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
   const router = useRouter();
   const session = authClient.useSession();
   const access = useQuery({
@@ -36,7 +47,6 @@ export function ConsoleShell({ children }: { children: React.ReactNode }) {
     }
     if (access.data.needsSignIn) {
       window.location.href = consoleSignInUrl();
-      return;
     }
     if (!access.data.allowed) {
       router.replace("/forbidden");
@@ -67,48 +77,23 @@ export function ConsoleShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <header className="border-b bg-background">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <div>
-            <p className="font-semibold text-sm">Loftlancer Console</p>
-            <p className="text-muted-foreground text-xs">
-              Signed in as {session.data.user.email}
-            </p>
-          </div>
-          <nav className="flex max-w-3xl flex-col gap-2 text-sm">
-            {ADMIN_NAV_GROUPS.map((group) => (
-              <div
-                key={group.label}
-                className="flex flex-wrap items-center gap-1.5"
-              >
-                <span className="shrink-0 px-1 font-medium text-muted-foreground text-xs uppercase tracking-wide">
-                  {group.label}
-                </span>
-                {group.items.map((item) => {
-                  const active = isAdminNavItemActive(pathname, item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={
-                        active
-                          ? "rounded-md bg-muted px-2 py-1 font-medium"
-                          : "rounded-md px-2 py-1 hover:bg-muted"
-                      }
-                    >
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            ))}
-          </nav>
-        </div>
-      </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
-        {children}
-      </main>
-    </div>
+    <Shell>
+      <SidebarProvider>
+        <TooltipProvider delay={0}>
+          <DashboardAppShell
+            components={shellComponents}
+            sidebar={<ConsoleSidebar />}
+            breadcrumbs={<ConsoleBreadcrumbs className="flex-nowrap" />}
+            headerActions={
+              <span className="max-w-[12rem] truncate text-muted-foreground text-xs">
+                {session.data.user.email}
+              </span>
+            }
+          >
+            {children}
+          </DashboardAppShell>
+        </TooltipProvider>
+      </SidebarProvider>
+    </Shell>
   );
 }
