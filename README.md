@@ -150,3 +150,13 @@ pnpm a11y             # accessibility checks (web, Turbo task `a11y` → web)
 ## Security
 
 See [SECURITY.md](./SECURITY.md).
+
+## Sponsor
+
+If you find this project useful, consider supporting its development:
+
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-db61a2?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/jayantrohila57)
+
+## License
+
+Released under the [MIT License](LICENSE).
