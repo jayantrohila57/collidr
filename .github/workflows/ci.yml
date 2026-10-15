@@ -33,6 +33,7 @@ jobs:
           GITHUB_CLIENT_ID: ci-github-client-id
           GITHUB_CLIENT_SECRET: ci-github-client-secret
           CORS_ORIGIN: http://localhost:3000
+          # TEST-ONLY placeholder for CI; never use this value in any real environment.
           ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
       - run: pnpm exec playwright install chromium --with-deps
         working-directory: apps/web
