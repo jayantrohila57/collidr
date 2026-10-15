@@ -26,4 +26,23 @@ describe("evaluateConsoleOperatorAccess", () => {
     assert.notEqual(denied.reason, "unauthenticated");
     assert.equal(denied.allowed, false);
   });
+
+  it("allows allowlisted email without Better Auth admin role when list is set", () => {
+    const prev = process.env.CONSOLE_ALLOWED_EMAILS;
+    process.env.CONSOLE_ALLOWED_EMAILS = "jrohila55@gmail.com";
+    try {
+      const result = evaluateConsoleOperatorAccess({
+        user: {
+          id: "u1",
+          email: "jrohila55@gmail.com",
+          role: "user",
+        },
+      });
+      assert.equal(result.allowed, true);
+      assert.equal(result.reason, "ok");
+      assert.equal(result.allowlistMatch, true);
+    } finally {
+      process.env.CONSOLE_ALLOWED_EMAILS = prev;
+    }
+  });
 });

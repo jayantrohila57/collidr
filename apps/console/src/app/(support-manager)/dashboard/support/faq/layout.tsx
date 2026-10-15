@@ -1,4 +1,4 @@
-import { requirePageAction, runPageGuard } from "@collidr/api/page-guards";
+import { requirePageAction, runPageGuard } from "@loftlancer/api/page-guards";
 import { guardSupportManagerPage } from "@/lib/page-guards";
 
 export default async function SupportFaqLayout({

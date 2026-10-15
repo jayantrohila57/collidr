@@ -1,7 +1,11 @@
-import { AppNotFoundPage } from "@collidr/ui/patterns/app-route-states";
+import { AppNotFoundPage } from "@loftlancer/ui/patterns/app-route-states";
 
-const links = { homeHref: "/", dashboardHref: "/dashboard" };
+const links = { homeHref: "/" };
 
 export default function NotFound() {
-  return <AppNotFoundPage links={links} />;
+  return (
+    <div className="flex min-h-dvh flex-1 flex-col">
+      <AppNotFoundPage links={links} />
+    </div>
+  );
 }

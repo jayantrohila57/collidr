@@ -1,4 +1,4 @@
-import { buildSignInUrl, defaultSupportReturnTo } from "@collidr/ui/auth-links";
+import { buildSignInUrl, defaultSupportReturnTo } from "@loftlancer/ui/auth-links";
 
 export function supportSignInUrl(requestUrl?: string): string {
   const returnTo =

@@ -3,10 +3,10 @@
  *
  *   DATABASE_URL=... pnpm exec tsx packages/db/scripts/backfill-personal-orgs.ts
  */
-import { db } from "@collidr/db";
-import { user } from "@collidr/db/schema/auth";
-import { member, organization } from "@collidr/db/schema/organization";
-import { project } from "@collidr/db/schema/projects";
+import { db } from "@loftlancer/db";
+import { user } from "@loftlancer/db/schema/auth";
+import { member, organization } from "@loftlancer/db/schema/organization";
+import { project } from "@loftlancer/db/schema/projects";
 import { eq, sql } from "drizzle-orm";
 
 function slugifyPersonal(userId: string, name: string): string {

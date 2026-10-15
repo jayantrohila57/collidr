@@ -1,6 +1,6 @@
 "use client";
 
-import type { ProjectOutput } from "@collidr/api/types";
+import type { ProjectOutput } from "@loftlancer/api/types";
 import { useCallback, useMemo, useState } from "react";
 import { projectsTableEmpty } from "@/components/data-table/data-table-empty-presets";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";

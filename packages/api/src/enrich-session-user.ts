@@ -1,6 +1,6 @@
-import type { AuthSession } from "@collidr/auth/session-types";
-import { activeUserWhere, db } from "@collidr/db";
-import { user } from "@collidr/db/schema/auth";
+import type { AuthSession } from "@loftlancer/auth/session-types";
+import { activeUserWhere, db } from "@loftlancer/db";
+import { user } from "@loftlancer/db/schema/auth";
 import { eq } from "drizzle-orm";
 
 /** Better Auth cookie cache may omit `user.role`; load from DB when missing. */

@@ -1,6 +1,6 @@
 "use client";
 
-import { type MatrixCell, PERMISSION_MATRIX_ROWS } from "@collidr/actions";
+import { type MatrixCell, PERMISSION_MATRIX_ROWS } from "@loftlancer/actions";
 import {
   Card,
   CardDescription,
@@ -34,7 +34,7 @@ export function OrganizationPermissionsMatrix() {
           Platform <strong>Admin</strong> is reserved for a future console.
         </CardDescription>
       </CardHeader>
-      <CardPanel className="px-0 pb-0">
+      <CardPanel className="p-4 pt-0">
         <Table>
           <TableHeader>
             <TableRow>

@@ -32,6 +32,10 @@ function isPersistedEnvironmentId(environmentId: string) {
   return UUID_RE.test(environmentId);
 }
 
+function isPersistedVariableId(id: string) {
+  return UUID_RE.test(id);
+}
+
 export function useVariables(environmentId: string) {
   const queryClient = useQueryClient();
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
@@ -356,11 +360,31 @@ export function useVariables(environmentId: string) {
         success: "Variable updated",
       }),
     isUpdating: updateMutation.isPending,
-    deleteVariable: (input: Parameters<typeof deleteMutation.mutateAsync>[0]) =>
-      actionToast(deleteMutation.mutateAsync(input), {
+    deleteVariable: async (
+      input: Parameters<typeof deleteMutation.mutateAsync>[0],
+    ) => {
+      if (!isPersistedVariableId(input.id)) {
+        const previousVariables = queryClient.getQueryData(
+          trpc.environmentVariables.list.queryKey({ environmentId }),
+        ) as VariablesQueryResponse | undefined;
+        if (previousVariables?.data) {
+          queryClient.setQueryData(
+            trpc.environmentVariables.list.queryKey({ environmentId }),
+            {
+              ...previousVariables,
+              data: previousVariables.data.filter(
+                (variable: VariableOutput) => variable.id !== input.id,
+              ),
+            },
+          );
+        }
+        return;
+      }
+      return actionToast(deleteMutation.mutateAsync(input), {
         loading: "Deleting variable…",
         success: "Variable deleted",
-      }),
+      });
+    },
     isDeleting: deleteMutation.isPending,
     bulkImport: (input: Parameters<typeof bulkImportMutation.mutateAsync>[0]) =>
       actionToast(bulkImportMutation.mutateAsync(input), {

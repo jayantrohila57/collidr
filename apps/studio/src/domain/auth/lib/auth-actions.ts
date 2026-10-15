@@ -2,9 +2,10 @@
 
 import type { QueryClient } from "@tanstack/react-query";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { performPlatformSignOut } from "@loftlancer/ui/platform-sign-out";
 import { accountSettingsUrl } from "@/lib/account-url";
 import { authClient } from "@/lib/auth-client";
-import { PUBLIC_HOME_PATH, resolvePostAuthPath } from "@/lib/auth-routes";
+import { resolvePostAuthPath } from "@/lib/auth-routes";
 
 /**
  * Get current session with loading state
@@ -48,17 +49,10 @@ export async function performSignOut(options: {
 }): Promise<void> {
   const { queryClient } = options;
 
-  await authClient.signOut({
-    fetchOptions: {
-      onSuccess: () => {
-        queryClient.clear();
-      },
-    },
+  await performPlatformSignOut({
+    onClearClient: () => queryClient.clear(),
+    signOutLocal: () => authClient.signOut(),
   });
-  queryClient.clear();
-  window.setTimeout(() => {
-    window.location.replace(PUBLIC_HOME_PATH);
-  }, 300);
 }
 
 /** @deprecated Use performSignOut with queryClient and router */

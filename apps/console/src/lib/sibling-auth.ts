@@ -1,6 +1,6 @@
-import { createSiblingAuth } from "@collidr/auth/sibling-auth";
-import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
-import { DEFAULT_CONSOLE_URL } from "@collidr/env/platform";
+import { createSiblingAuth } from "@loftlancer/auth/sibling-auth";
+import { resolvePublicServiceUrl } from "@loftlancer/env/vercel-services";
+import { DEFAULT_CONSOLE_URL } from "@loftlancer/env/platform";
 
 const consoleOrigin =
   process.env.NEXT_PUBLIC_CONSOLE_URL?.replace(/\/$/, "") ??

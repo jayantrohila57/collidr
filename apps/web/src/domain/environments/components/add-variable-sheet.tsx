@@ -1,6 +1,6 @@
 "use client";
 
-import { variableKeySchema } from "@collidr/api/validation";
+import { variableKeySchema } from "@loftlancer/api/validation";
 import { useRef, useState } from "react";
 import {
   PageHeaderActionLabel,

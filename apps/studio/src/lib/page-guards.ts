@@ -1,20 +1,20 @@
 import "server-only";
 
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 import {
   organizationChildAction,
   requirePageAction,
   resolveOrganizationForPage,
   resolveProjectForPage,
   runPageGuard,
-} from "@collidr/api/page-guards";
-import type { RequirePageSessionResult } from "@collidr/auth/guards";
-import { requirePageSession } from "@collidr/auth/guards";
+} from "@loftlancer/api/page-guards";
+import type { RequirePageSessionResult } from "@loftlancer/auth/guards";
+import { requirePageSession } from "@loftlancer/auth/guards";
 import {
   type AuthSession,
   getSessionActiveOrganizationId,
-} from "@collidr/auth/session-types";
-import { DEFAULT_STUDIO_URL } from "@collidr/env/platform";
+} from "@loftlancer/auth/session-types";
+import { DEFAULT_STUDIO_URL } from "@loftlancer/env/platform";
 import type { Route } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -148,7 +148,7 @@ export async function guardProjectSlugPage(slug: string) {
 export async function guardSupportManagerPage(): Promise<AuthSession> {
   const session = await guardAuthenticatedPage();
   const { requireSupportManagerPage } = await import(
-    "@collidr/api/page-guards"
+    "@loftlancer/api/page-guards"
   );
   await runPageGuard(() => requireSupportManagerPage(session.user.id));
   return session;
@@ -158,7 +158,7 @@ export async function guardSupportTicketPage(
   ticketId: string,
 ): Promise<AuthSession> {
   const session = await guardAuthenticatedPage();
-  const { requireSupportTicketPage } = await import("@collidr/api/page-guards");
+  const { requireSupportTicketPage } = await import("@loftlancer/api/page-guards");
   await runPageGuard(() =>
     requireSupportTicketPage(session.user.id, ticketId),
   );

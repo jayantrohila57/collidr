@@ -1,6 +1,6 @@
-import { activeMemberWhere, db } from "@collidr/db";
-import { member, organization } from "@collidr/db/schema/organization";
-import { isOrganizationsEnabled } from "@collidr/env/organizations";
+import { activeMemberWhere, db } from "@loftlancer/db";
+import { member, organization } from "@loftlancer/db/schema/organization";
+import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
 import { and, count, eq, inArray } from "drizzle-orm";
 
 import { soleOwnerBlockersFromCounts } from "./sole-owner-blockers";

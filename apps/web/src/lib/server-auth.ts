@@ -1,6 +1,6 @@
 import "server-only";
 
-import { auth } from "@collidr/auth";
+import { auth } from "@loftlancer/auth";
 import { headers } from "next/headers";
 import { cache } from "react";
 

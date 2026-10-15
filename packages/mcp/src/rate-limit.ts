@@ -1,6 +1,6 @@
-import type { ActionName } from "@collidr/actions";
-import { db } from "@collidr/db";
-import { rateLimitBucket } from "@collidr/db/schema/rate-limit-bucket";
+import type { ActionName } from "@loftlancer/actions";
+import { db } from "@loftlancer/db";
+import { rateLimitBucket } from "@loftlancer/db/schema/rate-limit-bucket";
 import { sql } from "drizzle-orm";
 
 export type RateLimitConfig = {

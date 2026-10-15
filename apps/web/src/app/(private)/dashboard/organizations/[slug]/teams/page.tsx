@@ -1,4 +1,4 @@
-import { isOrganizationsEnabled } from "@collidr/env/organizations";
+import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { OrganizationTeamsPage } from "@/domain/organizations/components/organization-teams-page";

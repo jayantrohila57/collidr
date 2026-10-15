@@ -1,4 +1,4 @@
-import { AppNotFoundPage } from "@collidr/ui/patterns/app-route-states";
+import { AppNotFoundPage } from "@loftlancer/ui/patterns/app-route-states";
 
 const links = { homeHref: "/sign-in" };
 

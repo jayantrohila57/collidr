@@ -1,10 +1,10 @@
-import { appendOttToUrl, isCrossOriginReturnTo } from "@collidr/auth";
-import { validateReturnTo } from "@collidr/auth/return-to";
-import { env } from "@collidr/env/server";
+import { appendOttToUrl, isCrossOriginReturnTo } from "@loftlancer/auth";
+import { validateReturnTo } from "@loftlancer/auth/return-to";
+import { env } from "@loftlancer/env/server";
 import {
   resolveAuthPublicUrl,
   resolveAuthServiceUrl,
-} from "@collidr/env/vercel-services";
+} from "@loftlancer/env/vercel-services";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { platformAuth } from "@/lib/platform-auth";

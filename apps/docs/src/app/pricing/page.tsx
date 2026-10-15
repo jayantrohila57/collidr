@@ -2,7 +2,7 @@ import { MarketingPage } from "@/components/marketing-page";
 
 export const metadata = {
   title: "Pricing",
-  description: "Collidr is free while we ship the platform split.",
+  description: "Loftlancer is free while we ship the platform split.",
 };
 
 export default function PricingPage() {

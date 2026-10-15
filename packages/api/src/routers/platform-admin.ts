@@ -1,4 +1,4 @@
-import { decrypt } from "@collidr/crypto";
+import { decrypt } from "@loftlancer/crypto";
 import {
   activeEnvironmentVariableWhere,
   activeEnvironmentWhere,
@@ -8,28 +8,28 @@ import {
   activeUserWhere,
   db,
   softDeleteSet,
-} from "@collidr/db";
-import { user } from "@collidr/db/schema/auth";
-import { notification } from "@collidr/db/schema/notifications";
+} from "@loftlancer/db";
+import { user } from "@loftlancer/db/schema/auth";
+import { notification } from "@loftlancer/db/schema/notifications";
 import {
   oauthAccessToken,
   oauthClient,
   oauthRefreshToken,
-} from "@collidr/db/schema/oauth";
+} from "@loftlancer/db/schema/oauth";
 import {
   invitation,
   member,
   organization,
-} from "@collidr/db/schema/organization";
-import { platformFeatureFlag } from "@collidr/db/schema/platform-feature-flag";
+} from "@loftlancer/db/schema/organization";
+import { platformFeatureFlag } from "@loftlancer/db/schema/platform-feature-flag";
 import {
   environment,
   environmentVariable,
   project,
-} from "@collidr/db/schema/projects";
-import { rateLimitBucket } from "@collidr/db/schema/rate-limit-bucket";
-import { team, teamMember } from "@collidr/db/schema/team";
-import { isSoftDeletesEnabled } from "@collidr/env/soft-deletes";
+} from "@loftlancer/db/schema/projects";
+import { rateLimitBucket } from "@loftlancer/db/schema/rate-limit-bucket";
+import { team, teamMember } from "@loftlancer/db/schema/team";
+import { isSoftDeletesEnabled } from "@loftlancer/env/soft-deletes";
 import { TRPCError } from "@trpc/server";
 import {
   and,

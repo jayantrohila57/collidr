@@ -1,8 +1,8 @@
 import "server-only";
 
-import { prefetchWithCaller } from "@collidr/api/prefetch-with-caller";
-import { studioRouter } from "@collidr/api/routers/studio";
-import type { AuthSession } from "@collidr/auth/session-types";
+import { prefetchWithCaller } from "@loftlancer/api/prefetch-with-caller";
+import { studioRouter } from "@loftlancer/api/routers/studio";
+import type { AuthSession } from "@loftlancer/auth/session-types";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { trpcQueryOptions } from "@/utils/trpc-query-options";
 

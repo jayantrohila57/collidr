@@ -1,4 +1,4 @@
-import { env } from "@collidr/env/server";
+import { env } from "@loftlancer/env/server";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { NotificationsPageClient } from "@/domain/notifications/components/notifications-page-client";

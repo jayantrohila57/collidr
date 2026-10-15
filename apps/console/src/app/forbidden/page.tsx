@@ -1,10 +1,15 @@
-import { AppForbiddenPage } from "@collidr/ui/patterns/app-route-states";
+import { AppForbiddenPage } from "@loftlancer/ui/patterns/app-route-states";
+import { defaultStudioReturnTo } from "@loftlancer/ui/auth-links";
 
 const links = {
-  homeHref: "/",
-  dashboardHref: "/dashboard",
+  homeHref: defaultStudioReturnTo(),
+  homeLabel: "Open Studio",
 };
 
 export default function ForbiddenPage() {
-  return <AppForbiddenPage links={links} />;
+  return (
+    <div className="flex min-h-dvh flex-1 flex-col">
+      <AppForbiddenPage links={links} />
+    </div>
+  );
 }

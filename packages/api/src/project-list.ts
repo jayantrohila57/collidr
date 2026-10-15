@@ -1,14 +1,14 @@
-import { normalizeOrgRole } from "@collidr/actions";
-import { activeProjectWhere, db } from "@collidr/db";
-import { member } from "@collidr/db/schema/organization";
+import { normalizeOrgRole } from "@loftlancer/actions";
+import { activeProjectWhere, db } from "@loftlancer/db";
+import { member } from "@loftlancer/db/schema/organization";
 import {
   projectManager,
   projectMemberGrant,
   projectTeam,
-} from "@collidr/db/schema/project-access";
-import { project } from "@collidr/db/schema/projects";
-import { teamMember } from "@collidr/db/schema/team";
-import { isOrganizationsEnabled } from "@collidr/env/organizations";
+} from "@loftlancer/db/schema/project-access";
+import { project } from "@loftlancer/db/schema/projects";
+import { teamMember } from "@loftlancer/db/schema/team";
+import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
 import { and, eq, inArray, isNull, type SQL, sql } from "drizzle-orm";
 import { projectListFilter } from "./org-access";
 

@@ -27,7 +27,7 @@ The MCP resource handler returns **401** JSON-RPC for unauthenticated requests (
 
 ## Rate limits (defaults)
 
-Configured in `@collidr/mcp` (`rate-limit.ts`) and documented in [MCP setup](/docs/mcp/setup):
+Configured in `@loftlancer/mcp` (`rate-limit.ts`) and documented in [MCP setup](/docs/mcp/setup):
 
 - **120** read-class calls per **60s** per user + client + tool (default)
 - **60** write-class calls per window
@@ -55,11 +55,11 @@ Production sign-in uses **GitHub OAuth** on the auth app. E2E email/password may
 
 ### Where is the MCP server hosted?
 
-Default phase-1 hostname: `https://collidr.vercel.app` (`DEFAULT_MCP_URL` in `@collidr/auth`). Your admin may override `NEXT_PUBLIC_MCP_URL` / `MCP_RESOURCE_URL`.
+Default phase-1 hostname: `https://loftlancer.com` (`DEFAULT_MCP_URL` in `@loftlancer/auth`). Your admin may override `NEXT_PUBLIC_MCP_URL` / `MCP_RESOURCE_URL`.
 
 ### How do I see which tools exist?
 
-Use `permissions_snapshot` or the [tool index](/docs/mcp/tools). Generated from `listMcpExposedActions()` in `@collidr/api/mcp`.
+Use `permissions_snapshot` or the [tool index](/docs/mcp/tools). Generated from `listMcpExposedActions()` in `@loftlancer/api/mcp`.
 
 ### Why are notification tools missing?
 
@@ -75,4 +75,4 @@ Use **Deny** during authorization. The account app exposes **Sessions** and **Co
 
 ### Local testing fails with auth errors
 
-Ensure `PLATFORM_AUTH_ENABLE_MCP=1` on `apps/auth`, migrations through `0009_platform_apps.sql` applied, and `MCP_RESOURCE_URL` matches your local MCP URL (`http://localhost:3004/api/mcp`). See [MCP deploy runbook](https://github.com/jayantrohila57/collidr/blob/main/docs/MCP_DEPLOY.md).
+Ensure `PLATFORM_AUTH_ENABLE_MCP=1` on `apps/auth`, migrations through `0009_platform_apps.sql` applied, and `MCP_RESOURCE_URL` matches your local MCP URL (`http://localhost:3004/api/mcp`). See [MCP deploy runbook](https://github.com/jayantrohila57/loftlancer/blob/main/docs/MCP_DEPLOY.md).

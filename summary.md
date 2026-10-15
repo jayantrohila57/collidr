@@ -15,7 +15,7 @@ Secure, organization-aware dashboard for managing environment variables across p
 | Auth | Better Auth — GitHub, organizations, teams |
 | Database | PostgreSQL (Neon) + Drizzle ORM |
 | Monorepo | pnpm workspaces + Turborepo |
-| Deploy | Vercel — **`main` only** → `collidr-web.vercel.app` |
+| Deploy | Vercel — **`main` only** → `studio.loftlancer.com` |
 
 ## Monorepo packages
 
@@ -44,7 +44,7 @@ Secure, organization-aware dashboard for managing environment variables across p
 | **Member** | Project access via explicit grants |
 | **Admin** (platform) | Reserved — future `apps/console`; not enabled in web today |
 
-Legacy Better Auth `admin` org role is normalized to **Manager** in `@collidr/actions`.
+Legacy Better Auth `admin` org role is normalized to **Manager** in `@loftlancer/actions`.
 
 ## Workflow
 

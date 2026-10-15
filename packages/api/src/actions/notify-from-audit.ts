@@ -1,1 +1,1 @@
-export { notifyFromAuditEvent } from "@collidr/notifications/from-audit";
+export { notifyFromAuditEvent } from "@loftlancer/notifications/from-audit";

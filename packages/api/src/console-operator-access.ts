@@ -1,8 +1,8 @@
-import { sessionUserIsPlatformAdmin } from "@collidr/actions/platform-admin-flag";
+import { sessionUserIsPlatformAdmin } from "@loftlancer/actions/platform-admin-flag";
 import {
   isEmailAllowedForConsole,
   parseConsoleAllowedEmails,
-} from "@collidr/env/console";
+} from "@loftlancer/env/console";
 
 type ConsoleAccessUser = {
   id: string;
@@ -43,17 +43,6 @@ export function evaluateConsoleOperatorAccess(
   const allowedEmails = parseConsoleAllowedEmails();
   const platformAdmin = sessionUserIsPlatformAdmin(session.user);
 
-  if (!platformAdmin) {
-    return {
-      allowed: false,
-      reason: "not_platform_admin",
-      email,
-      role,
-      allowlistMatch: false,
-      allowlistSize: allowedEmails.length,
-    };
-  }
-
   if (!email) {
     return {
       allowed: false,
@@ -69,7 +58,22 @@ export function evaluateConsoleOperatorAccess(
     allowedEmails,
   });
 
-  if (!allowlistMatch) {
+  const operatorViaAllowlist =
+    allowedEmails.length > 0 && allowlistMatch && !platformAdmin;
+  const operatorViaPlatformAdmin = platformAdmin;
+
+  if (!operatorViaPlatformAdmin && !operatorViaAllowlist) {
+    return {
+      allowed: false,
+      reason: platformAdmin ? "email_not_allowed" : "not_platform_admin",
+      email,
+      role,
+      allowlistMatch,
+      allowlistSize: allowedEmails.length,
+    };
+  }
+
+  if (allowedEmails.length > 0 && !allowlistMatch) {
     return {
       allowed: false,
       reason: "email_not_allowed",
@@ -85,7 +89,7 @@ export function evaluateConsoleOperatorAccess(
     reason: "ok",
     email,
     role,
-    allowlistMatch: true,
+    allowlistMatch,
     allowlistSize: allowedEmails.length,
   };
 }

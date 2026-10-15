@@ -1,4 +1,4 @@
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 import { runWithMcpAuditContext } from "../mcp-audit-context";
 import { executeMcpAction, type McpToolContext } from "./handlers";
 

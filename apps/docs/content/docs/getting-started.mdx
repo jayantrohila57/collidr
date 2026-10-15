@@ -1,6 +1,6 @@
 ---
 title: Getting started
-description: Run Collidr locally and learn core concepts.
+description: Run Loftlancer locally and learn core concepts.
 ---
 
 ## Prerequisites
@@ -16,17 +16,18 @@ From the repository root:
 
 ```bash
 pnpm install
-# configure apps/web/.env — see README.md
-pnpm dev:web
+# configure env per app — see README.md and docs/PRODUCTION_DEPLOY.md
+pnpm --filter studio dev
 ```
 
-The dashboard runs at `http://localhost:3000`.
+Studio runs at `http://localhost:3000` (or the port shown in the terminal).
 
-## Run marketing and docs
+## Run docs and other apps
 
 ```bash
-pnpm --filter www dev    # http://localhost:3006
 pnpm --filter docs dev   # http://localhost:3001 → /docs
+pnpm --filter auth dev   # auth app (OAuth callbacks)
+pnpm --filter console dev
 ```
 
 ## Core concepts
@@ -39,4 +40,4 @@ pnpm --filter docs dev   # http://localhost:3001 → /docs
 | Encryption | [Encryption](/docs/concepts/encryption) |
 | MCP | [Using MCP](/docs/mcp/usage) |
 
-Authoritative permission spec: [ACTIONS_PERMISSIONS_AUDIT.md](https://github.com/jayantrohila57/collidr/blob/main/docs/ACTIONS_PERMISSIONS_AUDIT.md).
+Authoritative permission spec: [ACTIONS_PERMISSIONS_AUDIT.md](https://github.com/jayantrohila57/loftlancer/blob/main/docs/ACTIONS_PERMISSIONS_AUDIT.md).

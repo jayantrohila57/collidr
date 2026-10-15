@@ -17,7 +17,7 @@ test.describe.configure({ mode: "serial" });
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
-test("capture Collidr PWA screenshots", async ({ page, baseURL }) => {
+test("capture Loftlancer PWA screenshots", async ({ page, baseURL }) => {
   test.skip(
     !process.env.CAPTURE_PWA_SCREENSHOTS,
     "Set CAPTURE_PWA_SCREENSHOTS=1",

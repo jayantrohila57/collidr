@@ -1,6 +1,6 @@
 # Production deploy (Vercel)
 
-Collidr ships from **`main` only**. Day-to-day work merges **feature branch → `dev` → `main`**; only pushes to **`main`** trigger Vercel production builds.
+Loftlancer ships from **`main` only**. Day-to-day work merges **feature branch → `dev` → `main`**; only pushes to **`main`** trigger Vercel production builds.
 
 Production is **five separate Vercel Hobby projects** (no monorepo Services router): `auth`, `studio`, `console`, `mcp`, and `docs`. Each project uses **Root Directory** `apps/<app>` and `apps/<app>/vercel.json`:
 
@@ -118,6 +118,120 @@ Full workflow: [packages/db/DATABASE.md](../packages/db/DATABASE.md).
 Root `turbo.json` must include every `NEXT_PUBLIC_*` feature flag in `globalEnv` and the matching server keys in `tasks.build.env`. The list is defined in code:
 
 - `packages/env/src/feature-flags.ts`
-- Test: `pnpm --filter @collidr/env test` (parses `turbo.json`)
+- Test: `pnpm --filter @loftlancer/env test` (parses `turbo.json`)
 
 When adding a new paired flag, update `packages/env/src/web.ts`, `packages/env/src/server.ts`, `turbo.json`, and `feature-flags.ts` together.
+
+---
+
+## Loftlancer production URLs (loftlancer.com)
+
+| App | Vercel root | Public URL |
+|-----|-------------|------------|
+| **auth** | `apps/auth` | `https://auth.loftlancer.com` |
+| **studio** (product) | `apps/studio` | `https://studio.loftlancer.com` |
+| **console** | `apps/console` | `https://console.loftlancer.com` |
+| **mcp** | `apps/mcp` | `https://mcp.loftlancer.com` |
+| **docs** | `apps/docs` | `https://loftlancer.com` (apex) |
+| **www** | `apps/www` | Redirect `https://www.loftlancer.com` → apex |
+
+Session SSO on the custom apex uses Better Auth **`crossSubDomainCookies`** with `AUTH_COOKIE_DOMAIN=.loftlancer.com` on the auth app. Cross-app **establish-session** + OTT finish remains the fallback when cookies cannot be shared (e.g. `*.vercel.app` preview hosts).
+
+Repository: `https://github.com/jayantrohila57/loftlancer`
+
+### Shared secrets (all apps that hit the API / DB)
+
+Set on **auth**, **studio**, **console**, **mcp**, and any app running tRPC against Postgres:
+
+| Variable | Example / notes |
+|----------|-----------------|
+| `DATABASE_URL` | Neon direct connection string |
+| `DATABASE_URL_POOLED` | Neon pooler URL (preferred on Vercel) |
+| `BETTER_AUTH_SECRET` | ≥32 chars, same on every app |
+| `BETTER_AUTH_URL` | `https://auth.loftlancer.com` |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | OAuth app callback `https://auth.loftlancer.com/api/auth/callback/github` |
+| `ENCRYPTION_KEY` | Variables encryption (see `docs/DESIGN_SYSTEM.md`) |
+| `CORS_ORIGIN` | Comma-separated browser origins (see below) |
+
+`CORS_ORIGIN` production example:
+
+```text
+https://auth.loftlancer.com,https://studio.loftlancer.com,https://console.loftlancer.com,https://mcp.loftlancer.com,https://loftlancer.com
+```
+
+### Per-app environment variables
+
+#### `apps/auth` (auth.loftlancer.com)
+
+| Variable | Value |
+|----------|--------|
+| `BETTER_AUTH_URL` | `https://auth.loftlancer.com` |
+| `AUTH_COOKIE_DOMAIN` | `.loftlancer.com` |
+| `AUTH_CROSS_SUBDOMAIN_COOKIES` | `true` |
+| `CORS_ORIGIN` | *(shared list above)* |
+| `PLATFORM_AUTH_ENABLE_MCP` | `1` |
+| `NEXT_PUBLIC_AUTH_URL` | `https://auth.loftlancer.com` |
+| `NEXT_PUBLIC_STUDIO_URL` | `https://studio.loftlancer.com` |
+| `NEXT_PUBLIC_CONSOLE_URL` | `https://console.loftlancer.com` |
+| `NEXT_PUBLIC_MCP_URL` | `https://mcp.loftlancer.com` |
+| `NEXT_PUBLIC_DOCS_URL` | `https://loftlancer.com` |
+| `NEXT_PUBLIC_WWW_URL` | `https://loftlancer.com` |
+| `NEXT_PUBLIC_SUPPORT_URL` | `https://studio.loftlancer.com/dashboard/support/tickets` |
+| `NEXT_PUBLIC_ACCOUNT_URL` | `https://auth.loftlancer.com` |
+| Paired feature flags | See table in §2 above |
+
+#### `apps/studio` (studio.loftlancer.com)
+
+| Variable | Value |
+|----------|--------|
+| `BETTER_AUTH_URL` | `https://auth.loftlancer.com` |
+| `CORS_ORIGIN` | *(shared list)* |
+| `NEXT_PUBLIC_AUTH_URL` | `https://auth.loftlancer.com` |
+| `NEXT_PUBLIC_STUDIO_URL` | `https://studio.loftlancer.com` |
+| `NEXT_PUBLIC_CONSOLE_URL` | `https://console.loftlancer.com` |
+| `NEXT_PUBLIC_MCP_URL` | `https://mcp.loftlancer.com` |
+| `NEXT_PUBLIC_DOCS_URL` | `https://loftlancer.com` |
+| `NEXT_PUBLIC_SUPPORT_URL` | `https://studio.loftlancer.com/dashboard/support/tickets` |
+| `NEXT_PUBLIC_ACCOUNT_URL` | `https://auth.loftlancer.com` |
+| Paired feature flags | Same as auth |
+
+#### `apps/console` (console.loftlancer.com)
+
+| Variable | Value |
+|----------|--------|
+| `BETTER_AUTH_URL` | `https://auth.loftlancer.com` |
+| `CORS_ORIGIN` | *(shared list)* |
+| `CONSOLE_ALLOWED_EMAILS` | Operator allowlist (comma-separated) |
+| `NEXT_PUBLIC_AUTH_URL` | `https://auth.loftlancer.com` |
+| `NEXT_PUBLIC_CONSOLE_URL` | `https://console.loftlancer.com` |
+| `NEXT_PUBLIC_STUDIO_URL` | `https://studio.loftlancer.com` |
+| `NEXT_PUBLIC_DOCS_URL` | `https://loftlancer.com` |
+
+#### `apps/mcp` (mcp.loftlancer.com)
+
+| Variable | Value |
+|----------|--------|
+| `BETTER_AUTH_URL` | `https://auth.loftlancer.com` |
+| `CORS_ORIGIN` | *(shared list)* |
+| `MCP_RESOURCE_URL` | `https://mcp.loftlancer.com/api/mcp` |
+| `NEXT_PUBLIC_MCP_URL` | `https://mcp.loftlancer.com` |
+| `NEXT_PUBLIC_AUTH_URL` | `https://auth.loftlancer.com` |
+
+#### `apps/docs` (loftlancer.com)
+
+| Variable | Value |
+|----------|--------|
+| `NEXT_PUBLIC_AUTH_URL` | `https://auth.loftlancer.com` |
+| `NEXT_PUBLIC_STUDIO_URL` | `https://studio.loftlancer.com` |
+| `NEXT_PUBLIC_DOCS_URL` | `https://loftlancer.com` |
+| `NEXT_PUBLIC_WWW_URL` | `https://loftlancer.com` |
+
+#### `apps/www` (www → apex redirect)
+
+| Variable | Value |
+|----------|--------|
+| `NEXT_PUBLIC_WWW_URL` | `https://loftlancer.com` |
+| `NEXT_PUBLIC_DOCS_URL` | `https://loftlancer.com` |
+| `NEXT_PUBLIC_STUDIO_URL` | `https://studio.loftlancer.com` |
+
+Do **not** hardcode `collidr-*.vercel.app` in application code; defaults in `@loftlancer/env` point at `*.loftlancer.com` and are overridden per environment via the variables above.

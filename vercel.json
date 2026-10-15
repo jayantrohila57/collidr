@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "$comment": "Collidr deploys as separate Vercel projects (apps/auth, apps/studio, apps/console, apps/mcp, apps/docs). Per-app vercel.json holds install/build/ignoreCommand.",
+  "$comment": "Loftlancer deploys as separate Vercel projects (apps/auth, apps/studio, apps/console, apps/mcp, apps/docs). Per-app vercel.json holds install/build/ignoreCommand.",
   "git": {
     "deploymentEnabled": {
       "*": false,

@@ -1,9 +1,9 @@
-import { sessionUserIsPlatformAdmin } from "@collidr/actions/platform-admin-flag";
+import { sessionUserIsPlatformAdmin } from "@loftlancer/actions/platform-admin-flag";
 import {
   isPostgresMissingColumnError,
   logSchemaOutOfDateOnce,
-} from "@collidr/db/postgres-errors";
-import { isOrganizationsEnabled } from "@collidr/env/organizations";
+} from "@loftlancer/db/postgres-errors";
+import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { assertConsoleOperator } from "./console-access";
 import { runWithConsoleAuditContext } from "./console-audit-context";

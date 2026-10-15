@@ -1,6 +1,6 @@
 "use client";
 
-import type { ProjectOutput } from "@collidr/api/types";
+import type { ProjectOutput } from "@loftlancer/api/types";
 import {
   type QueryClient,
   useMutation,

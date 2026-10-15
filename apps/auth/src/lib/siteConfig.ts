@@ -1,14 +1,14 @@
 import type { Metadata, MetadataRoute } from "next";
 
 export const siteConfig = {
-  name: "Collidr",
+  name: "Loftlancer",
   description:
-    "Collidr is a developer-first system to securely manage environment variables, secrets, and third-party credentials across multiple repositories and environments (dev, staging, prod). It acts as a single source of truth and integrates with local development and CI/CD workflows.",
-  url: process.env.NEXT_PUBLIC_APP_URL || "https://collidr.vercel.app/studio",
+    "Loftlancer is a developer-first system to securely manage environment variables, secrets, and third-party credentials across multiple repositories and environments (dev, staging, prod). It acts as a single source of truth and integrates with local development and CI/CD workflows.",
+  url: process.env.NEXT_PUBLIC_APP_URL || "https://loftlancer.com/studio",
   ogImage: "/og-image.png",
   links: {
     twitter: "https://twitter.com/jayant_rohila",
-    github: "https://github.com/jayantrohila57/collidr",
+    github: "https://github.com/jayantrohila57/loftlancer",
   },
   author: {
     name: "Jayant Rohila",

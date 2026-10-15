@@ -1,5 +1,5 @@
-import { auth } from "@collidr/auth";
-import { logSchemaOutOfDateOnce } from "@collidr/db/postgres-errors";
+import { auth } from "@loftlancer/auth";
+import { logSchemaOutOfDateOnce } from "@loftlancer/db/postgres-errors";
 import { toNextJsHandler } from "better-auth/next-js";
 import type { NextRequest } from "next/server";
 

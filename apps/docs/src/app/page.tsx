@@ -1,10 +1,10 @@
-import { buildSignInUrl } from "@collidr/ui/auth-links";
-import { MarketingLanding } from "@collidr/ui/marketing";
+import { buildSignInUrl } from "@loftlancer/ui/auth-links";
+import { MarketingLanding } from "@loftlancer/ui/marketing";
 
 import { ModeToggle } from "@/components/mode-toggle";
 
 export const metadata = {
-  title: "Collidr",
+  title: "Loftlancer",
   description: "Organizations, projects, environments, and MCP for agentic workflows.",
 };
 

@@ -1,7 +1,7 @@
-import { auth } from "@collidr/auth";
-import { isOrganizationsEnabled } from "@collidr/env/organizations";
-import { env } from "@collidr/env/server";
-import { prepareE2eInvitationNotifications } from "@collidr/notifications/e2e/prepare-invitation";
+import { auth } from "@loftlancer/auth";
+import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
+import { env } from "@loftlancer/env/server";
+import { prepareE2eInvitationNotifications } from "@loftlancer/notifications/e2e/prepare-invitation";
 import { NextResponse } from "next/server";
 import { isE2eAuthRouteAllowed } from "@/lib/e2e-auth-allowed";
 import { isValidE2eSecret } from "@/lib/e2e-secret";

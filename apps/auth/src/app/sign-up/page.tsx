@@ -1,11 +1,11 @@
-import { Button } from "@collidr/ui/button";
+import { Button } from "@loftlancer/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@collidr/ui/card";
+} from "@loftlancer/ui/card";
 import Link from "next/link";
 import { Suspense } from "react";
 import { GitHubSignInButton } from "@/components/github-sign-in-button";
@@ -17,7 +17,7 @@ export default function SignUpPage() {
         <CardHeader>
           <CardTitle>Create your account</CardTitle>
           <CardDescription>
-            Collidr uses GitHub for sign-up and sign-in. Enterprise SSO is not
+            Loftlancer uses GitHub for sign-up and sign-in. Enterprise SSO is not
             enabled yet—your GitHub account is how we verify you.
           </CardDescription>
         </CardHeader>

@@ -9,12 +9,12 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@collidr/env": "workspace:*",
-    "@collidr/mcp": "workspace:*",
+    "@loftlancer/env": "workspace:*",
+    "@loftlancer/mcp": "workspace:*",
     "next": "catalog:"
   },
   "devDependencies": {
-    "@collidr/config": "workspace:*",
+    "@loftlancer/config": "workspace:*",
     "@types/node": "^26",
     "typescript": "catalog:"
   }

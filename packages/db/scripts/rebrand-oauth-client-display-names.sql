@@ -1,4 +1,4 @@
--- Idempotent: rename OAuth client display names from Env Manager branding to Collidr.
+-- Idempotent: rename OAuth client display names from Env Manager branding to Loftlancer.
 -- Review and run manually against production (do not apply from CI/agents).
 --
 -- Affected column: oauth_client.name (client metadata / consent UI).
@@ -8,7 +8,7 @@ BEGIN;
 
 UPDATE oauth_client
 SET
-  name = 'Collidr',
+  name = 'Loftlancer',
   updated_at = COALESCE(updated_at, NOW())
 WHERE
   name IS NOT NULL
@@ -17,23 +17,23 @@ WHERE
     OR name ILIKE '%env-manager%'
     OR name ILIKE '%EnvManager%'
   )
-  AND name IS DISTINCT FROM 'Collidr';
+  AND name IS DISTINCT FROM 'Loftlancer';
 
 -- Optional: MCP server-style client names
 UPDATE oauth_client
 SET
-  name = REPLACE(name, 'env-manager-mcp', 'collidr-mcp'),
+  name = REPLACE(name, 'env-manager-mcp', 'loftlancer-mcp'),
   updated_at = COALESCE(updated_at, NOW())
 WHERE
   name ILIKE '%env-manager-mcp%'
-  AND name NOT ILIKE '%collidr-mcp%';
+  AND name NOT ILIKE '%loftlancer-mcp%';
 
 UPDATE oauth_client
 SET
-  name = REPLACE(name, 'Env Manager MCP', 'Collidr MCP'),
+  name = REPLACE(name, 'Env Manager MCP', 'Loftlancer MCP'),
   updated_at = COALESCE(updated_at, NOW())
 WHERE
   name ILIKE '%Env Manager MCP%'
-  AND name NOT ILIKE '%Collidr MCP%';
+  AND name NOT ILIKE '%Loftlancer MCP%';
 
 COMMIT;

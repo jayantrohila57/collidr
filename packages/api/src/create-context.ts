@@ -1,4 +1,4 @@
-import type { AuthSession } from "@collidr/auth/session-types";
+import type { AuthSession } from "@loftlancer/auth/session-types";
 import type { NextRequest } from "next/server";
 import { enrichSessionUserRole } from "./enrich-session-user";
 

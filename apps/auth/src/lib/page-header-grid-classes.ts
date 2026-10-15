@@ -1,1 +1,1 @@
-export * from "@collidr/ui/page-header-grid-classes";
+export * from "@loftlancer/ui/page-header-grid-classes";

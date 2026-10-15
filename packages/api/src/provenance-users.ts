@@ -1,5 +1,5 @@
-import { db } from "@collidr/db";
-import { user } from "@collidr/db/schema/auth";
+import { db } from "@loftlancer/db";
+import { user } from "@loftlancer/db/schema/auth";
 import { inArray } from "drizzle-orm";
 
 export type ProvenanceUser = {

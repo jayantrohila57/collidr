@@ -1,19 +1,19 @@
-import { orgAc, orgBetterAuthRoles } from "@collidr/actions";
-import { activeUserWhere, db } from "@collidr/db";
-import { assertOrganizationCanBeDeleted } from "@collidr/db/org-delete-policy";
-import * as authSchema from "@collidr/db/schema/auth";
-import { user } from "@collidr/db/schema/auth";
-import { deviceCode } from "@collidr/db/schema/device-code";
-import { jwks } from "@collidr/db/schema/jwks";
-import * as oauthSchema from "@collidr/db/schema/oauth";
-import * as organizationSchema from "@collidr/db/schema/organization";
-import * as teamSchema from "@collidr/db/schema/team";
-import { teamMember } from "@collidr/db/schema/team";
-import { isOrganizationsEnabled } from "@collidr/env/organizations";
+import { orgAc, orgBetterAuthRoles } from "@loftlancer/actions";
+import { activeUserWhere, db } from "@loftlancer/db";
+import { assertOrganizationCanBeDeleted } from "@loftlancer/db/org-delete-policy";
+import * as authSchema from "@loftlancer/db/schema/auth";
+import { user } from "@loftlancer/db/schema/auth";
+import { deviceCode } from "@loftlancer/db/schema/device-code";
+import { jwks } from "@loftlancer/db/schema/jwks";
+import * as oauthSchema from "@loftlancer/db/schema/oauth";
+import * as organizationSchema from "@loftlancer/db/schema/organization";
+import * as teamSchema from "@loftlancer/db/schema/team";
+import { teamMember } from "@loftlancer/db/schema/team";
+import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
 import {
   isNotificationsEnabled,
   linkPendingNotificationsForUser,
-} from "@collidr/notifications";
+} from "@loftlancer/notifications";
 import type { BetterAuthOptions } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
@@ -23,7 +23,7 @@ import { eq } from "drizzle-orm";
 import { writeAuthAuditEvent } from "./audit-event";
 import { resolveDefaultActiveOrganizationId } from "./bootstrap-active-organization";
 import { sessionCookieMigrationPlugin } from "./session-cookie-migration-plugin";
-import { COLLIDR_COOKIE_PREFIX } from "./session-cookies";
+import { LOFTLANCER_COOKIE_PREFIX } from "./session-cookies";
 
 const e2eTestMode = process.env.E2E_TEST_MODE === "1";
 
@@ -101,8 +101,23 @@ export function sharedSessionConfig(): BetterAuthOptions["session"] {
 export function sharedAuthAdvanced(): NonNullable<
   BetterAuthOptions["advanced"]
 > {
+  const cookieDomain =
+    process.env.AUTH_COOKIE_DOMAIN?.trim() || ".loftlancer.com";
+  const useCrossSubdomain =
+    process.env.AUTH_CROSS_SUBDOMAIN_COOKIES !== "false" &&
+    cookieDomain.length > 0 &&
+    !cookieDomain.includes("localhost");
+
   return {
-    cookiePrefix: COLLIDR_COOKIE_PREFIX,
+    cookiePrefix: LOFTLANCER_COOKIE_PREFIX,
+    ...(useCrossSubdomain
+      ? {
+          crossSubDomainCookies: {
+            enabled: true,
+            domain: cookieDomain,
+          },
+        }
+      : {}),
   };
 }
 

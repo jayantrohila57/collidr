@@ -1,21 +1,21 @@
 import "server-only";
 
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 import {
   organizationChildAction,
   requirePageAction,
   resolveOrganizationForPage,
   resolveProjectForPage,
   runPageGuard,
-} from "@collidr/api/page-guards";
+} from "@loftlancer/api/page-guards";
 import {
   type RequirePageSessionResult,
   requirePageSession,
-} from "@collidr/auth/guards";
+} from "@loftlancer/auth/guards";
 import {
   type AuthSession,
   getSessionActiveOrganizationId,
-} from "@collidr/auth/session-types";
+} from "@loftlancer/auth/session-types";
 import type { Route } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";

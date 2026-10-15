@@ -1,6 +1,6 @@
 import "server-only";
 
-import { enrichSessionUserRole } from "@collidr/api/enrich-session-user";
+import { enrichSessionUserRole } from "@loftlancer/api/enrich-session-user";
 import { headers } from "next/headers";
 import { cache } from "react";
 import { siblingAuth } from "@/lib/sibling-auth";

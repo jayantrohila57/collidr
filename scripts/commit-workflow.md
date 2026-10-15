@@ -1,4 +1,4 @@
-# Commit workflow (collidr)
+# Commit workflow (loftlancer)
 
 Production ships from **`main`**. Integration happens on **`dev`**. Every change should reference a GitHub issue.
 
@@ -20,7 +20,7 @@ Vercel: each `apps/<app>/vercel.json` disables Git deployments except `main` and
 
 ### 1. Issue
 
-Create or pick an issue on [jayantrohila57/collidr](https://github.com/jayantrohila57/collidr/issues).
+Create or pick an issue on [jayantrohila57/loftlancer](https://github.com/jayantrohila57/loftlancer/issues).
 
 ### 2. Implement on a feature branch
 

@@ -1,10 +1,10 @@
-import { isActionsAuditEnabled } from "@collidr/actions";
-import { db } from "@collidr/db";
-import { auditEvent } from "@collidr/db/schema/audit-event";
-import { user } from "@collidr/db/schema/auth";
-import { project } from "@collidr/db/schema/projects";
+import { isActionsAuditEnabled } from "@loftlancer/actions";
+import { db } from "@loftlancer/db";
+import { auditEvent } from "@loftlancer/db/schema/audit-event";
+import { user } from "@loftlancer/db/schema/auth";
+import { project } from "@loftlancer/db/schema/projects";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, lte, type SQL } from "drizzle-orm";
+import { and, desc, eq, lte, ne, type SQL } from "drizzle-orm";
 import { z } from "zod/v3";
 import { requireAction } from "../actions/require-action";
 import { passiveActionSqlFilter } from "../audit-passive-actions";
@@ -18,6 +18,8 @@ const listInput = z.object({
   action: z.string().optional(),
   result: z.enum(["success", "failure", "denied"]).optional(),
   excludePassive: z.boolean().optional(),
+  /** Hide permission-denied probes (e.g. account.delete checks) from the default feed. */
+  excludeDenied: z.boolean().optional(),
   cursor: z.string().optional(),
   limit: z.number().min(1).max(100).default(50),
 });
@@ -73,6 +75,9 @@ export const auditEventsRouter = router({
     }
     if (input.excludePassive ?? true) {
       conditions.push(passiveActionSqlFilter());
+    }
+    if (input.excludeDenied ?? true) {
+      conditions.push(ne(auditEvent.result, "denied"));
     }
     if (input.cursor) {
       conditions.push(lte(auditEvent.createdAt, new Date(input.cursor)));

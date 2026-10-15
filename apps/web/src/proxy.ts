@@ -1,4 +1,4 @@
-import { DEFAULT_ACCOUNT_URL } from "@collidr/env/platform";
+import { DEFAULT_ACCOUNT_URL } from "@loftlancer/env/platform";
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 import { SIGN_IN_PATH } from "@/lib/auth-routes";

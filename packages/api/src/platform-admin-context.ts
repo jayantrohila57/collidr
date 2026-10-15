@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
-import { registerPlatformAdminReader } from "@collidr/actions/platform-admin-flag";
+import { registerPlatformAdminReader } from "@loftlancer/actions/platform-admin-flag";
 
 type Store = { platformAdmin: boolean };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import "../index.css";
-import { AppGlobalErrorPage } from "@collidr/ui/patterns/app-route-states";
+import { AppGlobalErrorPage } from "@loftlancer/ui/patterns/app-route-states";
 
 export default function GlobalError({
   error,

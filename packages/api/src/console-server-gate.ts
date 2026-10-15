@@ -1,6 +1,6 @@
-import { sessionUserIsPlatformAdmin } from "@collidr/actions/platform-admin-flag";
-import { auth } from "@collidr/auth";
-import { isEmailAllowedForConsole } from "@collidr/env/console";
+import { sessionUserIsPlatformAdmin } from "@loftlancer/actions/platform-admin-flag";
+import { auth } from "@loftlancer/auth";
+import { isEmailAllowedForConsole } from "@loftlancer/env/console";
 export type ConsoleGateResult =
   | {
       ok: true;

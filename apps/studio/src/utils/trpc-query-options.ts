@@ -1,7 +1,7 @@
 import "server-only";
 
-import type { StudioRouter } from "@collidr/api/routers/studio";
-import { transformer } from "@collidr/api/transformer";
+import type { StudioRouter } from "@loftlancer/api/routers/studio";
+import { transformer } from "@loftlancer/api/transformer";
 import { QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";

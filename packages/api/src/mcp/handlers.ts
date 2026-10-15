@@ -1,4 +1,4 @@
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 import { z } from "zod/v3";
 import {
   bulkImportVariablesInput,

@@ -1,5 +1,5 @@
 {
-  "name": "collidr",
+  "name": "loftlancer",
   "version": "1.8.0",
   "private": true,
   "workspaces": [
@@ -22,11 +22,11 @@
     "dev:studio": "turbo -F studio dev",
     "dev:account": "turbo -F account dev",
     "dev:support": "turbo -F support dev",
-    "db:push": "turbo -F @collidr/db db:push",
-    "db:studio": "turbo -F @collidr/db db:studio",
-    "db:generate": "turbo -F @collidr/db db:generate",
-    "db:migrate": "turbo -F @collidr/db db:migrate",
-    "db:reset-seed": "turbo -F @collidr/db db:reset-seed",
+    "db:push": "turbo -F @loftlancer/db db:push",
+    "db:studio": "turbo -F @loftlancer/db db:studio",
+    "db:generate": "turbo -F @loftlancer/db db:generate",
+    "db:migrate": "turbo -F @loftlancer/db db:migrate",
+    "db:reset-seed": "turbo -F @loftlancer/db db:reset-seed",
     "check": "biome check --write .",
     "format": "biome format --write .",
     "lint": "biome lint .",
@@ -41,13 +41,13 @@
     "a11y": "turbo -F web a11y"
   },
   "dependencies": {
-    "@collidr/env": "workspace:*",
+    "@loftlancer/env": "workspace:*",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
-    "@collidr/config": "workspace:*",
+    "@loftlancer/config": "workspace:*",
     "@types/node": "^26.6.5",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",

@@ -1,7 +1,7 @@
 "use client";
 
-import { PROJECT_MEMBER_GRANT_KEYS } from "@collidr/actions";
-import type { ProjectOutput } from "@collidr/api/types";
+import { PROJECT_MEMBER_GRANT_KEYS } from "@loftlancer/actions";
+import type { ProjectOutput } from "@loftlancer/api/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";

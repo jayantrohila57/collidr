@@ -1,6 +1,6 @@
 "use client";
 
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { useCan } from "../hooks/use-permissions";
 
@@ -14,6 +14,9 @@ type CanProps = {
 export function Can({ action, projectId, fallback, children }: CanProps) {
   const { allowed, isLoading } = useCan(action, { projectId });
   if (isLoading) {
+    if (fallback === null) {
+      return null;
+    }
     return <SettingsPanelSkeleton rows={2} />;
   }
   if (!allowed) {

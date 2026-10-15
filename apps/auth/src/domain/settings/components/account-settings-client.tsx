@@ -156,7 +156,9 @@ export function AccountSettingsClient({
   const exportMutation = useMutation(trpc.account.exportData.mutationOptions());
 
   const [sessions, setSessions] = useState<AuthSessionRow[]>([]);
-  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [sessionsLoading, setSessionsLoading] = useState(
+    () => forcedSection === "sessions",
+  );
   const [sessionsError, setSessionsError] = useState<string | null>(null);
   const [revokeToken, setRevokeToken] = useState<string | null>(null);
   const [revokeOthersOpen, setRevokeOthersOpen] = useState(false);
@@ -254,7 +256,7 @@ export function AccountSettingsClient({
     try {
       const payload = await exportMutation.mutateAsync();
       const stamp = new Date().toISOString().slice(0, 10);
-      downloadJson(`collidr-export-${stamp}.json`, payload);
+      downloadJson(`loftlancer-export-${stamp}.json`, payload);
       toast.success("Export downloaded");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not export data");

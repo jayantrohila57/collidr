@@ -1,13 +1,13 @@
 "use client";
 
-import { Button } from "@collidr/ui/button";
+import { Button } from "@loftlancer/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@collidr/ui/card";
+} from "@loftlancer/ui/card";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -71,7 +71,7 @@ export function DeviceCodeForm() {
         <CardHeader>
           <CardTitle>Device sign-in</CardTitle>
           <CardDescription>
-            Enter the code from the Collidr CLI or another device. Only approve
+            Enter the code from the Loftlancer CLI or another device. Only approve
             codes you requested on a device you control.
           </CardDescription>
         </CardHeader>

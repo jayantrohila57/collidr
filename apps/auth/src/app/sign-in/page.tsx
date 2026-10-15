@@ -1,11 +1,11 @@
-import { Button } from "@collidr/ui/button";
+import { Button } from "@loftlancer/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@collidr/ui/card";
+} from "@loftlancer/ui/card";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -35,7 +35,7 @@ export default async function SignInPage({
         <CardHeader>
           <CardTitle>Sign in</CardTitle>
           <CardDescription>
-            GitHub is the sign-in method for Collidr (enterprise SSO is not
+            GitHub is the sign-in method for Loftlancer (enterprise SSO is not
             enabled yet).
           </CardDescription>
         </CardHeader>

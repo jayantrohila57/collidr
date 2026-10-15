@@ -1,6 +1,6 @@
 # MCP server deploy (`apps/mcp`)
 
-Remote MCP (HTTP `POST /api/mcp`, MCP 2026-07-28) on Vercel project **`collidr-mcp`** (`mcp-collidr.vercel.app`). OAuth issuer and consent live on **`apps/auth`**.
+Remote MCP (HTTP `POST /api/mcp`, MCP 2026-07-28) on Vercel project **`loftlancer-mcp`** (`mcp-loftlancer.vercel.app`). OAuth issuer and consent live on **`apps/auth`**.
 
 ## Migrations (before production)
 
@@ -11,15 +11,15 @@ Remote MCP (HTTP `POST /api/mcp`, MCP 2026-07-28) on Vercel project **`collidr-m
    - `packages/db/src/migrations/0012_better_auth_jwks_device_code.sql` (JWT `jwks` + device flow `device_code`; review on a branch — not on prod default until approved)
 3. Do **not** enable MCP in auth until `0009` is applied.
 
-## Vercel: `collidr-mcp`
+## Vercel: `loftlancer-mcp`
 
 | Variable | Required | Notes |
 |----------|----------|--------|
 | `DATABASE_URL` | yes | Same Neon DB as auth/studio |
 | `DATABASE_URL_POOLED` | recommended | Neon pooler |
 | `BETTER_AUTH_SECRET` | yes | Same value as auth app |
-| `BETTER_AUTH_URL` | yes | Auth issuer origin, e.g. `https://collidr.vercel.app/auth` |
-| `MCP_RESOURCE_URL` | yes | Canonical resource, e.g. `https://collidr.vercel.app/api/mcp` |
+| `BETTER_AUTH_URL` | yes | Auth issuer origin, e.g. `https://loftlancer.com/auth` |
+| `MCP_RESOURCE_URL` | yes | Canonical resource, e.g. `https://loftlancer.com/api/mcp` |
 | `NEXT_PUBLIC_AUTH_URL` | yes | Auth origin (build-time link graph) |
 | `NEXT_PUBLIC_MCP_URL` | yes | MCP app origin without path |
 | `MCP_RATE_LIMIT_WINDOW_MS` | optional | Default `60000` |
@@ -28,9 +28,9 @@ Remote MCP (HTTP `POST /api/mcp`, MCP 2026-07-28) on Vercel project **`collidr-m
 | `MCP_RATE_LIMIT_MAX_REVEAL` | optional | Default `30` (`variable.reveal` / export) |
 | `SKIP_ENV_VALIDATION` | build only | `1` for CI/build without secrets |
 
-Shared platform flags (`ORGANIZATIONS_ENABLED`, `ACTIONS_AUDIT_ENABLED`, etc.) match studio when MCP tools call `@collidr/api`.
+Shared platform flags (`ORGANIZATIONS_ENABLED`, `ACTIONS_AUDIT_ENABLED`, etc.) match studio when MCP tools call `@loftlancer/api`.
 
-## Vercel: `collidr-auth` (MCP issuer)
+## Vercel: `loftlancer-auth` (MCP issuer)
 
 | Variable | Required | Notes |
 |----------|----------|--------|

@@ -1,6 +1,6 @@
-import { createContext } from "@collidr/api/context";
-import { appRouter } from "@collidr/api/routers/index";
-import { logSchemaOutOfDateOnce } from "@collidr/db/postgres-errors";
+import { createContext } from "@loftlancer/api/context";
+import { appRouter } from "@loftlancer/api/routers/index";
+import { logSchemaOutOfDateOnce } from "@loftlancer/db/postgres-errors";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";
 

@@ -1,4 +1,4 @@
-import { auth } from "@collidr/auth";
+import { auth } from "@loftlancer/auth";
 import type { NextRequest } from "next/server";
 import { createContextWithAuth } from "./create-context";
 

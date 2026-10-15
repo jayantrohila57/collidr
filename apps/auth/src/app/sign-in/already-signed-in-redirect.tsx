@@ -1,7 +1,7 @@
-import { isCrossOriginReturnTo } from "@collidr/auth";
-import { validateReturnTo } from "@collidr/auth/return-to";
-import { env } from "@collidr/env/server";
-import { resolveAuthPublicUrl } from "@collidr/env/vercel-services";
+import { isCrossOriginReturnTo } from "@loftlancer/auth";
+import { validateReturnTo } from "@loftlancer/auth/return-to";
+import { env } from "@loftlancer/env/server";
+import { resolveAuthPublicUrl } from "@loftlancer/env/vercel-services";
 import { headers } from "next/headers";
 import type { Route } from "next";
 import { redirect } from "next/navigation";

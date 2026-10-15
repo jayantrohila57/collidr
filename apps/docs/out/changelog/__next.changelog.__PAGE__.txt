@@ -9,7 +9,7 @@
 9:I[47612,["$2","$3"],"default"]
 a:"/_next/static/chunks/1dthqwnktfxpx.js"
 b:I[4283,["$2","$3","$a","$7"],"AppNotFoundPage"]
-12:"/_next/static/chunks/00-jngd8parv_.js"
+12:"/_next/static/chunks/0246-pyzguxzi.js"
 13:"MarketingPageShell"
 14:I[52926,["$2","$3","$12","$7"],"$13"]
 15:I[85026,["$2","$3","$12","$7"],"ModeToggle"]
@@ -19,11 +19,11 @@ b:I[4283,["$2","$3","$a","$7"],"AppNotFoundPage"]
 1e:I[78158,["$2","$3"],"$1d"]
 1f:"$Sreact.suspense"
 :HL["/_next/static/chunks/1awv9gv-1b4yg.css","style"]
-:HL["/_next/static/chunks/05kktqexsvw4e.css","style"]
+:HL["/_next/static/chunks/33cozmnrhtb4g.css","style"]
 d:X
 10:X
 10:C
-16:T2d11,# Changelog
+16:T2d14,# Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Production deploy**: [docs/PRODUCTION_DEPLOY.md](./docs/PRODUCTION_DEPLOY.md) (Vercel rate-limit mitigations, flag/redeploy checklist, schema sign-off); Settings → Deploy runbook UI; Turbo `globalEnv` guard test in `@collidr/env`
+- **Production deploy**: [docs/PRODUCTION_DEPLOY.md](./docs/PRODUCTION_DEPLOY.md) (Vercel rate-limit mitigations, flag/redeploy checklist, schema sign-off); Settings → Deploy runbook UI; Turbo `globalEnv` guard test in `@loftlancer/env`
 - **Documentation**: README, AGENTS.md, platform plan (PLAN_PLATFORM_APPS §14 SSO), and doc index aligned with orgs, actions, flags, main-only deploy, and db:reset-seed policy
 
 - **Project Management**: Complete project editing functionality
@@ -298,11 +298,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **PATCH**: Bug fixes (backwards compatible)
 
 Example: `1.2.3` means MAJOR=1, MINOR=2, PATCH=3
-11:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$1","c",{"children":[["$","$L14",null,{"signInHref":"https://collidr-auth.vercel.app/sign-in?return_to=https%3A%2F%2Fcollidr-studio.vercel.app%2Fdashboard","headerActions":["$","$L15",null,{}],"children":["$","div",null,{"className":"mx-auto w-full max-w-6xl px-4 md:px-6 py-12 md:py-16","children":[["$","header",null,{"className":"mx-auto max-w-3xl","children":[["$","h1",null,{"className":"font-semibold text-3xl tracking-tight md:text-4xl","children":"Changelog"}],["$","p",null,{"className":"mt-4 text-lg text-muted-foreground","children":"High-level changes tracked in the monorepo CHANGELOG."}]]}],["$","div",null,{"className":"mx-auto mt-10 max-w-3xl space-y-4 text-muted-foreground [&_a]:text-primary [&_a]:underline [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_h2]:mt-8 [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:text-xl [&_p]:leading-relaxed","children":["$","pre",null,{"className":"not-prose overflow-x-auto whitespace-pre-wrap rounded-lg border bg-muted/20 p-4 font-mono text-sm","children":"$16"}]}]]}]}],["$L17","$L18"],"$L19"]}],"p":"$@1a","v":null,"s":"$d"}}]]
+11:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$1","c",{"children":[["$","$L14",null,{"signInHref":"https://auth.loftlancer.com/sign-in?return_to=https%3A%2F%2Fstudio.loftlancer.com%2Fdashboard","headerActions":["$","$L15",null,{}],"children":["$","div",null,{"className":"mx-auto w-full max-w-6xl px-4 md:px-6 py-12 md:py-16","children":[["$","header",null,{"className":"mx-auto max-w-3xl","children":[["$","h1",null,{"className":"font-semibold text-3xl tracking-tight md:text-4xl","children":"Changelog"}],["$","p",null,{"className":"mt-4 text-lg text-muted-foreground","children":"High-level changes tracked in the monorepo CHANGELOG."}]]}],["$","div",null,{"className":"mx-auto mt-10 max-w-3xl space-y-4 text-muted-foreground [&_a]:text-primary [&_a]:underline [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_h2]:mt-8 [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:text-xl [&_p]:leading-relaxed","children":["$","pre",null,{"className":"not-prose overflow-x-auto whitespace-pre-wrap rounded-lg border bg-muted/20 p-4 font-mono text-sm","children":"$16"}]}]]}]}],["$L17","$L18"],"$L19"]}],"p":"$@1a","v":null,"s":"$d"}}]]
 e:[["children",{"s":"changelog","h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L5",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@f","v":"$10","s":"$d"},"c":"$Q11"}]]
-0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/1awv9gv-1b4yg.css","precedence":"next"}],["$","link","1",{"rel":"stylesheet","href":"/_next/static/chunks/05kktqexsvw4e.css","precedence":"next"}],["$","script","script-0",{"src":"/_next/static/chunks/0d0piz9h8fjp2.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/36n-ntjlt-3za.js","async":true}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"className":"font-sans _9mH_6q_variable YeGXRW_variable","children":["$","body",null,{"className":"flex min-h-screen flex-col antialiased","children":["$","$L4",null,{"search":{"enabled":false},"children":["$","$L5",null,{"parallelRouterKey":"children","error":"$8","errorStyles":[],"errorScripts":[["$","script","script-0",{"src":"/_next/static/chunks/1abd0-z90q928.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/1ck08i5-phln-.js","async":true}]],"template":["$","$L9",null,{}],"notFound":[["$","$Lb",null,{"links":{"homeHref":"/"}}],[]]}]}]}]}]]}],"p":"$@c","v":null,"s":"$d"},"c":"$Qe"},"h":{"r":["$","$1","h",{"children":[null,["$","$L1c",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L1e",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$1f",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Changelog · Collidr Docs"}],["$","meta","1",{"name":"description","content":"Release notes from the repository CHANGELOG."}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@20","v":null,"s":"$d"}},"a":"$@21","u":"$@22","b":"h6gSsv46I-6qmn0WH5QOT"}
+0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/1awv9gv-1b4yg.css","precedence":"next"}],["$","link","1",{"rel":"stylesheet","href":"/_next/static/chunks/33cozmnrhtb4g.css","precedence":"next"}],["$","script","script-0",{"src":"/_next/static/chunks/0d0piz9h8fjp2.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/36n-ntjlt-3za.js","async":true}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"className":"font-sans _9mH_6q_variable YeGXRW_variable","children":["$","body",null,{"className":"flex min-h-screen flex-col antialiased","children":["$","$L4",null,{"search":{"enabled":false},"children":["$","$L5",null,{"parallelRouterKey":"children","error":"$8","errorStyles":[],"errorScripts":[["$","script","script-0",{"src":"/_next/static/chunks/1abd0-z90q928.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/1ck08i5-phln-.js","async":true}]],"template":["$","$L9",null,{}],"notFound":[["$","$Lb",null,{"links":{"homeHref":"/"}}],[]]}]}]}]}]]}],"p":"$@c","v":null,"s":"$d"},"c":"$Qe"},"h":{"r":["$","$1","h",{"children":[null,["$","$L1c",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L1e",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$1f",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Changelog · Loftlancer Docs"}],["$","meta","1",{"name":"description","content":"Release notes from the repository CHANGELOG."}]]}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":"$@20","v":null,"s":"$d"}},"a":"$@21","u":"$@22","b":"XH3dZUM5hEeIKV9I4bdA1"}
 23:I[78158,["$2","$3"],"OutletBoundary"]
-17:["$","script","script-0",{"src":"/_next/static/chunks/00-jngd8parv_.js","async":true}]
+17:["$","script","script-0",{"src":"/_next/static/chunks/0246-pyzguxzi.js","async":true}]
 18:["$","script","script-1",{"src":"/_next/static/chunks/1ck08i5-phln-.js","async":true}]
 19:["$","$L23",null,{"children":["$","$1f",null,{"name":"Next.MetadataOutlet","children":"$@24"}]}]
 d:300

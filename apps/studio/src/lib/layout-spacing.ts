@@ -1,5 +1,5 @@
 /**
- * Re-export canonical layout tokens from `@collidr/ui`.
+ * Re-export canonical layout tokens from `@loftlancer/ui`.
  * @see docs/DESIGN_SYSTEM.md
  */
-export * from "@collidr/ui/layout-spacing";
+export * from "@loftlancer/ui/layout-spacing";

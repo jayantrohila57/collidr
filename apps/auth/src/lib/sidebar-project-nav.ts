@@ -1,4 +1,4 @@
-import type { ProjectOutput } from "@collidr/api/types";
+import type { ProjectOutput } from "@loftlancer/api/types";
 
 /** Slugs that must never appear as sidebar project shortcuts (route collisions). */
 export const SIDEBAR_PROJECT_SLUG_BLOCKLIST = new Set([

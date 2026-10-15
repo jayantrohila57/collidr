@@ -1,3 +1,3 @@
-import { createPlatformAuth } from "@collidr/auth/platform-auth";
+import { createPlatformAuth } from "@loftlancer/auth/platform-auth";
 
 export const platformAuth = createPlatformAuth();

@@ -4,8 +4,8 @@
  *   RESET_CONFIRM=yes KEEP_USER_EMAIL=you@example.com \\
  *     DATABASE_URL=... pnpm db:reset-seed
  */
-import { db } from "@collidr/db";
-import { user } from "@collidr/db/schema/auth";
+import { db } from "@loftlancer/db";
+import { user } from "@loftlancer/db/schema/auth";
 import { eq, sql } from "drizzle-orm";
 
 import { purgeAppData } from "./reset-seed-purge";

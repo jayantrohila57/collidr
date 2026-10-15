@@ -44,7 +44,7 @@ export function GuardedSheet({
       allowNextCloseWithoutPrompt={guard.allowNextCloseWithoutPrompt}
     >
       <Sheet
-        open={open}
+        open={Boolean(open) && !guard.discardDialogOpen}
         onOpenChange={(next, eventDetails) =>
           guard.handleOpenChange(next, (applied) => {
             onOpenChange?.(applied, eventDetails);

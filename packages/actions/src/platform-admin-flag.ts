@@ -2,7 +2,7 @@ type PlatformAdminReader = () => boolean;
 
 let readPlatformAdmin: PlatformAdminReader = () => false;
 
-/** Server-only: `@collidr/api` registers AsyncLocalStorage reader at load time. */
+/** Server-only: `@loftlancer/api` registers AsyncLocalStorage reader at load time. */
 export function registerPlatformAdminReader(reader: PlatformAdminReader): void {
   readPlatformAdmin = reader;
 }

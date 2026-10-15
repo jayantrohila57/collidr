@@ -1,11 +1,11 @@
-import { Button } from "@collidr/ui/button";
+import { Button } from "@loftlancer/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@collidr/ui/card";
+} from "@loftlancer/ui/card";
 import Link from "next/link";
 import { ConsentScreen } from "@/components/consent-screen";
 import { authAppReturnTo } from "@/lib/auth-return-to";

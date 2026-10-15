@@ -3,13 +3,13 @@ import {
   activeMemberWhere,
   activeUserWhere,
   db,
-} from "@collidr/db";
-import { user } from "@collidr/db/schema/auth";
+} from "@loftlancer/db";
+import { user } from "@loftlancer/db/schema/auth";
 import {
   invitation,
   member,
   organization,
-} from "@collidr/db/schema/organization";
+} from "@loftlancer/db/schema/organization";
 import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { isNotificationsEnabled } from "../feature";
 import { notify } from "../notify";

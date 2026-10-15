@@ -1,6 +1,6 @@
-import { createContextWithAuth } from "@collidr/api/create-context";
-import { consoleAppRouter } from "@collidr/api/routers/console";
-import { logSchemaOutOfDateOnce } from "@collidr/db/postgres-errors";
+import { createContextWithAuth } from "@loftlancer/api/create-context";
+import { consoleAppRouter } from "@loftlancer/api/routers/console";
+import { logSchemaOutOfDateOnce } from "@loftlancer/db/postgres-errors";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";
 import { siblingAuth } from "@/lib/sibling-auth";

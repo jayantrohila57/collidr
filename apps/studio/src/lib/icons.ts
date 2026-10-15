@@ -1,4 +1,4 @@
-import { Github } from "@collidr/ui/github-icon";
+import { Github } from "@loftlancer/ui/github-icon";
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,

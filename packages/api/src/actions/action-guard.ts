@@ -1,4 +1,4 @@
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 import { TRPCError } from "@trpc/server";
 import { t } from "../index";
 import type { RequireActionContext } from "./require-action";

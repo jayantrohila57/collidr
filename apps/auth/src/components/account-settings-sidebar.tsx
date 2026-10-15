@@ -1,7 +1,7 @@
 "use client";
 
-import { accountSettingsNav } from "@collidr/actions/nav";
-import { GithubIcon } from "@collidr/ui/github-icon";
+import { accountSettingsNav } from "@loftlancer/actions/nav";
+import { GithubIcon } from "@loftlancer/ui/github-icon";
 import type { LucideIcon } from "lucide-react";
 import {
   ActivityIcon,
@@ -79,12 +79,9 @@ export function AccountSettingsSidebar({
   };
 
   return (
-    <Sidebar collapsible="none" variant="inset" {...props}>
-      <SidebarHeader className="shrink-0 border-sidebar-border border-b px-2 py-3">
-        <p className="px-2 font-medium text-sm">Account</p>
-        <p className="px-2 text-muted-foreground text-xs">
-          Profile, security, and preferences
-        </p>
+    <Sidebar collapsible="icon" variant="inset" {...props}>
+      <SidebarHeader className="shrink-0">
+        <SidebarGroupLabel className="px-2">Account</SidebarGroupLabel>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

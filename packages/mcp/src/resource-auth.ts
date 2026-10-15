@@ -1,5 +1,5 @@
 import { createMcpProtectedRequestHandler } from "@better-auth/mcp";
-import { resolveAuthServiceUrl } from "@collidr/env/vercel-services";
+import { resolveAuthServiceUrl } from "@loftlancer/env/vercel-services";
 import type { JWTPayload } from "jose";
 
 import {
@@ -25,7 +25,7 @@ export function resolveMcpResourceAuthConfig(): McpResourceAuthConfig {
   const audience = (
     process.env.MCP_RESOURCE_URL ??
     process.env.NEXT_PUBLIC_MCP_URL ??
-    "https://collidr.vercel.app"
+    "https://loftlancer.com"
   ).replace(/\/$/, "");
   const resource = audience.endsWith("/api/mcp")
     ? audience

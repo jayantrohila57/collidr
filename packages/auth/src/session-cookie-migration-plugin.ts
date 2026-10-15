@@ -3,7 +3,7 @@ import { createAuthMiddleware } from "better-auth/api";
 import { setRequestCookie, setSessionCookie } from "better-auth/cookies";
 import {
   findLegacySessionCookie,
-  getCollidrSessionToken,
+  getLoftlancerSessionToken,
   type LegacySessionCookieHit,
   legacySessionCookieNamesToExpire,
 } from "./session-cookies";
@@ -21,12 +21,12 @@ function readMigration(ctx: {
 }
 
 /**
- * Accepts legacy Better Auth session cookies and re-issues `collidr.*` cookies
+ * Accepts legacy Better Auth session cookies and re-issues `loftlancer.*` cookies
  * on the next successful session response.
  */
 export function sessionCookieMigrationPlugin(): BetterAuthPlugin {
   return {
-    id: "collidr-session-cookie-migration",
+    id: "loftlancer-session-cookie-migration",
     hooks: {
       before: [
         {
@@ -36,7 +36,7 @@ export function sessionCookieMigrationPlugin(): BetterAuthPlugin {
             if (!sourceHeaders) {
               return;
             }
-            if (getCollidrSessionToken(sourceHeaders)) {
+            if (getLoftlancerSessionToken(sourceHeaders)) {
               return;
             }
             const legacy = findLegacySessionCookie(sourceHeaders);

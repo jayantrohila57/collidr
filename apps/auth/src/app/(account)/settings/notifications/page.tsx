@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { SettingsSectionShell } from "@/app/(account)/settings/_components/settings-section-shell";
-import { AccountSettingsSkeleton } from "@/domain/settings/components/account-settings-skeleton";
 import { NotificationPreferencesPanel } from "@/domain/settings/components/notification-preferences-panel";
+import { NotificationPreferencesSkeleton } from "@/domain/settings/components/notification-preferences-skeleton";
 import { guardPageAction } from "@/lib/page-guards";
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export default async function NotificationsSettingsPage() {
       title="Notifications"
       description="Where to review in-app alerts."
     >
-      <Suspense fallback={<AccountSettingsSkeleton />}>
+      <Suspense fallback={<NotificationPreferencesSkeleton />}>
         <NotificationPreferencesPanel />
       </Suspense>
     </SettingsSectionShell>

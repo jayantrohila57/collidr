@@ -16,10 +16,10 @@
 | **`apps/studio`** | **Main product** — rename/migrate from `apps/web`: orgs, projects, environments, variables, org hub, notifications, onboarding. **No** account settings (link out to account). | coss ui | Session cookie (SSO) |
 | **`apps/console`** | **Platform admin** (`user.role = admin` + Better Auth admin plugin): users, orgs, projects, sessions, global audit, impersonation/ban, MCP OAuth clients/tokens, feature flags, health. | coss ui | Session cookie (SSO) + **Admin role** + **email allowlist** (Decision 11) |
 | **`apps/mcp`** | **API-only** remote MCP server (stateless HTTP `POST`, MCP 2026-07-28). | none | OAuth access token (+ optional DPoP) |
-| **`apps/docs`** | Product + MCP documentation (**Fumadocs** + built-in search, Decision 9) with **our** chrome (`@collidr/ui`). **Fully public** (Decision 10). | coss ui shell + Fumadocs primitives | Public read; optional “edit on GitHub”; optional sign-in link to studio |
+| **`apps/docs`** | Product + MCP documentation (**Fumadocs** + built-in search, Decision 9) with **our** chrome (`@loftlancer/ui`). **Fully public** (Decision 10). | coss ui shell + Fumadocs primitives | Public read; optional “edit on GitHub”; optional sign-in link to studio |
 | **`apps/www`** | **Marketing landing** at apex / `www` (Decision 4) — product positioning, CTAs to auth/studio; not the signed-in app. | coss ui | Public; links to auth `sign-in` with `return_to` |
 
-**Invariant:** One Postgres database, one `@collidr/auth` server config instantiated **only** on `apps/auth` (other apps use `@collidr/auth-client` + session validation / tRPC context).
+**Invariant:** One Postgres database, one `@loftlancer/auth` server config instantiated **only** on `apps/auth` (other apps use `@loftlancer/auth-client` + session validation / tRPC context).
 
 ---
 
@@ -35,17 +35,17 @@ Until custom DNS is approved, **every app** is deployed on its own hostname unde
 
 | App | Planned production hostname | `BETTER_AUTH_URL` (auth app only) |
 |-----|-----------------------------|-----------------------------------|
-| **`apps/auth`** | `https://collidr.vercel.app/auth` | **self** |
-| **`apps/studio`** | `https://collidr.vercel.app/studio` | `https://collidr.vercel.app/auth` |
-| **`apps/account`** | `https://collidr.vercel.app/account` | `https://collidr.vercel.app/auth` |
-| **`apps/console`** | `https://collidr.vercel.app/console` | `https://collidr.vercel.app/auth` |
-| **`apps/mcp`** | `https://collidr.vercel.app` | issuer/JWKS → auth |
-| **`apps/docs`** | `https://collidr.vercel.app/docs` | auth URL (nav only) |
-| **`apps/www`** | `https://collidr.vercel.app` | links to auth |
+| **`apps/auth`** | `https://loftlancer.com/auth` | **self** |
+| **`apps/studio`** | `https://loftlancer.com/studio` | `https://loftlancer.com/auth` |
+| **`apps/account`** | `https://loftlancer.com/account` | `https://loftlancer.com/auth` |
+| **`apps/console`** | `https://loftlancer.com/console` | `https://loftlancer.com/auth` |
+| **`apps/mcp`** | `https://loftlancer.com` | issuer/JWKS → auth |
+| **`apps/docs`** | `https://loftlancer.com/docs` | auth URL (nav only) |
+| **`apps/www`** | `https://loftlancer.com` | links to auth |
 
-**Legacy (today):** `https://collidr.vercel.app/studio` (`apps/web`) → at P3 cutover, alias or redirect to **`studio-collidr.vercel.app`** (§8.3).
+**Legacy (today):** `https://loftlancer.com/studio` (`apps/web`) → at P3 cutover, alias or redirect to **`studio-collidr.vercel.app`** (§8.3).
 
-**GitHub OAuth callback (phase 1):** `https://collidr.vercel.app/auth/api/auth/callback/github` after auth app cutover.
+**GitHub OAuth callback (phase 1):** `https://loftlancer.com/auth/api/auth/callback/github` after auth app cutover.
 
 #### Public Suffix List (why cookies cannot span apps)
 
@@ -64,7 +64,7 @@ Implement URLs and cookie policy so **P4** is **configuration**, not a rewrite o
 
 | Concern | Phase 1 (`vercel.app`) | After P4 (custom apex) |
 |---------|------------------------|-------------------------|
-| Public URLs | `@collidr/env` — `BETTER_AUTH_URL`, `NEXT_PUBLIC_*_URL` per app (§2.1 hostnames) | Same env keys; swap values to `https://auth.collidr.com`, etc. |
+| Public URLs | `@loftlancer/env` — `BETTER_AUTH_URL`, `NEXT_PUBLIC_*_URL` per app (§2.1 hostnames) | Same env keys; swap values to `https://auth.collidr.com`, etc. |
 | `trustedOrigins` / `allowedReturnOrigins` | Explicit list of §2.0 hostnames (Decision 12) | Replace list with §2.1 production origins |
 | Session cookies | Per-app origin only; **no** `crossSubDomainCookies` | Optionally enable `crossSubDomainCookies` with `domain: ".collidr.com"` (Decision 2) after security review |
 | SSO UX | Redirect + silent re-auth per app | May reduce round-trips if shared cookie enabled |
@@ -130,14 +130,14 @@ flowchart TB
   end
 
   subgraph pkgs [Shared packages]
-    AUTHPKG["@collidr/auth"]
-    AUTHCLI["@collidr/auth-client"]
-    UI["@collidr/ui"]
-    PERM["@collidr/permissions"]
-    API["@collidr/api"]
-    DB["@collidr/db"]
-    ENV["@collidr/env"]
-    CFG["@collidr/config"]
+    AUTHPKG["@loftlancer/auth"]
+    AUTHCLI["@loftlancer/auth-client"]
+    UI["@loftlancer/ui"]
+    PERM["@loftlancer/permissions"]
+    API["@loftlancer/api"]
+    DB["@loftlancer/db"]
+    ENV["@loftlancer/env"]
+    CFG["@loftlancer/config"]
   end
 
   PG[(PostgreSQL)]
@@ -184,7 +184,7 @@ Implement **`apps/auth`** strictly from Better Auth **≥ 1.7.x** docs (**Decisi
 |---------|-----|----------------------|
 | Core server + database | [Database](https://www.better-auth.com/docs/concepts/database) | Drizzle adapter, shared schema |
 | Sessions + cookies | [Sessions](https://www.better-auth.com/docs/concepts/session-management), [Cookies](https://www.better-auth.com/docs/concepts/cookies) | `crossSubDomainCookies`, `trustedOrigins` |
-| Browser client | [Client](https://www.better-auth.com/docs/concepts/client) | Re-exported from `@collidr/auth-client` |
+| Browser client | [Client](https://www.better-auth.com/docs/concepts/client) | Re-exported from `@loftlancer/auth-client` |
 | OAuth for MCP | [MCP plugin](https://www.better-auth.com/docs/plugins/mcp) | `mcp({ loginPage, consentPage, resource })` — **is** the OAuth 2.1 provider; do **not** add separate `oauthProvider()` |
 | OAuth 2.1 details | [OAuth 2.1 Provider](https://www.better-auth.com/docs/plugins/oauth-provider) | Schema: `oauthClient`, tokens, consent |
 | MCP client identity | [CIMD](https://www.better-auth.com/docs/plugins/cimd), [MCP DCR](https://www.better-auth.com/docs/plugins/mcp#optional-dcr-fallback) | **Both** enabled (Decision 7): `cimd({ metadataProfile: "mcp-2026-07-28" })` + dynamic client registration where clients support it |
@@ -195,7 +195,7 @@ Implement **`apps/auth`** strictly from Better Auth **≥ 1.7.x** docs (**Decisi
 | Enterprise SSO | [SSO plugin](https://www.better-auth.com/docs/plugins/sso) | **Deferred** (Decision 17) — post platform split / MCP; v1 auth = GitHub OAuth + device flow only |
 | Legacy | Avoid deprecated in-repo `oidcProvider` / old `mcp` plugin — use **`@better-auth/mcp`** per [MCP plugin](https://www.better-auth.com/docs/plugins/mcp) |
 
-**MCP resource URL:** phase 1 `mcp({ resource: "https://collidr.vercel.app/api/mcp" })`; apex `https://mcp.collidr.com/api/mcp` (§2.1). `apps/mcp` protects route with `requireMcpAuth` / `createMcpProtectedRequestHandler` ([MCP plugin — Protecting an MCP Route](https://www.better-auth.com/docs/plugins/mcp#protecting-an-mcp-route)).
+**MCP resource URL:** phase 1 `mcp({ resource: "https://loftlancer.com/api/mcp" })`; apex `https://mcp.collidr.com/api/mcp` (§2.1). `apps/mcp` protects route with `requireMcpAuth` / `createMcpProtectedRequestHandler` ([MCP plugin — Protecting an MCP Route](https://www.better-auth.com/docs/plugins/mcp#protecting-an-mcp-route)).
 
 **Vercel MCP hosting (Decision 15):** [`mcp-handler`](https://github.com/vercel-labs/mcp-handler) on `apps/mcp` per [Deploy MCP servers](https://vercel.com/docs/mcp/deploy-mcp-servers-to-vercel); auth via Better Auth **`requireMcpAuth`** / `createMcpProtectedRequestHandler` — not raw `@modelcontextprotocol/server` HTTP alone.
 
@@ -344,7 +344,7 @@ Each app’s tRPC context / middleware:
 
 - Keep: `/dashboard/**` orgs, projects, envs, variables, notifications, onboarding.
 - Remove: `/sign-in` (redirect to auth), `/dashboard/settings/*` (link to account app).
-- Remove public marketing `(public)/(site)` — lives on **`apps/www`** (Decision 4, [#103](https://github.com/jayantrohila57/collidr/issues/103)).
+- Remove public marketing `(public)/(site)` — lives on **`apps/www`** (Decision 4, [#103](https://github.com/jayantrohila57/loftlancer/issues/103)).
 - tRPC: full `appRouter` minus account-only procedures (or thin re-export).
 - Middleware: same pattern as today (`apps/web/src/middleware.ts`) with auth URL for redirects.
 
@@ -353,19 +353,19 @@ Each app’s tRPC context / middleware:
 - Platform `platform.*` actions, admin plugin, MCP OAuth admin UI.
 - Sign-in: auth with `return_to=console`; gate requires **platform Admin** (`isPlatformAdmin()`) **and** session user email ∈ **`CONSOLE_ALLOWED_EMAILS`** (Decision 11).
 - **Env:** `CONSOLE_ALLOWED_EMAILS` — comma-separated emails allowed to use console in production (operator-set in Vercel; not committed). Initial production value: **`jrohila55@gmail.com`**. No **IP** allowlist or network restriction for console v1.
-- Validate in `@collidr/env` when `apps/console` ships; non-allowlisted emails get **403** before console routes/tRPC even if they have Admin role elsewhere.
+- Validate in `@loftlancer/env` when `apps/console` ships; non-allowlisted emails get **403** before console routes/tRPC even if they have Admin role elsewhere.
 
 ### 6.5 `apps/mcp`
 
 - API-only; **transport:** Vercel [`mcp-handler`](https://github.com/vercel-labs/mcp-handler) adapter (Decision 15) exposing `POST /api/mcp` on Vercel.
 - **Auth:** Better Auth MCP plugin — `requireMcpAuth` + tool handlers; issuer/JWKS from `apps/auth`; no session cookies.
 - Tool inventory: see **Appendix A** (58 tools, scopes, canonical `requireAction`).
-- **Rate limits:** token-bucket state in Postgres (`rate_limit_bucket` via `@collidr/db`) — Decision 14; no Vercel KV or Redis for MCP v1.
+- **Rate limits:** token-bucket state in Postgres (`rate_limit_bucket` via `@loftlancer/db`) — Decision 14; no Vercel KV or Redis for MCP v1.
 
 ### 6.6 `apps/docs` (Fumadocs + our UI)
 
 - **Content:** Fumadocs MDX (`fumadocs-mdx`, `fumadocs-core`) for docs structure, **built-in search** (Decision 9), sidebar tree.
-- **Chrome:** `@collidr/ui` layout — app shell, header, footer, typography tokens from `apps/studio` / `DESIGN_SYSTEM.md`; **do not** ship Fumadocs default UI theme as-is.
+- **Chrome:** `@loftlancer/ui` layout — app shell, header, footer, typography tokens from `apps/studio` / `DESIGN_SYSTEM.md`; **do not** ship Fumadocs default UI theme as-is.
 - **Approach:** Fumadocs headless patterns + custom `docs/layout.tsx` wrapping coss `Sidebar`, `Breadcrumb`, `Button`; map Fumadocs `pageTree` to our nav components.
 - Sections: product guides, API/tRPC overview, MCP tool reference (generated from registry), OAuth scopes, console (admin-only note).
 - **Access:** **All documentation is public** — no gated or enterprise-only sections (Decision 10). Optional header link to product sign-in is cosmetic only.
@@ -377,16 +377,16 @@ Each app’s tRPC context / middleware:
 
 | Package | Status | Contents |
 |---------|--------|----------|
-| **`@collidr/config`** | exists | `tsconfig`, shared ESLint — extend per-app `next.config` helpers |
-| **`@collidr/env`** | exists | Per-app Zod modules: `auth.ts`, `studio.ts`, `account.ts`, … + shared `server.ts` |
-| **`@collidr/db`** | exists | Drizzle schema + migrations |
-| **`@collidr/actions`** | exists | Canonical action registry |
-| **`@collidr/permissions`** | **new** | `requireAction`, `actionGuard`, MCP scope maps (from `packages/api/src/actions`) |
-| **`@collidr/auth`** | extend | `createAuth()` — **only imported by `apps/auth`** |
-| **`@collidr/auth-client`** | **new** | `createAuthClient({ baseURL })`, React hooks, org client plugin |
-| **`@collidr/api`** | extend | Shared `appRouter` / sub-routers + `services/*` for tRPC and MCP; each app mounts a **subset** at `/api/trpc` (Decision 16) |
-| **`@collidr/ui`** | **new** | coss components, toast, icons, patterns (`PageHeader`, data-table) from `apps/web`; **impersonation banner** (Decision 19) |
-| **`@collidr/docs-config`** | optional | Shared MDX components for docs + studio help links |
+| **`@loftlancer/config`** | exists | `tsconfig`, shared ESLint — extend per-app `next.config` helpers |
+| **`@loftlancer/env`** | exists | Per-app Zod modules: `auth.ts`, `studio.ts`, `account.ts`, … + shared `server.ts` |
+| **`@loftlancer/db`** | exists | Drizzle schema + migrations |
+| **`@loftlancer/actions`** | exists | Canonical action registry |
+| **`@loftlancer/permissions`** | **new** | `requireAction`, `actionGuard`, MCP scope maps (from `packages/api/src/actions`) |
+| **`@loftlancer/auth`** | extend | `createAuth()` — **only imported by `apps/auth`** |
+| **`@loftlancer/auth-client`** | **new** | `createAuthClient({ baseURL })`, React hooks, org client plugin |
+| **`@loftlancer/api`** | extend | Shared `appRouter` / sub-routers + `services/*` for tRPC and MCP; each app mounts a **subset** at `/api/trpc` (Decision 16) |
+| **`@loftlancer/ui`** | **new** | coss components, toast, icons, patterns (`PageHeader`, data-table) from `apps/web`; **impersonation banner** (Decision 19) |
+| **`@loftlancer/docs-config`** | optional | Shared MDX components for docs + studio help links |
 
 **Turbo:** `globalEnv` adds `NEXT_PUBLIC_AUTH_URL`, `NEXT_PUBLIC_STUDIO_URL`, etc.
 
@@ -395,7 +395,7 @@ Each app’s tRPC context / middleware:
 | Pattern | Detail |
 |---------|--------|
 | **Mount** | Each UI app (`studio`, `account`, `console`) exposes its own **`/api/trpc`** Next.js route. |
-| **Router** | Import composed routers from **`@collidr/api`** — e.g. studio mounts full product router; account mounts `account` + self-scoped audit; console mounts operator procedures only. |
+| **Router** | Import composed routers from **`@loftlancer/api`** — e.g. studio mounts full product router; account mounts `account` + self-scoped audit; console mounts operator procedures only. |
 | **Excluded** | **No** dedicated `apps/gateway` or shared API-only Vercel project for tRPC in v1. |
 | **MCP** | Same service layer as tRPC; MCP does not proxy through another app’s `/api/trpc`. |
 
@@ -480,7 +480,7 @@ Target rollback decision time: **< 1 hour** from go/no-go.
 | `collidr-studio` | `apps/studio` | `studio-collidr.vercel.app` | `app.collidr.com` |
 | `collidr-account` | `apps/account` | `account-collidr.vercel.app` | `account.collidr.com` |
 | `collidr-console` | `apps/console` | `console-collidr.vercel.app` | `console.collidr.com` |
-| `collidr-mcp` | `apps/mcp` | `mcp-collidr.vercel.app` | `mcp.collidr.com` |
+| `loftlancer-mcp` | `apps/mcp` | `mcp-collidr.vercel.app` | `mcp.collidr.com` |
 | `collidr-docs` | `apps/docs` | `docs-collidr.vercel.app` | `docs.collidr.com` |
 | `collidr-www` | `apps/www` | `www-collidr.vercel.app` | `collidr.com` / `www` (D4) |
 
@@ -519,16 +519,16 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 
 | Phase | Issue | Deliverable | Acceptance |
 |-------|-------|-------------|------------|
-| **P0** | [#94](https://github.com/jayantrohila57/collidr/issues/94) | Plan baseline | §14 decisions 1–20 resolved; §15 empty |
-| **P1** | [#95](https://github.com/jayantrohila57/collidr/issues/95) | Better Auth 1.7 ([#93](https://github.com/jayantrohila57/collidr/issues/93)), `@collidr/ui`, `@collidr/auth-client` | D20; `apps/web` auth passes on 1.7 |
-| **P2** | [#96](https://github.com/jayantrohila57/collidr/issues/96) | `apps/auth`, `apps/account`, `apps/studio` on staging / Neon | §8.2 complete ([#89](https://github.com/jayantrohila57/collidr/issues/89)) |
-| **P3** | [#97](https://github.com/jayantrohila57/collidr/issues/97) | Big-bang prod cutover (D5–D6) | §8.3 C7 smoke tests |
-| **P4** | [#98](https://github.com/jayantrohila57/collidr/issues/98) | Custom apex DNS (D2) | §2.1 + `apps/www` apex ([#103](https://github.com/jayantrohila57/collidr/issues/103)) |
-| **P5** | [#99](https://github.com/jayantrohila57/collidr/issues/99) | `apps/docs` MVP (D9–D10) | Fumadocs + public docs |
-| **P6** | [#100](https://github.com/jayantrohila57/collidr/issues/100) | `apps/mcp` OAuth E2E (D7–D8, D14–D15) | MCP client auth ([#87](https://github.com/jayantrohila57/collidr/issues/87)) |
-| **P7** | [#101](https://github.com/jayantrohila57/collidr/issues/101) | `apps/console` (D11, D19) | Admin + email allowlist ([#88](https://github.com/jayantrohila57/collidr/issues/88)) |
-| **P8** | [#102](https://github.com/jayantrohila57/collidr/issues/102) | MCP tool parity | Appendix A inventory |
-| **www** | [#103](https://github.com/jayantrohila57/collidr/issues/103) | `apps/www` marketing (D4) | Apex landing; CTAs → auth |
+| **P0** | [#94](https://github.com/jayantrohila57/loftlancer/issues/94) | Plan baseline | §14 decisions 1–20 resolved; §15 empty |
+| **P1** | [#95](https://github.com/jayantrohila57/loftlancer/issues/95) | Better Auth 1.7 ([#93](https://github.com/jayantrohila57/loftlancer/issues/93)), `@loftlancer/ui`, `@loftlancer/auth-client` | D20; `apps/web` auth passes on 1.7 |
+| **P2** | [#96](https://github.com/jayantrohila57/loftlancer/issues/96) | `apps/auth`, `apps/account`, `apps/studio` on staging / Neon | §8.2 complete ([#89](https://github.com/jayantrohila57/loftlancer/issues/89)) |
+| **P3** | [#97](https://github.com/jayantrohila57/loftlancer/issues/97) | Big-bang prod cutover (D5–D6) | §8.3 C7 smoke tests |
+| **P4** | [#98](https://github.com/jayantrohila57/loftlancer/issues/98) | Custom apex DNS (D2) | §2.1 + `apps/www` apex ([#103](https://github.com/jayantrohila57/loftlancer/issues/103)) |
+| **P5** | [#99](https://github.com/jayantrohila57/loftlancer/issues/99) | `apps/docs` MVP (D9–D10) | Fumadocs + public docs |
+| **P6** | [#100](https://github.com/jayantrohila57/loftlancer/issues/100) | `apps/mcp` OAuth E2E (D7–D8, D14–D15) | MCP client auth ([#87](https://github.com/jayantrohila57/loftlancer/issues/87)) |
+| **P7** | [#101](https://github.com/jayantrohila57/loftlancer/issues/101) | `apps/console` (D11, D19) | Admin + email allowlist ([#88](https://github.com/jayantrohila57/loftlancer/issues/88)) |
+| **P8** | [#102](https://github.com/jayantrohila57/loftlancer/issues/102) | MCP tool parity | Appendix A inventory |
+| **www** | [#103](https://github.com/jayantrohila57/loftlancer/issues/103) | `apps/www` marketing (D4) | Apex landing; CTAs → auth |
 
 ---
 
@@ -539,7 +539,7 @@ Unchanged intent from prior plan — single bundle **`0008_platform_apps.sql`**:
 | OAuth callback misconfiguration during auth split | Checklist; staging callback first |
 | Open redirect via `return_to` | Strict allowlist in `packages/auth` |
 | Safari ITP | Shared parent domain or rewrites ([Cookies — Safari](https://www.better-auth.com/docs/concepts/cookies#safari-itp-and-cross-domain-setups)) |
-| Six Vercel projects env drift | `@collidr/env` + deployment matrix doc |
+| Six Vercel projects env drift | `@loftlancer/env` + deployment matrix doc |
 | Fumadocs + coss integration cost | Headless Fumadocs; timebox P6 |
 | Big-bang cutover failure | §8.2 checklist + §8.4 rollback; Neon backup before window |
 | Duplicate code during prep | Feature freeze on web until Decision 5 cutover |
@@ -564,14 +564,14 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 | 10 | All docs public |
 | 11 | Console `CONSOLE_ALLOWED_EMAILS` + Admin (no IP gate) |
 | 12 | Prod-only deploys; no preview `trustedOrigins` wildcard |
-| 13 | `project.unarchive` action ([#92](https://github.com/jayantrohila57/collidr/issues/92)) |
+| 13 | `project.unarchive` action ([#92](https://github.com/jayantrohila57/loftlancer/issues/92)) |
 | 14 | MCP rate limits in Postgres |
 | 15 | MCP transport: `mcp-handler` + Better Auth MCP auth |
-| 16 | Per-app `/api/trpc`, shared `@collidr/api` |
+| 16 | Per-app `/api/trpc`, shared `@loftlancer/api` |
 | 17 | Enterprise SSO plugin deferred |
 | 18 | Transactional email links via auth app |
 | 19 | Impersonation banner in all UI apps |
-| 20 | Better Auth 1.7 before `apps/auth` ([#93](https://github.com/jayantrohila57/collidr/issues/93)) |
+| 20 | Better Auth 1.7 before `apps/auth` ([#93](https://github.com/jayantrohila57/loftlancer/issues/93)) |
 
 ### Decision 1 — Hosting & SSO (accepted)
 
@@ -612,8 +612,8 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 | **App** | Dedicated **`apps/www`** — marketing landing at **apex** / **`www`** (`collidr.com`, `www.collidr.com` when P4 DNS exists). |
 | **Excluded** | Studio product UI, Fumadocs docs site, and signed-in dashboard are **not** the marketing homepage. |
 | **Content** | Public marketing pages (hero, features, pricing if any, CTAs); primary CTA → auth `sign-in` with `return_to` studio. |
-| **Chrome** | `@collidr/ui` / coss ui consistent with Decision 9–10 visual language. |
-| **Phase 1** | `https://collidr.vercel.app` (§2.0); alias apex to www project at P4. |
+| **Chrome** | `@loftlancer/ui` / coss ui consistent with Decision 9–10 visual language. |
+| **Phase 1** | `https://loftlancer.com` (§2.0); alias apex to www project at P4. |
 
 **Implication:** Remove marketing `(public)/(site)` from studio during split; track build-out in a dedicated feature issue.
 
@@ -668,7 +668,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 | **Search** | Use **Fumadocs built-in search** (index from `fumadocs-core` / MDX pipeline). |
 | **Excluded** | No Algolia, no external search SaaS for `apps/docs` v1. |
 
-**Implication:** Docs MVP (P5) includes local/search API shipped with Fumadocs, styled to match `@collidr/ui` chrome.
+**Implication:** Docs MVP (P5) includes local/search API shipped with Fumadocs, styled to match `@loftlancer/ui` chrome.
 
 ### Decision 10 — Documentation access (accepted)
 
@@ -705,9 +705,9 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 
 | Topic | Choice |
 |-------|--------|
-| **Registry** | Add canonical action **`project.unarchive`** to `@collidr/actions` (paired with existing archive semantics). |
+| **Registry** | Add canonical action **`project.unarchive`** to `@loftlancer/actions` (paired with existing archive semantics). |
 | **Scope** | Wire through `requireAction`, `audit_event` when `ACTIONS_AUDIT_ENABLED`, and MCP tool map when MCP ships; align `projects.unarchive` tRPC with the registry. |
-| **Implementation** | Tracked in GitHub **[#92](https://github.com/jayantrohila57/collidr/issues/92)** — `[Feature] Add project.unarchive action`. |
+| **Implementation** | Tracked in GitHub **[#92](https://github.com/jayantrohila57/loftlancer/issues/92)** — `[Feature] Add project.unarchive action`. |
 
 **Implication:** Unarchive is a first-class permissioned operation, not an ad-hoc mutation bypassing the action matrix.
 
@@ -729,7 +729,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 | **Transport** | **[`mcp-handler`](https://github.com/vercel-labs/mcp-handler)** (Vercel MCP adapter) for HTTP MCP on `apps/mcp` / Vercel serverless or Node runtime. |
 | **Auth** | **[Better Auth MCP](https://www.better-auth.com/docs/plugins/mcp)** — `requireMcpAuth` / protected route handler; OAuth tokens from `apps/auth` (Decisions 7–8). |
 | **Excluded** | Do not build a custom `@modelcontextprotocol/server` transport layer as the primary path; do not use a non-Vercel MCP host for v1 production. |
-| **Tools** | Register tools in `mcp-handler` handlers that call shared `@collidr/api` services + `requireAction` (same semantics as tRPC). |
+| **Tools** | Register tools in `mcp-handler` handlers that call shared `@loftlancer/api` services + `requireAction` (same semantics as tRPC). |
 
 **Implication:** `apps/mcp` is a thin Vercel MCP surface; business logic stays in packages.
 
@@ -738,7 +738,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 | Topic | Choice |
 |-------|--------|
 | **Topology** | **Per-app `/api/trpc`** on each Next.js deployable (`apps/studio`, `apps/account`, `apps/console`). |
-| **Shared router** | All procedures live in **`@collidr/api`** (`packages/api`); apps import a composed router subset and mount the standard Next.js tRPC handler — no duplicated business logic. |
+| **Shared router** | All procedures live in **`@loftlancer/api`** (`packages/api`); apps import a composed router subset and mount the standard Next.js tRPC handler — no duplicated business logic. |
 | **Excluded** | No standalone **API gateway** app, no central `api.collidr.com` tRPC proxy for v1. |
 | **Auth app** | `apps/auth` does **not** mount product tRPC — auth routes only (`/api/auth/*`). |
 
@@ -759,7 +759,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 
 | Topic | Choice |
 |-------|--------|
-| **Link host** | All transactional auth links (**email verification**, **password reset** if enabled, **organization invitations**, and similar Better Auth / org emails) use **`BETTER_AUTH_URL`** on **`apps/auth`** (e.g. `https://collidr.vercel.app/auth/...`). |
+| **Link host** | All transactional auth links (**email verification**, **password reset** if enabled, **organization invitations**, and similar Better Auth / org emails) use **`BETTER_AUTH_URL`** on **`apps/auth`** (e.g. `https://loftlancer.com/auth/...`). |
 | **Flow** | Auth app completes the token/callback step, then **redirects** to an allowlisted destination (`return_to` / configured default) on studio, account, or onboarding — links do **not** deep-link directly to studio/account hosts for verify/reset/invite. |
 | **Excluded** | Do not embed `account.*` or `app.*` origins as the primary click target in email templates for auth-sensitive actions. |
 | **Config** | `packages/auth` + email templates reference auth origin only; sibling apps receive users only after redirect validation (§5.4). |
@@ -772,7 +772,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 |-------|--------|
 | **Visibility** | When Better Auth **admin impersonation** is active, show a persistent **impersonation banner** in **every UI app** — `apps/auth` (consent/sign-in shells), `apps/studio`, `apps/account`, `apps/console`, and `apps/docs` (when a session exists). |
 | **Excluded** | `apps/mcp` is API-only (no banner); banner is not console-only. |
-| **Implementation** | Shared component in **`@collidr/ui`** (or equivalent) driven by session/admin plugin state; include **exit impersonation** action wired to auth API. |
+| **Implementation** | Shared component in **`@loftlancer/ui`** (or equivalent) driven by session/admin plugin state; include **exit impersonation** action wired to auth API. |
 | **UX** | High-contrast, non-dismissible while impersonating; must not be hidden behind collapsible chrome. |
 
 **Implication:** Operators cannot impersonate from console and lose context on navigation to studio/account; users always see when a session is impersonated.
@@ -784,7 +784,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 | **Order** | Upgrade the monorepo to **Better Auth 1.7.x** (catalog, `packages/auth`, `@better-auth/*` peers) as the **first platform implementation milestone** — **complete before** creating or deploying **`apps/auth`**. |
 | **Gate** | No `apps/auth` Vercel project, MCP plugin wiring, or auth-app cutover work until 1.7 is on `main` and `apps/web` still authenticates successfully. |
 | **Rationale** | 1.7 documents `@better-auth/mcp`, JWT, device authorization, and OAuth 2.1 provider paths required by Decisions 7–8 and 15. |
-| **Implementation** | GitHub **[#93](https://github.com/jayantrohila57/collidr/issues/93)** — `[Feature] Upgrade Better Auth to 1.7`. |
+| **Implementation** | GitHub **[#93](https://github.com/jayantrohila57/loftlancer/issues/93)** — `[Feature] Upgrade Better Auth to 1.7`. |
 
 **Implication:** P1 starts with #93; shared UI/auth-client packages follow on the same phase but **after** the version bump lands.
 
@@ -798,7 +798,7 @@ All **20** decisions below are **accepted** and closed. §15 has no remaining op
 
 ## Appendix A — MCP tools (summary)
 
-Full inventory unchanged from v1 plan: **58 tools** (`organizations_*` through `permissions_snapshot`), each with OAuth scopes (`projects:read`, `variables:reveal`, etc.) and canonical `requireAction` names. See git history of `PLAN_MCP_AND_CONSOLE.md` §5.3 or regenerate from `@collidr/actions` in implementation.
+Full inventory unchanged from v1 plan: **58 tools** (`organizations_*` through `permissions_snapshot`), each with OAuth scopes (`projects:read`, `variables:reveal`, etc.) and canonical `requireAction` names. See git history of `PLAN_MCP_AND_CONSOLE.md` §5.3 or regenerate from `@loftlancer/actions` in implementation.
 
 **Console** and **account** tools are **not** exposed via MCP.
 
@@ -816,7 +816,7 @@ Full inventory unchanged from v1 plan: **58 tools** (`organizations_*` through `
 - [Better Auth — SSO](https://www.better-auth.com/docs/plugins/sso)
 - [Better Auth — Device Authorization](https://www.better-auth.com/docs/plugins/device-authorization)
 - [Vercel — MCP](https://vercel.com/docs/mcp)
-- [Fumadocs](https://fumadocs.dev/) (content layer; UI replaced by `@collidr/ui`)
+- [Fumadocs](https://fumadocs.dev/) (content layer; UI replaced by `@loftlancer/ui`)
 - Internal: [`docs/ACTIONS_PERMISSIONS_AUDIT.md`](./ACTIONS_PERMISSIONS_AUDIT.md), [`docs/DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)
 
 ---

@@ -1,5 +1,5 @@
-import { activeNotificationWhere, db } from "@collidr/db";
-import { notification } from "@collidr/db/schema/notifications";
+import { activeNotificationWhere, db } from "@loftlancer/db";
+import { notification } from "@loftlancer/db/schema/notifications";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { isNotificationsEnabled } from "./feature";
 import {

@@ -1,7 +1,7 @@
 "use client";
 
-import type { SupportAppRouter } from "@collidr/api/routers/support-app";
-import { transformer } from "@collidr/api/transformer";
+import type { SupportAppRouter } from "@loftlancer/api/routers/support-app";
+import { transformer } from "@loftlancer/api/transformer";
 import { QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import {

@@ -1,5 +1,5 @@
 {
-  "name": "@collidr/auth",
+  "name": "@loftlancer/auth",
   "type": "module",
   "exports": {
     ".": {
@@ -34,18 +34,18 @@
   "dependencies": {
     "@better-auth/cimd": "^1.7.7",
     "@better-auth/mcp": "^1.7.7",
-    "@collidr/actions": "workspace:*",
-    "@collidr/db": "workspace:*",
-    "@collidr/env": "workspace:*",
-    "@collidr/notifications": "workspace:*",
-    "@collidr/ui": "workspace:*",
+    "@loftlancer/actions": "workspace:*",
+    "@loftlancer/db": "workspace:*",
+    "@loftlancer/env": "workspace:*",
+    "@loftlancer/notifications": "workspace:*",
+    "@loftlancer/ui": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@collidr/config": "workspace:*",
+    "@loftlancer/config": "workspace:*",
     "next": "catalog:",
     "tsx": "^4.23.15",
     "typescript": "catalog:"

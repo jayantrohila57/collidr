@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@collidr/ui/button";
+import { Button } from "@loftlancer/ui/button";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";

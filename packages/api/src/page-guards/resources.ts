@@ -1,6 +1,6 @@
-import { activeMemberWhere, activeProjectWhere, db } from "@collidr/db";
-import { member, organization } from "@collidr/db/schema/organization";
-import { project } from "@collidr/db/schema/projects";
+import { activeMemberWhere, activeProjectWhere, db } from "@loftlancer/db";
+import { member, organization } from "@loftlancer/db/schema/organization";
+import { project } from "@loftlancer/db/schema/projects";
 import { and, eq, isNull } from "drizzle-orm";
 import { assertProjectAccess } from "../org-access";
 import { PageNotFoundError } from "./errors";

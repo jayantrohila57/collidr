@@ -1,21 +1,21 @@
-# collidr
+# Loftlancer
 
-![collidr OG Image](https://collidr.vercel.app/studio/opengraph-image.png)
+![Loftlancer OG Image](https://studio.loftlancer.com/opengraph-image.png)
 
-**Live app:** [https://collidr.vercel.app/studio](https://collidr.vercel.app/studio)
+**Live app:** [https://loftlancer.com/studio](https://loftlancer.com/studio)
 
-Collidr is a web dashboard and **pnpm/Turbo monorepo** for storing and organizing environment variables across **organizations**, **projects**, and **environments** (dev, staging, production). Values are encrypted at rest; changes flow through a **canonical actions** layer with optional **audit timeline**, **notifications**, and **soft deletes**.
+Loftlancer is a web dashboard and **pnpm/Turbo monorepo** for storing and organizing environment variables across **organizations**, **projects**, and **environments** (dev, staging, production). Values are encrypted at rest; changes flow through a **canonical actions** layer with optional **audit timeline**, **notifications**, and **soft deletes**.
 
 ## Workflow & contributions
 
-- Track work in [GitHub issues](https://github.com/jayantrohila57/collidr/issues) on the collidr project. Agents work **from issues only**; closing commits use **`Fixes #N`**.
+- Track work in [GitHub issues](https://github.com/jayantrohila57/loftlancer/issues) on the Loftlancer project. Agents work **from issues only**; closing commits use **`Fixes #N`**.
 - Delivery: commits on **`main`** → `git pull --rebase origin main` → push (no feature-branch previews, no force-push). See [AGENTS.md](./AGENTS.md).
 
 ## Monorepo layout
 
 | Path | Purpose |
 | ---- | ------- |
-| `apps/web` | **Legacy** production app (unchanged until P3 cutover [#97](https://github.com/jayantrohila57/collidr/issues/97)) |
+| `apps/web` | **Legacy** production app (unchanged until P3 cutover [#97](https://github.com/jayantrohila57/loftlancer/issues/97)) |
 | `apps/auth` | Platform auth issuer — sign-in, device flow, MCP OAuth config, email-link origin |
 | `apps/studio` | Product UI (parity with `apps/web`); per-app tRPC + session via auth redirects |
 | `apps/account` | Account settings at `/settings/*`; per-app tRPC subset |
@@ -29,7 +29,7 @@ Collidr is a web dashboard and **pnpm/Turbo monorepo** for storing and organizin
 | `packages/crypto` | AES-256-GCM encrypt/decrypt for secret values |
 | `packages/env` | Shared Zod env validation & feature flags |
 | `packages/config` | Shared TypeScript/Biome config |
-| `packages/ui` | Shared coss/shadcn UI (`@collidr/ui`) — marketing chrome and primitives |
+| `packages/ui` | Shared coss/shadcn UI (`@loftlancer/ui`) — marketing chrome and primitives |
 
 Further apps: `apps/console`, `apps/mcp`, `apps/docs`, … — see [docs/PLAN_PLATFORM_APPS.md](./docs/PLAN_PLATFORM_APPS.md). MCP deploy env: [docs/MCP_DEPLOY.md](./docs/MCP_DEPLOY.md).
 
@@ -40,7 +40,7 @@ Further apps: `apps/console`, `apps/mcp`, `apps/docs`, … — see [docs/PLAN_PL
 | **Roles** | Org **Owner**, **Manager**, **Member** (legacy `admin` → Manager). Platform **Admin** reserved for future console. |
 | **Teams** | Better Auth teams under each organization |
 | **Project access** | Per-project manager rows, team links, and member **CRUD grants** |
-| **Actions** | `@collidr/actions` names every gated operation; server uses `requireAction` |
+| **Actions** | `@loftlancer/actions` names every gated operation; server uses `requireAction` |
 | **Audit** | `audit_event` + Timeline UIs when `ACTIONS_AUDIT_ENABLED=true` |
 | **Soft delete** | `deleted_at` / `deleted_by` when `SOFT_DELETES_ENABLED=true` |
 | **Organizations** | `/dashboard/organizations` hub (members, teams, invitations, roles, settings, timeline) |
@@ -58,8 +58,8 @@ Deep specs: [docs/ACTIONS_PERMISSIONS_AUDIT.md](./docs/ACTIONS_PERMISSIONS_AUDIT
 ## Install
 
 ```bash
-git clone https://github.com/jayantrohila57/collidr.git
-cd collidr
+git clone https://github.com/jayantrohila57/loftlancer.git
+cd loftlancer
 corepack enable
 corepack prepare pnpm@10.13.1 --activate
 pnpm install
@@ -67,7 +67,7 @@ pnpm install
 
 ## Environment variables
 
-Create **`apps/web/.env`** (Drizzle Kit reads this path for database commands). Validated via `@collidr/env`:
+Create **`apps/web/.env`** (Drizzle Kit reads this path for database commands). Validated via `@loftlancer/env`:
 
 | Variable | Required | Description |
 | -------- | -------- | ----------- |
@@ -132,7 +132,7 @@ pnpm a11y             # accessibility checks (web, Turbo task `a11y` → web)
 - **Auth:** Better Auth (GitHub, organizations, teams)
 - **Database:** PostgreSQL, Drizzle ORM
 - **Tooling:** pnpm workspaces, Turborepo, Biome
-- **Deploy:** Vercel — production from **`main`** only (`collidr-web.vercel.app`)
+- **Deploy:** Vercel — production from **`main`** only (`studio.loftlancer.com`)
 
 ## Documentation index
 

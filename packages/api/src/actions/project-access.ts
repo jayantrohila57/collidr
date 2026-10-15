@@ -1,11 +1,11 @@
-import { db } from "@collidr/db";
+import { db } from "@loftlancer/db";
 import {
   projectManager,
   projectMemberGrant,
   projectTeam,
-} from "@collidr/db/schema/project-access";
-import { project } from "@collidr/db/schema/projects";
-import { teamMember } from "@collidr/db/schema/team";
+} from "@loftlancer/db/schema/project-access";
+import { project } from "@loftlancer/db/schema/projects";
+import { teamMember } from "@loftlancer/db/schema/team";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 
 export async function loadProjectAccessContext(

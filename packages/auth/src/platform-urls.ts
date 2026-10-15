@@ -1,15 +1,15 @@
-import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
+import { resolvePublicServiceUrl } from "@loftlancer/env/vercel-services";
 
 /** Default production URLs — one Vercel project per app (no path prefix). */
-export const DEFAULT_AUTH_URL = "https://collidr-auth.vercel.app";
-export const DEFAULT_STUDIO_URL = "https://collidr-studio.vercel.app";
+export const DEFAULT_AUTH_URL = "https://auth.loftlancer.com";
+export const DEFAULT_STUDIO_URL = "https://studio.loftlancer.com";
 export const DEFAULT_ACCOUNT_URL = DEFAULT_AUTH_URL;
-export const DEFAULT_WWW_URL = "https://collidr-docs.vercel.app";
-export const DEFAULT_MCP_URL = "https://collidr-mcp.vercel.app";
-export const DEFAULT_CONSOLE_URL = "https://collidr-console.vercel.app";
+export const DEFAULT_WWW_URL = "https://loftlancer.com";
+export const DEFAULT_MCP_URL = "https://mcp.loftlancer.com";
+export const DEFAULT_CONSOLE_URL = "https://console.loftlancer.com";
 export const DEFAULT_SUPPORT_URL =
-  "https://collidr-studio.vercel.app/dashboard/support/tickets";
-export const DEFAULT_DOCS_URL = "https://collidr-docs.vercel.app";
+  "https://studio.loftlancer.com/dashboard/support/tickets";
+export const DEFAULT_DOCS_URL = "https://loftlancer.com";
 
 function defaultAuthUrl(): string {
   return process.env.VERCEL_SERVICES === "1"

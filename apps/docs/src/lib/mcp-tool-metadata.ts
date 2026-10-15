@@ -1,4 +1,4 @@
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 
 import catalog from "@/generated/mcp-tools-catalog.json";
 

@@ -3,16 +3,16 @@ import {
   activeMemberWhere,
   db,
   softDeleteSet,
-} from "@collidr/db";
-import { assertOrganizationCanBeDeleted } from "@collidr/db/org-delete-policy";
-import { user } from "@collidr/db/schema/auth";
+} from "@loftlancer/db";
+import { assertOrganizationCanBeDeleted } from "@loftlancer/db/org-delete-policy";
+import { user } from "@loftlancer/db/schema/auth";
 import {
   invitation,
   member,
   organization,
-} from "@collidr/db/schema/organization";
-import { team, teamMember } from "@collidr/db/schema/team";
-import { isSoftDeletesEnabled } from "@collidr/env/soft-deletes";
+} from "@loftlancer/db/schema/organization";
+import { team, teamMember } from "@loftlancer/db/schema/team";
+import { isSoftDeletesEnabled } from "@loftlancer/env/soft-deletes";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { requireAction } from "../actions/require-action";
 import { resolveOrganizationIdForUser } from "./resolve-organization";

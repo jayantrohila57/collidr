@@ -1,6 +1,6 @@
 "use client";
 
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 import { useQuery } from "@tanstack/react-query";
 import { trpc } from "@/utils/trpc";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { CollidrImpersonationBanner } from "@collidr/auth-client";
+import { LoftlancerImpersonationBanner } from "@loftlancer/auth-client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState } from "react";
@@ -51,7 +51,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           >
             <ToastProvider position="bottom-left">
               <SkipLink />
-              <CollidrImpersonationBanner authClient={authClient} />
+              <LoftlancerImpersonationBanner authClient={authClient} />
               <OfflineBanner />
               {children}
               <ReactQueryDevtools />

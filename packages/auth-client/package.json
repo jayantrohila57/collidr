@@ -1,5 +1,5 @@
 {
-  "name": "@collidr/auth-client",
+  "name": "@loftlancer/auth-client",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,12 +12,12 @@
   },
   "dependencies": {
     "@better-auth/oauth-provider": "^1.7.7",
-    "@collidr/actions": "workspace:*",
-    "@collidr/ui": "workspace:*",
+    "@loftlancer/actions": "workspace:*",
+    "@loftlancer/ui": "workspace:*",
     "better-auth": "catalog:"
   },
   "devDependencies": {
-    "@collidr/config": "workspace:*",
+    "@loftlancer/config": "workspace:*",
     "@types/react": "^19.3.0",
     "react": "^19.3.0",
     "typescript": "catalog:"

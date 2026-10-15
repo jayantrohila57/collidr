@@ -7,4 +7,4 @@ export {
   parseGrantedScopes,
   requiredOAuthScopesForAction,
   tokenHasScopes,
-} from "@collidr/actions";
+} from "@loftlancer/actions";

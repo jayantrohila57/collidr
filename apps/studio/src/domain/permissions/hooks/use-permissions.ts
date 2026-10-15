@@ -1,10 +1,10 @@
 "use client";
 
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 import { useQuery } from "@tanstack/react-query";
 import { trpc } from "@/utils/trpc";
 
-const POLL_MS = 30_000;
+const POLL_MS = 60_000;
 
 export function usePermissionsSnapshot(projectId?: string) {
   const input = projectId ? { projectId } : {};
@@ -12,6 +12,7 @@ export function usePermissionsSnapshot(projectId?: string) {
     ...trpc.permissions.snapshot.queryOptions(input),
     staleTime: POLL_MS,
     refetchInterval: POLL_MS,
+    refetchOnWindowFocus: false,
   });
 }
 

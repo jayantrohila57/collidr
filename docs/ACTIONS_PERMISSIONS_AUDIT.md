@@ -25,7 +25,7 @@ Today the product logs a subset of mutations to `audit_log` with ad-hoc `action`
 
 This spec introduces:
 
-1. **`@collidr/actions` registry** — single source of truth for action metadata, Better Auth organization statements/roles, project-level grants, audit payloads, notification triggers, and UI `requiredAction`.
+1. **`@loftlancer/actions` registry** — single source of truth for action metadata, Better Auth organization statements/roles, project-level grants, audit payloads, notification triggers, and UI `requiredAction`.
 2. **`requireAction(action, ctx)`** — server gate used by tRPC (and Better Auth hooks where applicable): **(reserved: platform admin)** → block list → org role → project grant; **always** writes `audit_event` (`success` | `failure` | `denied`). Phase 1 skips the admin step.
 3. **`audit_event`** — replaces `audit_log` and powers **org-wide Timeline** (replaces `/dashboard/activity`), **per-org hub Timeline**, and **account Timeline** in user settings; **OWNER** (and later ADMIN) can view any member’s timeline — Phase 1 implements OWNER only.
 4. **Account settings (`/dashboard/settings`)** — **user scope only**: profile, sessions, connected accounts, export, delete, own timeline. **Org management is removed** from settings and lives in the **Organizations** module.
@@ -74,7 +74,7 @@ This spec introduces:
 
 ### 2.4 Notifications (cross-link)
 
-`@collidr/notifications` already uses typed events (`invitation.received`, `invitation.accepted`) with idempotency. Design: **high-signal actions** optionally emit notifications via registry `notifyOn?: NotificationType[]` keyed off successful `audit_event` (see §8).
+`@loftlancer/notifications` already uses typed events (`invitation.received`, `invitation.accepted`) with idempotency. Design: **high-signal actions** optionally emit notifications via registry `notifyOn?: NotificationType[]` keyed off successful `audit_event` (see §8).
 
 ---
 
@@ -209,7 +209,7 @@ export type ActionDefinition = {
     severity?: "info" | "security" | "critical";
   };
 
-  /** Notification types fired on success (existing @collidr/notifications) */
+  /** Notification types fired on success (existing @loftlancer/notifications) */
   notifyOn?: string[];
 
   ui?: {
@@ -620,7 +620,7 @@ Reuses list component; filters by action, result, project, actor.
 | On `audit_event` insert | If `result === 'success'` && action has `notifyOn`, call existing `notify()` with idempotency `audit:{audit_event.id}` |
 | Future | `variable.updated` etc. |
 
-Keeps notification types in `@collidr/notifications`; registry only references type names.
+Keeps notification types in `@loftlancer/notifications`; registry only references type names.
 
 ---
 

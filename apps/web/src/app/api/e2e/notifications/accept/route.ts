@@ -1,6 +1,6 @@
-import { auth } from "@collidr/auth";
-import { env } from "@collidr/env/server";
-import { resolveAuthServiceUrl } from "@collidr/env/vercel-services";
+import { auth } from "@loftlancer/auth";
+import { env } from "@loftlancer/env/server";
+import { resolveAuthServiceUrl } from "@loftlancer/env/vercel-services";
 import { NextResponse } from "next/server";
 import { isE2eAuthRouteAllowed } from "@/lib/e2e-auth-allowed";
 import { isValidE2eSecret } from "@/lib/e2e-secret";
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { notifyInvitationAccepted } = await import("@collidr/notifications");
+  const { notifyInvitationAccepted } = await import("@loftlancer/notifications");
   await notifyInvitationAccepted(body.invitationId);
 
   return NextResponse.json({ ok: true });

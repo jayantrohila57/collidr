@@ -1,6 +1,6 @@
 "use client";
 
-import type { ProjectOutput } from "@collidr/api/types";
+import type { ProjectOutput } from "@loftlancer/api/types";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import { DataTable } from "@/components/data-table/data-table";
 import { Separator } from "@/components/ui/separator";

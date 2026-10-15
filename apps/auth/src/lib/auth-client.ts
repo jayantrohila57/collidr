@@ -1,8 +1,8 @@
-import { createCollidrAuthClient } from "@collidr/auth-client";
-import { isOrganizationsEnabled } from "@collidr/env/organizations";
-import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
+import { createLoftlancerAuthClient } from "@loftlancer/auth-client";
+import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
+import { resolvePublicServiceUrl } from "@loftlancer/env/vercel-services";
 
-export const authClient = createCollidrAuthClient({
+export const authClient = createLoftlancerAuthClient({
   baseURL:
     process.env.NEXT_PUBLIC_AUTH_URL?.replace(/\/$/, "") ??
     (process.env.VERCEL_SERVICES === "1"

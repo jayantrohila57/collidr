@@ -1,6 +1,6 @@
 "use client";
 
-import type { ActionName } from "@collidr/actions";
+import type { ActionName } from "@loftlancer/actions";
 import { ErrorState } from "@/components/patterns/error-state";
 import { Spinner } from "@/components/ui/spinner";
 import { useCan } from "../hooks/use-permissions";

@@ -1,1 +1,1 @@
-export { cn } from "@collidr/ui/utils";
+export { cn } from "@loftlancer/ui/utils";

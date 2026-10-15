@@ -1,4 +1,4 @@
-import { env } from "@collidr/env/server";
+import { env } from "@loftlancer/env/server";
 import { betterAuth } from "better-auth";
 import {
   coreAuthPlugins,

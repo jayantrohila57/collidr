@@ -42,7 +42,7 @@ describe("MCP OAuth scopes", () => {
     const described = describeMcpOAuthScopes("mcp:tools variables:reveal");
     assert.equal(
       described[0]?.description,
-      "Use Collidr tools through MCP clients",
+      "Use Loftlancer tools through MCP clients",
     );
     assert.equal(described[1]?.description, "Reveal secret variable values");
   });

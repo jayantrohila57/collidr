@@ -1,5 +1,5 @@
 {
-  "name": "@collidr/db",
+  "name": "@loftlancer/db",
   "type": "module",
   "exports": {
     ".": {
@@ -19,8 +19,8 @@
     "test": "SKIP_ENV_VALIDATION=1 DATABASE_URL=postgresql://localhost:5432/test node --import tsx --test src/connection-url.test.ts src/account-soft-delete.test.ts src/soft-delete.test.ts src/e2e-demo-variables.test.ts"
   },
   "dependencies": {
-    "@collidr/crypto": "workspace:*",
-    "@collidr/env": "workspace:*",
+    "@loftlancer/crypto": "workspace:*",
+    "@loftlancer/env": "workspace:*",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
     "pg": "^8.23.1",
@@ -29,7 +29,7 @@
   "devDependencies": {
     "@better-auth/drizzle-adapter": "1.7.7",
     "@better-auth/mcp": "1.7.7",
-    "@collidr/config": "workspace:*",
+    "@loftlancer/config": "workspace:*",
     "@types/pg": "catalog:",
     "better-auth": "catalog:",
     "drizzle-kit": "^0.31.11",

@@ -20,7 +20,7 @@ export function SupportShell({ children }: { children: React.ReactNode }) {
       <header className="border-b bg-background">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-4">
           <Link href="/" className="font-semibold text-sm">
-            Collidr Support
+            Loftlancer Support
           </Link>
           <nav className="flex flex-wrap items-center gap-2 text-sm">
             {publicNav.map((item) => (

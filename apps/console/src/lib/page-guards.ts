@@ -3,13 +3,13 @@ import "server-only";
 import {
   requireConsoleOperatorPage,
   runPageGuard,
-} from "@collidr/api/page-guards";
+} from "@loftlancer/api/page-guards";
 import {
   type RequirePageSessionResult,
   requirePageSession,
-} from "@collidr/auth/guards";
-import type { AuthSession } from "@collidr/auth/session-types";
-import { buildSignInUrl, defaultConsoleReturnTo } from "@collidr/ui/auth-links";
+} from "@loftlancer/auth/guards";
+import type { AuthSession } from "@loftlancer/auth/session-types";
+import { buildSignInUrl, defaultConsoleReturnTo } from "@loftlancer/ui/auth-links";
 import type { Route } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -56,9 +56,14 @@ export async function guardConsoleOperatorPage(): Promise<AuthSession> {
 export async function guardSupportManagerPage(): Promise<AuthSession> {
   const session = await guardConsoleAuthenticatedPage();
   const { requireSupportManagerPage } = await import(
-    "@collidr/api/page-guards"
+    "@loftlancer/api/page-guards"
   );
-  await runPageGuard(() => requireSupportManagerPage(session.user.id));
+  await runPageGuard(() =>
+    requireSupportManagerPage(
+      session.user.id,
+      session.user as { role?: string | null },
+    ),
+  );
   return session;
 }
 
@@ -66,9 +71,13 @@ export async function guardSupportTicketPage(
   ticketId: string,
 ): Promise<AuthSession> {
   const session = await guardConsoleAuthenticatedPage();
-  const { requireSupportTicketPage } = await import("@collidr/api/page-guards");
+  const { requireSupportTicketPage } = await import("@loftlancer/api/page-guards");
   await runPageGuard(() =>
-    requireSupportTicketPage(session.user.id, ticketId),
+    requireSupportTicketPage(
+      session.user.id,
+      ticketId,
+      session.user as { role?: string | null },
+    ),
   );
   return session;
 }

@@ -75,7 +75,10 @@ export function OrganizationOverviewSections({ slug }: { slug: string }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {ORGANIZATION_SECTIONS.map((section) => {
-        let summary = "—";
+        let summary =
+          section.id === "teams" || section.id === "timeline"
+            ? "Open"
+            : "View";
         if (section.id === "members" && memberCount !== undefined) {
           summary = formatCountLabel(memberCount, "member", "members");
           if (invitationCount !== undefined && invitationCount > 0) {

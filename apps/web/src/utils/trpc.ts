@@ -1,5 +1,5 @@
-import type { AppRouter } from "@collidr/api/routers/index";
-import { transformer } from "@collidr/api/transformer";
+import type { AppRouter } from "@loftlancer/api/routers/index";
+import { transformer } from "@loftlancer/api/transformer";
 
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";

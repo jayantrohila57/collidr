@@ -1,10 +1,10 @@
-import { resolvePublicServiceUrl } from "@collidr/env/vercel-services";
+import { resolvePublicServiceUrl } from "@loftlancer/env/vercel-services";
 
-const DEFAULT_AUTH_URL = "https://collidr-auth.vercel.app";
-const DEFAULT_STUDIO_URL = "https://collidr-studio.vercel.app";
-const DEFAULT_CONSOLE_URL = "https://collidr-console.vercel.app";
+const DEFAULT_AUTH_URL = "https://auth.loftlancer.com";
+const DEFAULT_STUDIO_URL = "https://studio.loftlancer.com";
+const DEFAULT_CONSOLE_URL = "https://console.loftlancer.com";
 const DEFAULT_SUPPORT_URL =
-  "https://collidr-studio.vercel.app/dashboard/support/tickets";
+  "https://studio.loftlancer.com/dashboard/support/tickets";
 
 function authUrlDefault(): string {
   return process.env.VERCEL_SERVICES === "1"
@@ -76,4 +76,32 @@ export function buildSignInUrl(
   const returnTo = options.returnTo ?? defaultStudioReturnTo(options);
   const params = new URLSearchParams({ return_to: returnTo });
   return `${auth}/sign-in?${params.toString()}`;
+}
+
+/** Auth app sign-out with allowlisted `return_to` (revokes shared session). */
+export function buildSignOutUrl(
+  options: PlatformUrlEnv & { returnTo?: string } = {},
+): string {
+  const auth = trimTrailingSlash(
+    options.authUrl ?? process.env.NEXT_PUBLIC_AUTH_URL ?? authUrlDefault(),
+  );
+  const returnTo = options.returnTo ?? buildSignInUrl(options);
+  const params = new URLSearchParams({ return_to: returnTo });
+  return `${auth}/sign-out?${params.toString()}`;
+}
+
+export function resolveAuthAppOrigin(env: PlatformUrlEnv = {}): string {
+  return trimTrailingSlash(
+    env.authUrl ?? process.env.NEXT_PUBLIC_AUTH_URL ?? authUrlDefault(),
+  );
+}
+
+/** Post sign-out landing: sign-in for this app with dashboard as return target. */
+export function defaultAppSignInAfterSignOut(
+  appOrigin: string,
+  env: PlatformUrlEnv = {},
+): string {
+  const origin = trimTrailingSlash(appOrigin);
+  const returnTo = `${origin}/dashboard`;
+  return buildSignInUrl({ ...env, returnTo });
 }

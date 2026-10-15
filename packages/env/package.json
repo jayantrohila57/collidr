@@ -1,5 +1,5 @@
 {
-  "name": "@collidr/env",
+  "name": "@loftlancer/env",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -30,7 +30,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@collidr/config": "workspace:*",
+    "@loftlancer/config": "workspace:*",
     "@types/node": "^26.6.5",
     "tsx": "^4.23.15",
     "typescript": "catalog:"
