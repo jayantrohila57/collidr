@@ -77,7 +77,7 @@ export default function PricingPage() {
         </ul>
         <a
           href={signInHref}
-          className="inline-flex h-8 w-full items-center justify-center rounded-lg bg-primary px-3 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/90"
+          className="no-underline! inline-flex h-8 w-full items-center justify-center rounded-lg bg-primary px-3 font-medium text-primary-foreground! text-sm transition-colors hover:bg-primary/90"
         >
           Get started free
         </a>
