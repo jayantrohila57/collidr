@@ -17,7 +17,7 @@ import {
 import { GithubIcon } from "@loftlancer/ui/github-icon";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { type ReactNode, useSyncExternalStore } from "react";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { formatDate } from "@/lib/format";
@@ -72,7 +72,14 @@ export function AccountSettingsFrame({
 }) {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const user = session?.user;
+  // Session + locale-formatted dates are client-only; render them after
+  // hydration so server HTML matches (React #418).
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  const user = mounted ? session?.user : undefined;
   const audit = isActionsAuditEnabledOnClient();
   const tabs = TABS.filter((t) => !t.audit || audit).map(({ audit: _a, ...t }) => ({
     ...t,

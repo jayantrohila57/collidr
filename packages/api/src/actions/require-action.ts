@@ -24,13 +24,19 @@ export type RequireActionContext = {
   targetUserId?: string | null;
   ipAddress?: string | null;
   userAgent?: string | null;
+  /**
+   * Write an audit_event row for this check. Default true. Read paths (tRPC
+   * queries, page guards, permission probes) pass false so that viewing a page
+   * never records a mutating action such as `account.delete` or `member.invite`.
+   */
+  audit?: boolean;
 };
 
 export async function requireAction(
   action: ActionName,
   ctx: RequireActionContext,
 ): Promise<void> {
-  const auditEnabled = isActionsAuditEnabled();
+  const auditEnabled = isActionsAuditEnabled() && ctx.audit !== false;
   const startedAt = Date.now();
   const def = getActionDefinition(action);
   let result: "success" | "denied" | "failure" = "denied";

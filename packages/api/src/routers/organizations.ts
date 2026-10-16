@@ -18,7 +18,7 @@ export const organizationsRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
     if (isActionsAuditEnabled()) {
-      await requireAction("organization.list", { userId });
+      await requireAction("organization.list", { userId, audit: false });
     }
 
     const rows = await db
@@ -77,6 +77,7 @@ export const organizationsRouter = router({
         await requireAction("organization.hub.view", {
           userId,
           organizationId: row.id,
+          audit: false,
         });
       }
 

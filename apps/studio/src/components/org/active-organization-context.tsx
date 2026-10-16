@@ -83,9 +83,10 @@ export function ActiveOrganizationProvider({
       return;
     }
     if (sessionActiveOrganizationId) {
+      // Only adopt the active id here. `initialLoadDone`/`loading` flip after
+      // the org list has actually loaded; flipping them early made the list
+      // render "No organizations yet" and slug pages 404 on a direct load.
       setActiveOrganizationId(sessionActiveOrganizationId);
-      setInitialLoadDone(true);
-      setLoading(false);
     }
   }, [enabled, isSwitching, sessionActiveOrganizationId, sessionPending]);
 
