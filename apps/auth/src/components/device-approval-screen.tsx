@@ -1,7 +1,5 @@
 "use client";
 
-import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
-import { describeMcpOAuthScopes } from "@loftlancer/actions";
 import { Button } from "@loftlancer/ui/button";
 import {
   Card,
@@ -10,10 +8,16 @@ import {
   CardPanel,
   CardTitle,
 } from "@loftlancer/ui/card";
+import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
+import { CircleCheckIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  OAuthDecisionButtons,
+  OAuthScopeCard,
+} from "@/components/oauth-scope-card";
+import { SegmentedCodeInput } from "@/components/segmented-code-input";
 import { authClient } from "@/lib/auth-client";
 import { authAppReturnTo } from "@/lib/auth-return-to";
 import { formatDeviceUserCode } from "@/lib/format-user-code";
@@ -63,7 +67,6 @@ export function DeviceApprovalScreen({ userCode }: DeviceApprovalScreenProps) {
     };
   }, [formattedCode, isPending, router, session?.user]);
 
-  const scopeItems = describeMcpOAuthScopes(request?.scope ?? null);
   const resources = request?.resource
     ? Array.isArray(request.resource)
       ? request.resource
@@ -116,74 +119,50 @@ export function DeviceApprovalScreen({ userCode }: DeviceApprovalScreenProps) {
         <CardHeader>
           <CardTitle>Approve device</CardTitle>
           <CardDescription>
-            Confirm that code <span className="font-mono">{formattedCode}</span>{" "}
-            matches what your device is showing before you continue.
+            Confirm this code matches what your device is showing. Approve only
+            if you started this sign-in on a device you own.
           </CardDescription>
         </CardHeader>
-        <CardPanel className="flex flex-col gap-4">
-          {loadError ? (
-            <Alert variant="error">
-              <AlertDescription>{loadError}</AlertDescription>
-            </Alert>
-          ) : null}
+        <CardPanel className="flex flex-col gap-3">
+          <SegmentedCodeInput
+            value={formattedCode}
+            onChange={() => {}}
+            readOnly
+          />
           {doneMessage ? (
-            <Alert variant="success">
-              <AlertDescription>{doneMessage}</AlertDescription>
-            </Alert>
-          ) : null}
-
-          {request && !doneMessage ? (
+            <div className="flex items-center gap-2 rounded-xl p-4 text-sm ring-1 ring-border/60">
+              <CircleCheckIcon aria-hidden className="size-4 text-primary" />
+              {doneMessage}
+            </div>
+          ) : (
             <>
-              <div className="text-sm">
-                <p>
-                  <span className="text-muted-foreground">Client: </span>
-                  <span className="font-medium">
-                    {request.client_id ?? "Unknown client"}
-                  </span>
-                </p>
-                {resources.length > 0 ? (
-                  <p className="mt-2">
-                    <span className="text-muted-foreground">Resource: </span>
-                    <span className="font-medium">{resources.join(", ")}</span>
-                  </p>
-                ) : null}
-              </div>
-              {scopeItems.length > 0 ? (
-                <div>
-                  <p className="font-medium text-sm">Requested access</p>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
-                    {scopeItems.map((item) => (
-                      <li key={item.scope}>{item.description}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-              <p className="text-muted-foreground text-sm">
-                Approve only if you started this sign-in on a device you own.
-              </p>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Button
-                  type="button"
-                  className="flex-1"
-                  disabled={submitting !== null}
-                  onClick={() => void handleApprove()}
-                >
-                  {submitting === "approve" ? "Approving…" : "Approve"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  disabled={submitting !== null}
-                  onClick={() => void handleDeny()}
-                >
-                  {submitting === "deny" ? "Denying…" : "Deny"}
-                </Button>
-              </div>
+              <OAuthScopeCard
+                appName={
+                  request ? (request.client_id ?? "Unknown client") : null
+                }
+                appMeta={
+                  resources.length > 0
+                    ? `Resource ${resources.join(", ")}`
+                    : null
+                }
+                scope={request?.scope ?? null}
+              />
+              <OAuthDecisionButtons
+                submitting={submitting}
+                disabled={!request}
+                approveLabel="Approve"
+                onApprove={() => void handleApprove()}
+                onDeny={() => void handleDeny()}
+              />
             </>
-          ) : null}
-
-          <Button variant="ghost" render={<Link href="/device" />}>
+          )}
+          <p
+            role="alert"
+            className="min-h-4 text-destructive text-xs leading-4"
+          >
+            {loadError ?? ""}
+          </p>
+          <Button variant="ghost" size="sm" render={<Link href="/device" />}>
             Enter a different code
           </Button>
         </CardPanel>
