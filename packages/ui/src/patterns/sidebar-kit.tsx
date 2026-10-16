@@ -55,6 +55,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "../components/ui/sidebar";
+import { Skeleton } from "../components/ui/skeleton";
 import { cn } from "../lib/utils";
 import { SettingsAvatar } from "./settings-frame";
 
@@ -92,7 +93,23 @@ export function SidebarBrand({ href }: { href: string }) {
 /* ---------------- Count pill ---------------- */
 
 /** Real-count pill for a nav item; renders nothing at 0. */
-export function NavCountBadge({ count, tone = "muted" }: { count?: number | null; tone?: "muted" | "alert" }) {
+export function NavCountBadge({
+  count,
+  tone = "muted",
+  loading = false,
+}: {
+  count?: number | null;
+  tone?: "muted" | "alert";
+  /** Reserve the badge slot while the count loads. */
+  loading?: boolean;
+}) {
+  if (loading && count == null) {
+    return (
+      <SidebarMenuBadge aria-hidden>
+        <Skeleton className="h-5 w-8 rounded-full motion-reduce:animate-none" />
+      </SidebarMenuBadge>
+    );
+  }
   if (!count || count <= 0) return null;
   return (
     <SidebarMenuBadge
@@ -216,9 +233,20 @@ export function CommandPalette({
         </div>
         <div className="max-h-80 overflow-y-auto p-1" role="listbox">
           {loading && flat.length === 0 ? (
-            <p className="px-3 py-6 text-center text-muted-foreground text-sm">Loading…</p>
+            <div className="min-h-32 space-y-1 py-1" aria-busy="true">
+              <span className="sr-only">Loading…</span>
+              <Skeleton className="mx-2 mb-1 h-3 w-20 motion-reduce:animate-none" />
+              {["w-40", "w-32", "w-48"].map((w) => (
+                <div key={w} className="flex h-8 items-center gap-2 px-2">
+                  <Skeleton className="size-4 motion-reduce:animate-none" />
+                  <Skeleton className={cn("h-4 motion-reduce:animate-none", w)} />
+                </div>
+              ))}
+            </div>
           ) : flat.length === 0 ? (
-            <p className="px-3 py-6 text-center text-muted-foreground text-sm">No results.</p>
+            <p className="flex min-h-32 items-center justify-center px-3 text-center text-muted-foreground text-sm">
+              No results.
+            </p>
           ) : (
             filtered.map((g) => {
               const Icon = g.icon ? groupIcons[g.icon] : null;
@@ -330,11 +358,35 @@ export function SidebarFavorites({
   items,
   isActive,
   LinkComponent,
+  loading = false,
 }: {
   items: FavoriteProject[];
   isActive?: (href: string) => boolean;
   LinkComponent?: LinkLike;
+  /** First load: keep the group and show placeholder rows. */
+  loading?: boolean;
 }) {
+  if (loading && !items.length) {
+    return (
+      <SidebarGroup aria-busy="true">
+        <SidebarGroupLabel>
+          <StarIcon className="me-1 size-3" /> Favorites
+        </SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {["w-28", "w-20", "w-24"].map((w) => (
+              <SidebarMenuItem key={w}>
+                <div className="flex h-8 items-center gap-2 px-2">
+                  <Skeleton className="size-2 rounded-full motion-reduce:animate-none" />
+                  <Skeleton className={cn("h-4 motion-reduce:animate-none", w)} />
+                </div>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  }
   if (!items.length) return null;
   const L: LinkLike = LinkComponent ?? ((p) => <a {...p} />);
   return (
