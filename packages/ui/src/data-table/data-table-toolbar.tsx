@@ -7,9 +7,9 @@ import {
   InputGroupAddon,
   InputGroupInput,
   InputGroupText,
-} from "@/components/ui/input-group";
-import { layoutGapClass } from "@/lib/layout-spacing";
-import { cn } from "@/lib/utils";
+} from "../components/ui/input-group";
+import { layoutGapClass } from "../lib/layout-spacing";
+import { cn } from "../lib/utils";
 
 export type DataTableToolbarProps = {
   searchPlaceholder?: string;

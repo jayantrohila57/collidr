@@ -38,7 +38,6 @@ import {
   Empty,
   EmptyDescription,
   EmptyHeader,
-  EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
@@ -60,7 +59,6 @@ import { accountSettingsActions } from "@/domain/permissions/org-section-actions
 import {
   type AuthSessionRow,
   SessionsList,
-  SessionsListSkeleton,
 } from "@/domain/settings/components/sessions-list";
 import { TimelinePageClient } from "@/domain/timeline/components/timeline-page-client";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
@@ -513,39 +511,18 @@ export function AccountSettingsClient({
                       ) : null}
                     </Button>
                   </SettingsRow>
-                  {sessionsLoading && sessions.length === 0 ? (
-                    <SessionsListSkeleton />
-                  ) : sessionsError && sessions.length === 0 ? (
-                    <div className="px-4 py-4">
-                      <ErrorState
-                        title="Could not load sessions"
-                        description={sessionsError}
-                        onRetry={() => void loadSessions()}
-                      />
-                    </div>
-                  ) : sessions.length === 0 ? (
-                    <div className="px-4 py-6">
-                      <Empty className="border border-dashed py-8">
-                        <EmptyHeader>
-                          <EmptyMedia variant="icon">
-                            <AppIcon name="lock" className="size-5" />
-                          </EmptyMedia>
-                          <EmptyTitle>No active sessions</EmptyTitle>
-                          <EmptyDescription>
-                            Sign in again to refresh this list.
-                          </EmptyDescription>
-                        </EmptyHeader>
-                      </Empty>
-                    </div>
-                  ) : (
+                  <div className="p-4">
                     <SessionsList
                       sessions={sessions}
                       currentToken={sessionToken}
                       pendingToken={revokePending ? revokeToken : null}
                       disabled={revokePending}
+                      isLoading={sessionsLoading}
+                      isError={Boolean(sessionsError) && sessions.length === 0}
+                      errorDescription={sessionsError ?? undefined}
                       onRevoke={(token) => setRevokeToken(token)}
                     />
-                  )}
+                  </div>
                 </SettingsPanel>
               </PermissionGate>
             </SettingsTabsPanel>

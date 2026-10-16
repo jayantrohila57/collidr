@@ -10,14 +10,11 @@ import {
   type LegacyColumnDef,
   useLegacyTable,
 } from "@tanstack/react-table/legacy";
+import { ShieldAlert } from "lucide-react";
+import type React from "react";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
-import {
-  dataTableActionsCellClassName,
-  dataTableActionsHeaderClassName,
-  isDataTableActionsColumn,
-} from "@/components/data-table/data-table-actions-column";
-import { Frame } from "@/components/ui/frame";
+import { Frame } from "../components/ui/frame";
 import {
   Table,
   TableBody,
@@ -26,14 +23,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { layoutSectionStackClass } from "@/lib/layout-spacing";
-import { cn } from "@/lib/utils";
+} from "../components/ui/table";
+import { layoutSectionStackClass } from "../lib/layout-spacing";
+import { cn } from "../lib/utils";
+import {
+  dataTableActionsCellClassName,
+  dataTableActionsHeaderClassName,
+  isDataTableActionsColumn,
+} from "./data-table-actions-column";
+import { DataTableEmpty } from "./data-table-empty";
 import type { DataTableEmptyConfig } from "./data-table-empty-types";
 import { DataTablePagination } from "./data-table-pagination";
-import { DataTableEmpty } from "./data-table-empty";
 import { DataTableSkeletonBody } from "./data-table-skeleton-body";
-import { appIcons } from "@/lib/icons";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { resolveDataTableEmptyMarkup } from "./resolve-data-table-empty";
 
@@ -79,6 +80,19 @@ export type DataTableProps<TData extends RowData> = {
   searchable?: boolean;
   /** Constrain table to parent width (responsive tables) */
   compactLayout?: boolean;
+  /**
+   * Server-side pagination: `data` is the current page only. Rows are not
+   * sliced client-side; the pager calls `onPageChange`.
+   */
+  serverPagination?: {
+    pageIndex: number;
+    pageCount: number;
+    onPageChange: (pageIndex: number) => void;
+  };
+  /** Whole-row click / Enter opens the row (links and buttons inside still work). */
+  onRowClick?: (row: TData) => void;
+  /** Accessible label for clickable rows. */
+  rowLabel?: (row: TData) => string;
 };
 
 function columnClassName<TData extends RowData>(
@@ -148,7 +162,11 @@ export function DataTable<TData extends RowData>({
   pageSize = 10,
   searchable = false,
   compactLayout = false,
+  serverPagination,
+  onRowClick,
+  rowLabel,
 }: DataTableProps<TData>) {
+  const paginated = enablePagination || Boolean(serverPagination);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [pinActions, setPinActions] = useState(false);
   const [internalSearch, setInternalSearch] = useState("");
@@ -175,12 +193,15 @@ export function DataTable<TData extends RowData>({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: enablePagination
-      ? getPaginationRowModel()
-      : undefined,
+    getPaginationRowModel:
+      enablePagination && !serverPagination
+        ? getPaginationRowModel()
+        : undefined,
     globalFilterFn: defaultGlobalFilterFn,
     state: {
-      globalFilter: searchEnabled ? searchValue : undefined,
+      // Server-paginated tables search on the server; don't re-filter the page.
+      globalFilter:
+        searchEnabled && !serverPagination ? searchValue : undefined,
     },
     onGlobalFilterChange: onSearchChange,
     initialState: {
@@ -189,8 +210,7 @@ export function DataTable<TData extends RowData>({
   });
 
   const columnCount = columns.length;
-  const skeletonRowCount =
-    skeletonRowCountProp ?? (enablePagination ? pageSize : 5);
+  const skeletonRowCount = skeletonRowCountProp ?? (paginated ? pageSize : 5);
   // First load only: once rows exist, a refetch keeps them (placeholderData).
   const showSkeleton = isLoading && data.length === 0;
   const refetching = !showSkeleton && (isFetching || isLoading);
@@ -227,16 +247,14 @@ export function DataTable<TData extends RowData>({
         ? "noResults"
         : "empty";
 
-  const errorMarkup = showError
-    ? (
-        <DataTableEmpty
-          compact
-          icon={appIcons.danger}
-          title={errorTitle}
-          description={errorDescription}
-        />
-      )
-    : null;
+  const errorMarkup = showError ? (
+    <DataTableEmpty
+      compact
+      icon={ShieldAlert}
+      title={errorTitle}
+      description={errorDescription}
+    />
+  ) : null;
 
   const emptyMarkup =
     emptyState ??
@@ -307,6 +325,32 @@ export function DataTable<TData extends RowData>({
             <TableRow
               key={row.id}
               data-state={row.getIsSelected() ? "selected" : undefined}
+              {...(onRowClick
+                ? {
+                    tabIndex: 0,
+                    "aria-label": rowLabel?.(row.original),
+                    className:
+                      "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+                    onClick: (e: React.MouseEvent<HTMLTableRowElement>) => {
+                      const target = e.target as HTMLElement;
+                      if (
+                        target.closest(
+                          "a,button,input,[role=menuitem],[data-row-click-ignore]",
+                        )
+                      )
+                        return;
+                      onRowClick(row.original);
+                    },
+                    onKeyDown: (
+                      e: React.KeyboardEvent<HTMLTableRowElement>,
+                    ) => {
+                      if (e.key === "Enter" && e.target === e.currentTarget) {
+                        e.preventDefault();
+                        onRowClick(row.original);
+                      }
+                    },
+                  }
+                : {})}
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell
@@ -365,7 +409,26 @@ export function DataTable<TData extends RowData>({
           {tableMarkup}
         </div>
       )}
-      {enablePagination ? (
+      {serverPagination ? (
+        <DataTablePagination
+          table={{
+            getPageCount: () => serverPagination.pageCount,
+            getState: () => ({
+              pagination: { pageIndex: serverPagination.pageIndex },
+            }),
+            previousPage: () =>
+              serverPagination.onPageChange(
+                Math.max(serverPagination.pageIndex - 1, 0),
+              ),
+            nextPage: () =>
+              serverPagination.onPageChange(serverPagination.pageIndex + 1),
+            getCanPreviousPage: () => serverPagination.pageIndex > 0,
+            getCanNextPage: () =>
+              serverPagination.pageIndex + 1 < serverPagination.pageCount,
+          }}
+          disabled={showSkeleton}
+        />
+      ) : enablePagination ? (
         <DataTablePagination table={table} disabled={showSkeleton} />
       ) : null}
     </div>

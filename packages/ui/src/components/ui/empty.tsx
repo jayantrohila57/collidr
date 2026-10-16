@@ -52,7 +52,6 @@ export function EmptyHeader({
 export function EmptyMedia({
   className,
   variant = "default",
-  children,
   ...props
 }: React.ComponentProps<"div"> &
   VariantProps<typeof emptyMediaVariants>): React.ReactElement {
@@ -61,20 +60,21 @@ export function EmptyMedia({
       className={cn("relative mb-6", className)}
       data-slot="empty-media"
       data-variant={variant}
+      {...props}
     >
       {variant === "icon" && (
         <>
           <div
             aria-hidden="true"
             className={cn(
-              emptyMediaVariants({ variant }),
+              emptyMediaVariants({ className, variant }),
               "pointer-events-none absolute bottom-px origin-bottom-start -translate-x-0.5 -rotate-10 scale-84 shadow-none rtl:translate-x-0.5",
             )}
           />
           <div
             aria-hidden="true"
             className={cn(
-              emptyMediaVariants({ variant }),
+              emptyMediaVariants({ className, variant }),
               "pointer-events-none absolute bottom-px origin-bottom-end translate-x-0.5 rotate-10 scale-84 shadow-none rtl:-translate-x-0.5",
             )}
           />
@@ -83,9 +83,7 @@ export function EmptyMedia({
       <div
         className={cn(emptyMediaVariants({ className, variant }))}
         {...props}
-      >
-        {children}
-      </div>
+      />
     </div>
   );
 }

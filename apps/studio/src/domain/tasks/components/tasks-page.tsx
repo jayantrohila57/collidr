@@ -5,23 +5,16 @@ import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDeferredValue, useMemo, useState } from "react";
+import {
+  DataTable,
+  type DataTableColumnDef,
+} from "@/components/data-table/data-table";
 import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
-import { EmptyState } from "@/components/patterns/empty-state";
-import { ErrorState } from "@/components/patterns/error-state";
 import DashboardSection from "@/components/section-dashboard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useProjectApps } from "@/domain/apps/hooks/use-project-apps";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { useProjectTabs } from "@/domain/projects/hooks/use-project-tabs";
@@ -43,7 +36,6 @@ import { FieldSelect } from "./field-select";
 import { TaskDetailSheet } from "./task-detail-sheet";
 
 const PAGE_SIZE = 50;
-const ROW_SKELETONS = Array.from({ length: 8 }, (_, i) => i);
 
 export function TasksPageSkeleton() {
   return (
@@ -132,6 +124,120 @@ export function TasksPage({ slug }: { slug: string }) {
       setPage(0);
     };
 
+  type TaskRow = (typeof rows)[number];
+  const taskColumns: DataTableColumnDef<TaskRow>[] = [
+    {
+      id: "number",
+      header: "ID",
+      meta: { className: "w-16" },
+      cell: ({ row }) => (
+        <span className="text-muted-foreground text-xs tabular-nums">
+          #{row.original.number}
+        </span>
+      ),
+    },
+    {
+      id: "title",
+      header: "Title",
+      meta: { className: "max-w-0" },
+      cell: ({ row }) => {
+        const t = row.original;
+        return (
+          <div className="flex min-w-0 items-center gap-1.5">
+            <Link
+              href={`/p/${slug}/tasks?task=${t.number}` as Route}
+              className="truncate hover:underline"
+              onClick={(e) => {
+                // Plain click opens the sheet in place; modifier clicks open a new tab.
+                if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+                e.preventDefault();
+                setOpenNumber(t.number);
+              }}
+            >
+              {t.title}
+            </Link>
+            {t.labels.slice(0, 2).map((l) => (
+              <Badge key={l} variant="outline" size="sm" className="shrink-0">
+                {l}
+              </Badge>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      id: "status",
+      header: "Status",
+      meta: { className: "w-32" },
+      cell: ({ row }) => (
+        <Badge variant={statusBadgeVariant(row.original.status)} size="sm">
+          {statusLabel(row.original.status)}
+        </Badge>
+      ),
+    },
+    {
+      id: "priority",
+      header: "Priority",
+      meta: { className: "w-28" },
+      cell: ({ row }) =>
+        row.original.priority === "none" ? (
+          <span className="text-muted-foreground text-xs">—</span>
+        ) : (
+          <Badge
+            variant={priorityBadgeVariant(row.original.priority)}
+            size="sm"
+          >
+            {priorityLabel(row.original.priority)}
+          </Badge>
+        ),
+    },
+    {
+      id: "assignee",
+      header: "Assignee",
+      meta: { className: "w-44" },
+      cell: ({ row }) => {
+        const t = row.original;
+        return t.assigneeId ? (
+          <div className="flex min-w-0 items-center gap-1.5">
+            <Avatar className="size-5">
+              {t.assigneeImage ? (
+                <AvatarImage src={t.assigneeImage} alt="" />
+              ) : null}
+              <AvatarFallback className="text-[9px]">
+                {initialsFromLabel(t.assigneeName ?? "?", "?")}
+              </AvatarFallback>
+            </Avatar>
+            <span className="truncate text-xs">{t.assigneeName}</span>
+          </div>
+        ) : (
+          <span className="text-muted-foreground text-xs">Unassigned</span>
+        );
+      },
+    },
+    {
+      id: "due",
+      header: "Due",
+      meta: { className: "w-28" },
+      cell: ({ row }) => (
+        <span className="text-muted-foreground text-xs tabular-nums">
+          {row.original.dueDate
+            ? new Date(row.original.dueDate).toLocaleDateString()
+            : "—"}
+        </span>
+      ),
+    },
+    {
+      id: "updated",
+      header: "Updated",
+      meta: { className: "w-28" },
+      cell: ({ row }) => (
+        <span className="text-muted-foreground text-xs">
+          <ClientRelativeTime value={row.original.updatedAt} />
+        </span>
+      ),
+    },
+  ];
+
   return (
     <DashboardSection
       title="Tasks"
@@ -151,229 +257,90 @@ export function TasksPage({ slug }: { slug: string }) {
         ) : null
       }
     >
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <Input
-            size="sm"
-            className="w-56"
-            placeholder="Search tasks…"
-            aria-label="Search tasks"
-            value={search}
-            onChange={(e) => resetPage(setSearch)(e.target.value)}
-          />
-          <FieldSelect
-            ariaLabel="Filter by status"
-            value={status}
-            onChange={resetPage(setStatus)}
-            options={[
-              { value: "all", label: "All statuses" },
-              ...TASK_STATUS_OPTIONS,
-            ]}
-          />
-          <FieldSelect
-            ariaLabel="Filter by priority"
-            value={priority}
-            onChange={resetPage(setPriority)}
-            options={[
-              { value: "all", label: "All priorities" },
-              ...TASK_PRIORITY_OPTIONS,
-            ]}
-          />
-          <FieldSelect
-            ariaLabel="Filter by assignee"
-            className="w-44"
-            value={assignee}
-            onChange={resetPage(setAssignee)}
-            options={[
-              { value: "all", label: "Anyone" },
-              { value: "none", label: "Unassigned" },
-              ...peopleOptions,
-            ]}
-          />
-          <span className="ms-auto text-muted-foreground text-xs tabular-nums">
+      <DataTable
+        framed
+        columns={taskColumns}
+        data={rows}
+        isLoading={list.isPending}
+        isFetching={list.isFetching}
+        isError={list.isError}
+        errorTitle="Tasks unavailable"
+        errorDescription="We couldn't load tasks."
+        filterActive={filtered}
+        pageSize={PAGE_SIZE}
+        skeletonRowCount={8}
+        searchPlaceholder="Search tasks…"
+        searchValue={search}
+        onSearchChange={resetPage(setSearch)}
+        filter={
+          <div className="flex flex-wrap items-center gap-1.5">
+            <FieldSelect
+              ariaLabel="Filter by status"
+              value={status}
+              onChange={resetPage(setStatus)}
+              options={[
+                { value: "all", label: "All statuses" },
+                ...TASK_STATUS_OPTIONS,
+              ]}
+            />
+            <FieldSelect
+              ariaLabel="Filter by priority"
+              value={priority}
+              onChange={resetPage(setPriority)}
+              options={[
+                { value: "all", label: "All priorities" },
+                ...TASK_PRIORITY_OPTIONS,
+              ]}
+            />
+            <FieldSelect
+              ariaLabel="Filter by assignee"
+              className="w-44"
+              value={assignee}
+              onChange={resetPage(setAssignee)}
+              options={[
+                { value: "all", label: "Anyone" },
+                { value: "none", label: "Unassigned" },
+                ...peopleOptions,
+              ]}
+            />
+          </div>
+        }
+        toolbarTrailing={
+          <span className="text-muted-foreground text-xs tabular-nums">
             {list.data
               ? `${total} ${total === 1 ? "task" : "tasks"}`
               : "\u00a0"}
           </span>
-        </div>
-
-        {list.isError ? (
-          <ErrorState
-            title="Tasks unavailable"
-            description="We couldn't load tasks."
-            onRetry={() => list.refetch()}
-          />
-        ) : !list.isPending && rows.length === 0 ? (
-          <EmptyState
-            icon={ListTodo}
-            title={filtered ? "No matching tasks" : "No tasks yet"}
-            description={
-              filtered
-                ? "Try different filters."
-                : "Create the first task for this project."
-            }
-            actionLabel={
-              !filtered && canCreate.allowed ? "New task" : undefined
-            }
-            onAction={
-              !filtered && canCreate.allowed
-                ? () => setCreateOpen(true)
-                : undefined
-            }
-          />
-        ) : (
-          <div className="overflow-hidden rounded-xl ring-1 ring-border/60">
-            <Table className="text-sm">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-16 text-xs">ID</TableHead>
-                  <TableHead className="text-xs">Title</TableHead>
-                  <TableHead className="w-32 text-xs">Status</TableHead>
-                  <TableHead className="w-28 text-xs">Priority</TableHead>
-                  <TableHead className="w-44 text-xs">Assignee</TableHead>
-                  <TableHead className="w-28 text-xs">Due</TableHead>
-                  <TableHead className="w-28 text-xs">Updated</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {list.isPending
-                  ? ROW_SKELETONS.map((i) => (
-                      <TableRow key={i}>
-                        <TableCell colSpan={7}>
-                          <Skeleton className="h-4 w-full" />
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  : rows.map((t) => (
-                      <TableRow
-                        key={t.id}
-                        className="cursor-pointer"
-                        tabIndex={0}
-                        onClick={() => setOpenNumber(t.number)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") setOpenNumber(t.number);
-                        }}
-                      >
-                        <TableCell className="text-muted-foreground text-xs tabular-nums">
-                          #{t.number}
-                        </TableCell>
-                        <TableCell className="max-w-0">
-                          <div className="flex min-w-0 items-center gap-1.5">
-                            <Link
-                              href={
-                                `/p/${slug}/tasks?task=${t.number}` as Route
-                              }
-                              className="truncate hover:underline"
-                              onClick={(e) => {
-                                // Plain click opens the sheet in place; modifier
-                                // clicks fall through to the browser (new tab).
-                                if (e.metaKey || e.ctrlKey || e.shiftKey) {
-                                  e.stopPropagation();
-                                  return;
-                                }
-                                e.preventDefault();
-                              }}
-                            >
-                              {t.title}
-                            </Link>
-                            {t.labels.slice(0, 2).map((l) => (
-                              <Badge
-                                key={l}
-                                variant="outline"
-                                size="sm"
-                                className="shrink-0"
-                              >
-                                {l}
-                              </Badge>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={statusBadgeVariant(t.status)}
-                            size="sm"
-                          >
-                            {statusLabel(t.status)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {t.priority === "none" ? (
-                            <span className="text-muted-foreground text-xs">
-                              —
-                            </span>
-                          ) : (
-                            <Badge
-                              variant={priorityBadgeVariant(t.priority)}
-                              size="sm"
-                            >
-                              {priorityLabel(t.priority)}
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {t.assigneeId ? (
-                            <div className="flex min-w-0 items-center gap-1.5">
-                              <Avatar className="size-5">
-                                {t.assigneeImage ? (
-                                  <AvatarImage src={t.assigneeImage} alt="" />
-                                ) : null}
-                                <AvatarFallback className="text-[9px]">
-                                  {initialsFromLabel(
-                                    t.assigneeName ?? "?",
-                                    "?",
-                                  )}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="truncate text-xs">
-                                {t.assigneeName}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground text-xs">
-                              Unassigned
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-xs tabular-nums">
-                          {t.dueDate
-                            ? new Date(t.dueDate).toLocaleDateString()
-                            : "—"}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-xs">
-                          <ClientRelativeTime value={t.updatedAt} />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-
-        {total > PAGE_SIZE ? (
-          <div className="flex items-center justify-end gap-1.5 text-xs">
-            <span className="text-muted-foreground tabular-nums">
-              {page * PAGE_SIZE + 1}–{Math.min(total, (page + 1) * PAGE_SIZE)}{" "}
-              of {total}
-            </span>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={page === 0}
-              onClick={() => setPage((p) => p - 1)}
-            >
-              Previous
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={(page + 1) * PAGE_SIZE >= total}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Next
-            </Button>
-          </div>
-        ) : null}
-      </div>
+        }
+        serverPagination={{
+          pageIndex: page,
+          pageCount: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+          onPageChange: setPage,
+        }}
+        onRowClick={(t) => setOpenNumber(t.number)}
+        rowLabel={(t) => `Open task #${t.number}: ${t.title}`}
+        empty={{
+          empty: {
+            icon: ListTodo,
+            title: "No tasks yet",
+            description: "Create the first task for this project.",
+            action: canCreate.allowed ? (
+              <Button
+                size="sm"
+                className="h-8"
+                onClick={() => setCreateOpen(true)}
+              >
+                <Plus className="size-4" aria-hidden />
+                New task
+              </Button>
+            ) : undefined,
+          },
+          noResults: {
+            title: "No matching tasks",
+            description: "Try different filters.",
+          },
+        }}
+      />
 
       {projectId ? (
         <>
