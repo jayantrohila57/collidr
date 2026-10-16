@@ -2,6 +2,15 @@
 
 import { accountSettingsNav, platformNav } from "@loftlancer/actions/nav";
 import { GithubIcon } from "@loftlancer/ui/github-icon";
+import {
+  NavCountBadge,
+  SidebarBrand,
+  SidebarFavorites,
+  SidebarSearch,
+  SidebarUserMenu,
+} from "@loftlancer/ui/patterns/sidebar-kit";
+import { docsSiteUrl } from "@loftlancer/ui/platform-urls";
+import { useQueryClient } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
 import {
   ActivityIcon,
@@ -18,17 +27,7 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
-import {
-  NavCountBadge,
-  SidebarBrand,
-  SidebarFavorites,
-  SidebarSearch,
-  SidebarUserMenu,
-} from "@loftlancer/ui/patterns/sidebar-kit";
-import { docsSiteUrl } from "@loftlancer/ui/platform-urls";
 import { useSidebarNavigator } from "@/components/sidebar/use-sidebar-navigator";
-import { performSignOut, useSession } from "@/domain/auth/lib/auth-actions";
 import {
   Sidebar,
   SidebarContent,
@@ -43,12 +42,13 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
-import { studioDashboardPath } from "@/lib/studio-url";
-import { withBasePath } from "@/lib/base-path";
+import { performSignOut, useSession } from "@/domain/auth/lib/auth-actions";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
+import { withBasePath } from "@/lib/base-path";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
+import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+import { studioDashboardPath } from "@/lib/studio-url";
 
 const navIcons: Record<string, LucideIcon> = {
   "/settings/profile": UserIcon,
@@ -69,10 +69,11 @@ const studioNavIcons: Record<string, LucideIcon> = {
   "/dashboard/notifications": BellIcon,
 };
 
-const projectHref = (slug: string) => studioDashboardPath(`/dashboard/projects/${slug}`);
+const projectHref = (slug: string) => studioDashboardPath(`/p/${slug}`);
 const envHref = (p: string, e: string) =>
-  studioDashboardPath(`/dashboard/projects/${p}/environments?env=${encodeURIComponent(e)}`);
-const memberHref = (org: string) => studioDashboardPath(`/dashboard/organizations/${org}/members`);
+  studioDashboardPath(`/p/${p}/env?env=${encodeURIComponent(e)}`);
+const memberHref = (org: string) =>
+  studioDashboardPath(`/dashboard/organizations/${org}/members`);
 
 export function AccountSettingsSidebar({
   ...props
@@ -146,7 +147,11 @@ export function AccountSettingsSidebar({
     <Sidebar collapsible="icon" variant="inset" {...props}>
       <SidebarHeader className="shrink-0 gap-2">
         <SidebarBrand href={studioDashboardPath("/dashboard")} />
-        <SidebarSearch groups={nav.groups} loading={nav.loading} onNavigate={navigate} />
+        <SidebarSearch
+          groups={nav.groups}
+          loading={nav.loading}
+          onNavigate={navigate}
+        />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
@@ -167,7 +172,11 @@ export function AccountSettingsSidebar({
                     </SidebarMenuButton>
                     <NavCountBadge
                       count={studioCount(item.href)}
-                      tone={item.href === "/dashboard/notifications" ? "alert" : "muted"}
+                      tone={
+                        item.href === "/dashboard/notifications"
+                          ? "alert"
+                          : "muted"
+                      }
                     />
                   </SidebarMenuItem>
                 );
@@ -210,7 +219,9 @@ export function AccountSettingsSidebar({
           accountHref={withBasePath("/settings/profile")}
           organizationSettingsHref={
             isOrganizationsEnabledOnClient() && nav.organizationSlug
-              ? studioDashboardPath(`/dashboard/organizations/${nav.organizationSlug}/settings`)
+              ? studioDashboardPath(
+                  `/dashboard/organizations/${nav.organizationSlug}/settings`,
+                )
               : null
           }
           docsHref={docsSiteUrl()}

@@ -1,0 +1,155 @@
+"use client";
+
+import type { Route } from "next";
+import Link from "next/link";
+import { useState } from "react";
+import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import type { ProjectAppItem } from "../hooks/use-project-apps";
+import { AppGlyph } from "./app-glyph";
+
+function daysLeft(date: Date | string | null) {
+  if (!date) return null;
+  return Math.max(
+    0,
+    Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000),
+  );
+}
+
+/** One app in the directory: install / open / uninstall. Fixed height, no shift. */
+export function AppCard({
+  app,
+  slug,
+  projectName,
+  canManage,
+  busy,
+  onInstall,
+  onUninstall,
+}: {
+  app: ProjectAppItem;
+  slug: string;
+  projectName: string;
+  canManage: boolean;
+  busy: boolean;
+  onInstall: () => Promise<unknown>;
+  onUninstall: () => Promise<unknown>;
+}) {
+  const [installOpen, setInstallOpen] = useState(false);
+  const [uninstallOpen, setUninstallOpen] = useState(false);
+  const active = app.status === "active";
+  const retained =
+    app.status === "uninstalled" ? daysLeft(app.purgeAfter) : null;
+  const href = `/p/${slug}/${app.nav[0]?.path ?? app.id}` as Route;
+
+  return (
+    <div
+      className="flex min-h-36 flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-border/60"
+      data-testid={`app-card-${app.id}`}
+    >
+      <div className="flex items-start gap-3">
+        <AppGlyph icon={app.icon} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <h3 className="truncate font-medium text-sm">{app.name}</h3>
+            {active ? (
+              <Badge variant="success" size="sm">
+                Installed
+              </Badge>
+            ) : retained !== null ? (
+              <Badge variant="warning" size="sm">
+                Data kept {retained}d
+              </Badge>
+            ) : null}
+          </div>
+          <p className="text-muted-foreground text-xs">{app.category}</p>
+        </div>
+      </div>
+      <p className="line-clamp-2 flex-1 text-muted-foreground text-xs">
+        {app.description}
+      </p>
+      <div className="flex items-center gap-1.5">
+        {active ? (
+          <Button size="sm" variant="outline" render={<Link href={href} />}>
+            Open
+          </Button>
+        ) : null}
+        {canManage && !active ? (
+          <Button
+            size="sm"
+            disabled={busy}
+            onClick={() => setInstallOpen(true)}
+          >
+            {retained !== null ? "Reinstall" : "Install"}
+          </Button>
+        ) : null}
+        {canManage && active ? (
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={busy}
+            onClick={() => setUninstallOpen(true)}
+          >
+            Uninstall
+          </Button>
+        ) : null}
+        {!canManage && !active ? (
+          <span className="text-muted-foreground text-xs">
+            Ask a project manager to install
+          </span>
+        ) : null}
+      </div>
+
+      <ConfirmDialog
+        open={installOpen}
+        onOpenChange={setInstallOpen}
+        title={`Install ${app.name}?`}
+        description={
+          <div className="flex flex-col gap-2 text-xs">
+            <div>
+              <p className="font-medium text-foreground">It will be able to</p>
+              <ul className="list-disc ps-4">
+                {app.permissions.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="font-medium text-foreground">Data it creates</p>
+              <ul className="list-disc ps-4">
+                {app.dataCreated.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+            </div>
+            {retained !== null ? (
+              <p>
+                Your existing {app.name.toLowerCase()} data will be restored.
+              </p>
+            ) : null}
+          </div>
+        }
+        confirmLabel={retained !== null ? "Reinstall" : "Install"}
+        onConfirm={async () => {
+          await onInstall();
+          setInstallOpen(false);
+        }}
+        isPending={busy}
+      />
+      <ConfirmDialog
+        open={uninstallOpen}
+        onOpenChange={setUninstallOpen}
+        variant="destructive"
+        title={`Uninstall ${app.name}?`}
+        description={`${app.name} disappears from ${projectName} for everyone. Its data is kept for 30 days, so reinstalling restores it. After that it's deleted.`}
+        confirmText={projectName}
+        confirmLabel="Uninstall"
+        onConfirm={async () => {
+          await onUninstall();
+          setUninstallOpen(false);
+        }}
+        isPending={busy}
+      />
+    </div>
+  );
+}

@@ -39,6 +39,15 @@ async function main() {
     sql`delete from audit_event where id like 'seed-%' or organization_id in (${orgs}) or project_id in ${seedProjects}`,
   );
   await run(
+    "task comments",
+    sql`delete from task_comment where task_id in (select id from task where project_id in ${seedProjects})`,
+  );
+  await run("tasks", sql`delete from task where project_id in ${seedProjects}`);
+  await run(
+    "project apps",
+    sql`delete from project_app where project_id in ${seedProjects}`,
+  );
+  await run(
     "pins",
     sql`delete from project_pin where project_id in ${seedProjects}`,
   );

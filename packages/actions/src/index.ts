@@ -1,3 +1,4 @@
+export * from "./apps";
 export * from "./better-auth-ac";
 export * from "./evaluate";
 export * from "./feature";

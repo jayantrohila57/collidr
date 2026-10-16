@@ -2,7 +2,7 @@ import type { Route } from "next";
 import type { OrgListItem } from "@/components/org/active-organization-context";
 
 const ORG_SECTION = /^\/dashboard\/organizations\/([^/]+)(\/.*)?$/;
-const PROJECT_SECTION = /^\/dashboard\/projects\/([^/]+)(\/.*)?$/;
+const PROJECT_SECTION = /^\/p\/([^/]+)(\/.*)?$/;
 
 export function pathAfterOrganizationSwitch(
   pathname: string,

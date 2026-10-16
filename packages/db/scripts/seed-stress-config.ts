@@ -39,6 +39,9 @@ export function seedConfig() {
     pins: num("SEED_PINS", 12),
     auditEvents: num("SEED_AUDIT_EVENTS", 1500),
     notifications: num("SEED_NOTIFICATIONS", 500),
+    tasksMin: num("SEED_TASKS_MIN", 0),
+    tasksMax: num("SEED_TASKS_MAX", 30),
+    taskNotifications: num("SEED_TASK_NOTIFICATIONS", 60),
     batchSize: Math.max(1, num("SEED_BATCH", 250)),
     rngSeed: num("SEED_RNG", 20261016),
   };

@@ -32,28 +32,28 @@ export function isRecognizedDashboardPath(
 
   if (staticPaths.has(pathname)) return true;
 
-  const projectDetail = /^\/dashboard\/projects\/([^/]+)$/.exec(pathname);
+  const projectDetail = /^\/p\/([^/]+)$/.exec(pathname);
   if (projectDetail) {
     const slug = projectDetail[1];
     if (slug === "new" || slug === "edit") return true;
     return true;
   }
 
-  const projectEdit = /^\/dashboard\/projects\/([^/]+)\/edit$/.exec(pathname);
+  const projectEdit = /^\/p\/([^/]+)\/edit$/.exec(pathname);
   if (projectEdit) {
     return true;
   }
 
-  const projectEnvironments =
-    /^\/dashboard\/projects\/([^/]+)\/environments$/.exec(pathname);
+  const projectEnvironments = /^\/p\/([^/]+)\/env$/.exec(pathname);
   if (projectEnvironments) {
     const slug = projectEnvironments[1];
     if (slug === "new" || slug === "edit") return true;
     return true;
   }
 
-  const supportTicket =
-    /^\/dashboard\/support\/tickets\/([^/]+)$/.exec(pathname);
+  const supportTicket = /^\/dashboard\/support\/tickets\/([^/]+)$/.exec(
+    pathname,
+  );
   if (supportTicket) {
     return true;
   }

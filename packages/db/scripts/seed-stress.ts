@@ -19,6 +19,11 @@ import {
   member,
   organization,
 } from "@loftlancer/db/schema/organization";
+import {
+  projectApp,
+  task,
+  taskComment,
+} from "@loftlancer/db/schema/project-app";
 import { projectPin } from "@loftlancer/db/schema/project-pin";
 import {
   environment,
@@ -33,6 +38,19 @@ let db: Awaited<ReturnType<typeof getSeedDb>>;
 
 import { getSeedDb } from "./seed-db";
 import { SEED_ORGS, type SeedConfig, seedConfig } from "./seed-stress-config";
+
+/**
+ * SEED_ONLY=apps: regenerate the same deterministic data but only write the
+ * apps rows (project_app, tasks, task comments, task notifications). Needs no
+ * ENCRYPTION_KEY, since variables are skipped.
+ */
+const ONLY_APPS = process.env.SEED_ONLY === "apps";
+const APPS_LABELS = new Set([
+  "project apps",
+  "tasks",
+  "task comments",
+  "task notifications",
+]);
 
 const DAY = 86_400_000;
 const NOW = Date.now();
@@ -287,6 +305,10 @@ async function insertBatched(
   rows: Record<string, unknown>[],
   cfg: SeedConfig,
 ) {
+  if (ONLY_APPS && !APPS_LABELS.has(label)) {
+    console.log(`  ${label}: skipped (SEED_ONLY=apps)`);
+    return;
+  }
   let done = 0;
   for (let i = 0; i < rows.length; i += cfg.batchSize) {
     const chunk = rows.slice(i, i + cfg.batchSize);
@@ -321,6 +343,7 @@ async function preflight(cfg: SeedConfig) {
     .where(eq(user.id, cfg.ownerUserId))
     .limit(1);
   if (!owner) throw new Error(`Owner user ${cfg.ownerUserId} not found`);
+  if (ONLY_APPS) return;
   // Ensure ENCRYPTION_KEY matches the app's key by decrypting one existing non-seed value.
   const [sample] = await db
     .select({ v: environmentVariable.encryptedValue })
@@ -560,6 +583,10 @@ async function main() {
   let buffer: Record<string, unknown>[] = [];
   const flush = async () => {
     if (!buffer.length) return;
+    if (ONLY_APPS) {
+      buffer = [];
+      return;
+    }
     // biome-ignore lint/suspicious/noExplicitAny: batched insert
     await db
       .insert(environmentVariable)
@@ -577,7 +604,7 @@ async function main() {
       buffer.push({
         id: `seed-var-${pid.slice(10)}-${pad(v, 3)}`,
         key: makeKey(v),
-        encryptedValue: encrypt(value),
+        encryptedValue: ONLY_APPS ? "" : encrypt(value),
         type,
         note,
         environmentId: env.id,
@@ -602,6 +629,144 @@ async function main() {
     })),
     cfg,
   );
+
+  // Apps (#245/#246): every seed project gets env + tasks installed, then tasks.
+  // Separate RNG so adding this block doesn't reshuffle the rows after it.
+  const mainRand = rand;
+  rand = mulberry32(cfg.rngSeed + 246);
+  const appRows: Record<string, unknown>[] = [];
+  const taskRows: Record<string, unknown>[] = [];
+  const commentRows: Record<string, unknown>[] = [];
+  const taskNotifs: Record<string, unknown>[] = [];
+  const STATUSES = [
+    "backlog",
+    "todo",
+    "todo",
+    "in_progress",
+    "in_progress",
+    "done",
+    "done",
+    "done",
+    "canceled",
+  ];
+  const PRIORITIES = [
+    "none",
+    "none",
+    "low",
+    "medium",
+    "medium",
+    "high",
+    "urgent",
+  ];
+  const LABELS = [
+    "bug",
+    "feature",
+    "chore",
+    "docs",
+    "infra",
+    "security",
+    "ux",
+    "perf",
+  ];
+  const VERBS = [
+    "Fix",
+    "Add",
+    "Refactor",
+    "Document",
+    "Investigate",
+    "Remove",
+    "Upgrade",
+    "Ship",
+    "Audit",
+    "Rotate",
+  ];
+  for (const p of projects) {
+    const pid = p.id as string;
+    const orgId = p.organizationId as string;
+    for (const appId of ["env", "tasks"]) {
+      appRows.push({
+        id: `seed-app-${pid.slice(10)}-${appId}`,
+        organizationId: orgId,
+        projectId: pid,
+        appId,
+        appVersion: 1,
+        status: "active",
+        installedBy: owner,
+        installedAt: p.createdAt,
+      });
+    }
+    const members = orgMembers.get(orgId) ?? [];
+    const pool = members.length ? members : [{ userId: owner, role: "owner" }];
+    const n = int(cfg.tasksMin, cfg.tasksMax);
+    for (let t = 1; t <= n; t++) {
+      const id = `seed-task-${pid.slice(10)}-${pad(t, 3)}`;
+      const created = pastDate(180);
+      const assignee = chance(0.75)
+        ? chance(0.15)
+          ? owner
+          : pick(pool).userId
+        : null;
+      const title = chance(0.1)
+        ? `${pick(VERBS)} ${Array.from({ length: 16 }, () => pick(WORDS)).join(" ")}`
+        : `${pick(VERBS)} ${pick(WORDS)} ${pick(SUFFIX)}`;
+      taskRows.push({
+        id,
+        organizationId: orgId,
+        projectId: pid,
+        number: t,
+        title,
+        description: chance(0.6)
+          ? `Seed task ${t}. ${Array.from({ length: int(5, 60) }, () => pick(WORDS)).join(" ")}.`
+          : null,
+        status: pick(STATUSES),
+        priority: pick(PRIORITIES),
+        assigneeId: assignee,
+        reporterId: chance(0.3) ? owner : pick(pool).userId,
+        dueDate: chance(0.4)
+          ? new Date(created.getTime() + int(1, 60) * DAY)
+          : null,
+        labels: LABELS.filter(() => chance(0.15)).slice(0, 3),
+        createdAt: created,
+        updatedAt: new Date(
+          Math.min(NOW, created.getTime() + int(0, 30) * DAY),
+        ),
+      });
+      for (let c = 1, cn = chance(0.5) ? int(1, 6) : 0; c <= cn; c++) {
+        commentRows.push({
+          id: `seed-tc-${pid.slice(10)}-${pad(t, 3)}-${c}`,
+          taskId: id,
+          authorId: chance(0.2) ? owner : pick(pool).userId,
+          body: Array.from({ length: int(3, 40) }, () => pick(WORDS)).join(" "),
+          createdAt: new Date(created.getTime() + c * int(1, 48) * 3_600_000),
+        });
+      }
+      if (assignee === owner && taskNotifs.length < cfg.taskNotifications) {
+        taskNotifs.push({
+          id: `seed-notif-task-${pad(taskNotifs.length + 1)}`,
+          recipientUserId: owner,
+          organizationId: orgId,
+          type: chance(0.6) ? "task.assigned" : "task.mentioned",
+          actorUserId: pick(pool).userId,
+          entityType: "task",
+          entityId: id,
+          data: {
+            projectSlug: p.slug,
+            projectName: p.name,
+            taskId: id,
+            taskNumber: t,
+            title,
+          },
+          readAt: chance(0.5) ? new Date(NOW - int(1, 72) * 3_600_000) : null,
+          idempotencyKey: `seed-notif-task-${pad(taskNotifs.length + 1)}`,
+          createdAt: pastDate(30),
+        });
+      }
+    }
+  }
+  rand = mainRand;
+  await insertBatched("project apps", projectApp, appRows, cfg);
+  await insertBatched("tasks", task, taskRows, cfg);
+  await insertBatched("task comments", taskComment, commentRows, cfg);
 
   // Audit events: every canonical write action at least once, then random
   const writeActions = (
@@ -732,6 +897,7 @@ async function main() {
     };
   });
   await insertBatched("notifications", notification, notifs, cfg);
+  await insertBatched("task notifications", notification, taskNotifs, cfg);
 
   const [{ count }] = (
     await db.execute(

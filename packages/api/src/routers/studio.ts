@@ -7,9 +7,11 @@ import { notificationsRouter } from "./notifications";
 import { organizationsRouter } from "./organizations";
 import { permissionsRouter } from "./permissions";
 import { projectAccessRouter } from "./project-access-router";
+import { projectAppsRouter } from "./project-apps";
 import { projectsRouter } from "./projects";
 import { sidebarRouter } from "./sidebar";
 import { supportRouter } from "./support";
+import { tasksRouter } from "./tasks";
 import { teamsRouter } from "./teams";
 import { environmentVariablesRouter } from "./variables";
 
@@ -29,6 +31,8 @@ export const studioRouter = router({
   projectAccess: projectAccessRouter,
   teams: teamsRouter,
   support: supportRouter,
+  projectApps: projectAppsRouter,
+  tasks: tasksRouter,
 });
 
 export type StudioRouter = typeof studioRouter;

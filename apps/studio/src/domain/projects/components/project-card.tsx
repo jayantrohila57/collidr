@@ -23,7 +23,7 @@ import { queryClient } from "@/utils/trpc";
 import { ProjectActions } from "./project-actions";
 
 export function ProjectCard({ project }: { project: ProjectOutput }) {
-  const href = `/dashboard/projects/${project.slug}` as Route;
+  const href = `/p/${project.slug}` as Route;
   const description = project.description?.trim() || "No description";
 
   return (
