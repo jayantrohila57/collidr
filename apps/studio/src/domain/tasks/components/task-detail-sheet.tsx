@@ -106,6 +106,7 @@ export function TaskDetailSheet({
   const personOptions = people.map((p) => ({
     value: p.id,
     label: p.name || p.email,
+    hint: p.name ? p.email : undefined,
   }));
   const dirtyText =
     t &&
