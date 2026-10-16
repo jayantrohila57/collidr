@@ -30,7 +30,7 @@ export function ProjectsListStats({ list }: ProjectsListStatsProps = {}) {
   });
 
   if (!queryEnabled || status === "loading") {
-    return <StatCardRowSkeleton count={8} />;
+    return <StatCardRowSkeleton count={8} compact />;
   }
 
   if (status === "error") {
@@ -40,7 +40,7 @@ export function ProjectsListStats({ list }: ProjectsListStatsProps = {}) {
   const data = statsQuery.data;
 
   if (statsQuery.isPending && !data) {
-    return <StatCardRowSkeleton count={8} />;
+    return <StatCardRowSkeleton count={8} compact />;
   }
 
   if (!data) {

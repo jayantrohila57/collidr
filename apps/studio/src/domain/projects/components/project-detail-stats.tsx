@@ -28,7 +28,7 @@ export function ProjectDetailStats({ slug }: { slug: string }) {
   );
 
   if (showPlaceholder) {
-    return <StatCardRowSkeleton count={4} />;
+    return <StatCardRowSkeleton count={4} compact />;
   }
 
   if (isError || !data) {

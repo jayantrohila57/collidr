@@ -57,7 +57,7 @@ export function OrganizationsPageSkeleton() {
       description="Workspaces you belong to, with members, teams, and access settings."
       back={false}
       action={organizationsPageActionSkeleton}
-      stats={<StatCardRowSkeleton count={4} />}
+      stats={<StatCardRowSkeleton count={4} compact />}
     >
       <OrganizationsListBodySkeleton />
     </DashboardSection>
@@ -76,7 +76,7 @@ export function OrganizationDetailPageSkeleton() {
       description="Team workspace overview and administration."
       back={routes.home()}
       metadata={<Skeleton className="h-5 w-40 max-w-full" />}
-      stats={<StatCardRowSkeleton count={4} />}
+      stats={<StatCardRowSkeleton count={4} compact />}
       action={
         <Skeleton className="size-8 rounded-md sm:h-8 sm:w-auto sm:min-w-[8.5rem]" />
       }

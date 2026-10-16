@@ -2,6 +2,8 @@ import type { ActionName } from "@loftlancer/actions";
 
 /** Canonical gates for Organizations hub sections (UI owned by other agents). */
 export const orgHubSectionActions = {
+  // Same gate as projects.list (the org projects page).
+  projects: "organization.list" satisfies ActionName,
   members: "member.list" satisfies ActionName,
   teams: "team.create" satisfies ActionName,
   invitations: "member.invite" satisfies ActionName,
