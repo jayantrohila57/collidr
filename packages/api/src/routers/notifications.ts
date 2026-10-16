@@ -226,7 +226,11 @@ export const notificationsRouter = router({
     }),
 
   markAllRead: protectedProcedure
-    .use(actionGuard("notification.mark_read"))
+    .use(
+      actionGuard("notification.mark_read", undefined, {
+        payload: { scope: "all" },
+      }),
+    )
     .output(makeResponseSchema(z.number()))
     .mutation(async ({ ctx }) => {
       assertNotificationsEnabled();

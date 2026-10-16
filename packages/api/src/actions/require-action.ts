@@ -26,6 +26,8 @@ export type RequireActionContext = {
   targetUserId?: string | null;
   ipAddress?: string | null;
   userAgent?: string | null;
+  /** Extra audit payload, e.g. `{ scope: "all", count }`. */
+  payload?: Record<string, unknown>;
   /**
    * Write an audit_event row for this check. Default true. Read paths (tRPC
    * queries, page guards, permission probes) pass false so that viewing a page
@@ -182,6 +184,7 @@ export async function requireAction(
           durationMs: Date.now() - startedAt,
           ipAddress: ctx.ipAddress,
           userAgent: ctx.userAgent,
+          payload: ctx.payload,
         });
       } catch (auditErr) {
         console.error("audit_event write failed", auditErr);

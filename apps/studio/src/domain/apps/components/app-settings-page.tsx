@@ -41,6 +41,7 @@ export function AppSettingsPage({
   const app = apps.find((a) => a.id === appId);
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [uninstallOpen, setUninstallOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
   useEffect(() => {
     if (app) setDraft(app.settings);
   }, [app]);
@@ -83,6 +84,12 @@ export function AppSettingsPage({
 
   const dirty = app.settingsSchema.some(
     (d) => draft[d.key] !== app.settings[d.key],
+  );
+  const defaults = Object.fromEntries(
+    app.settingsSchema.map((d) => [d.key, d.default]),
+  );
+  const customized = app.settingsSchema.some(
+    (d) => app.settings[d.key] !== d.default,
   );
   const openHref = `/p/${slug}/${app.nav[0]?.path ?? app.id}` as Route;
 
@@ -173,10 +180,19 @@ export function AppSettingsPage({
                   <Button
                     size="sm"
                     variant="ghost"
+                    className="me-auto"
+                    disabled={!customized || configure.isPending || !projectId}
+                    onClick={() => setResetOpen(true)}
+                  >
+                    Reset to defaults
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
                     disabled={!dirty}
                     onClick={() => setDraft(app.settings)}
                   >
-                    Reset
+                    Discard
                   </Button>
                   <Button
                     size="sm"
@@ -230,6 +246,36 @@ export function AppSettingsPage({
           </section>
         ) : null}
       </div>
+      <ConfirmDialog
+        open={resetOpen}
+        onOpenChange={setResetOpen}
+        title={`Reset ${app.name} settings?`}
+        description={`Restores the defaults for ${project?.name ?? "this project"}: ${app.settingsSchema
+          .map(
+            (d) =>
+              `${d.label} → ${d.options.find((o) => o.value === d.default)?.label ?? d.default}`,
+          )
+          .join(", ")}.`}
+        confirmLabel="Reset to defaults"
+        isPending={configure.isPending}
+        onConfirm={async () => {
+          if (!projectId) return;
+          await actionToast(
+            configure.mutateAsync({
+              projectId,
+              appId: app.id,
+              settings: defaults,
+            }),
+            {
+              loading: "Resetting…",
+              success: "Settings reset to defaults",
+              error: "Couldn't reset settings",
+            },
+          );
+          setDraft(defaults);
+          setResetOpen(false);
+        }}
+      />
       <ConfirmDialog
         open={uninstallOpen}
         onOpenChange={setUninstallOpen}
