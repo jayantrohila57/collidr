@@ -1,8 +1,8 @@
 @import "tailwindcss";
-/* Workspace UI package lives outside this app; Tailwind v4 does not scan it by default. */
-@source "../../../packages/ui/src";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+/* Workspace UI package lives outside this app; Tailwind v4 does not scan it by default. */
+@source "../../../packages/ui/src";
 
 @custom-variant dark (&:is(.dark *));
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
-import { CheckIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableActionsColumnHeader } from "@/components/data-table/data-table-actions-column";
@@ -15,6 +14,7 @@ import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { looksLikeDotenv } from "@/lib/dotenv";
+import { CheckIcon } from "@/lib/icons";
 import { toast } from "@/lib/toast";
 import { isVariablesV2EnabledOnClient } from "@/lib/variables-v2-enabled";
 import { AddVariableSheet } from "./add-variable-sheet";
@@ -149,7 +149,11 @@ export function VariablesTableView({
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
       const target = event.target as HTMLElement | null;
-      if (target?.closest?.("input, textarea, [contenteditable=true], [role=dialog]"))
+      if (
+        target?.closest?.(
+          "input, textarea, [contenteditable=true], [role=dialog]",
+        )
+      )
         return;
       const text = event.clipboardData?.getData("text/plain") ?? "";
       if (!looksLikeDotenv(text)) return;
@@ -225,8 +229,7 @@ export function VariablesTableView({
       columnHelper.accessor("key", {
         enableSorting: false,
         meta: {
-          className:
-            "min-w-0 max-w-none w-auto sm:max-w-[12rem]",
+          className: "min-w-0 max-w-none w-auto sm:max-w-[12rem]",
         },
         header: () => (
           <span className="font-medium text-muted-foreground text-xs">Key</span>
@@ -301,7 +304,11 @@ export function VariablesTableView({
                     variant="ghost"
                     size="icon-sm"
                     className="size-7 shrink-0 text-muted-foreground"
-                    aria-label={isRevealed ? `Hide ${variable.key}` : `Reveal ${variable.key}`}
+                    aria-label={
+                      isRevealed
+                        ? `Hide ${variable.key}`
+                        : `Reveal ${variable.key}`
+                    }
                     loading={revealing}
                     onClick={() => onReveal(variable.id)}
                     data-testid="variable-reveal"
