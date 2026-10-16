@@ -3,6 +3,11 @@ title: Connect MCP clients
 description: Step-by-step connection for Cursor, Claude Desktop, Claude Code, VS Code, Windsurf, and generic HTTP MCP clients.
 ---
 
+<Callout type="warn">
+The MCP server is built (`@loftlancer/mcp`) but **not deployed** on loftlancer.com right now: `/api/mcp` returns 404. OAuth consent and device sign-in in the auth app work; the tool endpoint does not. These pages describe how it works once hosted.
+</Callout>
+
+
 Use the production MCP URL unless your administrator gave you a different deployment:
 
 <McpHttpUrl />
@@ -74,7 +79,7 @@ In Windsurf MCP settings, add a remote server with URL <McpHttpUrl />. Windsurf 
 
 ## Generic / custom clients
 
-Loftlancer implements **MCP over HTTP** (`POST /api/mcp`, protocol `mcp-2026-07-28` per `apps/mcp` `GET /api/mcp` discovery).
+Loftlancer implements **MCP over HTTP** (`POST /api/mcp`, protocol `mcp-2026-07-28` per `GET /api/mcp` discovery).
 
 | Requirement | Value |
 | --- | --- |

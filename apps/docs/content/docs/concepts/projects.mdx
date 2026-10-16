@@ -3,7 +3,7 @@ title: Projects
 description: Project containers, status, visibility, and access grants.
 ---
 
-A **project** belongs to one organization and contains environments and variables. Access is enforced with org role plus optional project manager, team assignment, and per-member CRUD grants.
+A **project** belongs to one organization. What it contains depends on the [apps](/docs/concepts/apps) installed on it: environments and variables (Environments app) and tasks (Tasks app). Access is enforced with org role plus optional project manager, team assignment, and per-member CRUD grants.
 
 ## Actions
 
@@ -15,3 +15,17 @@ A **project** belongs to one organization and contains environments and variable
 | Soft delete | `project.restore` when `SOFT_DELETES_ENABLED` |
 
 MCP tools mirror these names with underscores (for example `project_create`).
+
+## URLs
+
+Each project has a slug and lives under `/studio/p/<slug>`:
+
+| Path | Page |
+| --- | --- |
+| `/studio/p/<slug>` | Overview |
+| `/studio/p/<slug>/apps` | Install or uninstall apps |
+| `/studio/p/<slug>/env` | Environments and variables (Environments app) |
+| `/studio/p/<slug>/tasks` | Tasks (Tasks app) |
+| `/studio/p/<slug>/edit` | Project settings |
+
+The project list is at `/studio/dashboard/projects`.

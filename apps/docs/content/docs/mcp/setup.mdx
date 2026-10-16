@@ -1,9 +1,14 @@
 ---
 title: MCP setup
-description: Connect an MCP client to apps/mcp with OAuth from apps/auth.
+description: Connect an MCP client to the Loftlancer MCP server with OAuth from apps/auth.
 ---
 
-The MCP HTTP server lives in **`apps/mcp`** and delegates tool registration to **`@loftlancer/mcp`** (`registerMcpTools`). Each tool maps to a canonical action implemented in **`@loftlancer/api/mcp`.
+<Callout type="warn">
+The MCP server is built (`@loftlancer/mcp`) but **not deployed** on loftlancer.com right now: `/api/mcp` returns 404. OAuth consent and device sign-in in the auth app work; the tool endpoint does not. These pages describe how it works once hosted.
+</Callout>
+
+
+The MCP HTTP server is the **`@loftlancer/mcp`** package, which delegates tool registration to **`@loftlancer/mcp`** (`registerMcpTools`). Each tool maps to a canonical action implemented in **`@loftlancer/api/mcp`.
 
 **End users:** start with [Using MCP](/docs/mcp/usage) and [Connect MCP clients](/docs/mcp/connecting-clients).
 
