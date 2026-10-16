@@ -57,17 +57,12 @@ export function useOrganizationBySlug(slug: string) {
       const pendingInvites = Array.isArray(invitations)
         ? countPendingInvitations(invitations)
         : undefined;
-      const isMember = orgs.some((o) => o.id === data.id);
-      if (initialLoadDone && !isMember) {
-        setOrganization(null);
-        setStatus("not-found");
-        return;
-      }
 
       setOrganization({
         id: data.id,
         name: data.name,
         slug: data.slug,
+        logo: (data as { logo?: string | null }).logo ?? null,
         metadata: data.metadata ?? null,
         createdAt: data.createdAt,
         memberCount: Array.isArray(members) ? members.length : undefined,
@@ -81,14 +76,16 @@ export function useOrganizationBySlug(slug: string) {
       setError(err instanceof Error ? err : new Error("Failed to load"));
       setStatus("error");
     }
-  }, [initialLoadDone, orgs, slug]);
+  }, [slug]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
   useEffect(() => {
-    if (status !== "success" || !organization?.id) {
+    // Wait for the org list so a still-null active id doesn't trigger a full
+    // org switch (setActive + invalidate + router.refresh) on every direct load.
+    if (status !== "success" || !organization?.id || !initialLoadDone) {
       return;
     }
     const isMember = orgs.some((o) => o.id === organization.id);
@@ -100,6 +97,7 @@ export function useOrganizationBySlug(slug: string) {
     }
   }, [
     activeOrganizationId,
+    initialLoadDone,
     organization?.id,
     orgs,
     setActiveOrganization,

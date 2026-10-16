@@ -11,7 +11,7 @@ export async function requirePageAction(
   ctx: RequireActionContext,
 ): Promise<void> {
   try {
-    await requireAction(action, ctx);
+    await requireAction(action, { ...ctx, audit: false });
   } catch (error) {
     if (error instanceof TRPCError) {
       if (error.code === "FORBIDDEN") {

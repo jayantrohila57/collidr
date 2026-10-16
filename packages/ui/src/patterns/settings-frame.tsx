@@ -71,7 +71,7 @@ export function SettingsTabs({
   return (
     <nav
       aria-label="Settings sections"
-      className="-mb-px flex gap-1 overflow-x-auto border-b"
+      className="flex flex-wrap gap-x-1 border-b"
     >
       {tabs.map((tab) => (
         <L
@@ -79,7 +79,7 @@ export function SettingsTabs({
           href={tab.href}
           aria-current={tab.active ? "page" : undefined}
           className={cn(
-            "inline-flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 font-medium text-sm transition-colors [&_svg]:size-4",
+            "-mb-px inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 font-medium text-sm transition-colors [&_svg]:size-4",
             tab.active
               ? "border-foreground text-foreground"
               : "border-transparent text-muted-foreground hover:text-foreground",

@@ -30,12 +30,11 @@ const LABELS: Record<string, string> = {
 };
 
 function segmentLabel(segment: string) {
+  // Exact match only; the old fallback matched "/settings/profile" for every tab.
   const fromNav = accountSettingsNav.find(
-    (item) => item.href === `/settings/${segment}` || item.href === "/settings/profile",
+    (item) => item.href === `/settings/${segment}`,
   );
-  if (fromNav && segment === "profile") return fromNav.label;
-  if (fromNav) return fromNav.label;
-  return LABELS[segment] ?? segment;
+  return LABELS[segment] ?? fromNav?.label ?? segment;
 }
 
 export function SettingsBreadcrumbs({ className }: { className?: string }) {
