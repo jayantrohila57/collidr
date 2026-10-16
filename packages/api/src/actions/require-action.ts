@@ -1,5 +1,6 @@
 import {
   type ActionName,
+  appIdForAction,
   evaluatePermission,
   getActionDefinition,
   isActionsAuditEnabled,
@@ -10,6 +11,7 @@ import { activeMemberWhere, db } from "@loftlancer/db";
 import { member } from "@loftlancer/db/schema/organization";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
+import { isAppInstalled } from "../apps/installed";
 import { writeAuditEvent } from "./audit-event-writer";
 import { isActionBlocked } from "./is-action-blocked";
 import {
@@ -77,6 +79,19 @@ export async function requireAction(
     ) {
       denialReason = "blocked";
       throw new TRPCError({ code: "FORBIDDEN", message: "Action blocked" });
+    }
+
+    const appId = appIdForAction(action);
+    if (
+      appId &&
+      ctx.projectId &&
+      !(await isAppInstalled(ctx.projectId, appId))
+    ) {
+      denialReason = "app_not_installed";
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "This app isn't installed on the project.",
+      });
     }
 
     if (isPlatformAdmin()) {

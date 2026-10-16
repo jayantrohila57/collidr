@@ -1,6 +1,6 @@
 /**
  * Stress-test seed: fills three seed orgs with lots of varied data for UI testing.
- * Idempotent (deterministic `seed-` ids + ON CONFLICT DO NOTHING) and batched.
+ * Idempotent (deterministic `seed-` ids / seed UUIDs + ON CONFLICT DO NOTHING) and batched.
  *
  *   SEED_CONFIRM=yes DATABASE_URL=... ENCRYPTION_KEY=... SKIP_ENV_VALIDATION=1 \
  *     pnpm --filter @loftlancer/db db:seed-stress
@@ -9,6 +9,8 @@
  * SEED_VARS_MAX, SEED_PINS, SEED_AUDIT_EVENTS, SEED_NOTIFICATIONS, SEED_BATCH.
  * Remove everything with `db:seed-stress:clean`.
  */
+
+import { createHash } from "node:crypto";
 import { type ActionDefinition, actionRegistry } from "@loftlancer/actions";
 import { decrypt, encrypt } from "@loftlancer/crypto";
 import { auditEvent } from "@loftlancer/db/schema/audit-event";
@@ -19,6 +21,11 @@ import {
   member,
   organization,
 } from "@loftlancer/db/schema/organization";
+import {
+  projectApp,
+  task,
+  taskComment,
+} from "@loftlancer/db/schema/project-app";
 import { projectPin } from "@loftlancer/db/schema/project-pin";
 import {
   environment,
@@ -26,13 +33,42 @@ import {
   project,
 } from "@loftlancer/db/schema/projects";
 import { team, teamMember } from "@loftlancer/db/schema/team";
-import { eq, like, not, sql } from "drizzle-orm";
+import { eq, inArray, not, sql } from "drizzle-orm";
 import type { PgTable } from "drizzle-orm/pg-core";
 
 let db: Awaited<ReturnType<typeof getSeedDb>>;
 
 import { getSeedDb } from "./seed-db";
 import { SEED_ORGS, type SeedConfig, seedConfig } from "./seed-stress-config";
+
+/**
+ * SEED_ONLY=apps: regenerate the same deterministic data but only write the
+ * apps rows (project_app, tasks, task comments, task notifications). Needs no
+ * ENCRYPTION_KEY, since variables are skipped.
+ */
+const ONLY_APPS = process.env.SEED_ONLY === "apps";
+const APPS_LABELS = new Set([
+  "project apps",
+  "tasks",
+  "task comments",
+  "task notifications",
+]);
+
+/**
+ * Deterministic RFC 4122 v5-style UUID for a seed key. Projects, environments,
+ * variables, apps and tasks must use UUIDs: the API validates those ids with
+ * z.string().uuid(), so `seed-proj-0126`-style ids 400 (#248, #250).
+ */
+function seedUuid(key: string): string {
+  const h = createHash("sha1").update(`loftlancer-seed:${key}`).digest();
+  h[6] = ((h[6] ?? 0) & 0x0f) | 0x50;
+  h[8] = ((h[8] ?? 0) & 0x3f) | 0x80;
+  const x = h.subarray(0, 16).toString("hex");
+  return `${x.slice(0, 8)}-${x.slice(8, 12)}-${x.slice(12, 16)}-${x.slice(16, 20)}-${x.slice(20)}`;
+}
+/** Seed project uuid -> its zero-padded seed number, for child ids. */
+const projectKey = new Map<string, string>();
+const pkey = (pid: string) => projectKey.get(pid) ?? pid;
 
 const DAY = 86_400_000;
 const NOW = Date.now();
@@ -287,6 +323,10 @@ async function insertBatched(
   rows: Record<string, unknown>[],
   cfg: SeedConfig,
 ) {
+  if (ONLY_APPS && !APPS_LABELS.has(label)) {
+    console.log(`  ${label}: skipped (SEED_ONLY=apps)`);
+    return;
+  }
   let done = 0;
   for (let i = 0; i < rows.length; i += cfg.batchSize) {
     const chunk = rows.slice(i, i + cfg.batchSize);
@@ -321,11 +361,24 @@ async function preflight(cfg: SeedConfig) {
     .where(eq(user.id, cfg.ownerUserId))
     .limit(1);
   if (!owner) throw new Error(`Owner user ${cfg.ownerUserId} not found`);
+  if (ONLY_APPS) return;
   // Ensure ENCRYPTION_KEY matches the app's key by decrypting one existing non-seed value.
   const [sample] = await db
     .select({ v: environmentVariable.encryptedValue })
     .from(environmentVariable)
-    .where(not(like(environmentVariable.id, "seed-%")))
+    .innerJoin(
+      environment,
+      eq(environment.id, environmentVariable.environmentId),
+    )
+    .innerJoin(project, eq(project.id, environment.projectId))
+    .where(
+      not(
+        inArray(
+          project.organizationId,
+          SEED_ORGS.map((o) => o.id),
+        ),
+      ),
+    )
     .limit(1);
   if (sample) decrypt(sample.v);
   const roundTrip = decrypt(encrypt("seed-check"));
@@ -484,7 +537,8 @@ async function main() {
   );
   for (let i = 1; i <= cfg.projects; i++) {
     const org = weightedOrg();
-    const pid = `seed-proj-${pad(i)}`;
+    const pid = seedUuid(`proj-${pad(i)}`);
+    projectKey.set(pid, pad(i));
     const name = chance(0.1)
       ? `${pick(WORDS)} ${pick(WORDS)} ${pick(SUFFIX)} for the ${pick(TEAM_KINDS)} team (legacy migration ${i})`
       : chance(0.15)
@@ -526,7 +580,7 @@ async function main() {
     );
     for (const envName of new Set([...base, ...custom])) {
       const eslug = slugify(envName);
-      const eid = `seed-env-${pad(i)}-${eslug}`;
+      const eid = seedUuid(`env-${pad(i)}-${eslug}`);
       envs.push({ id: eid, projectId: pid, orgId: org.id, slug: eslug });
       envRows.push({
         id: eid,
@@ -560,6 +614,10 @@ async function main() {
   let buffer: Record<string, unknown>[] = [];
   const flush = async () => {
     if (!buffer.length) return;
+    if (ONLY_APPS) {
+      buffer = [];
+      return;
+    }
     // biome-ignore lint/suspicious/noExplicitAny: batched insert
     await db
       .insert(environmentVariable)
@@ -575,9 +633,9 @@ async function main() {
       if (!env) continue;
       const { value, type, note } = makeValue();
       buffer.push({
-        id: `seed-var-${pid.slice(10)}-${pad(v, 3)}`,
+        id: seedUuid(`var-${pkey(pid)}-${pad(v, 3)}`),
         key: makeKey(v),
-        encryptedValue: encrypt(value),
+        encryptedValue: ONLY_APPS ? "" : encrypt(value),
         type,
         note,
         environmentId: env.id,
@@ -602,6 +660,144 @@ async function main() {
     })),
     cfg,
   );
+
+  // Apps (#245/#246): every seed project gets env + tasks installed, then tasks.
+  // Separate RNG so adding this block doesn't reshuffle the rows after it.
+  const mainRand = rand;
+  rand = mulberry32(cfg.rngSeed + 246);
+  const appRows: Record<string, unknown>[] = [];
+  const taskRows: Record<string, unknown>[] = [];
+  const commentRows: Record<string, unknown>[] = [];
+  const taskNotifs: Record<string, unknown>[] = [];
+  const STATUSES = [
+    "backlog",
+    "todo",
+    "todo",
+    "in_progress",
+    "in_progress",
+    "done",
+    "done",
+    "done",
+    "canceled",
+  ];
+  const PRIORITIES = [
+    "none",
+    "none",
+    "low",
+    "medium",
+    "medium",
+    "high",
+    "urgent",
+  ];
+  const LABELS = [
+    "bug",
+    "feature",
+    "chore",
+    "docs",
+    "infra",
+    "security",
+    "ux",
+    "perf",
+  ];
+  const VERBS = [
+    "Fix",
+    "Add",
+    "Refactor",
+    "Document",
+    "Investigate",
+    "Remove",
+    "Upgrade",
+    "Ship",
+    "Audit",
+    "Rotate",
+  ];
+  for (const p of projects) {
+    const pid = p.id as string;
+    const orgId = p.organizationId as string;
+    for (const appId of ["env", "tasks"]) {
+      appRows.push({
+        id: seedUuid(`app-${pkey(pid)}-${appId}`),
+        organizationId: orgId,
+        projectId: pid,
+        appId,
+        appVersion: 1,
+        status: "active",
+        installedBy: owner,
+        installedAt: p.createdAt,
+      });
+    }
+    const members = orgMembers.get(orgId) ?? [];
+    const pool = members.length ? members : [{ userId: owner, role: "owner" }];
+    const n = int(cfg.tasksMin, cfg.tasksMax);
+    for (let t = 1; t <= n; t++) {
+      const id = seedUuid(`task-${pkey(pid)}-${pad(t, 3)}`);
+      const created = pastDate(180);
+      const assignee = chance(0.75)
+        ? chance(0.15)
+          ? owner
+          : pick(pool).userId
+        : null;
+      const title = chance(0.1)
+        ? `${pick(VERBS)} ${Array.from({ length: 16 }, () => pick(WORDS)).join(" ")}`
+        : `${pick(VERBS)} ${pick(WORDS)} ${pick(SUFFIX)}`;
+      taskRows.push({
+        id,
+        organizationId: orgId,
+        projectId: pid,
+        number: t,
+        title,
+        description: chance(0.6)
+          ? `Seed task ${t}. ${Array.from({ length: int(5, 60) }, () => pick(WORDS)).join(" ")}.`
+          : null,
+        status: pick(STATUSES),
+        priority: pick(PRIORITIES),
+        assigneeId: assignee,
+        reporterId: chance(0.3) ? owner : pick(pool).userId,
+        dueDate: chance(0.4)
+          ? new Date(created.getTime() + int(1, 60) * DAY)
+          : null,
+        labels: LABELS.filter(() => chance(0.15)).slice(0, 3),
+        createdAt: created,
+        updatedAt: new Date(
+          Math.min(NOW, created.getTime() + int(0, 30) * DAY),
+        ),
+      });
+      for (let c = 1, cn = chance(0.5) ? int(1, 6) : 0; c <= cn; c++) {
+        commentRows.push({
+          id: seedUuid(`tc-${pkey(pid)}-${pad(t, 3)}-${c}`),
+          taskId: id,
+          authorId: chance(0.2) ? owner : pick(pool).userId,
+          body: Array.from({ length: int(3, 40) }, () => pick(WORDS)).join(" "),
+          createdAt: new Date(created.getTime() + c * int(1, 48) * 3_600_000),
+        });
+      }
+      if (assignee === owner && taskNotifs.length < cfg.taskNotifications) {
+        taskNotifs.push({
+          id: `seed-notif-task-${pad(taskNotifs.length + 1)}`,
+          recipientUserId: owner,
+          organizationId: orgId,
+          type: chance(0.6) ? "task.assigned" : "task.mentioned",
+          actorUserId: pick(pool).userId,
+          entityType: "task",
+          entityId: id,
+          data: {
+            projectSlug: p.slug,
+            projectName: p.name,
+            taskId: id,
+            taskNumber: t,
+            title,
+          },
+          readAt: chance(0.5) ? new Date(NOW - int(1, 72) * 3_600_000) : null,
+          idempotencyKey: `seed-notif-task-${pad(taskNotifs.length + 1)}`,
+          createdAt: pastDate(30),
+        });
+      }
+    }
+  }
+  rand = mainRand;
+  await insertBatched("project apps", projectApp, appRows, cfg);
+  await insertBatched("tasks", task, taskRows, cfg);
+  await insertBatched("task comments", taskComment, commentRows, cfg);
 
   // Audit events: every canonical write action at least once, then random
   const writeActions = (
@@ -732,6 +928,7 @@ async function main() {
     };
   });
   await insertBatched("notifications", notification, notifs, cfg);
+  await insertBatched("task notifications", notification, taskNotifs, cfg);
 
   const [{ count }] = (
     await db.execute(

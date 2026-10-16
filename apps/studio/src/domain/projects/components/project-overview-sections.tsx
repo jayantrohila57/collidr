@@ -2,15 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { InstalledAppsOverview } from "@/domain/apps/components/installed-apps-overview";
 import { useOrgQueryEnabled } from "@/hooks/use-org-query-enabled";
 import { useOrgScopedQueryPlaceholder } from "@/hooks/use-org-scoped-query-placeholder";
-import {
-  prefetchProjectDetail,
-  projectDetailQueryStaleTime,
-} from "@/lib/prefetch-project-detail";
-import { queryClient, trpc } from "@/utils/trpc";
-import { PROJECT_SECTIONS } from "../config/project-sections";
-import { ProjectSectionCard } from "./project-section-card";
+import { projectDetailQueryStaleTime } from "@/lib/prefetch-project-detail";
+import { trpc } from "@/utils/trpc";
 
 function formatCountLabel(count: number, singular: string, plural: string) {
   return `${count} ${count === 1 ? singular : plural}`;
@@ -61,19 +57,5 @@ export function ProjectOverviewSections({ slug }: { slug: string }) {
     ? "—"
     : formatEnvironmentsSectionSummary(environmentCount, variableCount);
 
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {PROJECT_SECTIONS.map((section) => (
-        <ProjectSectionCard
-          key={section.id}
-          href={section.href(slug)}
-          icon={section.icon}
-          title={section.title}
-          description={section.description}
-          summary={section.id === "environments" ? summary : "—"}
-          onPrefetch={() => prefetchProjectDetail(queryClient, slug)}
-        />
-      ))}
-    </div>
-  );
+  return <InstalledAppsOverview slug={slug} summaries={{ env: summary }} />;
 }

@@ -17,7 +17,7 @@ export type ProjectPageData = {
 
 export const loadProjectPageData = cache(
   async (slug: string): Promise<ProjectPageData | null> => {
-    const timing = new ServerTiming(`/dashboard/projects/${slug}`);
+    const timing = new ServerTiming(`/p/${slug}`);
     timing.logInAfter();
 
     const session = await timing.measure("auth", () => getServerSession());

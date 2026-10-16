@@ -1,6 +1,7 @@
 import { HydrationBoundary } from "@tanstack/react-query";
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { AppGate } from "@/domain/apps/components/app-gate";
 import ProjectEnvironmentsPage from "@/domain/projects/components/project-environments-page";
 import { loadProjectPageDataOrNotFound } from "@/lib/page-guards";
 import { loadProjectPageData } from "@/lib/project-page-loader";
@@ -40,7 +41,13 @@ export default async function ProjectEnvironmentsRoute({
   return (
     <HydrationBoundary state={data.dehydratedState}>
       <Suspense fallback={<ProjectEnvironmentsLoading />}>
-        <ProjectEnvironmentsPage slug={slug} />
+        <AppGate
+          slug={slug}
+          appId="env"
+          fallback={<ProjectEnvironmentsLoading />}
+        >
+          <ProjectEnvironmentsPage slug={slug} />
+        </AppGate>
       </Suspense>
     </HydrationBoundary>
   );

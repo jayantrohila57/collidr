@@ -1,20 +1,16 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { trpc } from "@/utils/trpc";
 import { useProjects } from "./use-projects";
 
 interface UseProjectActionsProps {
   projectId: string;
   onUpdate?: () => void;
-  enabled?: boolean;
 }
 
 export function useProjectActions({
   projectId,
   onUpdate,
-  enabled = true,
 }: UseProjectActionsProps) {
   const router = useRouter();
 
@@ -30,13 +26,6 @@ export function useProjectActions({
     isTogglingPublic,
     isDeleting,
   } = useProjects();
-
-  // Get project details to check current state
-  const projectQuery = useQuery({
-    ...trpc.projects.get.queryOptions({ id: projectId }),
-    enabled: enabled && Boolean(projectId),
-    meta: { toastOnError: false },
-  });
 
   const handleArchive = async () => {
     try {
@@ -104,9 +93,6 @@ export function useProjectActions({
   };
 
   return {
-    project: projectQuery.data?.data.project,
-    isLoading: projectQuery.isLoading,
-    error: projectQuery.error,
     archiveProject: handleArchive,
     unarchiveProject: handleUnarchive,
     changeProjectStatus: handleChangeStatus,

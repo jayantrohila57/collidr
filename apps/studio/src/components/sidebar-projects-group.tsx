@@ -1,13 +1,14 @@
 "use client";
 
-import { ProjectPinMenu } from "@loftlancer/ui/patterns/sidebar-kit";
 import type { ProjectOutput } from "@loftlancer/api/types";
+import { ProjectPinMenu } from "@loftlancer/ui/patterns/sidebar-kit";
 import { ChevronRight, ChevronUp, MoreHorizontal } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
+import { SidebarProjectApps } from "@/components/sidebar-project-apps";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Collapsible,
@@ -41,7 +42,7 @@ function readStoredBoolean(key: string, defaultValue: boolean) {
 }
 
 function projectPathActive(pathname: string, slug: string) {
-  const href = `/dashboard/projects/${slug}`;
+  const href = `/p/${slug}`;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -72,7 +73,7 @@ export function SidebarProjectsGroup({
   }, []);
 
   const activeSlug = useMemo(() => {
-    const match = pathname.match(/^\/dashboard\/projects\/([^/]+)/);
+    const match = pathname.match(/^\/p\/([^/]+)/);
     return match?.[1] ?? null;
   }, [pathname]);
 
@@ -157,37 +158,42 @@ export function SidebarProjectsGroup({
                 )}
               {!projectsLoading &&
                 visible.map((project) => (
-                  <SidebarMenuItem key={project.id}>
-                    <SidebarMenuButton
-                      isActive={projectPathActive(pathname, project.slug)}
-                      tooltip={project.name}
-                      render={
-                        <Link
-                          href={`/dashboard/projects/${project.slug}` as Route}
-                          onMouseEnter={() =>
-                            prefetchProjectDetail(queryClient, project.slug)
-                          }
-                          onFocus={() =>
-                            prefetchProjectDetail(queryClient, project.slug)
-                          }
+                  <Fragment key={project.id}>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        isActive={projectPathActive(pathname, project.slug)}
+                        tooltip={project.name}
+                        render={
+                          <Link
+                            href={`/p/${project.slug}` as Route}
+                            onMouseEnter={() =>
+                              prefetchProjectDetail(queryClient, project.slug)
+                            }
+                            onFocus={() =>
+                              prefetchProjectDetail(queryClient, project.slug)
+                            }
+                          />
+                        }
+                      >
+                        <Avatar className="size-5 shrink-0">
+                          <AvatarFallback className="bg-muted font-medium text-[9px]">
+                            {initialsFromLabel(project.name, "PR")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="truncate">{project.name}</span>
+                      </SidebarMenuButton>
+                      {onTogglePin ? (
+                        <ProjectPinMenu
+                          pinned={isPinned?.(project.id) ?? false}
+                          pending={pinPending}
+                          onToggle={() => onTogglePin(project.id)}
                         />
-                      }
-                    >
-                      <Avatar className="size-5 shrink-0">
-                        <AvatarFallback className="bg-muted font-medium text-[9px]">
-                          {initialsFromLabel(project.name, "PR")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="truncate">{project.name}</span>
-                    </SidebarMenuButton>
-                    {onTogglePin ? (
-                      <ProjectPinMenu
-                        pinned={isPinned?.(project.id) ?? false}
-                        pending={pinPending}
-                        onToggle={() => onTogglePin(project.id)}
-                      />
+                      ) : null}
+                    </SidebarMenuItem>
+                    {activeSlug === project.slug ? (
+                      <SidebarProjectApps slug={project.slug} />
                     ) : null}
-                  </SidebarMenuItem>
+                  </Fragment>
                 ))}
               {!projectsLoading && listToggleVisible && (
                 <SidebarMenuItem>

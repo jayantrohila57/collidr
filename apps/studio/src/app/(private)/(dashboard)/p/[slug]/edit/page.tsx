@@ -11,5 +11,5 @@ export default async function EditProjectPage({
 }: EditProjectPageProps) {
   const { slug } = await params;
   await guardProjectEditPage(slug);
-  redirect(`/dashboard/projects/${slug}?edit=1` as Route);
+  redirect(`/p/${slug}?edit=1` as Route);
 }

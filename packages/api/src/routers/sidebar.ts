@@ -1,4 +1,3 @@
-import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
 import {
   activeEnvironmentWhere,
   activeMemberWhere,
@@ -7,16 +6,21 @@ import {
 } from "@loftlancer/db";
 import { user } from "@loftlancer/db/schema/auth";
 import { notification } from "@loftlancer/db/schema/notifications";
-import { invitation, member, organization } from "@loftlancer/db/schema/organization";
+import {
+  invitation,
+  member,
+  organization,
+} from "@loftlancer/db/schema/organization";
 import { projectPin } from "@loftlancer/db/schema/project-pin";
 import { environment, project } from "@loftlancer/db/schema/projects";
-import { and, asc, count, eq, gt, inArray, isNull } from "drizzle-orm";
+import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
 import { TRPCError } from "@trpc/server";
+import { and, asc, count, eq, gt, inArray, isNull } from "drizzle-orm";
 import { z } from "zod/v3";
-import { getActiveOrganizationId } from "../org-access";
+import { listInstalledAppIds } from "../apps/installed";
 import { protectedProcedure, router } from "../index";
+import { getActiveOrganizationId, projectListFilter } from "../org-access";
 import { listAccessibleProjectIds, projectIdsFilter } from "../project-list";
-import { projectListFilter } from "../org-access";
 
 /** project_pin may not exist yet on a database that hasn't had 0014 applied. */
 function isMissingTable(err: unknown) {
@@ -24,7 +28,10 @@ function isMissingTable(err: unknown) {
   return e?.code === "42P01" || e?.cause?.code === "42P01";
 }
 
-async function accessibleProjects(userId: string, organizationId: string | null) {
+async function accessibleProjects(
+  userId: string,
+  organizationId: string | null,
+) {
   const ids = await listAccessibleProjectIds(userId, organizationId);
   const idFilter = projectIdsFilter(ids);
   const where =
@@ -56,7 +63,12 @@ export const sidebarRouter = router({
       db
         .select({ n: count() })
         .from(notification)
-        .where(and(eq(notification.recipientUserId, userId), isNull(notification.readAt)))
+        .where(
+          and(
+            eq(notification.recipientUserId, userId),
+            isNull(notification.readAt),
+          ),
+        )
         .then((r) => Number(r[0]?.n ?? 0))
         .catch(() => 0),
       email
@@ -113,16 +125,23 @@ export const sidebarRouter = router({
             isProduction: environment.isProduction,
           })
           .from(environment)
-          .where(activeEnvironmentWhere(inArray(environment.projectId, projectIds)))
+          .where(
+            activeEnvironmentWhere(inArray(environment.projectId, projectIds)),
+          )
           .orderBy(asc(environment.name))
           .catch(() => [])
       : [];
+
+    const installed = await listInstalledAppIds(projectIds).catch(
+      () => new Map<string, string[]>(),
+    );
 
     return {
       organizationId,
       organizationSlug: orgRow[0]?.slug ?? null,
       projects: projects.map((p) => ({
         ...p,
+        apps: installed.get(p.id) ?? [],
         environments: envs
           .filter((e) => e.projectId === p.id)
           .map(({ projectId: _p, ...e }) => e),
@@ -145,25 +164,31 @@ export const sidebarRouter = router({
         ? getActiveOrganizationId(ctx.session)
         : null;
       try {
-      if (input.pinned) {
-        const allowed = await accessibleProjects(userId, organizationId);
-        if (!allowed.some((p) => p.id === input.projectId)) {
-          return { ok: false as const };
+        if (input.pinned) {
+          const allowed = await accessibleProjects(userId, organizationId);
+          if (!allowed.some((p) => p.id === input.projectId)) {
+            return { ok: false as const };
+          }
+          await db
+            .insert(projectPin)
+            .values({ userId, projectId: input.projectId })
+            .onConflictDoNothing();
+        } else {
+          await db
+            .delete(projectPin)
+            .where(
+              and(
+                eq(projectPin.userId, userId),
+                eq(projectPin.projectId, input.projectId),
+              ),
+            );
         }
-        await db
-          .insert(projectPin)
-          .values({ userId, projectId: input.projectId })
-          .onConflictDoNothing();
-      } else {
-        await db
-          .delete(projectPin)
-          .where(and(eq(projectPin.userId, userId), eq(projectPin.projectId, input.projectId)));
-      }
       } catch (err) {
         if (isMissingTable(err)) {
           throw new TRPCError({
             code: "PRECONDITION_FAILED",
-            message: "Favorites are not available yet (database migration 0014 pending).",
+            message:
+              "Favorites are not available yet (database migration 0014 pending).",
           });
         }
         throw err;

@@ -30,7 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
-import { authClient } from "@/lib/auth-client";
+import { authClient, MEMBER_PAGE_LIMIT } from "@/lib/auth-client";
 import { appIcons } from "@/lib/icons";
 import { toast } from "@/lib/toast";
 
@@ -112,7 +112,7 @@ export function TeamMembersSheet({
 
   const loadOrgMembers = useCallback(async () => {
     const list = await authClient.organization.listMembers({
-      query: { organizationId },
+      query: { organizationId, limit: MEMBER_PAGE_LIMIT },
     });
     setOrgMembers((list.data?.members ?? []) as OrgMemberRow[]);
   }, [organizationId]);

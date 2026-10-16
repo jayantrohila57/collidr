@@ -37,11 +37,7 @@ describe("isRecognizedDashboardPath", () => {
 
   it("recognizes project detail when slug is absent from sidebar list", () => {
     assert.equal(
-      isRecognizedDashboardPath(
-        "/dashboard/projects/weekend-game-server",
-        emptySlugs,
-        true,
-      ),
+      isRecognizedDashboardPath("/p/weekend-game-server", emptySlugs, true),
       true,
     );
   });

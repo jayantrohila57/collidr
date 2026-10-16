@@ -25,20 +25,26 @@ export function parseOrganizationInvitations(
   return [];
 }
 
+/** Pending = status "pending" and not yet expired (matches the server, #251). */
+function isLivePending(invite: {
+  status?: string;
+  expiresAt?: Date | string;
+}): boolean {
+  if (!isPendingInvitationStatus(invite.status)) return false;
+  if (!invite.expiresAt) return true;
+  return new Date(invite.expiresAt).getTime() > Date.now();
+}
+
 export function countPendingInvitations(
-  invitations: readonly { status?: string }[],
+  invitations: readonly { status?: string; expiresAt?: Date | string }[],
 ): number {
-  return invitations.filter((invite) =>
-    isPendingInvitationStatus(invite.status),
-  ).length;
+  return invitations.filter(isLivePending).length;
 }
 
 export function pendingOrganizationInvitations(
   invitations: readonly OrganizationInvitationRow[],
 ): OrganizationInvitationRow[] {
-  return invitations.filter((invite) =>
-    isPendingInvitationStatus(invite.status),
-  );
+  return invitations.filter(isLivePending);
 }
 
 export function sortOrganizationInvitations(

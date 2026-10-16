@@ -16,7 +16,7 @@ describe("isDashboardRootPath", () => {
   });
 
   it("does not treat nested routes as list roots", () => {
-    assert.equal(isDashboardRootPath("/dashboard/projects/acme"), false);
+    assert.equal(isDashboardRootPath("/p/acme"), false);
     assert.equal(isDashboardRootPath("/dashboard/settings/profile"), false);
   });
 });
