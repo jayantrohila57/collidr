@@ -174,6 +174,7 @@ export function OrganizationSettingsForm({
   const [savePending, setSavePending] = useState(false);
   const [editOrgOpen, setEditOrgOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [memberQuery, setMemberQuery] = useState("");
   const editOrgCloseWithoutPromptRef = useRef<(() => void) | null>(null);
   const inviteCloseWithoutPromptRef = useRef<(() => void) | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -673,9 +674,37 @@ export function OrganizationSettingsForm({
                   </Empty>
                 </div>
               ) : (
-                <div className="min-w-0 overflow-x-auto px-4 py-4">
+                <div className="min-w-0 space-y-3 overflow-x-auto px-4 py-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Input
+                      type="search"
+                      aria-label="Search members"
+                      placeholder="Search by name, email or role"
+                      value={memberQuery}
+                      onChange={(e) => setMemberQuery(e.target.value)}
+                      className="max-w-xs"
+                    />
+                    <span className="text-muted-foreground text-xs">
+                      {members.length} {members.length === 1 ? "member" : "members"}
+                    </span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="ms-auto gap-2"
+                      onClick={() => setInviteOpen(true)}
+                    >
+                      <AppIcon name="invite" className="text-current" />
+                      Invite member
+                    </Button>
+                  </div>
                   <OrganizationMembersTable
-                    members={members}
+                    members={members.filter((m) => {
+                      const q = memberQuery.trim().toLowerCase();
+                      if (!q) return true;
+                      return [m.user.name, m.user.email, m.role]
+                        .filter(Boolean)
+                        .some((v) => String(v).toLowerCase().includes(q));
+                    })}
                     roleSelectItems={ROLE_SELECT_ITEMS}
                     isOwner={isOwner}
                     rolePendingId={rolePendingId}

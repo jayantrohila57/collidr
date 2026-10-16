@@ -4,7 +4,7 @@ import { auditEvent } from "@loftlancer/db/schema/audit-event";
 import { user } from "@loftlancer/db/schema/auth";
 import { project } from "@loftlancer/db/schema/projects";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, lte, ne, type SQL } from "drizzle-orm";
+import { and, desc, eq, gte, lt, lte, ne, sql, type SQL } from "drizzle-orm";
 import { z } from "zod/v3";
 import { requireAction } from "../actions/require-action";
 import { passiveActionSqlFilter } from "../audit-passive-actions";
@@ -173,5 +173,77 @@ export const auditEventsRouter = router({
       }
 
       return { total: rows.length, byResult, byAction };
+    }),
+  /**
+   * Per-day event counts (UTC) for one calendar year, for the activity heatmap.
+   * Same scope + permission rules as `stats`; passive and denied events excluded.
+   */
+  heatmap: orgAwareProcedure
+    .input(
+      z.object({
+        scope: z.enum(["org", "self"]).default("self"),
+        year: z.number().int().min(2000).max(2100).optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      if (!isActionsAuditEnabled()) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Audit timeline is not enabled.",
+        });
+      }
+      const organizationId = getActiveOrganizationId(ctx.session);
+      const userId = ctx.session.user.id;
+      await requireAction(
+        input.scope === "self"
+          ? "audit.timeline.view.self"
+          : "audit.timeline.view.org",
+        { userId, organizationId },
+      );
+      const base =
+        input.scope === "self"
+          ? eq(auditEvent.actorUserId, userId)
+          : organizationId
+            ? eq(auditEvent.organizationId, organizationId)
+            : eq(auditEvent.actorUserId, userId);
+      const filters = and(
+        base,
+        passiveActionSqlFilter(),
+        ne(auditEvent.result, "denied"),
+      );
+
+      const yearExpr = sql<number>`extract(year from ${auditEvent.createdAt} at time zone 'UTC')::int`;
+      const yearRows = await db
+        .selectDistinct({ year: yearExpr })
+        .from(auditEvent)
+        .where(filters);
+      const currentYear = new Date().getUTCFullYear();
+      const years = Array.from(
+        new Set([currentYear, ...yearRows.map((r) => Number(r.year))]),
+      ).sort((a, b) => b - a);
+      const year = input.year ?? currentYear;
+
+      const dayExpr = sql<string>`to_char(${auditEvent.createdAt} at time zone 'UTC', 'YYYY-MM-DD')`;
+      const rows = await db
+        .select({ date: dayExpr, count: sql<number>`count(*)::int` })
+        .from(auditEvent)
+        .where(
+          and(
+            filters,
+            gte(auditEvent.createdAt, new Date(Date.UTC(year, 0, 1))),
+            lt(auditEvent.createdAt, new Date(Date.UTC(year + 1, 0, 1))),
+          ),
+        )
+        .groupBy(dayExpr);
+
+      const days = rows
+        .map((r) => ({ date: String(r.date), count: Number(r.count) }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+      return {
+        year,
+        years,
+        days,
+        total: days.reduce((sum, d) => sum + d.count, 0),
+      };
     }),
 });

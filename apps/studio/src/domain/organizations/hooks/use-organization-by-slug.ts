@@ -13,6 +13,7 @@ export type OrganizationDetail = {
   id: string;
   name: string;
   slug: string;
+  logo?: string | null;
   metadata?: string | Record<string, unknown> | null;
   createdAt?: Date | string;
   memberCount?: number;

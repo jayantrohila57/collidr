@@ -1,10 +1,26 @@
 "use client";
 
-import type { Route } from "next";
-import { notFound } from "next/navigation";
-import DashboardSection from "@/components/section-dashboard";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  SettingsFrame,
+  SettingsRailCard,
+  SettingsSection,
+} from "@loftlancer/ui/patterns/settings-frame";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Activity,
+  KeyRound,
+  Mail,
+  Settings,
+  Users,
+  UsersRound,
+} from "lucide-react";
+import Link from "next/link";
+import { notFound, usePathname } from "next/navigation";
+import type { ReactNode } from "react";
+import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
+import { trpc } from "@/utils/trpc";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
+import { ActivityOverview } from "./activity-overview";
 
 type OrganizationSectionPageProps = {
   slug: string;
@@ -12,7 +28,42 @@ type OrganizationSectionPageProps = {
   description: string;
   children: React.ReactNode;
   action?: React.ReactNode;
+  /** Show the org activity heatmap above the section (Activity tab). */
+  activity?: boolean;
 };
+
+function OrgHealthCard() {
+  const { data, isError } = useQuery(
+    trpc.dashboard.getOrgSettingsStats.queryOptions(undefined, { retry: false }),
+  );
+  if (!data || isError) return null;
+  const rows: [string, ReactNode][] = [
+    ["Your role", <span className="capitalize">{data.role}</span>],
+    ["Members", data.memberCount],
+    ["Pending invites", data.pendingInvites],
+    ["Projects", data.projectCount],
+  ];
+  return (
+    <SettingsRailCard title="Health">
+      <dl className="space-y-2 text-sm">
+        {rows.map(([label, value]) => (
+          <div key={label} className="flex items-center justify-between gap-2">
+            <dt className="text-muted-foreground">{label}</dt>
+            <dd className="font-medium tabular-nums">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </SettingsRailCard>
+  );
+}
+
+function formatDay(value: Date | string) {
+  return new Date(value).toLocaleDateString("en", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
 
 export function OrganizationSectionPage({
   slug,
@@ -20,31 +71,58 @@ export function OrganizationSectionPage({
   description,
   children,
   action,
+  activity = false,
 }: OrganizationSectionPageProps) {
   const { organization, status } = useOrganizationBySlug(slug);
-  const hubHref = `/dashboard/organizations/${slug}` as Route;
+  const pathname = usePathname();
 
   if (status === "not-found") {
     notFound();
   }
 
+  const base = `/dashboard/organizations/${slug}`;
+  const tabs = [
+    { href: `${base}/settings`, label: "General", icon: <Settings /> },
+    { href: `${base}/members`, label: "Members", icon: <Users /> },
+    { href: `${base}/invitations`, label: "Invitations", icon: <Mail /> },
+    { href: `${base}/teams`, label: "Teams", icon: <UsersRound /> },
+    { href: `${base}/roles`, label: "Roles", icon: <KeyRound /> },
+    ...(isActionsAuditEnabledOnClient()
+      ? [{ href: `${base}/timeline`, label: "Activity", icon: <Activity /> }]
+      : []),
+  ].map((t) => ({ ...t, active: pathname === t.href }));
+
   return (
-    <DashboardSection
-      title={title}
-      description={description}
-      back={hubHref}
-      titleAccessory={
-        status === "loading" ? (
-          <Skeleton className="h-5 w-32" />
-        ) : (
-          <span className="text-muted-foreground text-sm">
-            {organization?.name}
-          </span>
-        )
+    <SettingsFrame
+      LinkComponent={Link as never}
+      back={{ href: base, label: "Organization overview" }}
+      avatar={{ src: organization?.logo, name: organization?.name ?? slug }}
+      title={organization?.name ?? slug}
+      subtitle={`/${organization?.slug ?? slug}`}
+      actions={action}
+      tabs={tabs}
+      top={activity ? <ActivityOverview scope="org" title="Organization activity" /> : undefined}
+      aside={
+        organization ? (
+          <>
+            <SettingsRailCard
+              title="Audit rail"
+              items={[
+                { label: "Organization ID", value: organization.id, copy: true },
+                { label: "Slug", value: organization.slug, copy: true },
+                ...(organization.createdAt
+                  ? [{ label: "Created", value: formatDay(organization.createdAt) }]
+                  : []),
+              ]}
+            />
+            <OrgHealthCard />
+          </>
+        ) : null
       }
-      action={action}
     >
-      {children}
-    </DashboardSection>
+      <SettingsSection title={title} description={description} bare>
+        {children}
+      </SettingsSection>
+    </SettingsFrame>
   );
 }
