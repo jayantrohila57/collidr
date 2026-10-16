@@ -4,10 +4,12 @@ import { usePathname } from "next/navigation";
 import type { PageHeaderTab } from "@/components/layout/page-header";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 
+import { routes } from "@/utils/navigation";
+
 /** Same section tabs as the org settings frame, for the org overview header. */
 export function useOrganizationTabs(slug: string) {
   const pathname = usePathname() ?? "";
-  const base = `/dashboard/organizations/${slug}`;
+  const base = routes.org(slug);
   const tabs: PageHeaderTab[] = [
     { value: base, label: "Overview", href: base },
     { value: `${base}/settings`, label: "General", href: `${base}/settings` },
@@ -22,9 +24,9 @@ export function useOrganizationTabs(slug: string) {
     ...(isActionsAuditEnabledOnClient()
       ? [
           {
-            value: `${base}/timeline`,
+            value: `${base}/activity`,
             label: "Activity",
-            href: `${base}/timeline`,
+            href: `${base}/activity`,
           },
         ]
       : []),

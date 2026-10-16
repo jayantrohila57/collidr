@@ -15,6 +15,6 @@ export function authAppReturnTo(pathWithQuery: string): string {
       DEFAULT_AUTH_URL,
   );
   return validateReturnTo(`${origin}${path}`, {
-    fallback: `${origin}/sign-in`,
+    fallback: `${origin}/settings`,
   });
 }

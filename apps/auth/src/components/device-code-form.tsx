@@ -18,6 +18,7 @@ import { SegmentedCodeInput } from "@/components/segmented-code-input";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { authClient } from "@/lib/auth-client";
 import { authAppReturnTo } from "@/lib/auth-return-to";
+import { withBasePath } from "@/lib/base-path";
 import { formatDeviceUserCode } from "@/lib/format-user-code";
 
 export function DeviceCodeForm() {
@@ -42,7 +43,11 @@ export function DeviceCodeForm() {
     const returnTo = authAppReturnTo(devicePath);
 
     if (!session?.user) {
-      router.push(`/sign-in?return_to=${encodeURIComponent(returnTo)}`);
+      window.location.assign(
+        withBasePath(
+          `/api/sign-in/github?return_to=${encodeURIComponent(returnTo)}`,
+        ),
+      );
       return;
     }
 
@@ -120,8 +125,8 @@ export function DeviceCodeForm() {
             )}
           </form>
 
-          <Button variant="outline" render={<Link href="/sign-in" />}>
-            Back to sign in
+          <Button variant="outline" render={<Link href="/settings" />}>
+            Back to account
           </Button>
         </CardPanel>
       </Card>

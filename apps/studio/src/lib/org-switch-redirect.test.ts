@@ -11,54 +11,49 @@ const orgB: OrgListItem = {
 };
 
 describe("pathAfterOrganizationSwitch", () => {
-  it("redirects to dashboard when next org is missing", () => {
+  it("goes to the org list when next org is missing", () => {
     assert.equal(
-      pathAfterOrganizationSwitch("/p/acme", undefined, new Set()),
-      "/dashboard",
+      pathAfterOrganizationSwitch("/org-a/web", undefined, new Set()),
+      "/",
     );
   });
 
-  it("rewrites org slug segment when on another org's organization route", () => {
+  it("moves org sections to the new org", () => {
+    assert.equal(
+      pathAfterOrganizationSwitch("/org-a/members", orgB, new Set()),
+      "/org-b/members",
+    );
+    assert.equal(
+      pathAfterOrganizationSwitch("/org-a", orgB, new Set()),
+      "/org-b",
+    );
+  });
+
+  it("falls back to the projects list when the slug is absent in the new org", () => {
+    assert.equal(
+      pathAfterOrganizationSwitch("/org-a/stale/env", orgB, new Set(["other"])),
+      "/org-b/projects",
+    );
+  });
+
+  it("keeps the project path when the new org has that slug", () => {
     assert.equal(
       pathAfterOrganizationSwitch(
-        "/dashboard/organizations/org-a/members",
+        "/org-a/web/settings",
         orgB,
-        new Set(),
+        new Set(["web"]),
       ),
-      "/dashboard/organizations/org-b/members",
+      "/org-b/web/settings",
     );
   });
 
-  it("redirects to projects list when project slug is absent in the new org", () => {
-    const slugs = new Set(["other-project"]);
+  it("leaves user-level and same-org routes alone", () => {
     assert.equal(
-      pathAfterOrganizationSwitch("/p/stale-slug", orgB, slugs),
-      "/dashboard/projects",
-    );
-    assert.equal(
-      pathAfterOrganizationSwitch("/p/stale-slug/env", orgB, slugs),
-      "/dashboard/projects",
-    );
-  });
-
-  it("keeps project routes when the slug exists in the new org", () => {
-    const slugs = new Set(["shared-slug"]);
-    assert.equal(
-      pathAfterOrganizationSwitch("/p/shared-slug/edit", orgB, slugs),
+      pathAfterOrganizationSwitch("/support/tickets", orgB, new Set()),
       null,
     );
-  });
-
-  it("does not redirect new project route", () => {
     assert.equal(
-      pathAfterOrganizationSwitch("/dashboard/projects/new", orgB, new Set()),
-      null,
-    );
-  });
-
-  it("leaves unrelated dashboard routes unchanged", () => {
-    assert.equal(
-      pathAfterOrganizationSwitch("/dashboard/settings", orgB, new Set()),
+      pathAfterOrganizationSwitch("/org-b/teams", orgB, new Set()),
       null,
     );
   });

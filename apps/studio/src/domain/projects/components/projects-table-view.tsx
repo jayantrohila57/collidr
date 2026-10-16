@@ -7,6 +7,7 @@ import { projectsTableEmpty } from "@/components/data-table/data-table-empty-pre
 import type { DataTableEmptyConfig } from "@/components/data-table/data-table-empty-types";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { Button } from "@/components/ui/button";
+import { useOrgSlug } from "@/utils/use-route-scope";
 import { createProjectsTableColumns } from "./projects-table-columns";
 
 interface ProjectsTableViewProps {
@@ -36,7 +37,8 @@ export function ProjectsTableView({
   onCreateProject,
   filterActive = false,
 }: ProjectsTableViewProps) {
-  const columns = useMemo(() => createProjectsTableColumns(), []);
+  const org = useOrgSlug();
+  const columns = useMemo(() => createProjectsTableColumns(org), [org]);
   const data = limitRows ? projects.slice(0, limitRows) : projects;
 
   const emptyConfig =

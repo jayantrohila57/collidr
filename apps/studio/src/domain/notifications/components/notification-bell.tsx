@@ -2,7 +2,6 @@
 
 import { CountBadge } from "@loftlancer/ui/patterns/count-badge";
 import { headerIconButtonClassName } from "@loftlancer/ui/utils";
-import type { Route } from "next";
 import Link from "next/link";
 
 import { AppIcon } from "@/components/patterns/app-icon";
@@ -18,6 +17,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { cn } from "@/lib/utils";
+import { routes } from "@/utils/navigation";
 import {
   useNotificationMutations,
   useNotificationsList,
@@ -149,7 +149,7 @@ export function NotificationBell() {
           )}
         </div>
         <MenuSeparator />
-        <MenuItem render={<Link href={"/dashboard/notifications" as Route} />}>
+        <MenuItem render={<Link href={routes.notifications()} />}>
           View all
         </MenuItem>
       </MenuPopup>

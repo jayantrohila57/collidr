@@ -5,6 +5,7 @@ import {
   ActivityTimeline,
   auditRowToActivityItem,
 } from "@loftlancer/ui/patterns/activity-timeline";
+import { routes } from "@loftlancer/ui/studio-routes";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { ErrorState } from "@/components/patterns/error-state";
@@ -47,7 +48,8 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
     () =>
       rows.map((row) =>
         auditRowToActivityItem(row, {
-          projectHref: (slug) => studioDashboardPath(`/projects/${slug}`),
+          projectHref: (slug, orgSlug) =>
+            orgSlug ? studioDashboardPath(routes.project(orgSlug, slug)) : null,
         }),
       ),
     [rows],

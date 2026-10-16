@@ -3,7 +3,6 @@
 import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
 
 import { Building2, ChevronsUpDown, Plus, Settings } from "lucide-react";
-import type { Route } from "next";
 import Link from "next/link";
 import type { OrgListItem } from "@/components/org/active-organization-context";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
@@ -19,6 +18,8 @@ import { actionToast } from "@/lib/action-toast";
 import { initialsFromLabel } from "@/lib/initials";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+
+import { routes } from "@/utils/navigation";
 
 function orgSubtitle(org: OrgListItem | undefined): string {
   if (!org) return "Workspace";
@@ -132,20 +133,14 @@ export function OrgSwitcher() {
           triggerContent={switcherBody}
           footer={
             <>
-              <Link
-                href={"/dashboard/organizations" as Route}
-                className={linkClass}
-              >
+              <Link href={routes.home()} className={linkClass}>
                 <Settings
                   className="size-4 text-muted-foreground"
                   aria-hidden
                 />
                 Manage organizations
               </Link>
-              <Link
-                href={"/dashboard/organizations?create=1" as Route}
-                className={linkClass}
-              >
+              <Link href={routes.newOrganization()} className={linkClass}>
                 <Plus className="size-4 text-muted-foreground" aria-hidden />
                 Create organization
               </Link>

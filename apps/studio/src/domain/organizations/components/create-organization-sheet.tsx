@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Route } from "next";
+import { isReservedOrgSlug } from "@loftlancer/env/reserved-slugs";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -25,6 +25,7 @@ import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { authClient } from "@/lib/auth-client";
 import { slugifyOrganizationName } from "@/lib/org-slug";
 import { toast } from "@/lib/toast";
+import { routes } from "@/utils/navigation";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Name is required").max(100),
@@ -37,7 +38,10 @@ const schema = z.object({
         .string()
         .min(2, "Slug is required")
         .max(200)
-        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+        .refine((slug) => !isReservedOrgSlug(slug), {
+          message: "That slug is reserved. Choose a different slug.",
+        }),
     ),
 });
 
@@ -91,7 +95,7 @@ export function CreateOrganizationSheet({
         const slug = result.data?.slug ?? values.slug;
         closeWithoutPromptRef.current?.();
         onOpenChange(false);
-        router.push(`/dashboard/organizations/${slug}` as Route);
+        router.push(routes.org(slug));
       }
     } catch {
       // toast handles errors

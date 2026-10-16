@@ -8,7 +8,7 @@ export const DEFAULT_WWW_URL = "https://loftlancer.com";
 export const DEFAULT_MCP_URL = "https://loftlancer.com";
 export const DEFAULT_CONSOLE_URL = "https://loftlancer.com/studio";
 export const DEFAULT_SUPPORT_URL =
-  "https://loftlancer.com/studio/dashboard/support/tickets";
+  "https://loftlancer.com/studio/support/tickets";
 export const DEFAULT_DOCS_URL = "https://loftlancer.com";
 
 function defaultAuthUrl(): string {
@@ -24,11 +24,13 @@ function defaultStudioUrl(): string {
 }
 
 function defaultAccountUrl(): string {
-  return process.env.NEXT_PUBLIC_AUTH_URL?.trim() ||
+  return (
+    process.env.NEXT_PUBLIC_AUTH_URL?.trim() ||
     process.env.NEXT_PUBLIC_ACCOUNT_URL?.trim() ||
     (process.env.VERCEL_SERVICES === "1"
       ? resolvePublicServiceUrl("auth")
-      : DEFAULT_ACCOUNT_URL);
+      : DEFAULT_ACCOUNT_URL)
+  );
 }
 
 function defaultWwwUrl(): string {

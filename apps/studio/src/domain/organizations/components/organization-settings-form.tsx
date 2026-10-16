@@ -2,7 +2,6 @@
 
 import { PageHeaderActionsPortal } from "@loftlancer/ui/patterns/page-header";
 import { useQueryClient } from "@tanstack/react-query";
-import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -73,6 +72,7 @@ import {
   resendOrganizationInvitation,
 } from "@/lib/organization-invitations";
 import { toast } from "@/lib/toast";
+import { routes } from "@/utils/navigation";
 import { BulkInviteDialog } from "./bulk-invite-dialog";
 
 type MemberRow = {
@@ -395,7 +395,7 @@ export function OrganizationSettingsForm({
 
     setDeleteOpen(false);
     setDeletePending(true);
-    router.replace("/dashboard/organizations" as Route);
+    router.replace(routes.home());
     void invalidateAfterOrganizationChange(queryClient);
 
     try {
@@ -434,7 +434,7 @@ export function OrganizationSettingsForm({
     setLeaveConfirmOpen(false);
     const leftId = organizationId;
     const fallback = orgs.find((o) => o.id !== leftId);
-    router.replace("/dashboard/organizations" as Route);
+    router.replace(routes.home());
     void invalidateAfterOrganizationChange(queryClient);
 
     try {
@@ -518,6 +518,24 @@ export function OrganizationSettingsForm({
           mode === "general" ||
           mode === "settings-hub") && (
           <SettingsTabsPanel value="general" className="min-w-0">
+            <PageHeaderActionsPortal>
+              <Button
+                type="button"
+                size="sm"
+                className="h-8 gap-2"
+                onClick={() => {
+                  const snapshot = { name: orgName, slug: orgSlug };
+                  setEditSnapshot(snapshot);
+                  setEditDraftName(snapshot.name);
+                  setEditDraftSlug(snapshot.slug);
+                  setSlugError(undefined);
+                  setEditOrgOpen(true);
+                }}
+              >
+                <AppIcon name="edit" className="text-current" />
+                Edit organization
+              </Button>
+            </PageHeaderActionsPortal>
             <SettingsPanel>
               <SettingsSectionHeader
                 title="Profile"
@@ -535,27 +553,6 @@ export function OrganizationSettingsForm({
                 description="URL-safe workspace identifier."
               >
                 <span className="font-mono text-sm">{orgSlug}</span>
-              </SettingsRow>
-              <SettingsRow
-                label="Details"
-                description="Update name, slug, and metadata."
-              >
-                <Button
-                  type="button"
-                  size="sm"
-                  className="w-fit gap-2"
-                  onClick={() => {
-                    const snapshot = { name: orgName, slug: orgSlug };
-                    setEditSnapshot(snapshot);
-                    setEditDraftName(snapshot.name);
-                    setEditDraftSlug(snapshot.slug);
-                    setSlugError(undefined);
-                    setEditOrgOpen(true);
-                  }}
-                >
-                  <AppIcon name="edit" className="text-current" />
-                  Edit organization
-                </Button>
               </SettingsRow>
             </SettingsPanel>
           </SettingsTabsPanel>

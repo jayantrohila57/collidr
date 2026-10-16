@@ -1,5 +1,6 @@
 "use client";
 
+import { routes } from "@loftlancer/ui/studio-routes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,7 +12,7 @@ import {
 import { studioDashboardPath } from "@/lib/studio-url";
 
 export function NotificationPreferencesPanel() {
-  const studioNotifications = studioDashboardPath("/dashboard/notifications");
+  const studioNotifications = studioDashboardPath(routes.notifications());
 
   return (
     <Card>

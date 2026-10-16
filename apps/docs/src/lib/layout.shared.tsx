@@ -1,13 +1,10 @@
-import {
-  buildSignInUrl,
-  defaultStudioReturnTo,
-} from "@loftlancer/ui/auth-links";
+import { buildSignInUrl, studioHomeUrl } from "@loftlancer/ui/auth-links";
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import { BookOpenIcon } from "lucide-react";
 
 const GITHUB_REPO = "https://github.com/jayantrohila57/loftlancer";
 
-function studioUrl(): string {
+function _studioUrl(): string {
   const raw =
     process.env.NEXT_PUBLIC_STUDIO_URL?.trim() ??
     "https://loftlancer.com/studio";
@@ -28,7 +25,7 @@ export function baseOptions(): BaseLayoutProps {
       {
         type: "button",
         text: "Studio",
-        url: buildSignInUrl({ returnTo: defaultStudioReturnTo() }),
+        url: studioHomeUrl(),
         external: true,
       },
       {

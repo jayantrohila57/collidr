@@ -19,11 +19,14 @@ import {
 import { formatDate } from "@/lib/format";
 import { initialsFromLabel } from "@/lib/initials";
 import { prefetchProjectDetail } from "@/lib/prefetch-project-detail";
+import { routes } from "@/utils/navigation";
 import { queryClient } from "@/utils/trpc";
+import { useOrgSlug } from "@/utils/use-route-scope";
 import { ProjectActions } from "./project-actions";
 
 export function ProjectCard({ project }: { project: ProjectOutput }) {
-  const href = `/p/${project.slug}` as Route;
+  const org = useOrgSlug();
+  const href = routes.project(org, project.slug);
   const description = project.description?.trim() || "No description";
 
   return (

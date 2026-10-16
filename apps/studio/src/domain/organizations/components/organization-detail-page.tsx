@@ -1,6 +1,5 @@
 "use client";
 
-import type { Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeaderActionButton } from "@/components/layout/app-layout";
@@ -9,6 +8,7 @@ import DashboardSection from "@/components/section-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import { deSlug } from "@/lib/utils";
+import { routes } from "@/utils/navigation";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { useOrganizationTabs } from "../hooks/use-organization-tabs";
 import { OrganizationDetailStats } from "./organization-detail-stats";
@@ -38,7 +38,7 @@ export default function OrganizationDetailPage({ slug }: { slug: string }) {
 
   const meta = listItem ?? organization;
   const personal = meta ? isPersonalOrganization(meta) : false;
-  const settingsHref = `/dashboard/organizations/${slug}/settings` as Route;
+  const settingsHref = routes.orgSection(slug, "settings");
   const resolvedName = listItem?.name ?? organization?.name;
   const displayName =
     resolvedName ?? (status === "loading" ? deSlug(slug) : slug);
@@ -51,7 +51,7 @@ export default function OrganizationDetailPage({ slug }: { slug: string }) {
           ? "Personal workspace overview and administration."
           : "Team workspace overview and administration."
       }
-      back="/dashboard/organizations"
+      back={routes.home()}
       {...orgTabs}
       meta={
         status === "loading" ? (

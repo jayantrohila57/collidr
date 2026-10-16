@@ -1,6 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useCurrentOrgSlug } from "@/components/org/use-current-org-slug";
+
+import { routes } from "@/utils/navigation";
 import { useProjects } from "./use-projects";
 
 interface UseProjectActionsProps {
@@ -12,6 +15,7 @@ export function useProjectActions({
   projectId,
   onUpdate,
 }: UseProjectActionsProps) {
+  const org = useCurrentOrgSlug() ?? "";
   const router = useRouter();
 
   const {
@@ -33,7 +37,7 @@ export function useProjectActions({
       onUpdate?.();
 
       // Redirect to projects list after archiving
-      router.push("/dashboard/projects");
+      router.push(routes.projects(org));
     } catch (error) {
       console.error("Archive failed:", error);
       throw error;
@@ -46,7 +50,7 @@ export function useProjectActions({
       onUpdate?.();
 
       // Redirect to projects list after unarchiving
-      router.push("/dashboard/projects");
+      router.push(routes.projects(org));
     } catch (error) {
       console.error("Unarchive failed:", error);
       throw error;
@@ -85,7 +89,7 @@ export function useProjectActions({
       onUpdate?.();
 
       // Redirect to projects list after deletion
-      router.push("/dashboard/projects");
+      router.push(routes.projects(org));
     } catch (error) {
       console.error("Delete failed:", error);
       throw error;

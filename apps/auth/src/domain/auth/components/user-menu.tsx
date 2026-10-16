@@ -5,6 +5,7 @@ import {
   type UserMenuProps,
 } from "@loftlancer/ui/patterns/sidebar-kit";
 import { docsSiteUrl } from "@loftlancer/ui/platform-urls";
+import { routes } from "@loftlancer/ui/studio-routes";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { withBasePath } from "@/lib/base-path";
@@ -29,7 +30,7 @@ export function useUserMenuProps(): UserMenuProps & { ready: boolean } {
     accountHref: withBasePath("/settings/profile"),
     organizationSettingsHref:
       isOrganizationsEnabledOnClient() && orgSlug
-        ? studioDashboardPath(`/dashboard/organizations/${orgSlug}/settings`)
+        ? studioDashboardPath(routes.orgSection(orgSlug, "settings"))
         : null,
     docsHref: docsSiteUrl(),
     onSignOut: () => performSignOut({ queryClient, router }),

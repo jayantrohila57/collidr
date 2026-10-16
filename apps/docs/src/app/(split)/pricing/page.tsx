@@ -37,9 +37,7 @@ const faq = [
 ];
 
 export default function PricingPage() {
-  const signInHref = buildSignInUrl({
-    returnTo: "https://loftlancer.com/studio/dashboard",
-  });
+  const signInHref = buildSignInUrl();
   return (
     <MarketingPage
       title="Pricing"

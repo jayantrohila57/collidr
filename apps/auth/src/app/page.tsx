@@ -1,5 +1,8 @@
+import { studioHomeUrl } from "@loftlancer/ui/auth-links";
+import type { Route } from "next";
 import { redirect } from "next/navigation";
 
+/** Auth root has no page of its own (#302): go to the studio org list. */
 export default function HomePage() {
-  redirect("/sign-in");
+  redirect(studioHomeUrl() as Route);
 }

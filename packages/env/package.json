@@ -21,7 +21,8 @@
     "./platform": "./src/platform.ts",
     "./mcp-app": "./src/mcp-app.ts",
     "./vercel-services": "./src/vercel-services.ts",
-    "./next-service-base-path": "./src/next-service-base-path.ts"
+    "./next-service-base-path": "./src/next-service-base-path.ts",
+    "./reserved-slugs": "./src/reserved-slugs.ts"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.11",

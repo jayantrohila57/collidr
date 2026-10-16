@@ -28,9 +28,7 @@ export function validateReturnTo(
   const allowed = options.allowedOrigins ?? getPlatformProductionOrigins();
   const fallback =
     options.fallback ??
-    `${trimTrailingSlash(
-      process.env.NEXT_PUBLIC_STUDIO_URL ?? DEFAULT_STUDIO_URL,
-    )}/dashboard`;
+    trimTrailingSlash(process.env.NEXT_PUBLIC_STUDIO_URL ?? DEFAULT_STUDIO_URL);
 
   if (!raw || typeof raw !== "string") {
     return fallback;

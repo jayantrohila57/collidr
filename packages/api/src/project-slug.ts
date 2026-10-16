@@ -1,6 +1,7 @@
 import { activeProjectWhere, db } from "@loftlancer/db";
 import { project } from "@loftlancer/db/schema/projects";
-import { eq } from "drizzle-orm";
+import { isReservedProjectSlug } from "@loftlancer/env/reserved-slugs";
+import { and, eq, isNull } from "drizzle-orm";
 
 export function slugifyProjectName(name: string): string {
   const slug = name
@@ -21,18 +22,35 @@ export function buildProjectSlugFromName(name: string): string {
   return `project-${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}`;
 }
 
+/**
+ * First free slug in this org (#301). Reserved route words (settings,
+ * projects, …) get a suffix so /[org]/[project] never shadows an org page.
+ */
 export async function ensureUniqueProjectSlug(
   baseSlug: string,
+  organizationId: string | null,
   excludeProjectId?: string,
 ): Promise<string> {
-  let candidate = baseSlug.slice(0, 255);
+  const base = isReservedProjectSlug(baseSlug)
+    ? `${baseSlug}-project`
+    : baseSlug;
+  let candidate = base.slice(0, 255);
   let suffix = 1;
 
   while (suffix < 10_000) {
     const existing = await db
       .select({ id: project.id })
       .from(project)
-      .where(activeProjectWhere(eq(project.slug, candidate)))
+      .where(
+        activeProjectWhere(
+          and(
+            eq(project.slug, candidate),
+            organizationId
+              ? eq(project.organizationId, organizationId)
+              : isNull(project.organizationId),
+          ),
+        ),
+      )
       .limit(1);
 
     const taken = existing[0];
@@ -41,7 +59,7 @@ export async function ensureUniqueProjectSlug(
     }
 
     const suffixStr = `-${suffix}`;
-    const trimmedBase = baseSlug.slice(0, Math.max(1, 255 - suffixStr.length));
+    const trimmedBase = base.slice(0, Math.max(1, 255 - suffixStr.length));
     candidate = `${trimmedBase}${suffixStr}`;
     suffix += 1;
   }

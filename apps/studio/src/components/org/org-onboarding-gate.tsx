@@ -7,7 +7,16 @@ import { useSession } from "@/domain/auth/lib/auth-actions";
 import { authClient } from "@/lib/auth-client";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 
-const EXEMPT_PREFIXES = ["/dashboard/onboarding", "/dashboard/organizations"];
+import { routes } from "@/utils/navigation";
+
+/** Pages that work without an active org: onboarding and the org list itself. */
+function isExemptPath(pathname: string): boolean {
+  return (
+    pathname === routes.home() ||
+    pathname === routes.newOrganization() ||
+    pathname.startsWith(routes.onboarding())
+  );
+}
 
 export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -20,7 +29,7 @@ export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    if (EXEMPT_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+    if (isExemptPath(pathname)) {
       setReady(true);
       return;
     }
@@ -46,7 +55,7 @@ export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
         const orgs = list.data ?? [];
 
         if (orgs.length === 0) {
-          router.replace("/dashboard/onboarding");
+          router.replace(routes.onboarding());
           return;
         }
 

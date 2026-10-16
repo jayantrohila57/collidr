@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { accountSettingsUrl } from "@/lib/account-url";
 import { appIcons } from "@/lib/icons";
 import { cn } from "@/lib/utils";
+import { routes } from "@/utils/navigation";
 import {
   useNotificationMutations,
   useNotificationsList,
@@ -100,7 +101,7 @@ export function NotificationsPageClient() {
     <DashboardSection
       title="Notifications"
       description="Updates about invitations, your organization, and workspace activity."
-      back="/dashboard"
+      back={routes.home()}
       activeTab={tab}
       onTabChange={(value) => setTab(value as "all" | "unread")}
       tabs={[

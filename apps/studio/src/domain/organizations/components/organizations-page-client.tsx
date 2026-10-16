@@ -1,39 +1,33 @@
 "use client";
 
-import type { Route } from "next";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 import { PageHeaderActionButton } from "@/components/layout/app-layout";
 import DashboardSection from "@/components/section-dashboard";
 import { Can } from "@/domain/permissions/components/can";
+import { routes } from "@/utils/navigation";
 import { CreateOrganizationSheet } from "./create-organization-sheet";
 import { OrganizationsList } from "./organizations-list";
 import { OrganizationsListStats } from "./organizations-list-stats";
 
-export function OrganizationsPageClient() {
+/**
+ * Studio home (#299): the org list. `/new` renders the same page with the
+ * create sheet open; closing it returns to `/`.
+ */
+export function OrganizationsPageClient({
+  createRoute = false,
+}: {
+  createRoute?: boolean;
+}) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [createOpen, setCreateOpen] = useState(false);
-
-  useEffect(() => {
-    if (searchParams.get("create") === "1") {
-      setCreateOpen(true);
-    }
-  }, [searchParams]);
+  const [createOpen, setCreateOpen] = useState(createRoute);
 
   const closeCreate = useCallback(() => {
     setCreateOpen(false);
-    // Read the live URL (not a possibly stale searchParams snapshot) so
-    // Cancel, Esc and backdrop clicks always drop ?create=1.
-    const params = new URLSearchParams(window.location.search);
-    if (params.has("create")) {
-      params.delete("create");
-      const qs = params.toString();
-      router.replace(`/dashboard/organizations${qs ? `?${qs}` : ""}` as Route, {
-        scroll: false,
-      });
+    if (createRoute) {
+      router.replace(routes.home(), { scroll: false });
     }
-  }, [router]);
+  }, [createRoute, router]);
 
   const openCreate = useCallback(() => {
     setCreateOpen(true);

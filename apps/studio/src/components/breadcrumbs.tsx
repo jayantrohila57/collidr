@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  isReservedOrgSlug,
+  isReservedProjectSlug,
+} from "@loftlancer/ui/studio-routes";
 import { useQuery } from "@tanstack/react-query";
 import { Home, MoreHorizontal } from "lucide-react";
 import type { Route } from "next";
@@ -18,13 +22,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
-import { isRecognizedDashboardPath } from "@/lib/dashboard-path";
 import { cn, deSlug } from "@/lib/utils";
+import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";
 
 const STATIC_LABELS: Record<string, string> = {
-  dashboard: "Dashboard",
-  organizations: "Organizations",
+  new: "New",
+  activity: "Activity",
+  onboarding: "Onboarding",
   members: "Members",
   teams: "Teams",
   invitations: "Invitations",
@@ -38,9 +43,6 @@ const STATIC_LABELS: Record<string, string> = {
   timeline: "Timeline",
   projects: "Projects",
   notifications: "Notifications",
-  new: "New Project",
-  edit: "Edit",
-  environments: "Environments",
   env: "Environments",
   tasks: "Tasks",
   apps: "Apps",
@@ -49,123 +51,59 @@ const STATIC_LABELS: Record<string, string> = {
   help: "Help",
 };
 
-const SETTINGS_TAB_SEGMENTS = new Set([
-  "profile",
-  "sessions",
-  "accounts",
-  "export",
-  "delete",
-  "timeline",
-  "organization",
-]);
+type Crumb = { href: string; segment: string; kind: CrumbKind };
+type CrumbKind = "static" | "org" | "project" | "app" | "ticket" | "task";
+
+/**
+ * Crumbs follow the URL scope (#299): /[org]/[project]/[app]/…, with the
+ * user-level pages (support, notifications, activity) under the root.
+ */
+function generateBreadcrumbs(pathname: string): Crumb[] {
+  const parts = pathname.split("/").filter(Boolean);
+  const userLevel = parts[0] ? isReservedOrgSlug(parts[0]) : true;
+  return parts.map((segment, index) => {
+    const href = `/${parts.slice(0, index + 1).join("/")}`;
+    let kind: CrumbKind = "static";
+    if (userLevel) {
+      if (
+        parts[0] === "support" &&
+        parts[1] === "tickets" &&
+        index === 2 &&
+        segment !== "new"
+      )
+        kind = "ticket";
+    } else if (index === 0) kind = "org";
+    else if (index === 1 && !isReservedProjectSlug(segment)) kind = "project";
+    else if (
+      index === 2 &&
+      parts[1] &&
+      !isReservedProjectSlug(parts[1]) &&
+      !["apps", "settings"].includes(segment)
+    )
+      kind = "app";
+    else if (index === 3 && parts[2] === "tasks" && segment !== "settings")
+      kind = "task";
+    return { href, segment, kind };
+  });
+}
 
 function formatSegmentLabel(segment: string, resolvedName?: string) {
   if (resolvedName) return resolvedName;
   return STATIC_LABELS[segment] ?? deSlug(segment);
 }
 
-const generateBreadcrumbs = (pathname: string) => {
-  const pathArray = pathname?.split("/")?.filter(Boolean);
-  const breadcrumbs = pathArray.map((path, index) => {
-    // `/p` has no index page: point the short-URL crumb at the projects list.
-    if (index === 0 && path === "p") {
-      return { href: "/dashboard/projects", label: path, segment: "projects" };
-    }
-    const href = `/${pathArray?.slice(0, index + 1)?.join("/")}`;
-    return { href, label: path, segment: path };
-  });
-  return breadcrumbs;
-};
-
-function breadcrumbLabel(
-  breadcrumb: { segment: string },
-  index: number,
-  breadcrumbs: ReturnType<typeof generateBreadcrumbs>,
-  projectFromList?: { name: string },
-  orgFromList?: { name: string },
-  showNotFound?: boolean,
-  supportTicketLabel?: string,
-) {
-  if (showNotFound && index === breadcrumbs.length - 1) {
-    return "Not found";
-  }
-
-  if (
-    breadcrumbs[1]?.segment === "settings" &&
-    SETTINGS_TAB_SEGMENTS.has(breadcrumb.segment)
-  ) {
-    return STATIC_LABELS[breadcrumb.segment] ?? deSlug(breadcrumb.segment);
-  }
-
-  const isProjectSlug =
-    (index === 2 &&
-      breadcrumbs[1]?.segment === "projects" &&
-      !["new", "edit"].includes(breadcrumb.segment)) ||
-    (index === 1 && breadcrumbs[0]?.label === "p");
-
-  const isOrgSlug =
-    index === 2 &&
-    breadcrumbs[1]?.segment === "organizations" &&
-    breadcrumb.segment !== "new";
-
-  const isSupportTicketId =
-    index === 3 &&
-    breadcrumbs[1]?.segment === "support" &&
-    breadcrumbs[2]?.segment === "tickets" &&
-    breadcrumb.segment !== "new";
-
-  return formatSegmentLabel(
-    breadcrumb.segment,
-    isProjectSlug
-      ? projectFromList?.name
-      : isOrgSlug
-        ? orgFromList?.name
-        : isSupportTicketId
-          ? supportTicketLabel
-          : undefined,
-  );
-}
-
 export function Breadcrumbs({ className }: { className?: string }) {
   const pathname = usePathname();
-  const breadcrumbs = generateBreadcrumbs(pathname);
+  const breadcrumbs = generateBreadcrumbs(pathname ?? "/");
   const { orgs } = useActiveOrganization();
-  const { projects, status: projectsStatus } = useProjects();
-  const projectSlugs = new Set(
-    projects.map((p) => p.slug).filter((s): s is string => Boolean(s?.trim())),
-  );
-  const projectsLoaded =
-    projectsStatus === "success" || projectsStatus === "empty";
-  const showNotFound =
-    pathname != null &&
-    !isRecognizedDashboardPath(pathname, projectSlugs, projectsLoaded);
+  const { projects } = useProjects();
 
-  const shortProjectUrl = breadcrumbs[0]?.label === "p";
-  const projectSlugFromPath = shortProjectUrl
-    ? breadcrumbs[1]?.segment
-    : breadcrumbs[2]?.segment;
-  const projectFromList =
-    projectSlugFromPath &&
-    (shortProjectUrl || breadcrumbs[1]?.segment === "projects") &&
-    !["new", "edit"].includes(projectSlugFromPath)
-      ? projects.find((p) => p.slug === projectSlugFromPath)
-      : undefined;
+  const orgSlug = breadcrumbs.find((c) => c.kind === "org")?.segment;
+  const projectSlug = breadcrumbs.find((c) => c.kind === "project")?.segment;
+  const orgName = orgs.find((o) => o.slug === orgSlug)?.name;
+  const projectName = projects.find((p) => p.slug === projectSlug)?.name;
 
-  const orgSlugFromPath =
-    breadcrumbs[1]?.segment === "organizations"
-      ? breadcrumbs[2]?.segment
-      : undefined;
-  const orgFromList = orgSlugFromPath
-    ? orgs.find((o) => o.slug === orgSlugFromPath)
-    : undefined;
-
-  const supportTicketId =
-    breadcrumbs[1]?.segment === "support" &&
-    breadcrumbs[2]?.segment === "tickets" &&
-    breadcrumbs[3]?.segment &&
-    breadcrumbs[3].segment !== "new"
-      ? breadcrumbs[3].segment
-      : undefined;
+  const supportTicketId = breadcrumbs.find((c) => c.kind === "ticket")?.segment;
   const supportTicketQuery = useQuery({
     ...trpc.support.getTicket.queryOptions({
       ticketId: supportTicketId ?? "",
@@ -178,6 +116,20 @@ export function Breadcrumbs({ className }: { className?: string }) {
     : supportTicketId
       ? "Ticket"
       : undefined;
+
+  const breadcrumbLabel = (crumb: Crumb) =>
+    formatSegmentLabel(
+      crumb.segment,
+      crumb.kind === "org"
+        ? orgName
+        : crumb.kind === "project"
+          ? projectName
+          : crumb.kind === "ticket"
+            ? supportTicketLabel
+            : crumb.kind === "task"
+              ? `Task #${crumb.segment}`
+              : undefined,
+    );
 
   const collapseMiddle = breadcrumbs.length > 4;
   const visibleIndices = collapseMiddle
@@ -195,7 +147,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
       >
         <BreadcrumbItem className="shrink-0">
           <BreadcrumbLink
-            render={<Link href={"/dashboard" as Route} />}
+            render={<Link href={routes.home()} />}
             aria-label="Home"
             className="inline-flex size-11 items-center justify-center"
           >
@@ -226,20 +178,12 @@ export function Breadcrumbs({ className }: { className?: string }) {
                       <MoreHorizontal className="size-4" aria-hidden />
                     </MenuTrigger>
                     <MenuPopup align="start">
-                      {mobileMenuItems.map((crumb, index) => (
+                      {mobileMenuItems.map((crumb) => (
                         <MenuItem
                           key={crumb.href}
                           render={<Link href={crumb.href as Route} />}
                         >
-                          {breadcrumbLabel(
-                            crumb,
-                            index,
-                            breadcrumbs,
-                            projectFromList,
-                            orgFromList,
-                            showNotFound,
-                            supportTicketLabel,
-                          )}
+                          {breadcrumbLabel(crumb)}
                         </MenuItem>
                       ))}
                     </MenuPopup>
@@ -252,15 +196,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
             </BreadcrumbSeparator>
             <BreadcrumbItem className="max-w-[min(12rem,55vw)] shrink truncate md:hidden">
               <BreadcrumbPage className="truncate">
-                {breadcrumbLabel(
-                  breadcrumbs[lastIndex],
-                  lastIndex,
-                  breadcrumbs,
-                  projectFromList,
-                  orgFromList,
-                  showNotFound,
-                  supportTicketLabel,
-                )}
+                {breadcrumbLabel(breadcrumbs[lastIndex])}
               </BreadcrumbPage>
             </BreadcrumbItem>
           </>
@@ -288,15 +224,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
             return null;
           }
 
-          const label = breadcrumbLabel(
-            breadcrumb,
-            index,
-            breadcrumbs,
-            projectFromList,
-            orgFromList,
-            showNotFound,
-            supportTicketLabel,
-          );
+          const label = breadcrumbLabel(breadcrumb);
 
           return (
             <React.Fragment key={breadcrumb.href}>

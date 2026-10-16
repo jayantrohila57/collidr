@@ -3,14 +3,14 @@ title: Apps
 description: First-party apps you install per project — Environments and Tasks.
 ---
 
-Features inside a project are delivered as **apps**. Each project installs the apps it needs from **Apps** (`/studio/p/<slug>/apps`). The list of apps lives in code (`appRegistry` in `@loftlancer/actions/apps`); a `project_app` row records which project has which app installed. There are no third-party apps.
+Features inside a project are delivered as **apps**. Each project installs the apps it needs from **Apps** (`/studio/<org>/<project>/apps`). The list of apps lives in code (`appRegistry` in `@loftlancer/actions/apps`); a `project_app` row records which project has which app installed. There are no third-party apps.
 
 ## Available apps
 
 | App | ID | What it adds | Project page |
 | --- | --- | --- | --- |
-| **Environments** | `env` | Environments and encrypted variables with `.env` import and export | `/studio/p/<slug>/env` |
-| **Tasks** | `tasks` | Numbered tasks with status, priority, assignee, due date, labels and comments | `/studio/p/<slug>/tasks` |
+| **Environments** | `env` | Environments and encrypted variables with `.env` import and export | `/studio/<org>/<project>/env` |
+| **Tasks** | `tasks` | Numbered tasks with status, priority, assignee, due date, labels and comments | `/studio/<org>/<project>/tasks` |
 
 Both apps are free.
 

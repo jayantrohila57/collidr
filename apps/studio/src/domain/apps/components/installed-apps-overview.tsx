@@ -1,10 +1,11 @@
 "use client";
 
-import type { Route } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { Button } from "@/components/ui/button";
 import { LayoutGrid } from "@/lib/icons";
+import { routes } from "@/utils/navigation";
+import { useOrgSlug } from "@/utils/use-route-scope";
 import { useProjectApps } from "../hooks/use-project-apps";
 import { AppGlyph } from "./app-glyph";
 import { AppGridSkeleton } from "./project-apps-directory";
@@ -17,6 +18,7 @@ export function InstalledAppsOverview({
   slug: string;
   summaries?: Record<string, string>;
 }) {
+  const org = useOrgSlug();
   const { installed, isLoading, isError, canManage } = useProjectApps(slug);
   if (isLoading) return <AppGridSkeleton count={1} />;
 
@@ -31,7 +33,9 @@ export function InstalledAppsOverview({
             : "A project manager hasn't installed any apps on this project yet."
         }
         actionLabel={canManage ? "Browse apps" : undefined}
-        actionHref={canManage ? `/p/${slug}/apps` : undefined}
+        actionHref={
+          canManage ? routes.projectSection(org, slug, "apps") : undefined
+        }
       />
     );
   }
@@ -43,7 +47,7 @@ export function InstalledAppsOverview({
         <Button
           size="sm"
           variant="ghost"
-          render={<Link href={`/p/${slug}/apps` as Route} />}
+          render={<Link href={routes.projectSection(org, slug, "apps")} />}
         >
           {canManage ? "Manage apps" : "All apps"}
         </Button>
@@ -52,7 +56,7 @@ export function InstalledAppsOverview({
         {installed.map((app) => (
           <Link
             key={app.id}
-            href={`/p/${slug}/${app.nav[0]?.path ?? app.id}` as Route}
+            href={routes.app(org, slug, app.nav[0]?.path ?? app.id)}
             className="flex min-h-28 flex-col gap-2 rounded-xl bg-card p-4 ring-1 ring-border/60 transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <div className="flex items-center gap-3">

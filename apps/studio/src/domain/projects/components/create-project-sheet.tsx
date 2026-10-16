@@ -2,11 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createProjectInput } from "@loftlancer/api/validation";
-import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
+import { useCurrentOrgSlug } from "@/components/org/use-current-org-slug";
 import {
   FormSheet,
   FormSheetBody,
@@ -23,6 +23,8 @@ import { Label } from "@/components/ui/label";
 import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+
+import { routes } from "@/utils/navigation";
 import { useProjects } from "../hooks/use-projects";
 
 interface CreateProjectSheetProps {
@@ -35,6 +37,7 @@ export function CreateProjectSheet({
   onOpenChange,
 }: CreateProjectSheetProps) {
   const router = useRouter();
+  const org = useCurrentOrgSlug() ?? "";
   const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const { createProject, isCreating } = useProjects();
 
@@ -67,9 +70,9 @@ export function CreateProjectSheet({
       onOpenChange(false);
       const slug = result?.data?.slug;
       if (slug) {
-        router.push(`/p/${slug}` as Route);
+        router.push(routes.project(org, slug));
       } else {
-        router.push("/dashboard/projects");
+        router.push(routes.projects(org));
       }
     } catch (error) {
       console.error("Failed to create project:", error);

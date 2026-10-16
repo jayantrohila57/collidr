@@ -1,6 +1,7 @@
 "use client";
 
 import { accountSettingsNav } from "@loftlancer/actions/nav";
+import { routes } from "@loftlancer/ui/studio-routes";
 import { Home } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -40,12 +41,9 @@ function segmentLabel(segment: string) {
 export function SettingsBreadcrumbs({ className }: { className?: string }) {
   const pathname = usePathname() ?? "/settings";
   const segments = pathname.split("/").filter(Boolean);
-  const studioHref = studioDashboardPath("/dashboard");
+  const studioHref = studioDashboardPath(routes.home());
 
-  const crumbs =
-    segments[0] === "settings"
-      ? segments.slice(1)
-      : segments;
+  const crumbs = segments[0] === "settings" ? segments.slice(1) : segments;
 
   const currentLabel =
     crumbs.length === 0
@@ -69,7 +67,9 @@ export function SettingsBreadcrumbs({ className }: { className?: string }) {
           {crumbs.length === 0 ? (
             <BreadcrumbPage>Settings</BreadcrumbPage>
           ) : (
-            <BreadcrumbLink render={<Link href={"/settings/profile" as Route} />}>
+            <BreadcrumbLink
+              render={<Link href={"/settings/profile" as Route} />}
+            >
               Settings
             </BreadcrumbLink>
           )}

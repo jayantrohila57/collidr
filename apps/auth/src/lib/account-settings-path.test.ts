@@ -9,6 +9,6 @@ describe("isRecognizedAccountSettingsPath", () => {
   });
 
   it("rejects unknown dashboard paths", () => {
-    assert.equal(isRecognizedAccountSettingsPath("/dashboard/timeline"), false);
+    assert.equal(isRecognizedAccountSettingsPath("/activity"), false);
   });
 });
