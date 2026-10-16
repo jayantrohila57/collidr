@@ -58,24 +58,15 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 import { authClient } from "@/lib/auth-client";
-import {
-  isInviteMemberFormDirty,
-  isOrganizationProfileEditDirty,
-} from "@/lib/form-dirty";
+import { isOrganizationProfileEditDirty } from "@/lib/form-dirty";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
+import { assignableInviteRoles } from "@/lib/invite-emails";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import {
@@ -90,6 +81,7 @@ import {
   resendOrganizationInvitation,
 } from "@/lib/organization-invitations";
 import { toast } from "@/lib/toast";
+import { BulkInviteDialog } from "./bulk-invite-dialog";
 
 type MemberRow = {
   id: string;
@@ -165,9 +157,6 @@ export function OrganizationSettingsForm({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [slugError, setSlugError] = useState<string | undefined>();
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<string>("member");
-  const [invitePending, setInvitePending] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const [resendingId, setResendingId] = useState<string | null>(null);
   const [rolePendingId, setRolePendingId] = useState<string | null>(null);
@@ -176,7 +165,6 @@ export function OrganizationSettingsForm({
   const [inviteOpen, setInviteOpen] = useState(false);
   const [memberQuery, setMemberQuery] = useState("");
   const editOrgCloseWithoutPromptRef = useRef<(() => void) | null>(null);
-  const inviteCloseWithoutPromptRef = useRef<(() => void) | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirmName, setDeleteConfirmName] = useState("");
   const [deletePending, setDeletePending] = useState(false);
@@ -194,15 +182,9 @@ export function OrganizationSettingsForm({
     (m) => m.user.id === currentUserId || m.user.email === session?.user?.email,
   );
   const isOwner = myMembership?.role === "owner";
+  const canInvite = assignableInviteRoles(myMembership?.role).length > 0;
   const isPersonal = isPersonalOrganization({ metadata: orgMetadata });
   const pendingInvitations = pendingOrganizationInvitations(invitations);
-
-  const resetInviteFields = useCallback(() => {
-    setInviteEmail("");
-    setInviteRole("member");
-  }, []);
-
-  const inviteIsDirty = isInviteMemberFormDirty(inviteEmail, inviteRole);
 
   const editProfileDirty =
     editOrgOpen &&
@@ -341,41 +323,6 @@ export function OrganizationSettingsForm({
       }
     } finally {
       setResendingId(null);
-    }
-  };
-
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const email = inviteEmail.trim();
-    if (!email) return;
-    setInvitePending(true);
-    try {
-      await toast.promise(
-        authClient.organization.inviteMember({
-          email,
-          role: inviteRole as OrgMemberRole,
-          organizationId,
-        }),
-        {
-          loading: "Sending invitation…",
-          success: "Invitation sent",
-          error: "Could not send invitation",
-        },
-      );
-      resetInviteFields();
-      inviteCloseWithoutPromptRef.current?.();
-      setInviteOpen(false);
-      await loadOrganization(organizationId);
-      if (isNotificationsEnabledOnClient() && currentUserId) {
-        void syncInvitationReceived.mutate({
-          organizationId,
-          email,
-        });
-      }
-    } catch {
-      // Toast handled by toast.promise
-    } finally {
-      setInvitePending(false);
     }
   };
 
@@ -635,15 +582,17 @@ export function OrganizationSettingsForm({
               />
               {mode !== "members" ? (
                 <SettingsRow label="Invite" description="Add someone by email.">
-                  <Button
-                    type="button"
-                    size="sm"
-                    className="w-fit gap-2"
-                    onClick={() => setInviteOpen(true)}
-                  >
-                    <AppIcon name="invite" className="text-current" />
-                    Invite member
-                  </Button>
+                  {canInvite ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="w-fit gap-2"
+                      onClick={() => setInviteOpen(true)}
+                    >
+                      <AppIcon name="invite" className="text-current" />
+                      Invite member
+                    </Button>
+                  ) : null}
                 </SettingsRow>
               ) : null}
               {members.length === 0 ? (
@@ -653,23 +602,25 @@ export function OrganizationSettingsForm({
                       <EmptyMedia variant="icon">
                         <AppIcon name="member" className="size-5" />
                       </EmptyMedia>
-                      <EmptyTitle>You're the only member</EmptyTitle>
+                      <EmptyTitle>Invite your first member</EmptyTitle>
                       <EmptyDescription>
                         {pendingInvitations.length > 0
-                          ? `You have ${pendingInvitations.length} pending ${pendingInvitations.length === 1 ? "invitation" : "invitations"} awaiting acceptance.`
-                          : "Invite teammates to share projects and environments."}
+                          ? `${pendingInvitations.length} pending ${pendingInvitations.length === 1 ? "invitation is" : "invitations are"} awaiting acceptance.`
+                          : "Paste a few emails to share projects and environments with your team."}
                       </EmptyDescription>
                     </EmptyHeader>
                     <EmptyContent>
-                      <Button
-                        type="button"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => setInviteOpen(true)}
-                      >
-                        <AppIcon name="invite" className="text-current" />
-                        Invite member
-                      </Button>
+                      {canInvite ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => setInviteOpen(true)}
+                        >
+                          <AppIcon name="invite" className="text-current" />
+                          Invite member
+                        </Button>
+                      ) : null}
                     </EmptyContent>
                   </Empty>
                 </div>
@@ -685,17 +636,20 @@ export function OrganizationSettingsForm({
                       className="max-w-xs"
                     />
                     <span className="text-muted-foreground text-xs">
-                      {members.length} {members.length === 1 ? "member" : "members"}
+                      {members.length}{" "}
+                      {members.length === 1 ? "member" : "members"}
                     </span>
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="ms-auto gap-2"
-                      onClick={() => setInviteOpen(true)}
-                    >
-                      <AppIcon name="invite" className="text-current" />
-                      Invite member
-                    </Button>
+                    {canInvite ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="ms-auto gap-2"
+                        onClick={() => setInviteOpen(true)}
+                      >
+                        <AppIcon name="invite" className="text-current" />
+                        Invite member
+                      </Button>
+                    ) : null}
                   </div>
                   <OrganizationMembersTable
                     members={members.filter((m) => {
@@ -717,15 +671,17 @@ export function OrganizationSettingsForm({
                       );
                     }}
                     empty={membersTableEmpty(
-                      <Button
-                        type="button"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => setInviteOpen(true)}
-                      >
-                        <AppIcon name="invite" className="text-current" />
-                        Invite member
-                      </Button>,
+                      canInvite ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => setInviteOpen(true)}
+                        >
+                          <AppIcon name="invite" className="text-current" />
+                          Invite member
+                        </Button>
+                      ) : undefined,
                     )}
                   />
                 </div>
@@ -751,30 +707,34 @@ export function OrganizationSettingsForm({
                       </EmptyDescription>
                     </EmptyHeader>
                     <EmptyContent>
-                      <Button
-                        type="button"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => setInviteOpen(true)}
-                      >
-                        <AppIcon name="invite" className="text-current" />
-                        Invite member
-                      </Button>
+                      {canInvite ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => setInviteOpen(true)}
+                        >
+                          <AppIcon name="invite" className="text-current" />
+                          Invite member
+                        </Button>
+                      ) : null}
                     </EmptyContent>
                   </Empty>
                 ) : (
                   <OrganizationInvitationsTable
                     invitations={pendingInvitations}
                     empty={invitationsEmpty(
-                      <Button
-                        type="button"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => setInviteOpen(true)}
-                      >
-                        <AppIcon name="invite" className="text-current" />
-                        Invite member
-                      </Button>,
+                      canInvite ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => setInviteOpen(true)}
+                        >
+                          <AppIcon name="invite" className="text-current" />
+                          Invite member
+                        </Button>
+                      ) : undefined,
                     )}
                     revokingId={revokingId}
                     resendingId={resendingId}
@@ -928,80 +888,15 @@ export function OrganizationSettingsForm({
         </FormSheetPopup>
       </FormSheet>
 
-      <FormSheet
+      <BulkInviteDialog
+        organizationId={organizationId}
         open={inviteOpen}
         onOpenChange={setInviteOpen}
-        isDirty={inviteIsDirty}
-        onDiscard={resetInviteFields}
-        closeWithoutPromptRef={inviteCloseWithoutPromptRef}
-      >
-        <FormSheetPopup>
-          <FormSheetHeader>
-            <SheetTitleWithIcon icon="invite">Invite member</SheetTitleWithIcon>
-            <SheetDescription>
-              Send an email invitation with a role for this organization.
-            </SheetDescription>
-          </FormSheetHeader>
-          <FormSheetForm onSubmit={handleInvite}>
-            <FormSheetBody>
-              <FormField id="invite-email" label="Email" required>
-                <Input
-                  id="invite-email"
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="colleague@example.com"
-                  autoComplete="email"
-                />
-              </FormField>
-              <FormField id="invite-role" label="Role">
-                <Select
-                  value={inviteRole}
-                  items={ROLE_SELECT_ITEMS}
-                  onValueChange={(value) => {
-                    if (value) setInviteRole(value);
-                  }}
-                >
-                  <SelectTrigger id="invite-role" className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ROLES.map((role) => (
-                      <SelectItem
-                        key={role}
-                        value={role}
-                        className="capitalize"
-                      >
-                        {role}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormField>
-            </FormSheetBody>
-            <FormSheetFooter>
-              <SheetClose
-                render={
-                  <Button
-                    variant="ghost"
-                    type="button"
-                    disabled={invitePending}
-                  />
-                }
-              >
-                Cancel
-              </SheetClose>
-              <SubmitButton
-                isLoading={invitePending}
-                loadingLabel="Sending…"
-                disabled={!inviteEmail.trim()}
-              >
-                Send invitation
-              </SubmitButton>
-            </FormSheetFooter>
-          </FormSheetForm>
-        </FormSheetPopup>
-      </FormSheet>
+        inviterRole={myMembership?.role ?? null}
+        memberEmails={members.map((m) => m.user.email)}
+        pendingEmails={pendingInvitations.map((i) => i.email)}
+        onInvited={() => void loadOrganization(organizationId)}
+      />
 
       <ConfirmDialog
         open={leaveConfirmOpen}
