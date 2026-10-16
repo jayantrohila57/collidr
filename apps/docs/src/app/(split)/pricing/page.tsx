@@ -1,7 +1,5 @@
 import { appRegistry } from "@loftlancer/actions/apps";
 import { buildSignInUrl } from "@loftlancer/ui/auth-links";
-import { buttonVariants } from "@loftlancer/ui/button";
-import { cn } from "@loftlancer/ui/utils";
 import { MarketingPage } from "@/components/marketing-page";
 
 export const metadata = {
@@ -79,7 +77,7 @@ export default function PricingPage() {
         </ul>
         <a
           href={signInHref}
-          className={cn(buttonVariants({ size: "sm" }), "w-full")}
+          className="inline-flex h-8 w-full items-center justify-center rounded-lg bg-primary px-3 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/90"
         >
           Get started free
         </a>
