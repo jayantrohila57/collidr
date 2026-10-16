@@ -122,7 +122,7 @@ export function SettingsFrame({
 }: SettingsFrameProps) {
   const L = LinkComponent as React.ElementType;
   return (
-    <div data-testid="settings-frame" className="mx-auto w-full max-w-3xl space-y-6 py-2">
+    <div data-testid="settings-frame" className="w-full min-w-0 space-y-6">
       {back ? (
         <L
           href={back.href}
@@ -145,9 +145,9 @@ export function SettingsFrame({
       {tabs?.length ? <SettingsTabs tabs={tabs} LinkComponent={LinkComponent} /> : null}
       {top}
       {aside ? (
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_15rem]">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]">
           <div className="min-w-0 space-y-8">{children}</div>
-          <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">{aside}</aside>
+          <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">{aside}</aside>
         </div>
       ) : (
         <div className="min-w-0 space-y-8">{children}</div>
