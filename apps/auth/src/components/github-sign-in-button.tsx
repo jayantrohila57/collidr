@@ -2,7 +2,7 @@
 
 import { validateReturnTo } from "@loftlancer/auth/return-to";
 import { Button } from "@loftlancer/ui/button";
-import { GithubIcon } from "@loftlancer/ui/github-icon";
+import { GithubMark as GithubIcon } from "@loftlancer/ui/patterns/auth-5";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";

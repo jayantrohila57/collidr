@@ -8,12 +8,11 @@ import {
   Card,
   CardDescription,
   CardHeader,
+  CardPanel,
   CardTitle,
 } from "../components/ui/card";
-import { GithubIcon } from "../components/icons/github-icon";
 import { marketingContainerClass } from "../lib/layout-spacing";
 import { cn } from "../lib/utils";
-import { Auth5Panel } from "../patterns/auth-5";
 import { marketingFeatures } from "./features";
 import {
   MarketingLinkButton,
@@ -130,22 +129,26 @@ function CtaSection({ signInHref }: { signInHref: string }) {
           "flex flex-col items-center py-16 text-center md:py-20",
         )}
       >
-        <Auth5Panel
-          variant="embed"
-          className="w-full max-w-5xl"
-          title="Ready to organize your env vars?"
-          description="Sign in with GitHub to open your studio workspace. Your projects and secrets stay encrypted and under your control."
-        >
-          <MarketingLinkButton
-            size="lg"
-            className="w-full"
-            href={signInHref}
-            data-testid="marketing-cta-bottom"
-          >
-            <GithubIcon aria-hidden />
-            Continue with GitHub
-          </MarketingLinkButton>
-        </Auth5Panel>
+        <Card className="w-full max-w-2xl border-border/80 shadow-sm">
+          <CardHeader className="items-center text-center">
+            <CardTitle className="text-xl md:text-2xl">
+              Ready to organize your env vars?
+            </CardTitle>
+            <CardDescription className="max-w-md text-base">
+              Sign in with GitHub to open your studio workspace. Your projects
+              and secrets stay encrypted and under your control.
+            </CardDescription>
+          </CardHeader>
+          <CardPanel className="flex justify-center pb-8">
+            <MarketingLinkButton
+              size="lg"
+              href={signInHref}
+              data-testid="marketing-cta-bottom"
+            >
+              Continue with GitHub
+            </MarketingLinkButton>
+          </CardPanel>
+        </Card>
       </div>
     </section>
   );
