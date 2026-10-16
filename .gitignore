@@ -53,4 +53,5 @@ playwright-report
 *.tgz
 .cache
 tmp
-tempapps/docs/out/
+temp
+apps/docs/out/
