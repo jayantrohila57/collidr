@@ -10,6 +10,8 @@
     "includes": [
       "**",
       "!**/.next",
+      "!apps/docs/out",
+      "!apps/www/out",
       "!**/dist",
       "!**/.turbo",
       "!**/dev-dist",
@@ -97,9 +99,7 @@
       }
     },
     {
-      "includes": [
-        "apps/studio/src/components/ui/**"
-      ],
+      "includes": ["apps/studio/src/components/ui/**"],
       "linter": {
         "rules": {
           "suspicious": {
