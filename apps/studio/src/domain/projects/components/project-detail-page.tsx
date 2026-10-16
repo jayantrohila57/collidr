@@ -1,6 +1,5 @@
 "use client";
 
-import type { Route } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { PageHeaderMetadataSkeleton } from "@/components/layout/page-header-metadata-skeleton";
@@ -14,6 +13,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useProjectApps } from "@/domain/apps/hooks/use-project-apps";
 import { CreateEnvironmentSheet } from "@/domain/environments/components/create-environment-sheet";
 import { useEnvironments } from "@/domain/environments/hooks/use-environments";
+import { routes } from "@/utils/navigation";
+import { useOrgSlug } from "@/utils/use-route-scope";
 import { useProjectTabs } from "../hooks/use-project-tabs";
 import { EditProjectSheet } from "./edit-project-sheet";
 import { ProjectActions } from "./project-actions";
@@ -58,6 +59,7 @@ function ProjectDetailPageContent({
 }: ProjectDetailPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const org = useOrgSlug();
   const [editOpen, setEditOpen] = useState(false);
   const {
     project,
@@ -80,7 +82,7 @@ function ProjectDetailPageContent({
   const handleEditOpenChange = (open: boolean) => {
     setEditOpen(open);
     if (!open && searchParams.get("edit") === "1") {
-      router.replace(`/p/${slug}` as Route);
+      router.replace(routes.project(org, slug));
     }
   };
 

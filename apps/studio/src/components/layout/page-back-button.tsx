@@ -12,11 +12,13 @@ import {
 import type { PageBackHref } from "@/lib/page-back";
 import { cn } from "@/lib/utils";
 
+import { routes } from "@/utils/navigation";
+
 const backButtonClassName = "size-8 shrink-0";
 
 export function PageBackButton({
   href,
-  fallbackHref = "/dashboard",
+  fallbackHref = routes.home(),
   useHistory = false,
   className,
 }: {

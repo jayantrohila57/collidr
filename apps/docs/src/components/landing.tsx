@@ -14,9 +14,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 
 export function Landing() {
   // Static export: plain link into the auth app, which starts the GitHub flow.
-  const signInHref = buildSignInUrl({
-    returnTo: "https://loftlancer.com/studio/dashboard",
-  });
+  const signInHref = buildSignInUrl();
 
   return (
     <Auth5Panel

@@ -11,7 +11,6 @@ import {
 import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
 import { CircleCheckIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   OAuthDecisionButtons,
@@ -20,6 +19,7 @@ import {
 import { SegmentedCodeInput } from "@/components/segmented-code-input";
 import { authClient } from "@/lib/auth-client";
 import { authAppReturnTo } from "@/lib/auth-return-to";
+import { withBasePath } from "@/lib/base-path";
 import { formatDeviceUserCode } from "@/lib/format-user-code";
 
 type DeviceRequest = {
@@ -34,7 +34,6 @@ type DeviceApprovalScreenProps = {
 };
 
 export function DeviceApprovalScreen({ userCode }: DeviceApprovalScreenProps) {
-  const router = useRouter();
   const formattedCode = formatDeviceUserCode(userCode);
   const { data: session, isPending } = authClient.useSession();
   const [request, setRequest] = useState<DeviceRequest | null>(null);
@@ -48,7 +47,11 @@ export function DeviceApprovalScreen({ userCode }: DeviceApprovalScreenProps) {
       const returnTo = authAppReturnTo(
         `/device/approve?user_code=${encodeURIComponent(formattedCode)}`,
       );
-      router.replace(`/sign-in?return_to=${encodeURIComponent(returnTo)}`);
+      window.location.assign(
+        withBasePath(
+          `/api/sign-in/github?return_to=${encodeURIComponent(returnTo)}`,
+        ),
+      );
       return;
     }
     let cancelled = false;
@@ -65,7 +68,7 @@ export function DeviceApprovalScreen({ userCode }: DeviceApprovalScreenProps) {
     return () => {
       cancelled = true;
     };
-  }, [formattedCode, isPending, router, session?.user]);
+  }, [formattedCode, isPending, session?.user]);
 
   const resources = request?.resource
     ? Array.isArray(request.resource)

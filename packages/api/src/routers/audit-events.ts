@@ -2,12 +2,14 @@ import { isActionsAuditEnabled } from "@loftlancer/actions";
 import { db } from "@loftlancer/db";
 import { auditEvent } from "@loftlancer/db/schema/audit-event";
 import { user } from "@loftlancer/db/schema/auth";
+import { organization } from "@loftlancer/db/schema/organization";
 import { project } from "@loftlancer/db/schema/projects";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, gte, lt, lte, ne, sql, type SQL } from "drizzle-orm";
+import { and, desc, eq, gte, lt, lte, ne, type SQL, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 const targetUser = alias(user, "target_user");
+
 import { z } from "zod/v3";
 import { requireAction } from "../actions/require-action";
 import { passiveActionSqlFilter } from "../audit-passive-actions";
@@ -111,6 +113,7 @@ export const auditEventsRouter = router({
         projectId: auditEvent.projectId,
         projectName: project.name,
         projectSlug: project.slug,
+        organizationSlug: organization.slug,
         environmentId: auditEvent.environmentId,
         entityType: auditEvent.entityType,
         entityId: auditEvent.entityId,
@@ -128,6 +131,7 @@ export const auditEventsRouter = router({
       .from(auditEvent)
       .leftJoin(user, eq(auditEvent.actorUserId, user.id))
       .leftJoin(project, eq(auditEvent.projectId, project.id))
+      .leftJoin(organization, eq(auditEvent.organizationId, organization.id))
       .leftJoin(targetUser, eq(auditEvent.targetUserId, targetUser.id))
       .where(conditions.length ? and(...conditions) : undefined)
       .orderBy(desc(auditEvent.createdAt), desc(auditEvent.id))

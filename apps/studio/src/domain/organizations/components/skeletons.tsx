@@ -1,7 +1,6 @@
 "use client";
 
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
-import type { Route } from "next";
 import { DataTable } from "@/components/data-table/data-table";
 import { ListToolbarSkeleton } from "@/components/layout/list-toolbar-skeleton";
 import type { OrgListItem } from "@/components/org/active-organization-context";
@@ -11,6 +10,7 @@ import DashboardSection from "@/components/section-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { layoutSectionStackClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
+import { routes } from "@/utils/navigation";
 import { OrganizationOverviewSectionsSkeleton } from "./organization-overview-sections";
 
 const columnHelper = legacyCreateColumnHelper<OrgListItem>();
@@ -74,7 +74,7 @@ export function OrganizationDetailPageSkeleton() {
     <DashboardSection
       title="Organization"
       description="Team workspace overview and administration."
-      back="/dashboard/organizations"
+      back={routes.home()}
       metadata={<Skeleton className="h-5 w-40 max-w-full" />}
       stats={<StatCardRowSkeleton count={4} />}
       action={
@@ -92,7 +92,7 @@ export function OrganizationSectionRouteSkeleton() {
     <DashboardSection
       title="Workspace"
       description="Loading organization section…"
-      back={"/dashboard/organizations" as Route}
+      back={routes.home()}
       titleAccessory={<Skeleton className="h-5 w-32 max-w-full" />}
     >
       <SettingsPanelSkeleton rows={4} />

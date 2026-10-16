@@ -1,43 +1,16 @@
 "use client";
 
+import { performPlatformSignOut } from "@loftlancer/ui/platform-sign-out";
 import type { QueryClient } from "@tanstack/react-query";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { performPlatformSignOut } from "@loftlancer/ui/platform-sign-out";
 import { accountSettingsUrl } from "@/lib/account-url";
 import { authClient } from "@/lib/auth-client";
-import { resolvePostAuthPath } from "@/lib/auth-routes";
 
 /**
  * Get current session with loading state
  */
 export function useSession() {
   return authClient.useSession();
-}
-
-function readRedirectSearchParam(): string | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-  return new URLSearchParams(window.location.search).get("redirect");
-}
-
-/**
- * Sign in with GitHub (OAuth redirect).
- */
-export async function signInWithGithub(options?: {
-  redirectTo?: string;
-}): Promise<void> {
-  const redirectTo =
-    options?.redirectTo ?? resolvePostAuthPath(readRedirectSearchParam());
-  const callbackURL =
-    typeof window !== "undefined"
-      ? `${window.location.origin}${redirectTo}`
-      : redirectTo;
-
-  await authClient.signIn.social({
-    provider: "github",
-    callbackURL,
-  });
 }
 
 /**

@@ -5,15 +5,23 @@ import { useCallback, useEffect, useState } from "react";
 import { PageHeaderActionButton } from "@/components/layout/app-layout";
 import DashboardSection from "@/components/section-dashboard";
 import { Can } from "@/domain/permissions/components/can";
+import { routes } from "@/utils/navigation";
+import { useOrgSlug } from "@/utils/use-route-scope";
 import { useProjects } from "../hooks/use-projects";
 import { CreateProjectSheet } from "./create-project-sheet";
 import ProjectList from "./project-list";
 import { ProjectsListStats } from "./projects-list-stats";
 
-export function ProjectsPageClient() {
+export function ProjectsPageClient({
+  createRoute = false,
+}: {
+  /** Rendered at /[org]/projects/new: sheet open, closing returns to the list. */
+  createRoute?: boolean;
+} = {}) {
+  const org = useOrgSlug();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [createOpen, setCreateOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(createRoute);
   const projectsList = useProjects();
 
   useEffect(() => {
@@ -24,10 +32,10 @@ export function ProjectsPageClient() {
 
   const closeCreate = useCallback(() => {
     setCreateOpen(false);
-    if (searchParams.get("create") === "1") {
-      router.replace("/dashboard/projects");
+    if (createRoute || searchParams.get("create") === "1") {
+      router.replace(routes.projects(org));
     }
-  }, [router, searchParams]);
+  }, [createRoute, org, router, searchParams]);
 
   const openCreate = useCallback(() => {
     setCreateOpen(true);

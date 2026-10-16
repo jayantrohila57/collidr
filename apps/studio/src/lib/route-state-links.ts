@@ -7,7 +7,6 @@ const origin = (
 
 export const studioRouteStateLinks: AppRouteStateLinks = {
   homeHref: "/",
-  dashboardHref: "/dashboard",
 };
 
 export const studioPublicOrigin = origin;

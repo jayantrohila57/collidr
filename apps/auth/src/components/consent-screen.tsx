@@ -135,8 +135,8 @@ export function ConsentScreen({
           >
             {error ?? ""}
           </p>
-          <Button variant="ghost" size="sm" render={<Link href="/sign-in" />}>
-            Back to sign in
+          <Button variant="ghost" size="sm" render={<Link href="/settings" />}>
+            Back to account
           </Button>
         </CardPanel>
       </Card>

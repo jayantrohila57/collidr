@@ -18,14 +18,16 @@ MCP tools mirror these names with underscores (for example `project_create`).
 
 ## URLs
 
-Each project has a slug and lives under `/studio/p/<slug>`:
+Each project has a slug that is unique within its organization, and lives under `/studio/<org>/<project>`:
 
 | Path | Page |
 | --- | --- |
-| `/studio/p/<slug>` | Overview |
-| `/studio/p/<slug>/apps` | Install or uninstall apps |
-| `/studio/p/<slug>/env` | Environments and variables (Environments app) |
-| `/studio/p/<slug>/tasks` | Tasks (Tasks app) |
-| `/studio/p/<slug>/edit` | Project settings |
+| `/studio/<org>/<project>` | Overview |
+| `/studio/<org>/<project>/apps` | Install or uninstall apps |
+| `/studio/<org>/<project>/env` | Environments and variables (Environments app) |
+| `/studio/<org>/<project>/env/<env>` | One environment |
+| `/studio/<org>/<project>/tasks` | Tasks (Tasks app) |
+| `/studio/<org>/<project>/tasks/<n>` | Task `#n` open in the side panel |
+| `/studio/<org>/<project>/settings` | Project settings |
 
-The project list is at `/studio/dashboard/projects`.
+The project list is at `/studio/<org>/projects`. `/studio` itself lists your organizations.

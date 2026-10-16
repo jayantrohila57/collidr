@@ -1,9 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import type { Route } from "next";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useDeferredValue, useMemo, useState } from "react";
 import {
   DataTable,
@@ -18,9 +17,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useProjectApps } from "@/domain/apps/hooks/use-project-apps";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { useProjectTabs } from "@/domain/projects/hooks/use-project-tabs";
+import { withBasePath } from "@/lib/base-path";
 import { ListTodo, Plus } from "@/lib/icons";
 import { initialsFromLabel } from "@/lib/initials";
+import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";
+import { useOrgSlug } from "@/utils/use-route-scope";
 import {
   priorityBadgeVariant,
   priorityLabel,
@@ -49,9 +51,8 @@ export function TasksPageSkeleton() {
 }
 
 export function TasksPage({ slug }: { slug: string }) {
-  const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const org = useOrgSlug();
   const { projectId, project, apps } = useProjectApps(slug);
   const projectTabs = useProjectTabs(slug);
   const taskSettings = apps.find((a) => a.id === "tasks")?.settings;
@@ -76,15 +77,14 @@ export function TasksPage({ slug }: { slug: string }) {
     projectId: projectId ?? undefined,
   });
 
-  const openNumber = Number(searchParams.get("task") ?? "") || null;
+  // The open task is in the path (#299): /[org]/[project]/tasks/[n]. Native
+  // history keeps the list mounted (filters, page) while the panel opens;
+  // Next syncs usePathname with it. The raw API needs the basePath.
+  const taskMatch = /\/tasks\/(\d+)$/.exec(pathname ?? "");
+  const openNumber = taskMatch ? Number(taskMatch[1]) : null;
   const setOpenNumber = (n: number | null) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (n) params.set("task", String(n));
-    else params.delete("task");
-    const q = params.toString();
-    router.replace(`${pathname}${q ? `?${q}` : ""}` as Route, {
-      scroll: false,
-    });
+    const href = n ? routes.task(org, slug, n) : routes.tasks(org, slug);
+    window.history.pushState(null, "", withBasePath(href));
   };
 
   const people = useQuery({
@@ -145,7 +145,7 @@ export function TasksPage({ slug }: { slug: string }) {
         return (
           <div className="flex min-w-0 items-center gap-1.5">
             <Link
-              href={`/p/${slug}/tasks?task=${t.number}` as Route}
+              href={routes.task(org, slug, t.number)}
               className="truncate hover:underline"
               onClick={(e) => {
                 // Plain click opens the sheet in place; modifier clicks open a new tab.
@@ -246,7 +246,7 @@ export function TasksPage({ slug }: { slug: string }) {
           ? `Track work for ${project.name}.`
           : "Track work for this project."
       }
-      back={`/p/${slug}` as Route}
+      back={routes.project(org, slug)}
       {...projectTabs}
       action={
         canCreate.allowed ? (

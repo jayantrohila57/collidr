@@ -1,4 +1,3 @@
-import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
 import { Button } from "@loftlancer/ui/button";
 import {
   Card,
@@ -7,6 +6,7 @@ import {
   CardPanel,
   CardTitle,
 } from "@loftlancer/ui/card";
+import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
 import Link from "next/link";
 import { ConsentScreen } from "@/components/consent-screen";
 import { authAppReturnTo } from "@/lib/auth-return-to";
@@ -40,7 +40,7 @@ function InvalidConsentRequest() {
           </CardDescription>
         </CardHeader>
         <CardPanel>
-          <Button render={<Link href="/sign-in" />}>Back to sign in</Button>
+          <Button render={<Link href="/settings" />}>Back to account</Button>
         </CardPanel>
       </Card>
     </Auth5Panel>

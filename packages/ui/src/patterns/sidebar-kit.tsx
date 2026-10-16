@@ -57,6 +57,7 @@ import {
 } from "../components/ui/sidebar";
 import { Skeleton } from "../components/ui/skeleton";
 import { cn, headerIconButtonClassName } from "../lib/utils";
+import { ConfirmDialog } from "./confirm-dialog";
 import { countBadgeClassName, formatCount } from "./count-badge";
 import { SettingsAvatar } from "./settings-frame";
 
@@ -480,16 +481,16 @@ function UserMenuPopup({
   accountHref,
   organizationSettingsHref,
   docsHref,
-  onSignOut,
+  onRequestSignOut,
   side,
   align,
-}: UserMenuProps & {
+}: Omit<UserMenuProps, "onSignOut"> & {
+  onRequestSignOut: () => void;
   side: "top" | "bottom";
   align: "start" | "end";
 }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [signingOut, setSigningOut] = useState(false);
   useEffect(() => setMounted(true), []);
   const name = user?.name || user?.email || "Account";
   return (
@@ -543,11 +544,8 @@ function UserMenuPopup({
       </MenuLinkItem>
       <MenuItem
         variant="destructive"
-        disabled={signingOut}
-        onClick={() => {
-          setSigningOut(true);
-          void Promise.resolve(onSignOut()).finally(() => setSigningOut(false));
-        }}
+        data-testid="menu-sign-out"
+        onClick={onRequestSignOut}
       >
         <LogOutIcon /> Sign out
       </MenuItem>
@@ -555,8 +553,28 @@ function UserMenuPopup({
   );
 }
 
-export function SidebarUserMenu(props: UserMenuProps) {
+/** Menu + confirm dialog; the dialog lives outside the popup so it survives close. */
+function useSignOutConfirm(onSignOut: UserMenuProps["onSignOut"]) {
+  const [open, setOpen] = useState(false);
+  return {
+    request: () => setOpen(true),
+    dialog: (
+      <ConfirmDialog
+        open={open}
+        onOpenChange={setOpen}
+        title="Sign out of Loftlancer?"
+        description="You will be signed out of Studio and your account settings on this device."
+        confirmLabel="Sign out"
+        variant="destructive"
+        onConfirm={onSignOut}
+      />
+    ),
+  };
+}
+
+export function SidebarUserMenu({ onSignOut, ...props }: UserMenuProps) {
   const { user } = props;
+  const signOut = useSignOutConfirm(onSignOut);
   const name = user?.name || user?.email || "Account";
   return (
     <SidebarMenu>
@@ -586,35 +604,50 @@ export function SidebarUserMenu(props: UserMenuProps) {
             </span>
             <ChevronsUpDownIcon className="ms-auto size-4 opacity-60" />
           </MenuTrigger>
-          <UserMenuPopup {...props} side="top" align="start" />
+          <UserMenuPopup
+            {...props}
+            onRequestSignOut={signOut.request}
+            side="top"
+            align="start"
+          />
         </Menu>
+        {signOut.dialog}
       </SidebarMenuItem>
     </SidebarMenu>
   );
 }
 
 /** Header avatar trigger: same size-8 square as the other header buttons. */
-export function HeaderUserMenu(props: UserMenuProps) {
+export function HeaderUserMenu({ onSignOut, ...props }: UserMenuProps) {
   const { user } = props;
+  const signOut = useSignOutConfirm(onSignOut);
   const name = user?.name || user?.email || "Account";
   return (
-    <Menu>
-      <MenuTrigger
-        aria-label="Open account menu"
-        data-testid="header-user-menu"
-        className={cn(
-          headerIconButtonClassName,
-          "inline-flex items-center justify-center overflow-hidden border bg-background outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        )}
-      >
-        <SettingsAvatar
-          src={user?.image}
-          name={name}
-          className="size-full rounded-none text-xs"
+    <>
+      <Menu>
+        <MenuTrigger
+          aria-label="Open account menu"
+          data-testid="header-user-menu"
+          className={cn(
+            headerIconButtonClassName,
+            "inline-flex items-center justify-center overflow-hidden border bg-background outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          )}
+        >
+          <SettingsAvatar
+            src={user?.image}
+            name={name}
+            className="size-full rounded-none text-xs"
+          />
+        </MenuTrigger>
+        <UserMenuPopup
+          {...props}
+          onRequestSignOut={signOut.request}
+          side="bottom"
+          align="end"
         />
-      </MenuTrigger>
-      <UserMenuPopup {...props} side="bottom" align="end" />
-    </Menu>
+      </Menu>
+      {signOut.dialog}
+    </>
   );
 }
 
@@ -697,7 +730,7 @@ export function PublicSidebar({
   currentPath,
   sessionUrl,
   signInHref,
-  signOutHref,
+  onSignOut,
   accountHref,
   docsHref,
 }: {
@@ -706,7 +739,8 @@ export function PublicSidebar({
   currentPath?: string;
   sessionUrl: string;
   signInHref: string;
-  signOutHref: string;
+  /** Ends the session (the confirm dialog is built in). */
+  onSignOut: () => void | Promise<void>;
   accountHref: string;
   docsHref: string;
 }) {
@@ -752,7 +786,7 @@ export function PublicSidebar({
             user={user}
             accountHref={accountHref}
             docsHref={docsHref}
-            onSignOut={() => window.location.assign(signOutHref)}
+            onSignOut={onSignOut}
           />
         ) : (
           <SidebarMenu>

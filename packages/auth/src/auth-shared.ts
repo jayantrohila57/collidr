@@ -10,12 +10,14 @@ import * as organizationSchema from "@loftlancer/db/schema/organization";
 import * as teamSchema from "@loftlancer/db/schema/team";
 import { teamMember } from "@loftlancer/db/schema/team";
 import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
+import { isReservedOrgSlug } from "@loftlancer/env/reserved-slugs";
 import {
   isNotificationsEnabled,
   linkPendingNotificationsForUser,
 } from "@loftlancer/notifications";
 import type { BetterAuthOptions } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { APIError } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { organization } from "better-auth/plugins";
 import { admin } from "better-auth/plugins/admin";
@@ -101,8 +103,7 @@ export function sharedSessionConfig(): BetterAuthOptions["session"] {
 export function sharedAuthAdvanced(): NonNullable<
   BetterAuthOptions["advanced"]
 > {
-  const cookieDomain =
-    process.env.AUTH_COOKIE_DOMAIN?.trim() ?? "";
+  const cookieDomain = process.env.AUTH_COOKIE_DOMAIN?.trim() ?? "";
   const useCrossSubdomain =
     process.env.AUTH_CROSS_SUBDOMAIN_COOKIES === "true" &&
     cookieDomain.length > 0 &&
@@ -153,6 +154,14 @@ export function platformDatabaseConfig(): BetterAuthOptions["database"] {
   });
 }
 
+function assertOrgSlugAllowed(slug: string | undefined) {
+  if (slug && isReservedOrgSlug(slug)) {
+    throw new APIError("BAD_REQUEST", {
+      message: `"${slug}" is reserved. Choose a different slug.`,
+    });
+  }
+}
+
 export function organizationPlugin() {
   if (!isOrganizationsEnabled()) {
     return [];
@@ -164,6 +173,15 @@ export function organizationPlugin() {
       roles: orgBetterAuthRoles,
       teams: { enabled: true },
       organizationHooks: {
+        // Org slugs are the first URL segment (#299); never shadow a route.
+        beforeCreateOrganization: async ({ organization: org }) => {
+          assertOrgSlugAllowed(org.slug);
+        },
+        beforeUpdateOrganization: async ({ organization: updates }) => {
+          if (typeof updates.slug === "string") {
+            assertOrgSlugAllowed(updates.slug);
+          }
+        },
         beforeDeleteOrganization: async ({ organization: org, user }) => {
           await assertOrganizationCanBeDeleted(org, user.id);
         },

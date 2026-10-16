@@ -129,7 +129,7 @@ export function SearchableCombobox({
         align={align}
         className={cn(
           "w-(--anchor-width) min-w-56",
-          options.some((o) => o.hint) && "min-w-72",
+          options.some((o) => o.hint) && "min-w-80",
           popupClassName,
         )}
       >
@@ -151,18 +151,21 @@ export function SearchableCombobox({
               value={item}
               disabled={item.disabled}
             >
-              <span className="flex min-w-0 items-center gap-1.5">
+              <span
+                className="flex min-w-0 items-center gap-1.5"
+                title={item.hint ? `${item.label} · ${item.hint}` : item.label}
+              >
                 {item.icon}
                 {item.hint ? (
-                  // Name over muted email so long names aren't truncated.
+                  // Name over muted email; both wrap instead of truncating.
                   <span className="flex min-w-0 flex-col">
-                    <span className="truncate">{item.label}</span>
-                    <span className="truncate text-muted-foreground text-xs">
+                    <span className="break-words">{item.label}</span>
+                    <span className="break-all text-muted-foreground text-xs">
                       {item.hint}
                     </span>
                   </span>
                 ) : (
-                  <span className="truncate">{item.label}</span>
+                  <span className="min-w-0 break-words">{item.label}</span>
                 )}
               </span>
             </ComboboxItem>

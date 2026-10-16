@@ -1,6 +1,6 @@
 "use client";
 
-import { platformNav } from "@loftlancer/actions/nav";
+import { type PlatformNavKey, platformNav } from "@loftlancer/actions/nav";
 import {
   NavCountBadge,
   SidebarBrand,
@@ -8,17 +8,12 @@ import {
   SidebarSearch,
   SidebarUserMenu,
 } from "@loftlancer/ui/patterns/sidebar-kit";
-import { docsSiteUrl } from "@loftlancer/ui/platform-urls";
-import { useQueryClient } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
 import {
   ActivityIcon,
   BellIcon,
   Building2,
-  ClockIcon,
   FolderClosedIcon,
-  LayoutDashboardIcon,
-  SettingsIcon,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -36,14 +31,12 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { useUserMenuProps } from "@/domain/auth/components/user-menu";
-import { performSignOut, useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationsUnreadCount } from "@/domain/notifications/hooks/use-notifications";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
@@ -52,34 +45,31 @@ import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { withBasePath } from "@/lib/base-path";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+import { platformNavHref, routes } from "@/utils/navigation";
+import { useRouteScope } from "@/utils/use-route-scope";
 
 const accountSettingsHref = accountSettingsUrl();
-const projectHref = (slug: string) => `/p/${slug}`;
-const envHref = (p: string, e: string) =>
-  `/p/${p}/env?env=${encodeURIComponent(e)}`;
-const memberHref = (org: string) => `/dashboard/organizations/${org}/members`;
+const projectHref = (org: string, slug: string) => routes.project(org, slug);
+const envHref = (org: string, p: string, e: string) => routes.env(org, p, e);
+const memberHref = (org: string) => routes.orgSection(org, "members");
 
-const navIcons: Record<string, LucideIcon> = {
-  "/dashboard": LayoutDashboardIcon,
-  "/dashboard/projects": FolderClosedIcon,
-  "/dashboard/organizations": Building2,
-  "/dashboard/timeline": ClockIcon,
-  "/dashboard/notifications": BellIcon,
-  "/dashboard/settings": SettingsIcon,
-  "/dashboard/activity": ActivityIcon,
+const navIcons: Record<PlatformNavKey, LucideIcon> = {
+  organizations: Building2,
+  projects: FolderClosedIcon,
+  activity: ActivityIcon,
+  notifications: BellIcon,
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const { data: session } = useSession();
   const { ready: _userMenuReady, ...userMenuProps } = useUserMenuProps();
+  const scope = useRouteScope();
   const settingsLinks = [
     { label: "Account settings", href: accountSettingsHref },
-    { label: "Notifications", href: "/dashboard/notifications" },
-    { label: "Activity", href: "/dashboard/timeline" },
-    { label: "Organizations", href: "/dashboard/organizations" },
+    { label: "Notifications", href: routes.notifications() },
+    { label: "Activity", href: routes.activity() },
+    { label: "Organizations", href: routes.home() },
   ];
   const nav = useSidebarNavigator({
     projectHref,
@@ -87,6 +77,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     memberHref,
     settingsLinks,
   });
+  const orgSlug = scope.org ?? nav.organizationSlug;
   const navigate = (href: string) => {
     if (/^https?:/.test(href)) window.location.assign(href);
     else router.push(href as Route);
@@ -100,91 +91,50 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const notificationCount = notificationsEnabled
     ? (unreadNotifications.data?.data ?? 0)
     : 0;
-  const notificationsBadgeLoading =
-    notificationsEnabled && unreadNotifications.isPending;
 
   const actionsAudit = isActionsAuditEnabledOnClient();
   const permissions = useCan("organization.list");
   const canTimeline = useCan("audit.timeline.view.org");
   const platformNavLoading = actionsAudit && !initialLoadDone;
 
-  const menuItems = actionsAudit
-    ? platformNav
-        .filter((item) => {
-          // Settings lives in SidebarFooter only (#79).
-          if (item.href === "/dashboard/settings") {
-            return false;
-          }
-          if (
-            item.href === "/dashboard/notifications" &&
-            !notificationsEnabled
-          ) {
-            return false;
-          }
-          if (item.href === "/dashboard/organizations" && !showOrgSwitcher) {
-            return false;
-          }
-          if (!item.action) return true;
-          if (item.action === "organization.list") {
-            return permissions.allowed || permissions.isLoading;
-          }
-          if (item.action === "audit.timeline.view.org") {
-            return canTimeline.allowed || canTimeline.isLoading;
-          }
-          if (item.action === "notification.list") {
-            return notificationsEnabled;
-          }
-          return true;
-        })
-        .map((item) => ({
-          href: item.href,
+  const menuItems = platformNav
+    .filter((item) => {
+      if (item.key === "notifications") return notificationsEnabled;
+      if (item.key === "organizations") {
+        return (
+          showOrgSwitcher &&
+          (!actionsAudit || permissions.allowed || permissions.isLoading)
+        );
+      }
+      if (item.key === "activity" && actionsAudit) {
+        return canTimeline.allowed || canTimeline.isLoading;
+      }
+      return true;
+    })
+    .flatMap((item) => {
+      const href = platformNavHref(item.key, orgSlug);
+      if (!href) return [];
+      return [
+        {
+          key: item.key,
+          href: href as Route,
           label: item.label,
-          icon: navIcons[item.href] ?? LayoutDashboardIcon,
-          badge:
-            item.href === "/dashboard/notifications"
+          icon: navIcons[item.key],
+          count:
+            item.key === "notifications"
               ? notificationCount
-              : undefined,
-        }))
-    : [
-        {
-          href: "/dashboard",
-          label: "Dashboard",
-          icon: LayoutDashboardIcon,
+              : item.key === "projects"
+                ? nav.counts?.projects
+                : item.key === "organizations"
+                  ? nav.counts?.pendingInvites
+                  : 0,
         },
-        ...(showOrgSwitcher
-          ? [
-              {
-                href: "/dashboard/organizations",
-                label: "Organizations",
-                icon: Building2,
-              },
-            ]
-          : []),
-        {
-          href: "/dashboard/projects",
-          label: "Projects",
-          icon: FolderClosedIcon,
-        },
-        {
-          href: "/dashboard/activity",
-          label: "Activity",
-          icon: ActivityIcon,
-        },
-        ...(notificationsEnabled
-          ? [
-              {
-                href: "/dashboard/notifications",
-                label: "Notifications",
-                icon: BellIcon,
-                badge: notificationCount,
-              },
-            ]
-          : []),
       ];
+    });
 
   const pathMatchesNavItem = (href: string) => {
     if (pathname === href) return true;
-    if (href === "/dashboard") return false;
+    if (href === routes.home()) return false;
     return pathname.startsWith(`${href}/`);
   };
 
@@ -203,7 +153,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
       <SidebarHeader className="shrink-0 gap-2">
-        <SidebarBrand href={withBasePath("/dashboard")} />
+        <SidebarBrand href={withBasePath(routes.home())} />
         {showOrgSwitcher ? <OrgSwitcher /> : null}
         <SidebarSearch
           groups={nav.groups}
@@ -234,20 +184,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   ))
                 : menuItems.map((item) => {
                     const Icon = item.icon;
-                    const count =
-                      item.href === "/dashboard/notifications"
-                        ? notificationCount
-                        : item.href === "/dashboard/projects"
-                          ? nav.counts?.projects
-                          : item.href === "/dashboard/organizations"
-                            ? nav.counts?.pendingInvites
-                            : 0;
+                    const count = item.count;
                     return (
-                      <SidebarMenuItem key={item.href} className="relative">
+                      <SidebarMenuItem key={item.key} className="relative">
                         <SidebarMenuButton
                           isActive={isActive(item.href)}
                           tooltip={item.label}
-                          render={<Link href={item.href as Route} />}
+                          render={<Link href={item.href} />}
                         >
                           <Icon />
                           <span>{item.label}</span>
@@ -255,9 +198,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <NavCountBadge
                           count={count}
                           tone={
-                            item.href === "/dashboard/notifications"
-                              ? "alert"
-                              : "muted"
+                            item.key === "notifications" ? "alert" : "muted"
                           }
                         />
                       </SidebarMenuItem>

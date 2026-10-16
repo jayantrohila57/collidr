@@ -21,6 +21,7 @@ import {
 import { formatDate } from "@/lib/format";
 import { initialsFromLabel } from "@/lib/initials";
 import { prefetchProjectDetail } from "@/lib/prefetch-project-detail";
+import { routes } from "@/utils/navigation";
 import { queryClient } from "@/utils/trpc";
 import { ProjectActions } from "./project-actions";
 
@@ -43,7 +44,9 @@ const col = {
   links: "hidden w-20 2xl:table-cell",
 } as const;
 
-export function createProjectsTableColumns(): DataTableColumnDef<ProjectOutput>[] {
+export function createProjectsTableColumns(
+  org: string,
+): DataTableColumnDef<ProjectOutput>[] {
   return [
     columnHelper.accessor("name", {
       meta: { className: col.project },
@@ -53,7 +56,7 @@ export function createProjectsTableColumns(): DataTableColumnDef<ProjectOutput>[
       cell: ({ row }) => {
         const project = row.original;
         const href = hasNavigableSlug(project.slug)
-          ? (`/p/${project.slug}` as Route)
+          ? routes.project(org, project.slug)
           : null;
         const description = project.description?.trim() || "No description";
         return (

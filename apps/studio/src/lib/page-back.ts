@@ -1,82 +1,44 @@
+import {
+  isReservedOrgSlug,
+  isReservedProjectSlug,
+} from "@loftlancer/ui/studio-routes";
 import type { Route } from "next";
 
 export type PageBackHref = Route;
 
-/** Top-level dashboard routes that use browser history back with a fallback parent. */
-const HISTORY_ROOT_PATHS = new Set<PageBackHref>([
-  "/dashboard",
-  "/dashboard/projects",
-  "/dashboard/organizations",
-  "/dashboard/notifications",
-  "/dashboard/activity",
+/** Top-level list routes: no inline back (browser history only). */
+const HISTORY_ROOT_PATHS = new Set<string>([
+  "/",
+  "/notifications",
+  "/activity",
+  "/support",
 ]);
 
 export function isDashboardRootPath(pathname: string): boolean {
-  return HISTORY_ROOT_PATHS.has(pathname as PageBackHref);
+  return HISTORY_ROOT_PATHS.has(pathname);
 }
 
 /**
- * Logical parent for the in-page back button (direct navigation).
- * Root history routes return `null` — use {@link getPageBackFallback} instead.
+ * Logical parent for the in-page back button (#299: the URL is the
+ * hierarchy, so the parent is mostly "drop the last segment").
+ * Root routes return `null`; use {@link getPageBackFallback} instead.
  */
 export function getPageBackHref(pathname: string): PageBackHref | null {
-  if (isDashboardRootPath(pathname)) {
-    return null;
-  }
+  if (isDashboardRootPath(pathname)) return null;
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length === 0) return null;
+  if (parts.length === 1) return "/" as Route;
 
-  if (pathname === "/dashboard/activity") {
-    return "/dashboard";
+  const inOrg = !isReservedOrgSlug(parts[0] ?? "");
+  // /[org]/[project] → the org's projects list.
+  if (inOrg && parts.length === 2 && !isReservedProjectSlug(parts[1] ?? "")) {
+    return `/${parts[0]}/projects` as Route;
   }
-
-  if (pathname === "/dashboard/notifications") {
-    return "/dashboard";
-  }
-
-  if (pathname === "/dashboard/settings") {
-    return "/dashboard";
-  }
-
-  if (pathname === "/dashboard/settings/organization") {
-    return "/dashboard/organizations";
-  }
-
-  const organizationDetail = /^\/dashboard\/organizations\/([^/]+)$/.exec(
-    pathname,
-  );
-  if (organizationDetail) {
-    return "/dashboard/organizations";
-  }
-
-  if (pathname === "/dashboard/projects/new") {
-    return "/dashboard/projects";
-  }
-
-  const projectEdit = /^\/p\/([^/]+)\/edit$/.exec(pathname);
-  if (projectEdit) {
-    return `/p/${projectEdit[1]}` as Route;
-  }
-
-  const projectDetail = /^\/p\/([^/]+)$/.exec(pathname);
-  if (projectDetail && !["new", "edit"].includes(projectDetail[1])) {
-    return "/dashboard/projects";
-  }
-
-  if (pathname.startsWith("/dashboard/")) {
-    const segments = pathname.split("/").filter(Boolean);
-    if (segments.length > 2) {
-      return `/${segments.slice(0, -1).join("/")}` as Route;
-    }
-    return "/dashboard";
-  }
-
-  return null;
+  // /[org]/projects → org overview (same as dropping the segment).
+  return `/${parts.slice(0, -1).join("/")}` as Route;
 }
 
 /** Fallback when `router.back()` has no prior history entry. */
 export function getPageBackFallback(pathname: string): PageBackHref {
-  if (pathname === "/dashboard") {
-    return "/";
-  }
-  const parent = getPageBackHref(pathname);
-  return parent ?? "/dashboard";
+  return getPageBackHref(pathname) ?? ("/" as Route);
 }

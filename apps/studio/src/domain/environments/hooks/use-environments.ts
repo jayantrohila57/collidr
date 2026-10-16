@@ -2,12 +2,13 @@
 
 import type { EnvironmentOutput, ProjectOutput } from "@loftlancer/api/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Route } from "next";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCurrentOrgSlug } from "@/components/org/use-current-org-slug";
 import { actionToast } from "@/lib/action-toast";
 import { withBasePath } from "@/lib/base-path";
 import { projectDetailQueryStaleTime } from "@/lib/prefetch-project-detail";
+import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";
 
 interface ProjectData {
@@ -37,8 +38,10 @@ export function useEnvironments(projectSlug: string) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const envParam = searchParams.get("env");
+  const org = useCurrentOrgSlug() ?? "";
+  // Env is in the path (#299): /[org]/[project]/env/[envSlug].
+  const envMatch = /\/env\/([^/?#]+)$/.exec(pathname ?? "");
+  const envParam = envMatch?.[1] ? decodeURIComponent(envMatch[1]) : null;
 
   const projectQuery = useQuery({
     ...trpc.projects.getBySlug.queryOptions({ slug: projectSlug }),
@@ -69,16 +72,17 @@ export function useEnvironments(projectSlug: string) {
   const setActiveTab = useCallback(
     (id: string) => {
       setClientActiveTab(id);
-      const params = new URLSearchParams(searchParams.toString());
       const env = environments.find((item) => item.id === id);
-      params.set("env", env?.slug ?? id);
-      const query = params.toString();
-      const href = query ? `${pathname}?${query}` : pathname;
-      // usePathname() omits the Next basePath (/studio); the raw History API
-      // does not add it back, so prefix it or a reload 404s (#249).
-      window.history.replaceState(window.history.state, "", withBasePath(href));
+      const href = routes.env(org, projectSlug, env?.slug ?? id);
+      // Swap tabs without remounting the page. The raw History API does not
+      // add the Next basePath (/studio), so prefix it or a reload 404s (#249).
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${withBasePath(href)}${window.location.search}`,
+      );
     },
-    [environments, pathname, searchParams],
+    [environments, org, projectSlug],
   );
 
   const createEnvMutation = useMutation(
@@ -224,11 +228,8 @@ export function useEnvironments(projectSlug: string) {
           queryKey: trpc.dashboard.getOverview.queryKey(),
         });
         if (activeTab === variables.id) {
-          const params = new URLSearchParams(searchParams.toString());
-          params.delete("env");
-          const query = params.toString();
-          const href = (query ? `${pathname}?${query}` : pathname) as Route;
-          router.replace(href, { scroll: false });
+          setClientActiveTab(undefined);
+          router.replace(routes.env(org, projectSlug), { scroll: false });
         }
       },
     }),

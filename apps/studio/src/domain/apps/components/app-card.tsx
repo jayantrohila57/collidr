@@ -1,11 +1,12 @@
 "use client";
 
-import type { Route } from "next";
 import Link from "next/link";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { routes } from "@/utils/navigation";
+import { useOrgSlug } from "@/utils/use-route-scope";
 import type { ProjectAppItem } from "../hooks/use-project-apps";
 import { AppGlyph } from "./app-glyph";
 
@@ -40,7 +41,8 @@ export function AppCard({
   const active = app.status === "active";
   const retained =
     app.status === "uninstalled" ? daysLeft(app.purgeAfter) : null;
-  const href = `/p/${slug}/${app.nav[0]?.path ?? app.id}` as Route;
+  const org = useOrgSlug();
+  const href = routes.app(org, slug, app.nav[0]?.path ?? app.id);
 
   return (
     <div
@@ -87,7 +89,7 @@ export function AppCard({
           <Button
             size="sm"
             variant="ghost"
-            render={<Link href={`/p/${slug}/apps/${app.id}` as Route} />}
+            render={<Link href={routes.appSettings(org, slug, app.id)} />}
           >
             Settings
           </Button>

@@ -1,6 +1,10 @@
 "use client";
 
-import { accountSettingsNav, platformNav } from "@loftlancer/actions/nav";
+import {
+  accountSettingsNav,
+  type PlatformNavKey,
+  platformNav,
+} from "@loftlancer/actions/nav";
 import { GithubIcon } from "@loftlancer/ui/github-icon";
 import {
   NavCountBadge,
@@ -9,8 +13,7 @@ import {
   SidebarSearch,
   SidebarUserMenu,
 } from "@loftlancer/ui/patterns/sidebar-kit";
-import { docsSiteUrl } from "@loftlancer/ui/platform-urls";
-import { useQueryClient } from "@tanstack/react-query";
+import { platformNavHref, routes } from "@loftlancer/ui/studio-routes";
 import type { LucideIcon } from "lucide-react";
 import {
   ActivityIcon,
@@ -18,7 +21,6 @@ import {
   Building2,
   ClockIcon,
   FolderClosedIcon,
-  LayoutDashboardIcon,
   LockIcon,
   ShieldIcon,
   SkullIcon,
@@ -43,10 +45,8 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { useUserMenuProps } from "@/domain/auth/components/user-menu";
-import { performSignOut, useSession } from "@/domain/auth/lib/auth-actions";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
-import { withBasePath } from "@/lib/base-path";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { studioDashboardPath } from "@/lib/studio-url";
@@ -62,19 +62,19 @@ const navIcons: Record<string, LucideIcon> = {
 };
 
 /** Studio platform nav, mirrored from the studio AppSidebar with absolute /studio URLs. */
-const studioNavIcons: Record<string, LucideIcon> = {
-  "/dashboard": LayoutDashboardIcon,
-  "/dashboard/projects": FolderClosedIcon,
-  "/dashboard/organizations": Building2,
-  "/dashboard/timeline": ClockIcon,
-  "/dashboard/notifications": BellIcon,
+const studioNavIcons: Record<PlatformNavKey, LucideIcon> = {
+  organizations: Building2,
+  projects: FolderClosedIcon,
+  activity: ClockIcon,
+  notifications: BellIcon,
 };
 
-const projectHref = (slug: string) => studioDashboardPath(`/p/${slug}`);
-const envHref = (p: string, e: string) =>
-  studioDashboardPath(`/p/${p}/env?env=${encodeURIComponent(e)}`);
+const projectHref = (org: string, slug: string) =>
+  studioDashboardPath(routes.project(org, slug));
+const envHref = (org: string, p: string, e: string) =>
+  studioDashboardPath(routes.env(org, p, e));
 const memberHref = (org: string) =>
-  studioDashboardPath(`/dashboard/organizations/${org}/members`);
+  studioDashboardPath(routes.orgSection(org, "members"));
 
 export function AccountSettingsSidebar({
   ...props
@@ -104,10 +104,9 @@ export function AccountSettingsSidebar({
   };
 
   const studioItems = platformNav.filter((item) => {
-    if (item.href === "/dashboard/notifications") return notificationsEnabled;
-    if (item.href === "/dashboard/organizations")
-      return isOrganizationsEnabledOnClient();
-    if (item.href === "/dashboard/timeline") return actionsAudit;
+    if (item.key === "notifications") return notificationsEnabled;
+    if (item.key === "organizations") return isOrganizationsEnabledOnClient();
+    if (item.key === "activity") return actionsAudit;
     return true;
   });
 
@@ -116,8 +115,6 @@ export function AccountSettingsSidebar({
   );
 
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const { data: session } = useSession();
   const { ready: _userMenuReady, ...userMenuProps } = useUserMenuProps();
   const nav = useSidebarNavigator({
     projectHref,
@@ -129,12 +126,12 @@ export function AccountSettingsSidebar({
     if (href.startsWith("/settings")) router.push(href as Route);
     else window.location.assign(href);
   };
-  const studioCount = (href: string) =>
-    href === "/dashboard/notifications"
+  const studioCount = (key: PlatformNavKey) =>
+    key === "notifications"
       ? nav.counts?.unreadNotifications
-      : href === "/dashboard/projects"
+      : key === "projects"
         ? nav.counts?.projects
-        : href === "/dashboard/organizations"
+        : key === "organizations"
           ? nav.counts?.pendingInvites
           : 0;
 
@@ -148,7 +145,7 @@ export function AccountSettingsSidebar({
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
       <SidebarHeader className="shrink-0 gap-2">
-        <SidebarBrand href={studioDashboardPath("/dashboard")} />
+        <SidebarBrand href={studioDashboardPath(routes.home())} />
         <SidebarSearch
           groups={nav.groups}
           loading={nav.loading}
@@ -161,24 +158,22 @@ export function AccountSettingsSidebar({
           <SidebarGroupContent>
             <SidebarMenu className="flex min-w-0 flex-col gap-1">
               {studioItems.map((item) => {
-                const Icon = studioNavIcons[item.href] ?? LayoutDashboardIcon;
+                const path = platformNavHref(item.key, nav.organizationSlug);
+                if (!path) return null;
+                const Icon = studioNavIcons[item.key];
                 return (
-                  <SidebarMenuItem key={item.href}>
+                  <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton
                       isActive={false}
                       tooltip={item.label}
-                      render={<a href={studioDashboardPath(item.href)} />}
+                      render={<a href={studioDashboardPath(path)} />}
                     >
                       <Icon />
                       <span>{item.label}</span>
                     </SidebarMenuButton>
                     <NavCountBadge
-                      count={studioCount(item.href)}
-                      tone={
-                        item.href === "/dashboard/notifications"
-                          ? "alert"
-                          : "muted"
-                      }
+                      count={studioCount(item.key)}
+                      tone={item.key === "notifications" ? "alert" : "muted"}
                     />
                   </SidebarMenuItem>
                 );

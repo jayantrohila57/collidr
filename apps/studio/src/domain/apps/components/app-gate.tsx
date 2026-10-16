@@ -1,13 +1,13 @@
 "use client";
 
-import type { Route } from "next";
 import type { ReactNode } from "react";
 import { EmptyState } from "@/components/patterns/empty-state";
 import DashboardSection from "@/components/section-dashboard";
 import { useProjectTabs } from "@/domain/projects/hooks/use-project-tabs";
 import { LayoutGrid } from "@/lib/icons";
+import { routes } from "@/utils/navigation";
+import { useOrgSlug } from "@/utils/use-route-scope";
 import { useProjectApps } from "../hooks/use-project-apps";
-import { AppGridSkeleton } from "./project-apps-directory";
 
 /** Renders an app route only when the app is installed on the project. */
 export function AppGate({
@@ -21,6 +21,7 @@ export function AppGate({
   fallback: ReactNode;
   children: ReactNode;
 }) {
+  const org = useOrgSlug();
   const { apps, isLoading, canManage } = useProjectApps(slug);
   const projectTabs = useProjectTabs(slug);
   if (isLoading) return <>{fallback}</>;
@@ -30,7 +31,7 @@ export function AppGate({
     <DashboardSection
       {...projectTabs}
       title={app?.name ?? "App"}
-      back={`/p/${slug}` as Route}
+      back={routes.project(org, slug)}
     >
       <EmptyState
         icon={LayoutGrid}
@@ -41,7 +42,9 @@ export function AppGate({
             : "Ask a project manager to install it on this project."
         }
         actionLabel={canManage ? "Go to Apps" : undefined}
-        actionHref={canManage ? `/p/${slug}/apps` : undefined}
+        actionHref={
+          canManage ? routes.projectSection(org, slug, "apps") : undefined
+        }
       />
     </DashboardSection>
   );

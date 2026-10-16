@@ -6,34 +6,49 @@ export type NavItem = {
   action: ActionName | null;
 };
 
-export const platformNav: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", action: null },
-  { href: "/dashboard/projects", label: "Projects", action: "project.read" },
+/** Studio platform nav entries; each app resolves the href via its route builder (#300). */
+export type PlatformNavKey =
+  | "organizations"
+  | "projects"
+  | "activity"
+  | "notifications";
+
+export type PlatformNavItem = {
+  key: PlatformNavKey;
+  label: string;
+  action: ActionName | null;
+  /** Needs an org in scope (hidden on user-level pages with no active org). */
+  orgScoped: boolean;
+};
+
+export const platformNav: PlatformNavItem[] = [
   {
-    href: "/dashboard/organizations",
+    key: "organizations",
     label: "Organizations",
     action: "organization.list",
+    orgScoped: false,
   },
   {
-    href: "/dashboard/timeline",
-    label: "Timeline",
+    key: "projects",
+    label: "Projects",
+    action: "project.read",
+    orgScoped: true,
+  },
+  {
+    key: "activity",
+    label: "Activity",
     action: "audit.timeline.view.org",
+    orgScoped: false,
   },
   {
-    href: "/dashboard/notifications",
+    key: "notifications",
     label: "Notifications",
     action: "notification.list",
+    orgScoped: false,
   },
 ];
 
-/** Studio/web sidebar footer — links out to the account app. */
-export const sidebarFooterNav: NavItem = {
-  href: "/dashboard/settings",
-  label: "Settings",
-  action: "profile.view",
-};
-
-/** Account app settings sidebar (`apps/account`). */
+/** Account app settings sidebar (`apps/auth`). */
 export const accountSettingsNav: NavItem[] = [
   { href: "/settings/profile", label: "Profile", action: "profile.view" },
   { href: "/settings/security", label: "Security", action: "session.list" },

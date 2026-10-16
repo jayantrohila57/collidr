@@ -20,7 +20,7 @@ const options = {
   plugins: [
     jwt(),
     mcp({
-      loginPage: "/sign-in",
+      loginPage: "/",
       consentPage: "/consent",
       resource: "https://loftlancer.com/api/mcp",
     }),

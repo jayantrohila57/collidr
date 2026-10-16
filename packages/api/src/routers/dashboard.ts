@@ -16,7 +16,7 @@ import {
   project,
 } from "@loftlancer/db/schema/projects";
 import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
-import { and, count, eq, gt, gte, or, sql } from "drizzle-orm";
+import { and, count, eq, gt, gte, isNull, or, sql } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
 import type { Context } from "../context";
@@ -501,16 +501,25 @@ export const dashboardRouter = router({
   getProjectDetailStats: orgProcedure
     .input(z.object({ slug: z.string().min(1) }))
     .use(
-      actionGuard("project.read", async (input) => {
+      actionGuard("project.read", async (input, ctx) => {
         const slug =
           input && typeof input === "object" && "slug" in input
             ? String((input as { slug: string }).slug)
             : null;
         if (!slug) return {};
+        // Slugs are per org (#301): resolve in the active org only.
+        const orgId = ctx.activeOrganizationId ?? null;
         const row = await db
           .select({ id: project.id })
           .from(project)
-          .where(eq(project.slug, slug))
+          .where(
+            and(
+              eq(project.slug, slug),
+              orgId
+                ? eq(project.organizationId, orgId)
+                : isNull(project.organizationId),
+            ),
+          )
           .limit(1);
         return { projectId: row[0]?.id ?? null };
       }),
