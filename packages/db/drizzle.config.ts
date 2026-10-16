@@ -4,7 +4,7 @@ import { defineConfig } from "drizzle-kit";
 import { normalizeDatabaseSslModeInUrl } from "./src/connection-url";
 
 dotenv.config({
-  path: "../../apps/web/.env",
+  path: "../../apps/studio/.env",
 });
 
 const databaseUrl = process.env.DATABASE_URL?.trim() ?? "";

@@ -102,9 +102,9 @@ export function sharedAuthAdvanced(): NonNullable<
   BetterAuthOptions["advanced"]
 > {
   const cookieDomain =
-    process.env.AUTH_COOKIE_DOMAIN?.trim() || ".loftlancer.com";
+    process.env.AUTH_COOKIE_DOMAIN?.trim() ?? "";
   const useCrossSubdomain =
-    process.env.AUTH_CROSS_SUBDOMAIN_COOKIES !== "false" &&
+    process.env.AUTH_CROSS_SUBDOMAIN_COOKIES === "true" &&
     cookieDomain.length > 0 &&
     !cookieDomain.includes("localhost");
 

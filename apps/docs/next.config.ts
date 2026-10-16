@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 
 const docsBasePath =
   process.env.NEXT_BASE_PATH ??
-  (process.env.VERCEL_SERVICES === "1" ? "/docs" : "");
+  "";
 
 const config: NextConfig = {
   output: "export" as const,

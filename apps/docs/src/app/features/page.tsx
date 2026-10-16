@@ -37,7 +37,7 @@ export default function FeaturesPage() {
       </p>
       <h2 className="mt-8">MCP for agents</h2>
       <p>
-        The MCP server (<code>apps/mcp</code>, package <code>@loftlancer/mcp</code>
+        The MCP tool layer (package <code>@loftlancer/mcp</code>
         ) exposes the same action layer over OAuth 2.1. Tools call studio tRPC
         with the authenticated user — scopes gate which tools a token may
         invoke; each call still enforces RBAC.
