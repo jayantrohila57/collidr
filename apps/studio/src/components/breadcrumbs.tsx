@@ -1,7 +1,9 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Home, MoreHorizontal } from "lucide-react";
 import type { Route } from "next";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
@@ -18,7 +20,6 @@ import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
 import { isRecognizedDashboardPath } from "@/lib/dashboard-path";
 import { cn, deSlug } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
 import { trpc } from "@/utils/trpc";
 
 const STATIC_LABELS: Record<string, string> = {
@@ -40,6 +41,9 @@ const STATIC_LABELS: Record<string, string> = {
   new: "New Project",
   edit: "Edit",
   environments: "Environments",
+  env: "Environments",
+  tasks: "Tasks",
+  apps: "Apps",
   support: "Support",
   tickets: "Tickets",
   help: "Help",
@@ -63,6 +67,10 @@ function formatSegmentLabel(segment: string, resolvedName?: string) {
 const generateBreadcrumbs = (pathname: string) => {
   const pathArray = pathname?.split("/")?.filter(Boolean);
   const breadcrumbs = pathArray.map((path, index) => {
+    // `/p` has no index page: point the short-URL crumb at the projects list.
+    if (index === 0 && path === "p") {
+      return { href: "/dashboard/projects", label: path, segment: "projects" };
+    }
     const href = `/${pathArray?.slice(0, index + 1)?.join("/")}`;
     return { href, label: path, segment: path };
   });
@@ -90,9 +98,10 @@ function breadcrumbLabel(
   }
 
   const isProjectSlug =
-    index === 2 &&
-    breadcrumbs[1]?.segment === "projects" &&
-    !["new", "edit"].includes(breadcrumb.segment);
+    (index === 2 &&
+      breadcrumbs[1]?.segment === "projects" &&
+      !["new", "edit"].includes(breadcrumb.segment)) ||
+    (index === 1 && breadcrumbs[0]?.label === "p");
 
   const isOrgSlug =
     index === 2 &&
@@ -132,10 +141,13 @@ export function Breadcrumbs({ className }: { className?: string }) {
     pathname != null &&
     !isRecognizedDashboardPath(pathname, projectSlugs, projectsLoaded);
 
-  const projectSlugFromPath = breadcrumbs[2]?.segment;
+  const shortProjectUrl = breadcrumbs[0]?.label === "p";
+  const projectSlugFromPath = shortProjectUrl
+    ? breadcrumbs[1]?.segment
+    : breadcrumbs[2]?.segment;
   const projectFromList =
     projectSlugFromPath &&
-    breadcrumbs[1]?.segment === "projects" &&
+    (shortProjectUrl || breadcrumbs[1]?.segment === "projects") &&
     !["new", "edit"].includes(projectSlugFromPath)
       ? projects.find((p) => p.slug === projectSlugFromPath)
       : undefined;
@@ -188,7 +200,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
       >
         <BreadcrumbItem className="shrink-0">
           <BreadcrumbLink
-            href={"/"}
+            render={<Link href={"/dashboard" as Route} />}
             aria-label="Home"
             className="inline-flex size-11 items-center justify-center"
           >
@@ -302,8 +314,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
                 ) : (
                   <BreadcrumbLink
                     className="truncate"
-                    href={breadcrumb.href}
-                    onClick={() => handleBreadcrumbClick(breadcrumb.href)}
+                    render={<Link href={breadcrumb.href as Route} />}
                   >
                     {label}
                   </BreadcrumbLink>

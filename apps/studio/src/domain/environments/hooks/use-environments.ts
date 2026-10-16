@@ -6,6 +6,7 @@ import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { actionToast } from "@/lib/action-toast";
+import { withBasePath } from "@/lib/base-path";
 import { projectDetailQueryStaleTime } from "@/lib/prefetch-project-detail";
 import { trpc } from "@/utils/trpc";
 
@@ -73,7 +74,9 @@ export function useEnvironments(projectSlug: string) {
       params.set("env", env?.slug ?? id);
       const query = params.toString();
       const href = query ? `${pathname}?${query}` : pathname;
-      window.history.replaceState(window.history.state, "", href);
+      // usePathname() omits the Next basePath (/studio); the raw History API
+      // does not add it back, so prefix it or a reload 404s (#249).
+      window.history.replaceState(window.history.state, "", withBasePath(href));
     },
     [environments, pathname, searchParams],
   );

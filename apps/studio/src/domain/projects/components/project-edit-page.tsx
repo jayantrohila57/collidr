@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import Link from "next/link";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,7 @@ export default function EditProjectPage({ projectSlug }: EditProjectPageProps) {
     <div className="space-y-6">
       {/* Back Navigation */}
       <div className="flex items-center gap-4">
-        <Link href={`/p/${projectSlug}`}>
+        <Link href={`/p/${projectSlug}` as Route}>
           <Button variant="ghost" size="sm">
             <AppIcon name="arrowLeft" className="me-2 size-4" />
             Back to Project
