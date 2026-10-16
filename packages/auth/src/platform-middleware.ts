@@ -32,7 +32,10 @@ export function platformSessionMiddleware(
   const ott = readOttFromSearchParams(request.nextUrl.searchParams);
 
   if (ott && !pathname.startsWith("/api/auth/establish-session")) {
-    const establish = new URL("/api/auth/establish-session", request.url);
+    // nextUrl.clone() keeps the app's Next basePath (e.g. `/studio`).
+    const establish = request.nextUrl.clone();
+    establish.pathname = "/api/auth/establish-session";
+    establish.search = "";
     establish.searchParams.set("ott", ott);
     const cleaned = stripOttFromPath(pathname, search);
     establish.searchParams.set("next", cleaned || "/");

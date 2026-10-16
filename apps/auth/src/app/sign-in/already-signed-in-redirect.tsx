@@ -15,7 +15,7 @@ export function redirectIfAlreadySignedIn(
     env.BETTER_AUTH_URL?.replace(/\/$/, "") ?? resolveAuthPublicUrl();
 
   if (isCrossOriginReturnTo(returnTo, authPublicOrigin)) {
-    const finish = new URL("/api/auth/cross-app/finish", authPublicOrigin);
+    const finish = new URL(`${authPublicOrigin}/api/auth/cross-app/finish`);
     finish.searchParams.set("return_to", returnTo);
     redirect(finish.toString() as Route);
   }

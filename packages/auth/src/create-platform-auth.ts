@@ -69,8 +69,16 @@ export function createPlatformAuth() {
     legacyWebUrl: env.CORS_ORIGIN,
   });
 
+  // Single-project deploy: auth app lives under a Next basePath (e.g. `/auth`), so
+  // Better Auth must run at origin + `/auth/api/auth` (not derive `/auth` from the URL path).
+  const parsedBase = new URL(baseURL);
+  const appPath = parsedBase.pathname.replace(/\/$/, "");
+  const authOrigin = appPath ? parsedBase.origin : baseURL;
+  const authBasePath = appPath ? `${appPath}/api/auth` : undefined;
+
   return betterAuth({
-    baseURL,
+    baseURL: authOrigin,
+    ...(authBasePath ? { basePath: authBasePath } : {}),
     secret:
       env.BETTER_AUTH_SECRET ?? "local-build-placeholder-secret-min-32-chars",
     advanced: sharedAuthAdvanced(),
