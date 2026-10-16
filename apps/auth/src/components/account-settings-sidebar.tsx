@@ -10,7 +10,6 @@ import {
   ClockIcon,
   FolderClosedIcon,
   LayoutDashboardIcon,
-  SettingsIcon,
   LockIcon,
   ShieldIcon,
   SkullIcon,
@@ -18,7 +17,18 @@ import {
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  NavCountBadge,
+  SidebarBrand,
+  SidebarFavorites,
+  SidebarSearch,
+  SidebarUserMenu,
+} from "@loftlancer/ui/patterns/sidebar-kit";
+import { docsSiteUrl } from "@loftlancer/ui/platform-urls";
+import { useSidebarNavigator } from "@/components/sidebar/use-sidebar-navigator";
+import { performSignOut, useSession } from "@/domain/auth/lib/auth-actions";
 import {
   Sidebar,
   SidebarContent,
@@ -35,6 +45,7 @@ import {
 } from "@/components/ui/sidebar";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { studioDashboardPath } from "@/lib/studio-url";
+import { withBasePath } from "@/lib/base-path";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
@@ -57,6 +68,11 @@ const studioNavIcons: Record<string, LucideIcon> = {
   "/dashboard/timeline": ClockIcon,
   "/dashboard/notifications": BellIcon,
 };
+
+const projectHref = (slug: string) => studioDashboardPath(`/dashboard/projects/${slug}`);
+const envHref = (p: string, e: string) =>
+  studioDashboardPath(`/dashboard/projects/${p}/environments?env=${encodeURIComponent(e)}`);
+const memberHref = (org: string) => studioDashboardPath(`/dashboard/organizations/${org}/members`);
 
 export function AccountSettingsSidebar({
   ...props
@@ -97,6 +113,28 @@ export function AccountSettingsSidebar({
     (item) => allowedByHref[item.href] !== false,
   );
 
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const nav = useSidebarNavigator({
+    projectHref,
+    envHref,
+    memberHref,
+    settingsLinks: items.map((i) => ({ label: i.label, href: i.href })),
+  });
+  const navigate = (href: string) => {
+    if (href.startsWith("/settings")) router.push(href as Route);
+    else window.location.assign(href);
+  };
+  const studioCount = (href: string) =>
+    href === "/dashboard/notifications"
+      ? nav.counts?.unreadNotifications
+      : href === "/dashboard/projects"
+        ? nav.counts?.projects
+        : href === "/dashboard/organizations"
+          ? nav.counts?.pendingInvites
+          : 0;
+
   const isActive = (href: string) => {
     if (href === "/settings/profile") {
       return pathname === "/settings" || pathname === href;
@@ -106,6 +144,10 @@ export function AccountSettingsSidebar({
 
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
+      <SidebarHeader className="shrink-0 gap-2">
+        <SidebarBrand href={studioDashboardPath("/dashboard")} />
+        <SidebarSearch groups={nav.groups} loading={nav.loading} onNavigate={navigate} />
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -123,12 +165,18 @@ export function AccountSettingsSidebar({
                       <Icon />
                       <span>{item.label}</span>
                     </SidebarMenuButton>
+                    <NavCountBadge
+                      count={studioCount(item.href)}
+                      tone={item.href === "/dashboard/notifications" ? "alert" : "muted"}
+                    />
                   </SidebarMenuItem>
                 );
               })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <SidebarFavorites items={nav.favorites} />
 
         <SidebarSeparator className="mx-2" />
 
@@ -157,18 +205,17 @@ export function AccountSettingsSidebar({
       </SidebarContent>
 
       <SidebarFooter className="mt-auto shrink-0 border-sidebar-border border-t bg-sidebar">
-        <SidebarMenu className="flex min-w-0 flex-col gap-1">
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              isActive
-              tooltip="Settings"
-              render={<Link href={"/settings/profile" as Route} />}
-            >
-              <SettingsIcon />
-              <span>Settings</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <SidebarUserMenu
+          user={session?.user ?? null}
+          accountHref={withBasePath("/settings/profile")}
+          organizationSettingsHref={
+            isOrganizationsEnabledOnClient() && nav.organizationSlug
+              ? studioDashboardPath(`/dashboard/organizations/${nav.organizationSlug}/settings`)
+              : null
+          }
+          docsHref={docsSiteUrl()}
+          onSignOut={() => performSignOut({ queryClient, router })}
+        />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

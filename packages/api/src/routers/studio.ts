@@ -8,6 +8,7 @@ import { organizationsRouter } from "./organizations";
 import { permissionsRouter } from "./permissions";
 import { projectAccessRouter } from "./project-access-router";
 import { projectsRouter } from "./projects";
+import { sidebarRouter } from "./sidebar";
 import { supportRouter } from "./support";
 import { teamsRouter } from "./teams";
 import { environmentVariablesRouter } from "./variables";
@@ -22,6 +23,7 @@ export const studioRouter = router({
   auditLogs: auditLogsRouter,
   auditEvents: auditEventsRouter,
   notifications: notificationsRouter,
+  sidebar: sidebarRouter,
   permissions: permissionsRouter,
   organizations: organizationsRouter,
   projectAccess: projectAccessRouter,

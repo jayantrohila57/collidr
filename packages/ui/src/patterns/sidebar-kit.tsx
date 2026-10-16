@@ -1,0 +1,484 @@
+"use client";
+
+import {
+  BookOpenIcon,
+  Building2Icon,
+  ChevronsUpDownIcon,
+  FolderClosedIcon,
+  LayersIcon,
+  LogOutIcon,
+  MonitorIcon,
+  MoreHorizontalIcon,
+  MoonIcon,
+  SearchIcon,
+  SettingsIcon,
+  StarIcon,
+  StarOffIcon,
+  SunIcon,
+  UserIcon,
+} from "lucide-react";
+import { useTheme } from "next-themes";
+import {
+  type ComponentType,
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { Dialog, DialogPopup, DialogTitle } from "../components/ui/dialog";
+import {
+  Menu,
+  MenuGroup,
+  MenuGroupLabel,
+  MenuItem,
+  MenuLinkItem,
+  MenuPopup,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuSeparator,
+  MenuTrigger,
+} from "../components/ui/menu";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "../components/ui/sidebar";
+import { cn } from "../lib/utils";
+import { SettingsAvatar } from "./settings-frame";
+
+/* ---------------- Brand ---------------- */
+
+export function LoftlancerMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className={cn("size-4 fill-current", className)}>
+      <path d="M3 21V9l9-6 9 6v12h-6v-7H9v7H3z" />
+    </svg>
+  );
+}
+
+/** Logo + wordmark; collapsed sidebar shows the mark only. */
+export function SidebarBrand({ href }: { href: string }) {
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          size="lg"
+          tooltip="Loftlancer"
+          render={<a href={href} aria-label="Loftlancer home" />}
+          className="gap-2"
+        >
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <LoftlancerMark className="size-4" />
+          </span>
+          <span className="truncate font-semibold text-base tracking-tight">Loftlancer</span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
+}
+
+/* ---------------- Count pill ---------------- */
+
+/** Real-count pill for a nav item; renders nothing at 0. */
+export function NavCountBadge({ count, tone = "muted" }: { count?: number | null; tone?: "muted" | "alert" }) {
+  if (!count || count <= 0) return null;
+  return (
+    <SidebarMenuBadge
+      data-testid="nav-count"
+      className={cn(
+        "rounded-full px-1.5 tabular-nums",
+        tone === "alert" ? "bg-destructive text-white" : "bg-sidebar-accent text-sidebar-accent-foreground",
+      )}
+    >
+      {count > 99 ? "99+" : count}
+    </SidebarMenuBadge>
+  );
+}
+
+/* ---------------- ⌘K command palette ---------------- */
+
+export type CommandEntry = {
+  id: string;
+  label: string;
+  href: string;
+  hint?: string;
+  keywords?: string;
+};
+export type CommandGroup = { heading: string; icon?: "project" | "env" | "settings" | "member"; items: CommandEntry[] };
+
+const groupIcons = {
+  project: FolderClosedIcon,
+  env: LayersIcon,
+  settings: SettingsIcon,
+  member: UserIcon,
+} as const;
+
+function useCommandShortcut(onOpen: () => void) {
+  const ref = useRef(onOpen);
+  ref.current = onOpen;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        ref.current();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+}
+
+export function CommandPalette({
+  open,
+  onOpenChange,
+  groups,
+  onNavigate,
+  loading,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  groups: CommandGroup[];
+  onNavigate: (href: string) => void;
+  loading?: boolean;
+}) {
+  const [q, setQ] = useState("");
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    if (open) {
+      setQ("");
+      setActive(0);
+    }
+  }, [open]);
+
+  const filtered = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    return groups
+      .map((g) => ({
+        ...g,
+        items: needle
+          ? g.items.filter((i) =>
+              `${i.label} ${i.hint ?? ""} ${i.keywords ?? ""}`.toLowerCase().includes(needle),
+            )
+          : g.items,
+      }))
+      .filter((g) => g.items.length > 0)
+      .map((g) => ({ ...g, items: g.items.slice(0, 8) }));
+  }, [groups, q]);
+  const flat = filtered.flatMap((g) => g.items);
+  const go = (entry?: CommandEntry) => {
+    if (!entry) return;
+    onOpenChange(false);
+    onNavigate(entry.href);
+  };
+
+  let index = -1;
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogPopup showCloseButton={false} className="overflow-hidden p-0 sm:max-w-lg" data-testid="command-palette">
+        <DialogTitle className="sr-only">Search</DialogTitle>
+        <div className="flex items-center gap-2 border-b px-3">
+          <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
+          <input
+            autoFocus
+            value={q}
+            onChange={(e) => {
+              setQ(e.target.value);
+              setActive(0);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                setActive((a) => Math.min(flat.length - 1, a + 1));
+              } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setActive((a) => Math.max(0, a - 1));
+              } else if (e.key === "Enter") {
+                e.preventDefault();
+                go(flat[active]);
+              }
+            }}
+            placeholder="Search projects, environments, settings, members…"
+            aria-label="Search"
+            className="h-11 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          />
+        </div>
+        <div className="max-h-80 overflow-y-auto p-1" role="listbox">
+          {loading && flat.length === 0 ? (
+            <p className="px-3 py-6 text-center text-muted-foreground text-sm">Loading…</p>
+          ) : flat.length === 0 ? (
+            <p className="px-3 py-6 text-center text-muted-foreground text-sm">No results.</p>
+          ) : (
+            filtered.map((g) => {
+              const Icon = g.icon ? groupIcons[g.icon] : null;
+              return (
+                <div key={g.heading} className="py-1">
+                  <p className="px-2 pb-1 font-medium text-muted-foreground text-xs">{g.heading}</p>
+                  {g.items.map((item) => {
+                    index += 1;
+                    const i = index;
+                    return (
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={i === active}
+                        key={item.id}
+                        onMouseEnter={() => setActive(i)}
+                        onClick={() => go(item)}
+                        className={cn(
+                          "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm",
+                          i === active ? "bg-accent text-accent-foreground" : "",
+                        )}
+                      >
+                        {Icon ? <Icon className="size-4 shrink-0 text-muted-foreground" /> : null}
+                        <span className="truncate">{item.label}</span>
+                        {item.hint ? (
+                          <span className="ms-auto truncate text-muted-foreground text-xs">{item.hint}</span>
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })
+          )}
+        </div>
+      </DialogPopup>
+    </Dialog>
+  );
+}
+
+/** "Search… ⌘K" trigger + palette with the ⌘K / Ctrl+K shortcut. */
+export function SidebarSearch(props: {
+  groups: CommandGroup[];
+  onNavigate: (href: string) => void;
+  loading?: boolean;
+  onOpen?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [isMac, setIsMac] = useState(true);
+  useEffect(() => {
+    setIsMac(/Mac|iPhone|iPad/.test(navigator.platform));
+  }, []);
+  const openIt = () => {
+    props.onOpen?.();
+    setOpen(true);
+  };
+  useCommandShortcut(openIt);
+  return (
+    <>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            tooltip="Search (⌘K)"
+            onClick={openIt}
+            className="border border-sidebar-border bg-background text-muted-foreground shadow-xs"
+            data-testid="sidebar-search"
+          >
+            <SearchIcon />
+            <span>Search…</span>
+            <kbd className="ms-auto rounded border bg-muted px-1.5 font-mono text-[10px] group-data-[collapsible=icon]:hidden">
+              {isMac ? "⌘K" : "Ctrl K"}
+            </kbd>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+      <CommandPalette open={open} onOpenChange={setOpen} {...props} />
+    </>
+  );
+}
+
+/* ---------------- Favorites ---------------- */
+
+export type FavoriteProject = {
+  id: string;
+  label: string;
+  href: string;
+  env?: { label: string; production?: boolean } | null;
+};
+
+const DOT_COLORS = [
+  "bg-sky-500",
+  "bg-emerald-500",
+  "bg-amber-500",
+  "bg-violet-500",
+  "bg-rose-500",
+  "bg-teal-500",
+  "bg-orange-500",
+  "bg-indigo-500",
+];
+export function projectDotColor(id: string) {
+  let h = 0;
+  for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return DOT_COLORS[h % DOT_COLORS.length];
+}
+
+type LinkLike = ComponentType<{ href: string; className?: string; children?: ReactNode }>;
+
+export function SidebarFavorites({
+  items,
+  isActive,
+  LinkComponent,
+}: {
+  items: FavoriteProject[];
+  isActive?: (href: string) => boolean;
+  LinkComponent?: LinkLike;
+}) {
+  if (!items.length) return null;
+  const L: LinkLike = LinkComponent ?? ((p) => <a {...p} />);
+  return (
+    <SidebarGroup data-testid="sidebar-favorites">
+      <SidebarGroupLabel>
+        <StarIcon className="me-1 size-3" /> Favorites
+      </SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((p) => (
+            <SidebarMenuItem key={p.id}>
+              <SidebarMenuButton tooltip={p.label} isActive={isActive?.(p.href)} render={<L href={p.href} />}>
+                <span className="flex size-4 shrink-0 items-center justify-center">
+                  <span className={cn("size-2 rounded-full", projectDotColor(p.id))} />
+                </span>
+                <span className="truncate">{p.label}</span>
+                {p.env ? (
+                  <span
+                    className={cn(
+                      "ms-auto shrink-0 rounded-full border px-1.5 font-medium text-[10px] leading-4",
+                      p.env.production
+                        ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                        : "border-sidebar-border text-muted-foreground",
+                    )}
+                  >
+                    {p.env.label}
+                  </span>
+                ) : null}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
+
+/* ---------------- Footer user menu ---------------- */
+
+export function SidebarUserMenu({
+  user,
+  accountHref,
+  organizationSettingsHref,
+  docsHref,
+  onSignOut,
+}: {
+  user: { name?: string | null; email?: string | null; image?: string | null } | null;
+  accountHref: string;
+  organizationSettingsHref?: string | null;
+  docsHref: string;
+  onSignOut: () => void | Promise<void>;
+}) {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const name = user?.name || user?.email || "Account";
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <Menu>
+          <MenuTrigger
+            render={
+              <SidebarMenuButton size="lg" tooltip={name} data-testid="sidebar-user-menu" />
+            }
+          >
+            <SettingsAvatar src={user?.image} name={name} className="size-8 rounded-md text-xs" />
+            <span className="grid min-w-0 flex-1 text-left leading-tight">
+              <span className="truncate font-medium text-sm">{name}</span>
+              {user?.email ? (
+                <span className="truncate text-muted-foreground text-xs">{user.email}</span>
+              ) : null}
+            </span>
+            <ChevronsUpDownIcon className="ms-auto size-4 opacity-60" />
+          </MenuTrigger>
+          <MenuPopup side="top" align="start" className="min-w-60">
+            <MenuGroup>
+              <MenuGroupLabel>
+                <span className="block truncate font-medium text-foreground">{name}</span>
+                {user?.email ? <span className="block truncate font-normal">{user.email}</span> : null}
+              </MenuGroupLabel>
+            </MenuGroup>
+            <MenuSeparator />
+            <MenuLinkItem href={accountHref}>
+              <UserIcon /> Account
+            </MenuLinkItem>
+            {organizationSettingsHref ? (
+              <MenuLinkItem href={organizationSettingsHref}>
+                <Building2Icon /> Organization settings
+              </MenuLinkItem>
+            ) : null}
+            <MenuSeparator />
+            <MenuGroup>
+              <MenuGroupLabel>Theme</MenuGroupLabel>
+              <MenuRadioGroup value={mounted ? (theme ?? "system") : "system"} onValueChange={(v) => setTheme(String(v))}>
+                <MenuRadioItem value="light">
+                  <span className="flex items-center gap-2">
+                    <SunIcon className="size-4" /> Light
+                  </span>
+                </MenuRadioItem>
+                <MenuRadioItem value="dark">
+                  <span className="flex items-center gap-2">
+                    <MoonIcon className="size-4" /> Dark
+                  </span>
+                </MenuRadioItem>
+                <MenuRadioItem value="system">
+                  <span className="flex items-center gap-2">
+                    <MonitorIcon className="size-4" /> System
+                  </span>
+                </MenuRadioItem>
+              </MenuRadioGroup>
+            </MenuGroup>
+            <MenuSeparator />
+            <MenuLinkItem href={docsHref}>
+              <BookOpenIcon /> Docs
+            </MenuLinkItem>
+            <MenuItem variant="destructive" onClick={() => void onSignOut()}>
+              <LogOutIcon /> Sign out
+            </MenuItem>
+          </MenuPopup>
+        </Menu>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
+}
+
+/* ---------------- Project row pin menu ---------------- */
+
+/** Row "⋯" menu on a sidebar project item: Pin to / Remove from Favorites. */
+export function ProjectPinMenu({
+  pinned,
+  onToggle,
+  pending,
+}: {
+  pinned: boolean;
+  onToggle: () => void;
+  pending?: boolean;
+}) {
+  return (
+    <Menu>
+      <MenuTrigger
+        render={<SidebarMenuAction showOnHover aria-label="Project actions" data-testid="project-row-menu" />}
+      >
+        <MoreHorizontalIcon />
+      </MenuTrigger>
+      <MenuPopup side="right" align="start">
+        <MenuItem disabled={pending} onClick={onToggle}>
+          {pinned ? <StarOffIcon /> : <StarIcon />}
+          {pinned ? "Remove from Favorites" : "Pin to Favorites"}
+        </MenuItem>
+      </MenuPopup>
+    </Menu>
+  );
+}

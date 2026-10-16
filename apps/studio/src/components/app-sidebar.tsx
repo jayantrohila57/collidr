@@ -13,7 +13,18 @@ import {
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  NavCountBadge,
+  SidebarBrand,
+  SidebarFavorites,
+  SidebarSearch,
+  SidebarUserMenu,
+} from "@loftlancer/ui/patterns/sidebar-kit";
+import { docsSiteUrl } from "@loftlancer/ui/platform-urls";
+import { useSidebarNavigator } from "@/components/sidebar/use-sidebar-navigator";
+import { performSignOut, useSession } from "@/domain/auth/lib/auth-actions";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSwitcher } from "@/components/org/org-switcher";
 import { SidebarProjectsGroup } from "@/components/sidebar-projects-group";
@@ -36,11 +47,15 @@ import { useNotificationsUnreadCount } from "@/domain/notifications/hooks/use-no
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
 import { accountSettingsUrl } from "@/lib/account-url";
+import { withBasePath } from "@/lib/base-path";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 
 const accountSettingsHref = accountSettingsUrl();
+const projectHref = (slug: string) => `/dashboard/projects/${slug}`;
+const envHref = (p: string, e: string) => `/dashboard/projects/${p}/environments?env=${encodeURIComponent(e)}`;
+const memberHref = (org: string) => `/dashboard/organizations/${org}/members`;
 
 const navIcons: Record<string, LucideIcon> = {
   "/dashboard": LayoutDashboardIcon,
@@ -54,6 +69,20 @@ const navIcons: Record<string, LucideIcon> = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const settingsLinks = [
+    { label: "Account settings", href: accountSettingsHref },
+    { label: "Notifications", href: "/dashboard/notifications" },
+    { label: "Activity", href: "/dashboard/timeline" },
+    { label: "Organizations", href: "/dashboard/organizations" },
+  ];
+  const nav = useSidebarNavigator({ projectHref, envHref, memberHref, settingsLinks });
+  const navigate = (href: string) => {
+    if (/^https?:/.test(href)) window.location.assign(href);
+    else router.push(href as Route);
+  };
   const { isSwitching, initialLoadDone } = useActiveOrganization();
   const { projects, status, refetch } = useProjects();
   const projectsLoading = isSwitching || status === "loading";
@@ -165,11 +194,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
-      {showOrgSwitcher ? (
-        <SidebarHeader className="shrink-0">
-          <OrgSwitcher />
-        </SidebarHeader>
-      ) : null}
+      <SidebarHeader className="shrink-0 gap-2">
+        <SidebarBrand href={withBasePath("/dashboard")} />
+        {showOrgSwitcher ? <OrgSwitcher /> : null}
+        <SidebarSearch groups={nav.groups} loading={nav.loading} onNavigate={navigate} />
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -193,13 +222,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   ))
                 : menuItems.map((item) => {
                     const Icon = item.icon;
-                    const badge =
-                      "badge" in item && typeof item.badge === "number"
-                        ? item.badge
-                        : 0;
-                    const showNotificationBadge =
-                      item.href === "/dashboard/notifications" &&
-                      (badge > 0 || notificationsBadgeLoading);
+                    const count =
+                      item.href === "/dashboard/notifications"
+                        ? notificationCount
+                        : item.href === "/dashboard/projects"
+                          ? nav.counts?.projects
+                          : item.href === "/dashboard/organizations"
+                            ? nav.counts?.pendingInvites
+                            : 0;
                     return (
                       <SidebarMenuItem key={item.href} className="relative">
                         <SidebarMenuButton
@@ -210,17 +240,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           <Icon />
                           <span>{item.label}</span>
                         </SidebarMenuButton>
-                        {showNotificationBadge ? (
-                          <SidebarMenuBadge
-                            className={
-                              notificationsBadgeLoading && badge === 0
-                                ? "opacity-0"
-                                : "bg-destructive text-destructive-foreground"
-                            }
-                          >
-                            {badge > 99 ? "99+" : badge}
-                          </SidebarMenuBadge>
-                        ) : null}
+                        <NavCountBadge
+                          count={count}
+                          tone={item.href === "/dashboard/notifications" ? "alert" : "muted"}
+                        />
                       </SidebarMenuItem>
                     );
                   })}
@@ -228,9 +251,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        <SidebarFavorites
+          items={nav.favorites}
+          isActive={(href) => pathname === href || pathname.startsWith(`${href}/`)}
+          LinkComponent={({ href, className, children }) => (
+            <Link href={href as Route} className={className}>
+              {children}
+            </Link>
+          )}
+        />
+
         <SidebarSeparator className="mx-2" />
 
         <SidebarProjectsGroup
+          isPinned={nav.isPinned}
+          onTogglePin={nav.togglePin}
+          pinPending={nav.pinPending}
           projects={projects}
           projectsLoading={projectsLoading}
           status={status}
@@ -239,20 +275,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter className="mt-auto shrink-0 border-sidebar-border border-t bg-sidebar">
-        <SidebarMenu className="flex min-w-0 flex-col gap-1">
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              isActive={false}
-              tooltip="Settings"
-              render={
-                <a href={accountSettingsHref} rel="noopener noreferrer">
-                  <SettingsIcon />
-                  <span>Settings</span>
-                </a>
-              }
-            />
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <SidebarUserMenu
+          user={session?.user ?? null}
+          accountHref={accountSettingsHref}
+          organizationSettingsHref={
+            showOrgSwitcher && nav.organizationSlug
+              ? withBasePath(`/dashboard/organizations/${nav.organizationSlug}/settings`)
+              : null
+          }
+          docsHref={docsSiteUrl()}
+          onSignOut={() => performSignOut({ queryClient, router })}
+        />
       </SidebarFooter>
 
       <SidebarRail />
