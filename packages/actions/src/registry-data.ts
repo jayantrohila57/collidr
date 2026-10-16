@@ -167,9 +167,9 @@ const rows: MatrixRow[] = [
   },
   {
     name: "organization.create",
-    scope: "organization",
+    // User scope: creating your first organization must not require an active org.
+    scope: "user",
     description: "Create organization",
-    owner: true,
     entityType: "organization",
   },
   {
