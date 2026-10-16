@@ -1,7 +1,12 @@
 import { AppNotFoundPage } from "@loftlancer/ui/patterns/app-route-states";
+import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
 
 const links = { homeHref: "/sign-in" };
 
 export default function NotFound() {
-  return <AppNotFoundPage links={links} />;
+  return (
+    <Auth5Panel showTerms={false}>
+      <AppNotFoundPage links={links} />
+    </Auth5Panel>
+  );
 }

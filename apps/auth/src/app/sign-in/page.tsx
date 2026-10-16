@@ -26,6 +26,8 @@ export default async function SignInPage({
 
   return (
     <Auth5Panel
+      title="Sign in or join Loftlancer"
+      description="Use your GitHub account to sign in or create your Loftlancer account."
       topLeft={
         <Button variant="ghost" render={<a href="https://loftlancer.com/" />}>
           <ChevronLeftIcon aria-hidden />

@@ -1,7 +1,4 @@
-import { buildSignInUrl } from "@loftlancer/ui/auth-links";
-import { MarketingLanding } from "@loftlancer/ui/marketing";
-
-import { ModeToggle } from "@/components/mode-toggle";
+import { Landing } from "@/components/landing";
 
 export const metadata = {
   title: "Loftlancer",
@@ -9,11 +6,5 @@ export const metadata = {
 };
 
 export default function HomePage() {
-  const signInHref = buildSignInUrl({
-    returnTo: "https://loftlancer.com/studio/dashboard",
-  });
-
-  return (
-    <MarketingLanding signInHref={signInHref} headerActions={<ModeToggle />} />
-  );
+  return <Landing />;
 }
