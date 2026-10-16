@@ -1,5 +1,6 @@
 "use client";
 
+import { ProjectPinMenu } from "@loftlancer/ui/patterns/sidebar-kit";
 import type { ProjectOutput } from "@loftlancer/api/types";
 import { ChevronRight, ChevronUp, MoreHorizontal } from "lucide-react";
 import type { Route } from "next";
@@ -49,7 +50,13 @@ export function SidebarProjectsGroup({
   projectsLoading,
   status,
   onRetry,
+  isPinned,
+  onTogglePin,
+  pinPending,
 }: {
+  isPinned?: (projectId: string) => boolean;
+  onTogglePin?: (projectId: string) => void;
+  pinPending?: boolean;
   projects: ProjectOutput[];
   projectsLoading: boolean;
   status: "loading" | "error" | "empty" | "success";
@@ -173,6 +180,13 @@ export function SidebarProjectsGroup({
                       </Avatar>
                       <span className="truncate">{project.name}</span>
                     </SidebarMenuButton>
+                    {onTogglePin ? (
+                      <ProjectPinMenu
+                        pinned={isPinned?.(project.id) ?? false}
+                        pending={pinPending}
+                        onToggle={() => onTogglePin(project.id)}
+                      />
+                    ) : null}
                   </SidebarMenuItem>
                 ))}
               {!projectsLoading && listToggleVisible && (
