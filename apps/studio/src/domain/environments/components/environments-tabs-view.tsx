@@ -2,16 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
+import { EmptyState } from "@/components/patterns/empty-state";
 import { HorizontalScrollRail } from "@/components/patterns/horizontal-scroll-rail";
 import { Button } from "@/components/ui/button";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import {
@@ -19,7 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { iconMutedClassName } from "@/lib/icons";
+import { appIcons, iconMutedClassName } from "@/lib/icons";
 import { layoutGapClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 import { useEnvironmentVariableCounts } from "../hooks/use-environment-variable-counts";
@@ -90,24 +83,19 @@ export function EnvironmentsTabsView({
 
   if (environments.length === 0) {
     return (
-      <Empty className="h-full w-full border border-dashed">
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <AppIcon name="environment" className="size-6" />
-          </EmptyMedia>
-          <EmptyTitle>No environments yet</EmptyTitle>
-          <EmptyDescription>
-            Add development, staging, or production targets for this project.
-          </EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
+      <EmptyState
+        icon={appIcons.environment}
+        title="No environments yet"
+        description="Add development, staging, or production targets for this project."
+        className="h-full"
+        action={
           <CreateEnvironmentSheet
             onConfirm={onCreate}
             isPending={isCreating}
             triggerText="Add environment"
           />
-        </EmptyContent>
-      </Empty>
+        }
+      />
     );
   }
 
