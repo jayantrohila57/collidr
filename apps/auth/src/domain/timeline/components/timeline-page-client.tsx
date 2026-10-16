@@ -56,7 +56,9 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
   const actionOptions = useMemo(() => {
     const set = new Set([...seenActions, ...rows.map((r) => r.action)]);
     if (action) set.add(action);
-    return [...set].sort().map((value) => ({ value, label: formatActionLabel(value) }));
+    return [...set]
+      .sort()
+      .map((value) => ({ value, label: formatActionLabel(value) }));
   }, [rows, seenActions, action]);
 
   if (query.error) {
@@ -71,6 +73,7 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
 
   return (
     <ActivityTimeline
+      filtersInHeader
       items={items}
       loading={query.isLoading}
       actionOptions={actionOptions}

@@ -69,7 +69,8 @@
     "./table": "./src/components/ui/table.tsx",
     "./input-group": "./src/components/ui/input-group.tsx",
     "./textarea": "./src/components/ui/textarea.tsx",
-    "./data-table/*": "./src/data-table/*.tsx"
+    "./data-table/*": "./src/data-table/*.tsx",
+    "./patterns/page-header": "./src/patterns/page-header.tsx"
   },
   "scripts": {
     "check-types": "tsc --noEmit",

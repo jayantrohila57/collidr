@@ -1,4 +1,3 @@
-import { SettingsSection } from "@loftlancer/ui/patterns/settings-frame";
 import type { ReactNode } from "react";
 import { AccountSettingsFrame } from "@/domain/settings/components/account-settings-frame";
 import { ActivityOverview } from "@/domain/settings/components/activity-overview";
@@ -19,11 +18,15 @@ export function SettingsSectionShell({
 }) {
   return (
     <AccountSettingsFrame
-      top={activity ? <ActivityOverview scope="self" title="User activity" /> : undefined}
+      title={title}
+      description={description}
+      top={
+        activity ? (
+          <ActivityOverview scope="self" title="User activity" />
+        ) : undefined
+      }
     >
-      <SettingsSection title={title} description={description} bare>
-        {children}
-      </SettingsSection>
+      {children}
     </AccountSettingsFrame>
   );
 }

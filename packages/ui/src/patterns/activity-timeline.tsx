@@ -11,6 +11,7 @@ import {
   TooltipTrigger,
 } from "../components/ui/tooltip";
 import { cn } from "../lib/utils";
+import { PageHeaderActionsPortal } from "./page-header";
 import { SearchableCombobox } from "./searchable-combobox";
 import { SettingsAvatar } from "./settings-frame";
 
@@ -356,7 +357,10 @@ export function ActivityTimeline({
   toolbar,
   LinkComponent,
   className,
+  filtersInHeader = false,
 }: {
+  /** Render the filters in the page header's actions slot. */
+  filtersInHeader?: boolean;
   title?: string;
   description?: string;
   items: ActivityItem[];
@@ -375,45 +379,51 @@ export function ActivityTimeline({
   className?: string;
 }) {
   const groups = groupByDay(items);
+  const filters = (
+    <div className="flex flex-wrap items-center gap-2">
+      <SearchableCombobox
+        ariaLabel="Filter by action"
+        className="w-44"
+        value={action || ALL}
+        onChange={(v) => onActionChange(v === ALL ? "" : v)}
+        searchPlaceholder="Search actions…"
+        options={[{ value: ALL, label: "All actions" }, ...actionOptions]}
+      />
+      <SearchableCombobox
+        ariaLabel="Filter by result"
+        className="w-36"
+        value={result || ALL}
+        onChange={(v) => onResultChange(v === ALL ? "" : (v as ActivityResult))}
+        searchPlaceholder="Search results…"
+        options={RESULT_OPTIONS}
+      />
+      {toolbar}
+    </div>
+  );
   return (
     <TooltipProvider delay={150}>
       <section
         className={cn("w-full min-w-0 space-y-4", className)}
         data-testid="activity-timeline"
       >
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          {title ? (
-            <div className="space-y-0.5">
-              <h2 className="font-semibold text-base">{title}</h2>
-              {description ? (
-                <p className="text-muted-foreground text-sm">{description}</p>
-              ) : null}
-            </div>
-          ) : (
-            <span />
-          )}
-          <div className="flex flex-wrap items-center gap-2">
-            <SearchableCombobox
-              ariaLabel="Filter by action"
-              className="w-44"
-              value={action || ALL}
-              onChange={(v) => onActionChange(v === ALL ? "" : v)}
-              searchPlaceholder="Search actions…"
-              options={[{ value: ALL, label: "All actions" }, ...actionOptions]}
-            />
-            <SearchableCombobox
-              ariaLabel="Filter by result"
-              className="w-36"
-              value={result || ALL}
-              onChange={(v) =>
-                onResultChange(v === ALL ? "" : (v as ActivityResult))
-              }
-              searchPlaceholder="Search results…"
-              options={RESULT_OPTIONS}
-            />
-            {toolbar}
+        {filtersInHeader ? (
+          <PageHeaderActionsPortal>{filters}</PageHeaderActionsPortal>
+        ) : null}
+        {title || !filtersInHeader ? (
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            {title ? (
+              <div className="space-y-0.5">
+                <h2 className="font-semibold text-base">{title}</h2>
+                {description ? (
+                  <p className="text-muted-foreground text-sm">{description}</p>
+                ) : null}
+              </div>
+            ) : (
+              <span />
+            )}
+            {filtersInHeader ? null : filters}
           </div>
-        </div>
+        ) : null}
 
         {loading && items.length === 0 ? (
           <div className="min-h-80 space-y-3" aria-busy="true">
