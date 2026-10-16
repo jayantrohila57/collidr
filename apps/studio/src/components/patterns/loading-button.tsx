@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 
 export interface LoadingButtonProps extends ButtonProps {
   loading?: boolean;
+  /** Announced to screen readers while loading; the visible label never changes, so width stays fixed. */
   loadingLabel?: string;
 }
 
@@ -16,16 +17,16 @@ export function LoadingButton({
   className,
   ...props
 }: LoadingButtonProps) {
-  const label = loading && loadingLabel ? loadingLabel : children;
 
   return (
     <Button
       loading={loading}
       disabled={disabled || loading}
-      className={cn(loadingLabel && "min-w-28", className)}
+      className={className}
+      aria-label={loading && loadingLabel ? loadingLabel : undefined}
       {...props}
     >
-      {label}
+      {children}
     </Button>
   );
 }

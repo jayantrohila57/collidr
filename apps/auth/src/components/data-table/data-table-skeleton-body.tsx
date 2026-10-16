@@ -2,29 +2,42 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 interface DataTableSkeletonBodyProps {
-  columnCount: number;
+  /** One entry per real column: the same cell classes, so widths match. */
+  columnClassNames: (string | undefined)[];
   rows?: number;
 }
 
-const SKELETON_ROW_IDS = ["r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8"];
-const SKELETON_CELL_IDS = ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8"];
+// Varied, fixed widths so the skeleton reads like real text, not bars.
+const WIDTHS = ["w-32", "w-24", "w-20", "w-28", "w-16"];
 
+/**
+ * Mirrors the ready table 1:1: one row per page slot at the real 40px row
+ * height, one cell per column with the column's own classes.
+ */
 export function DataTableSkeletonBody({
-  columnCount,
+  columnClassNames,
   rows = 5,
 }: DataTableSkeletonBodyProps) {
-  const rowIds = SKELETON_ROW_IDS.slice(0, rows);
-  const cellIds = SKELETON_CELL_IDS.slice(0, columnCount);
-
   return (
     <>
-      {rowIds.map((rowId) => (
-        <TableRow key={`skeleton-row-${rowId}`}>
-          {cellIds.map((cellId) => (
-            <TableCell key={`skeleton-cell-${rowId}-${cellId}`}>
-              <Skeleton className="h-4 w-full max-w-[12rem]" />
+      {Array.from({ length: rows }, (_, r) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: static placeholder rows
+        <TableRow key={`skeleton-row-${r}`} className="h-10">
+          {columnClassNames.map((cellClass, c) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: static placeholder cells
+            <TableCell key={`skeleton-cell-${r}-${c}`} className={cellClass}>
+              {r === 0 && c === 0 ? (
+                <span className="sr-only">Loading…</span>
+              ) : null}
+              <Skeleton
+                className={cn(
+                  "h-4 max-w-full motion-reduce:animate-none",
+                  WIDTHS[(r + c) % WIDTHS.length],
+                )}
+              />
             </TableCell>
           ))}
         </TableRow>

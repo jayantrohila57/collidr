@@ -10,6 +10,7 @@ import {
   EmptyTitle,
 } from "../components/ui/empty";
 import { Frame, FramePanel } from "../components/ui/frame";
+import { Skeleton } from "../components/ui/skeleton";
 import { layoutContentClass } from "../lib/layout-spacing";
 import { cn } from "../lib/utils";
 
@@ -47,7 +48,7 @@ export function PageStatusEmpty({
   return (
     <PageStatusShell>
       <FramePanel>
-        <Empty className="border-0">
+        <Empty className="min-h-48 border-0">
           <EmptyHeader>
             {Icon ? (
               <EmptyMedia variant="icon">
@@ -134,15 +135,23 @@ export function PageStatusError({
   );
 }
 
+/**
+ * Same shell and min-height as the empty/error/forbidden states, so swapping
+ * loading → result never moves the frame.
+ */
 export function PageLoadingState({ rows = 4 }: { rows?: number }) {
   return (
-    <PageStatusShell className="min-h-[40vh]">
-      <FramePanel className="flex w-full flex-col gap-3">
+    <PageStatusShell>
+      <FramePanel
+        className="flex min-h-48 w-full flex-col justify-center gap-3"
+        aria-busy="true"
+      >
+        <span className="sr-only">Loading…</span>
         {Array.from({ length: rows }, (_, index) => `loading-row-${index}`).map(
           (rowKey) => (
-            <div
+            <Skeleton
               key={rowKey}
-              className="h-8 w-full animate-pulse rounded-md bg-muted"
+              className="h-8 w-full rounded-md motion-reduce:animate-none"
             />
           ),
         )}

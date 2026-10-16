@@ -3,7 +3,7 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
-import type * as React from "react";
+import * as React from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
@@ -68,8 +68,27 @@ export function Button({
   const typeValue: React.ButtonHTMLAttributes<HTMLButtonElement>["type"] =
     render ? undefined : "button";
 
+  // Zero layout shift: with a leading icon the spinner takes the icon slot and
+  // the label stays; otherwise the spinner overlays a transparent label. Either
+  // way the button keeps its width.
+  const parts = React.Children.toArray(children);
+  const lead = parts[0];
+  const iconSlot =
+    loading &&
+    parts.length > 1 &&
+    React.isValidElement(lead) &&
+    typeof lead.type !== "string";
+
   const defaultProps = {
-    children: (
+    children: iconSlot ? (
+      <>
+        <Spinner
+          className="pointer-events-none"
+          data-slot="button-loading-indicator"
+        />
+        {parts.slice(1)}
+      </>
+    ) : (
       <>
         {children}
         {loading && (
@@ -82,7 +101,9 @@ export function Button({
     ),
     className: cn(buttonVariants({ className, size, variant })),
     "aria-disabled": loading || undefined,
-    "data-loading": loading ? "" : undefined,
+    "aria-busy": loading || undefined,
+    "data-loading": loading && !iconSlot ? "" : undefined,
+    "data-pending": loading ? "" : undefined,
     "data-slot": "button",
     disabled: isDisabled,
     type: typeValue,
