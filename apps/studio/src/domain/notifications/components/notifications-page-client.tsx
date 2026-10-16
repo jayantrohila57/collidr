@@ -60,12 +60,19 @@ function groupByDay<T extends NotificationListItemData>(items: T[]) {
 /** Mirrors NotificationListItem: size-8 icon + title line + body line. */
 function NotificationRowSkeleton({ width }: { width: string }) {
   return (
-    <div className="flex items-start gap-3 px-2 py-2.5" aria-hidden>
-      <Skeleton className="size-8 shrink-0 rounded-full" />
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5 pt-0.5">
-        <Skeleton className={cn("h-4", width)} />
-        <Skeleton className="h-3 w-24" />
+    <div className="flex items-start gap-3 px-2 py-2" aria-hidden>
+      <Skeleton className="mt-0.5 size-8 shrink-0 rounded-full" />
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="flex h-5 items-center">
+          <Skeleton className={cn("h-3.5", width)} />
+        </span>
+        <span className="flex h-4 items-center">
+          <Skeleton className="h-3 w-40" />
+        </span>
       </div>
+      <span className="flex h-5 w-16 shrink-0 items-center justify-end">
+        <Skeleton className="h-3 w-10" />
+      </span>
     </div>
   );
 }
@@ -227,7 +234,10 @@ export function NotificationsPageClient() {
                 >
                   {g.label}
                 </h3>
-                <div className="flex flex-col divide-y divide-border/60 p-1">
+                <div
+                  role="list"
+                  className="flex flex-col divide-y divide-border/60 p-1"
+                >
                   {g.items.map((item) => (
                     <NotificationListItem
                       key={item.id}
@@ -244,6 +254,7 @@ export function NotificationsPageClient() {
                           router.push(item.href as Route);
                         })();
                       }}
+                      onMarkRead={() => void markReadWithToast({ id: item.id })}
                       disabled={isMarkingRead}
                     />
                   ))}
