@@ -13,6 +13,9 @@ export const PROJECT_MEMBER_GRANT_KEYS = [
   "variable.delete",
   "variable.reveal",
   "variable.export",
+  "tasks.task.create",
+  "tasks.task.update",
+  "tasks.task.delete",
 ] as const satisfies readonly ActionName[];
 
 export type ProjectMemberGrantKey = (typeof PROJECT_MEMBER_GRANT_KEYS)[number];

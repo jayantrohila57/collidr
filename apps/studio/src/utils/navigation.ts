@@ -21,7 +21,7 @@ export class AppNavigation {
    * Redirect to a project detail page
    */
   redirectToProject(projectSlug: string, options?: RedirectOptions) {
-    const path = `/dashboard/projects/${projectSlug}` as Route;
+    const path = `/p/${projectSlug}` as Route;
     this.navigate(path, options);
   }
 
@@ -48,7 +48,7 @@ export class AppNavigation {
     options?: RedirectOptions,
   ) {
     const path =
-      `/dashboard/projects/${projectSlug}/environments?env=${encodeURIComponent(environmentId)}` as Route;
+      `/p/${projectSlug}/env?env=${encodeURIComponent(environmentId)}` as Route;
     this.navigate(path, options);
   }
 

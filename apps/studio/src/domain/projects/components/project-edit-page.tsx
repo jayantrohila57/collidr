@@ -1,9 +1,9 @@
 "use client";
-import { withBasePath } from "@/lib/base-path";
 
 import Link from "next/link";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { Button } from "@/components/ui/button";
+import { withBasePath } from "@/lib/base-path";
 import { useEnvironments } from "../../environments/hooks/use-environments";
 import { EditProject } from "./project-edit";
 
@@ -33,7 +33,7 @@ export default function EditProjectPage({ projectSlug }: EditProjectPageProps) {
     <div className="space-y-6">
       {/* Back Navigation */}
       <div className="flex items-center gap-4">
-        <Link href={`/dashboard/projects/${projectSlug}`}>
+        <Link href={`/p/${projectSlug}`}>
           <Button variant="ghost" size="sm">
             <AppIcon name="arrowLeft" className="me-2 size-4" />
             Back to Project
@@ -46,7 +46,7 @@ export default function EditProjectPage({ projectSlug }: EditProjectPageProps) {
         project={project}
         onSuccess={() => {
           // Redirect back to project page after successful edit
-          window.location.href = withBasePath(`/dashboard/projects/${projectSlug}`);
+          window.location.href = withBasePath(`/p/${projectSlug}`);
         }}
       />
     </div>

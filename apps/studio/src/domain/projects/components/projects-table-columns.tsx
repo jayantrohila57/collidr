@@ -53,7 +53,7 @@ export function createProjectsTableColumns(): DataTableColumnDef<ProjectOutput>[
       cell: ({ row }) => {
         const project = row.original;
         const href = hasNavigableSlug(project.slug)
-          ? (`/dashboard/projects/${project.slug}` as Route)
+          ? (`/p/${project.slug}` as Route)
           : null;
         const description = project.description?.trim() || "No description";
         return (

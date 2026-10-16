@@ -15,12 +15,12 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { formatActionLabel } from "@/lib/format-action-label";
 import {
   CONTACT_MANAGER_DESCRIPTION,
   CONTACT_MANAGER_TITLE,
 } from "@/domain/permissions/contact-manager";
 import { useUnassignedOrgMember } from "@/domain/permissions/hooks/use-permissions";
+import { formatActionLabel } from "@/lib/format-action-label";
 import { trpc } from "@/utils/trpc";
 
 type TimelinePageClientProps = {
@@ -53,7 +53,7 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
     () =>
       rows.map((row) =>
         auditRowToActivityItem(row, {
-          projectHref: (slug) => `/dashboard/projects/${slug}`,
+          projectHref: (slug) => `/p/${slug}`,
         }),
       ),
     [rows],
@@ -62,7 +62,9 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
   const actionOptions = useMemo(() => {
     const set = new Set([...seenActions, ...rows.map((r) => r.action)]);
     if (action) set.add(action);
-    return [...set].sort().map((value) => ({ value, label: formatActionLabel(value) }));
+    return [...set]
+      .sort()
+      .map((value) => ({ value, label: formatActionLabel(value) }));
   }, [rows, seenActions, action]);
 
   if (query.error) {

@@ -42,7 +42,7 @@ export default function ProjectEnvironmentsPage({
     createEnvironment,
     isCreating,
   } = useEnvironments(slug);
-  const backHref = `/dashboard/projects/${slug}` as Route;
+  const backHref = `/p/${slug}` as Route;
 
   const showHeaderAction = Boolean(projectId && environments.length > 0);
 

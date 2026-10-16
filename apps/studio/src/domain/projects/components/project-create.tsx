@@ -1,7 +1,7 @@
 "use client";
 
-import { createProjectInput } from "@loftlancer/api/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createProjectInput } from "@loftlancer/api/validation";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
@@ -53,7 +53,7 @@ export function CreateProject() {
             allowNextNavigationWithoutPrompt();
             const slug = result?.data?.slug;
             if (slug) {
-              router.push(`/dashboard/projects/${slug}`);
+              router.push(`/p/${slug}`);
             } else {
               router.push("/dashboard/projects");
             }

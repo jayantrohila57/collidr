@@ -10,6 +10,7 @@ import {
 } from "@/components/patterns/status-badge";
 import DashboardSection from "@/components/section-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useProjectApps } from "@/domain/apps/hooks/use-project-apps";
 import { CreateEnvironmentSheet } from "@/domain/environments/components/create-environment-sheet";
 import { useEnvironments } from "@/domain/environments/hooks/use-environments";
 import { EditProjectSheet } from "./edit-project-sheet";
@@ -64,6 +65,8 @@ function ProjectDetailPageContent({
     createEnvironment,
     isCreating,
   } = useEnvironments(slug);
+  const { installed } = useProjectApps(slug);
+  const envInstalled = installed.some((a) => a.id === "env");
 
   useEffect(() => {
     if (searchParams.get("edit") === "1" && status === "success" && project) {
@@ -74,7 +77,7 @@ function ProjectDetailPageContent({
   const handleEditOpenChange = (open: boolean) => {
     setEditOpen(open);
     if (!open && searchParams.get("edit") === "1") {
-      router.replace(`/dashboard/projects/${slug}`);
+      router.replace(`/p/${slug}`);
     }
   };
 
@@ -134,7 +137,7 @@ function ProjectDetailPageContent({
         }
         action={
           <div className="flex shrink-0 items-center gap-1">
-            {projectId ? (
+            {projectId && envInstalled ? (
               <CreateEnvironmentSheet
                 onConfirm={async (name) => {
                   await createEnvironment({ projectId, name });

@@ -1,7 +1,7 @@
 "use client";
 
-import { createProjectInput } from "@loftlancer/api/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createProjectInput } from "@loftlancer/api/validation";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -66,7 +66,7 @@ export function CreateProjectSheet({
       onOpenChange(false);
       const slug = result?.data?.slug;
       if (slug) {
-        router.push(`/dashboard/projects/${slug}`);
+        router.push(`/p/${slug}`);
       } else {
         router.push("/dashboard/projects");
       }

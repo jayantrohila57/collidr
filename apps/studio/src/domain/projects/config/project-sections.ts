@@ -18,7 +18,6 @@ export const PROJECT_SECTIONS: readonly ProjectSectionDefinition[] = [
     description:
       "Deployment targets, secrets, and configuration per environment.",
     icon: "environment",
-    href: (projectSlug) =>
-      `/dashboard/projects/${projectSlug}/environments` as Route,
+    href: (projectSlug) => `/p/${projectSlug}/env` as Route,
   },
 ];

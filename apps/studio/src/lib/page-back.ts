@@ -51,12 +51,12 @@ export function getPageBackHref(pathname: string): PageBackHref | null {
     return "/dashboard/projects";
   }
 
-  const projectEdit = /^\/dashboard\/projects\/([^/]+)\/edit$/.exec(pathname);
+  const projectEdit = /^\/p\/([^/]+)\/edit$/.exec(pathname);
   if (projectEdit) {
-    return `/dashboard/projects/${projectEdit[1]}` as Route;
+    return `/p/${projectEdit[1]}` as Route;
   }
 
-  const projectDetail = /^\/dashboard\/projects\/([^/]+)$/.exec(pathname);
+  const projectDetail = /^\/p\/([^/]+)$/.exec(pathname);
   if (projectDetail && !["new", "edit"].includes(projectDetail[1])) {
     return "/dashboard/projects";
   }

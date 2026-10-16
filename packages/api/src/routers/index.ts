@@ -8,8 +8,10 @@ import { notificationsRouter } from "./notifications";
 import { organizationsRouter } from "./organizations";
 import { permissionsRouter } from "./permissions";
 import { projectAccessRouter } from "./project-access-router";
+import { projectAppsRouter } from "./project-apps";
 import { projectsRouter } from "./projects";
 import { sidebarRouter } from "./sidebar";
+import { tasksRouter } from "./tasks";
 import { teamsRouter } from "./teams";
 import { environmentVariablesRouter } from "./variables";
 
@@ -30,5 +32,7 @@ export const appRouter = router({
   projectAccess: projectAccessRouter,
   teams: teamsRouter,
   sidebar: sidebarRouter,
+  projectApps: projectAppsRouter,
+  tasks: tasksRouter,
 });
 export type AppRouter = typeof appRouter;

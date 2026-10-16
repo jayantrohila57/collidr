@@ -10,6 +10,8 @@ export const notificationTypes = [
   "invitation.received",
   "invitation.accepted",
   "support.ticket.reply",
+  "task.assigned",
+  "task.mentioned",
 ] as const;
 
 export type NotificationType = (typeof notificationTypes)[number];
@@ -35,10 +37,20 @@ const supportTicketReplyData = z.object({
   subject: z.string(),
 });
 
+const taskData = z.object({
+  projectSlug: z.string(),
+  projectName: z.string(),
+  taskId: z.string(),
+  taskNumber: z.number().int(),
+  title: z.string(),
+});
+
 export const notificationDataSchemas: Record<NotificationType, z.ZodTypeAny> = {
   "invitation.received": invitationReceivedData,
   "invitation.accepted": invitationAcceptedData,
   "support.ticket.reply": supportTicketReplyData,
+  "task.assigned": taskData,
+  "task.mentioned": taskData,
 };
 
 export type NotificationRenderContext = {
@@ -81,6 +93,24 @@ export const notificationRenderers: Record<
       body: data.subject,
       icon: "organization",
       href: `/dashboard/support/tickets/${data.ticketId}`,
+    };
+  },
+  "task.assigned": (raw, ctx) => {
+    const data = taskData.parse(raw);
+    return {
+      title: `Assigned: ${data.title}`,
+      body: `${ctx.actorName ?? "Someone"} assigned you task #${data.taskNumber} in ${data.projectName}.`,
+      icon: "member",
+      href: `/p/${data.projectSlug}/tasks?task=${data.taskNumber}`,
+    };
+  },
+  "task.mentioned": (raw, ctx) => {
+    const data = taskData.parse(raw);
+    return {
+      title: `Mentioned on #${data.taskNumber}`,
+      body: `${ctx.actorName ?? "Someone"} mentioned you on "${data.title}" in ${data.projectName}.`,
+      icon: "member",
+      href: `/p/${data.projectSlug}/tasks?task=${data.taskNumber}`,
     };
   },
 };

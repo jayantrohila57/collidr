@@ -232,11 +232,13 @@ export default function OnboardingClient() {
 
   const command = `claude mcp add --transport http loftlancer ${mcpHttpEndpoint()}`;
   const projectHref = (
-    projectSlug ? `/dashboard/projects/${projectSlug}` : "/dashboard/projects"
+    projectSlug ? `/p/${projectSlug}` : "/dashboard/projects"
   ) as Route;
 
   const dirty =
-    step === 0 ? orgForm.formState.isDirty : step === 1 && projectForm.formState.isDirty;
+    step === 0
+      ? orgForm.formState.isDirty
+      : step === 1 && projectForm.formState.isDirty;
 
   return (
     <UnsavedChangesPageGuard
@@ -280,7 +282,12 @@ export default function OnboardingClient() {
                       required
                       error={fieldState.error?.message}
                     >
-                      <Input {...field} id="org-name" placeholder="Acme Inc." autoFocus />
+                      <Input
+                        {...field}
+                        id="org-name"
+                        placeholder="Acme Inc."
+                        autoFocus
+                      />
                     </FormField>
                   )}
                 />
@@ -337,7 +344,12 @@ export default function OnboardingClient() {
                       required
                       error={fieldState.error?.message}
                     >
-                      <Input {...field} id="project-name" placeholder="web-app" autoFocus />
+                      <Input
+                        {...field}
+                        id="project-name"
+                        placeholder="web-app"
+                        autoFocus
+                      />
                     </FormField>
                   )}
                 />
@@ -358,7 +370,10 @@ export default function OnboardingClient() {
                   description="Add the Loftlancer MCP server to Claude Code. You'll approve access in the browser on first use."
                 />
                 <div className="flex h-10 items-center gap-2 rounded-lg border border-border/60 bg-muted/40 ps-3 pe-1">
-                  <code className="min-w-0 flex-1 truncate font-mono text-xs" title={command}>
+                  <code
+                    className="min-w-0 flex-1 truncate font-mono text-xs"
+                    title={command}
+                  >
                     {command}
                   </code>
                   <CopyButton value={command} label="Copy command" />
@@ -395,7 +410,10 @@ export default function OnboardingClient() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" render={<Link href={"/dashboard" as Route} />}>
+                  <Button
+                    variant="outline"
+                    render={<Link href={"/dashboard" as Route} />}
+                  >
                     Go to dashboard
                   </Button>
                   <Button render={<Link href={projectHref} />}>
