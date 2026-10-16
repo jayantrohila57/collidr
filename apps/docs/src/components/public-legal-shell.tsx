@@ -1,0 +1,77 @@
+"use client";
+
+import {
+  buildSignInUrl,
+  buildSignOutUrl,
+  resolveAuthAppOrigin,
+} from "@loftlancer/ui/auth-links";
+import { PublicAppShell } from "@loftlancer/ui/patterns/app-shell";
+import {
+  type PublicNavGroup,
+  PublicSidebar,
+} from "@loftlancer/ui/patterns/sidebar-kit";
+import {
+  BookOpenIcon,
+  CookieIcon,
+  FileTextIcon,
+  LifeBuoyIcon,
+  LockIcon,
+  ScaleIcon,
+  ShieldIcon,
+} from "lucide-react";
+import { usePathname } from "next/navigation";
+
+const groups: PublicNavGroup[] = [
+  {
+    label: "Support",
+    items: [{ label: "Contact", href: "/legal/contact", icon: LifeBuoyIcon }],
+  },
+  {
+    label: "Legal",
+    items: [
+      { label: "Terms", href: "/terms", icon: ScaleIcon },
+      { label: "Privacy", href: "/privacy", icon: LockIcon },
+      {
+        label: "Acceptable use",
+        href: "/legal/acceptable-use",
+        icon: FileTextIcon,
+      },
+      { label: "Cookies", href: "/legal/cookies", icon: CookieIcon },
+      { label: "DPA", href: "/legal/dpa", icon: FileTextIcon },
+      { label: "Security", href: "/legal/security", icon: ShieldIcon },
+    ],
+  },
+  {
+    label: "Docs",
+    items: [{ label: "Documentation", href: "/docs", icon: BookOpenIcon }],
+  },
+];
+
+const titles = new Map(
+  groups.flatMap((g) => g.items.map((i) => [i.href, i.label] as const)),
+);
+
+/** Public (unguarded) app-shell for legal pages; session filled in client-side. */
+export function PublicLegalShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const auth = resolveAuthAppOrigin();
+  return (
+    <PublicAppShell
+      title={titles.get(pathname) ?? "Legal"}
+      sidebar={
+        <PublicSidebar
+          homeHref="/"
+          groups={groups}
+          currentPath={pathname}
+          sessionUrl={`${auth}/api/auth/get-session`}
+          signInHref={buildSignInUrl()}
+          signOutHref={buildSignOutUrl()}
+          accountHref={`${auth}/settings/profile`}
+          docsHref="/docs"
+        />
+      }
+    >
+      {children}
+    </PublicAppShell>
+  );
+}

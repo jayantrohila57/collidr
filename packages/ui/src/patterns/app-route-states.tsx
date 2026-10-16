@@ -3,7 +3,7 @@
 import { FileQuestion, ShieldX } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Button } from "../components/ui/button";
 import {
   Card,
@@ -104,13 +104,32 @@ const themeInitScript = `(function(){try{var t=localStorage.getItem("theme");var
 export function AppGlobalErrorPage({
   error,
   reset,
+  frame,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
+  /** Optional layout around the card (e.g. auth-5 split). */
+  frame?: (card: ReactNode) => ReactNode;
 }) {
   useEffect(() => {
     console.error(error);
   }, [error]);
+
+  const card = (
+    <Card>
+      <CardHeader>
+        <CardTitle>Application error</CardTitle>
+        <CardDescription>
+          Something went wrong. Please refresh the page or try again.
+        </CardDescription>
+      </CardHeader>
+      <CardFooter>
+        <Button type="button" onClick={reset}>
+          Try again
+        </Button>
+      </CardFooter>
+    </Card>
+  );
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -120,20 +139,14 @@ export function AppGlobalErrorPage({
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
       </head>
-      <body className="flex min-h-svh items-center justify-center bg-background p-6 font-sans text-foreground antialiased">
-        <Card>
-          <CardHeader>
-            <CardTitle>Application error</CardTitle>
-            <CardDescription>
-              Something went wrong. Please refresh the page or try again.
-            </CardDescription>
-          </CardHeader>
-          <CardFooter>
-            <Button type="button" onClick={reset}>
-              Try again
-            </Button>
-          </CardFooter>
-        </Card>
+      <body
+        className={
+          frame
+            ? "bg-background font-sans text-foreground antialiased"
+            : "flex min-h-svh items-center justify-center bg-background p-6 font-sans text-foreground antialiased"
+        }
+      >
+        {frame ? frame(card) : card}
       </body>
     </html>
   );
