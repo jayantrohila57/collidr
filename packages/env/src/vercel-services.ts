@@ -16,7 +16,7 @@ function trimTrailingSlash(url: string): string {
 export const SERVICE_BASE_PATHS = {
   www: "",
   web: "/app",
-  docs: "/docs",
+  docs: "",
   auth: "/auth",
   account: "/account",
   console: "/console",

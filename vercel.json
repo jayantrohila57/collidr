@@ -1,11 +1,41 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "$comment": "Loftlancer deploys as separate Vercel projects (apps/auth, apps/studio, apps/console, apps/mcp, apps/docs). Per-app vercel.json holds install/build/ignoreCommand.",
+  "$comment": "Single Vercel project (Services): docs at /, auth (incl. account settings) at /auth, studio at /studio. Same-origin cookies on loftlancer.com.",
   "git": {
     "deploymentEnabled": {
       "*": false,
       "main": true
     }
   },
-  "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" != \"main\" ] && exit 0; exit 0"
+  "services": {
+    "docs": {
+      "root": "apps/docs",
+      "framework": "nextjs",
+      "installCommand": "cd ../.. && pnpm install",
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=docs",
+      "env": { "VERCEL_SERVICES": "1" }
+    },
+    "auth": {
+      "root": "apps/auth",
+      "framework": "nextjs",
+      "installCommand": "cd ../.. && pnpm install",
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=auth",
+      "env": { "VERCEL_SERVICES": "1", "NEXT_BASE_PATH": "/auth" }
+    },
+    "studio": {
+      "root": "apps/studio",
+      "framework": "nextjs",
+      "installCommand": "cd ../.. && pnpm install",
+      "buildCommand": "cd ../.. && pnpm turbo run build --filter=studio",
+      "env": { "VERCEL_SERVICES": "1", "NEXT_BASE_PATH": "/studio" }
+    }
+  },
+  "rewrites": [
+    { "source": "/auth", "destination": { "service": "auth" } },
+    { "source": "/auth/:path*", "destination": { "service": "auth" } },
+    { "source": "/studio", "destination": { "service": "studio" } },
+    { "source": "/studio/:path*", "destination": { "service": "studio" } },
+    { "source": "/", "destination": { "service": "docs" } },
+    { "source": "/:path*", "destination": { "service": "docs" } }
+  ]
 }
