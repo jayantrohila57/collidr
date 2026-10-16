@@ -133,39 +133,53 @@ export function createProjectsTableColumns(
           <div className="flex items-center gap-0.5">
             {project.repositoryUrl ? (
               <Tooltip>
+                {/* Icon-only link: the accessible name lives on the anchor
+                    itself (Button renders as the Link), plus a tooltip (#316). */}
                 <TooltipTrigger
                   render={
-                    <Link
-                      href={project.repositoryUrl as Route}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Open ${project.name} repository`}
-                    >
-                      <Button variant="ghost" size="icon-sm" type="button">
-                        <AppIcon name="github" />
-                      </Button>
-                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`GitHub repository for ${project.name} (opens in a new tab)`}
+                      title="GitHub repository"
+                      render={
+                        <Link
+                          href={project.repositoryUrl as Route}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        />
+                      }
+                    />
                   }
-                />
+                >
+                  <AppIcon name="github" />
+                </TooltipTrigger>
                 <TooltipContent>GitHub repository</TooltipContent>
               </Tooltip>
             ) : null}
             {project.websiteUrl ? (
               <Tooltip>
+                {/* Icon-only link: the accessible name lives on the anchor
+                    itself (Button renders as the Link), plus a tooltip (#316). */}
                 <TooltipTrigger
                   render={
-                    <Link
-                      href={project.websiteUrl as Route}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Open ${project.name} website`}
-                    >
-                      <Button variant="ghost" size="icon-sm" type="button">
-                        <AppIcon name="externalLink" />
-                      </Button>
-                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`Website for ${project.name} (opens in a new tab)`}
+                      title="Website"
+                      render={
+                        <Link
+                          href={project.websiteUrl as Route}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        />
+                      }
+                    />
                   }
-                />
+                >
+                  <AppIcon name="externalLink" />
+                </TooltipTrigger>
                 <TooltipContent>Website</TooltipContent>
               </Tooltip>
             ) : null}
