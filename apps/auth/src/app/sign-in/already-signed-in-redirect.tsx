@@ -20,15 +20,17 @@ export function redirectIfAlreadySignedIn(
     redirect(finish.toString() as Route);
   }
 
+  let target: URL | null = null;
   try {
-    const target = new URL(returnTo);
-    if (target.origin === authPublicOrigin) {
-      redirect(
-        `${target.pathname}${target.search}${target.hash}` as Route,
-      );
-    }
+    target = new URL(returnTo);
   } catch {
-    redirect("/settings/profile" as Route);
+    target = null;
+  }
+  // Same origin (single-project deploy): return_to is absolute and already
+  // includes the target app basePath (e.g. /studio/dashboard). Keep redirect()
+  // outside try/catch so NEXT_REDIRECT is not swallowed.
+  if (target && target.origin === new URL(authPublicOrigin).origin) {
+    redirect(target.toString() as Route);
   }
 
   redirect("/settings/profile" as Route);
