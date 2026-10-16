@@ -1,5 +1,7 @@
 "use client";
 
+import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { invitationsEmpty } from "@/components/data-table/data-table-empty-presets";
@@ -14,13 +16,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
@@ -165,33 +160,19 @@ export function OrganizationInvitationsPage({ slug }: { slug: string }) {
       ) : (
         <div className="flex flex-col gap-3">
           <div className="flex h-8 items-center gap-1.5">
-            <Select
+            <SearchableCombobox
               value={status}
-              items={STATUS_OPTIONS.map((o) => ({
+              onChange={(v) => {
+                setStatus(v as InvitationStatusFilter);
+                setPage(0);
+              }}
+              ariaLabel="Filter by status"
+              className="w-44"
+              options={STATUS_OPTIONS.map((o) => ({
                 value: o.value,
                 label: `${o.label}${counts ? ` (${counts[o.value]})` : ""}`,
               }))}
-              onValueChange={(v) => {
-                setStatus((v as InvitationStatusFilter | null) ?? "pending");
-                setPage(0);
-              }}
-            >
-              <SelectTrigger
-                size="sm"
-                className="w-44"
-                aria-label="Filter by status"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>
-                    {o.label}
-                    {counts ? ` (${counts[o.value]})` : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
             <span className="ms-auto text-muted-foreground text-xs tabular-nums">
               {listQuery.data
                 ? total === 0

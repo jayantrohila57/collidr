@@ -1,5 +1,7 @@
 "use client";
 
+import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
+
 import {
   type LegacyColumnDef,
   legacyCreateColumnHelper,
@@ -10,13 +12,6 @@ import type { DataTableEmptyConfig } from "@/components/data-table/data-table-em
 import { RoleBadge } from "@/components/patterns/status-badge";
 import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { initialsFromLabel } from "@/lib/initials";
 
 export type OrganizationMemberRow = {
@@ -24,8 +19,6 @@ export type OrganizationMemberRow = {
   role: string;
   user: { name: string; email: string; id?: string };
 };
-
-const ROLES = ["member", "admin", "owner"] as const;
 
 const columnHelper = legacyCreateColumnHelper<OrganizationMemberRow>();
 
@@ -86,30 +79,14 @@ export function OrganizationMembersTable({
         }
 
         return (
-          <Select
+          <SearchableCombobox
             value={member.role}
-            items={roleSelectItems}
-            onValueChange={(role) => {
-              if (role) onRoleChange(member.id, role);
-            }}
+            onChange={(role) => onRoleChange(member.id, role)}
             disabled={rolePendingId === member.id}
-          >
-            <SelectTrigger
-              aria-label={`Role for ${member.user.email}`}
-              className="h-auto w-fit gap-1.5 border-0 bg-transparent p-0 shadow-none"
-            >
-              <SelectValue>
-                <RoleBadge role={member.role} />
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {ROLES.map((role) => (
-                <SelectItem key={role} value={role}>
-                  <RoleBadge role={role} />
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            ariaLabel={`Role for ${member.user.email}`}
+            className="w-32"
+            options={roleSelectItems}
+          />
         );
       },
     }),

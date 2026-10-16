@@ -50,12 +50,14 @@ export function DashboardAppShell({
           <DashboardInsetContainer>
             <DashboardPageHeaderRow>
               <div className="flex min-w-0 flex-1 items-center gap-1.5">
-                <SidebarTrigger className="size-8 shrink-0" />
+                <SidebarTrigger className="size-8 shrink-0 rounded-md" />
                 <Separator
                   orientation="vertical"
                   className="my-auto hidden h-4 lg:block"
                 />
-                <div className="hidden min-w-0 flex-1 lg:block">{breadcrumbs}</div>
+                <div className="hidden min-w-0 flex-1 lg:block">
+                  {breadcrumbs}
+                </div>
                 <div className="min-w-0 flex-1 overflow-hidden lg:hidden">
                   {breadcrumbs}
                 </div>

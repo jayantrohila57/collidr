@@ -1,5 +1,6 @@
 "use client";
 
+import { headerIconButtonClassName } from "@loftlancer/ui/utils";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -14,8 +15,8 @@ type ModeToggleProps = {
 export function ModeToggle({ compact = false }: ModeToggleProps) {
   const { setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const buttonClass = compact ? "size-8" : "size-11";
-  const iconClass = compact ? "size-4" : "size-5";
+  const buttonClass = compact ? headerIconButtonClassName : "size-11";
+  const iconClass = "size-4";
 
   // Only render after component is mounted to prevent hydration mismatch
   useEffect(() => {

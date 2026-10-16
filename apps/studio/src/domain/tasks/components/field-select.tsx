@@ -1,14 +1,8 @@
 "use client";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
 
-/** Dense labelled select (h-8) used by task filters and the detail sheet. */
+/** Dense searchable picker (h-8) used by task filters and the detail sheet. */
 export function FieldSelect({
   value,
   onChange,
@@ -27,26 +21,14 @@ export function FieldSelect({
   disabled?: boolean;
 }) {
   return (
-    <Select
+    <SearchableCombobox
       value={value}
-      items={options.map((o) => ({ value: o.value, label: o.label }))}
-      onValueChange={(v) => onChange((v as string | null) ?? "")}
+      onChange={onChange}
+      options={options}
+      placeholder={placeholder}
+      ariaLabel={ariaLabel}
+      className={className ?? "w-36"}
       disabled={disabled}
-    >
-      <SelectTrigger
-        size="sm"
-        aria-label={ariaLabel}
-        className={className ?? "w-36"}
-      >
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((o) => (
-          <SelectItem key={o.value} value={o.value}>
-            {o.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    />
   );
 }
