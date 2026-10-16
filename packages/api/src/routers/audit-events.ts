@@ -40,16 +40,19 @@ export const auditEventsRouter = router({
       await requireAction("audit.timeline.view.self", {
         userId,
         organizationId,
+        audit: false,
       });
     } else if (input.scope === "org") {
       await requireAction("audit.timeline.view.org", {
         userId,
         organizationId,
+        audit: false,
       });
     } else if (input.scope === "user") {
       await requireAction("audit.timeline.view.user", {
         userId,
         organizationId,
+        audit: false,
         targetUserId: input.targetUserId,
       });
     }
@@ -141,11 +144,13 @@ export const auditEventsRouter = router({
         await requireAction("audit.timeline.view.self", {
           userId,
           organizationId,
+        audit: false,
         });
       } else {
         await requireAction("audit.timeline.view.org", {
           userId,
           organizationId,
+        audit: false,
         });
       }
 
@@ -198,7 +203,7 @@ export const auditEventsRouter = router({
         input.scope === "self"
           ? "audit.timeline.view.self"
           : "audit.timeline.view.org",
-        { userId, organizationId },
+        { userId, organizationId, audit: false },
       );
       const base =
         input.scope === "self"

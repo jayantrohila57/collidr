@@ -246,20 +246,24 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
           </EmptyHeader>
         </Empty>
       ) : (
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>When</TableHead>
               <TableHead>Actor</TableHead>
               <TableHead>Action</TableHead>
-              <TableHead>Result</TableHead>
+              <TableHead className="w-px whitespace-nowrap">Result</TableHead>
               <TableHead>Entity</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredItems.map((row) => (
               <TableRow key={row.id}>
-                <TableCell className="text-muted-foreground text-xs">
+                <TableCell
+                  className="whitespace-nowrap text-muted-foreground text-xs"
+                  suppressHydrationWarning
+                >
                   {formatDateTime(String(row.createdAt))}
                 </TableCell>
                 <TableCell className="text-xs">
@@ -268,7 +272,11 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
                 <TableCell className="text-sm">
                   {formatActionLabel(row.action)}
                 </TableCell>
-                <TableCell>{row.result}</TableCell>
+                <TableCell className="w-px whitespace-nowrap">
+                  <span className="inline-flex rounded-full border px-2 py-0.5 text-xs capitalize">
+                    {row.result}
+                  </span>
+                </TableCell>
                 <TableCell className="text-muted-foreground text-xs">
                   {formatProjectLabel(row) ?? row.entitySlug ?? row.entityType}
                 </TableCell>
@@ -276,6 +284,7 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
             ))}
           </TableBody>
         </Table>
+        </div>
       )}
     </div>
   );

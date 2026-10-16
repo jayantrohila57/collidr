@@ -34,6 +34,8 @@ export function actionGuard(
       userId: guardCtx.session.user.id,
       organizationId: guardCtx.activeOrganizationId ?? null,
       ...partial,
+      // Only mutations are audited; queries are read-only permission checks.
+      audit: opts.type === "mutation",
     });
 
     return next();
