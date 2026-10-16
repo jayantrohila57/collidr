@@ -3,17 +3,29 @@
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import type { PageHeaderTab } from "@/components/layout/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useProjectApps } from "@/domain/apps/hooks/use-project-apps";
+
+/** Widths of "Environments" and "Tasks" tab labels. */
+const APP_TAB_PLACEHOLDERS = ["w-[5.75rem]", "w-[2.25rem]"];
 
 /** Link tabs for every project page: Overview, installed app pages, Apps. */
 export function useProjectTabs(slug: string) {
   const pathname = usePathname() ?? "";
-  const { installed } = useProjectApps(slug);
+  const { installed, isLoading } = useProjectApps(slug);
   const base = `/p/${slug}`;
 
   const tabs = useMemo<PageHeaderTab[]>(
     () => [
       { value: "overview", label: "Overview", href: base },
+      // Reserve the app-tab slots while installs load so tabs don't slide.
+      ...(isLoading
+        ? APP_TAB_PLACEHOLDERS.map((w, i) => ({
+            value: `__loading-${String(i)}`,
+            label: <Skeleton className={`h-3 ${w}`} />,
+            disabled: true,
+          }))
+        : []),
       ...installed.flatMap((app) =>
         app.nav.map((n) => ({
           value: n.path,
@@ -23,7 +35,7 @@ export function useProjectTabs(slug: string) {
       ),
       { value: "apps", label: "Apps", href: `${base}/apps` },
     ],
-    [base, installed],
+    [base, installed, isLoading],
   );
 
   const rest = pathname.startsWith(base)

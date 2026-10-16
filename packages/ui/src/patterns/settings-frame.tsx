@@ -1,25 +1,22 @@
 "use client";
 
-import { ArrowLeft, Check, Copy } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import type React from "react";
 import { type ReactNode, useState } from "react";
 
 import {
-  pageHeaderActionsClass,
-  pageHeaderBackClass,
-  pageHeaderDescriptionClass,
-  pageHeaderMetaRowClass,
-  pageHeaderRootClass,
   pageHeaderTabActiveClass,
   pageHeaderTabClass,
   pageHeaderTabInactiveClass,
   pageHeaderTabsListClass,
   pageHeaderTabsRowClass,
-  pageHeaderTitleClass,
-  pageHeaderTitleRowClass,
-  pageHeaderTopRowClass,
 } from "../lib/page-header-classes";
 import { cn } from "../lib/utils";
+import {
+  PageHeaderBackLink,
+  PageHeaderLayout,
+  PageHeaderTabsRow,
+} from "./page-header";
 
 /**
  * Settings page frame: blends ReUI form-5 (centered container, back link,
@@ -119,6 +116,8 @@ export type SettingsFrameProps = {
   avatar?: { src?: string | null; name?: string | null };
   title: ReactNode;
   subtitle?: ReactNode;
+  /** Owner name shown in the meta row next to the avatar. */
+  identity?: ReactNode;
   description?: ReactNode;
   /** Meta row content (badges, links); defaults to `subtitle`. */
   meta?: ReactNode;
@@ -137,6 +136,7 @@ export function SettingsFrame({
   avatar,
   title,
   subtitle,
+  identity,
   description,
   meta,
   actions,
@@ -146,63 +146,54 @@ export function SettingsFrame({
   aside,
   children,
 }: SettingsFrameProps) {
-  const L = LinkComponent as React.ElementType;
-  const backClass = cn(
-    pageHeaderBackClass,
-    "inline-flex items-center justify-center rounded-md border bg-background text-foreground shadow-xs/5 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-  );
+  const metaContent =
+    meta ??
+    (avatar || identity || subtitle ? (
+      <span className="flex min-w-0 items-center gap-1.5">
+        {avatar ? (
+          <SettingsAvatar
+            src={avatar.src}
+            name={avatar.name}
+            className="size-5 text-[9px]"
+          />
+        ) : null}
+        {identity ? (
+          <span className="truncate font-medium text-foreground">
+            {identity}
+          </span>
+        ) : null}
+        {subtitle ? (
+          <span className="truncate font-mono">{subtitle}</span>
+        ) : null}
+      </span>
+    ) : null);
   return (
     <div data-testid="settings-frame" className="w-full min-w-0 space-y-6">
-      <header className={pageHeaderRootClass} data-slot="page-header">
-        <div className={pageHeaderTopRowClass}>
-          {back ? (
-            <L
-              href={back.href}
-              className={backClass}
-              aria-label={back.label}
-              title={back.label}
-            >
-              <ArrowLeft className="size-4" aria-hidden />
-            </L>
-          ) : (
-            <button
-              type="button"
-              className={backClass}
-              aria-label="Back"
-              onClick={() => window.history.back()}
-            >
-              <ArrowLeft className="size-4" aria-hidden />
-            </button>
-          )}
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <div className={pageHeaderTitleRowClass}>
-              {avatar ? (
-                <SettingsAvatar
-                  src={avatar.src}
-                  name={avatar.name}
-                  className="size-6 text-[10px]"
-                />
-              ) : null}
-              <h1 className={pageHeaderTitleClass}>{title}</h1>
-            </div>
-            {description ? (
-              <p className={cn(pageHeaderDescriptionClass, "line-clamp-2")}>
-                {description}
-              </p>
-            ) : null}
-          </div>
-          {actions ? (
-            <div className={pageHeaderActionsClass}>{actions}</div>
-          ) : null}
-        </div>
-        <div className={pageHeaderMetaRowClass} data-slot="page-header-meta">
-          {meta ??
-            (subtitle ? (
-              <span className="truncate font-mono">{subtitle}</span>
-            ) : null)}
-        </div>
-        <SettingsTabs tabs={tabs ?? []} LinkComponent={LinkComponent} />
-      </header>
+      <PageHeaderLayout
+        back={
+          <PageHeaderBackLink href={back?.href} LinkComponent={LinkComponent} />
+        }
+        title={title}
+        description={description}
+        actions={actions}
+        meta={metaContent}
+        tabs={
+          <PageHeaderTabsRow
+            LinkComponent={LinkComponent}
+            tabs={(tabs ?? []).map((t) => ({
+              value: t.href,
+              href: t.href,
+              label: (
+                <>
+                  {t.icon}
+                  {t.label}
+                </>
+              ),
+            }))}
+            activeTab={tabs?.find((t) => t.active)?.href}
+          />
+        }
+      />
       {top}
       {aside ? (
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]">

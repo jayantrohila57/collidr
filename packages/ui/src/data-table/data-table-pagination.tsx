@@ -1,9 +1,9 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { layoutGapClass } from "@/lib/layout-spacing";
-import { cn } from "@/lib/utils";
+import { Button } from "../components/ui/button";
+import { layoutGapClass } from "../lib/layout-spacing";
+import { cn } from "../lib/utils";
 
 type PaginatedTable = {
   getPageCount: () => number;
@@ -26,7 +26,10 @@ export function DataTablePagination({
 }) {
   // Always rendered so the table never changes height between states.
   const pageCount = Math.max(table.getPageCount(), 1);
-  const pageIndex = Math.min(table.getState().pagination.pageIndex, pageCount - 1);
+  const pageIndex = Math.min(
+    table.getState().pagination.pageIndex,
+    pageCount - 1,
+  );
 
   return (
     <div

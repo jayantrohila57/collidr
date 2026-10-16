@@ -1,9 +1,13 @@
 "use client";
 
+import {
+  DataTable,
+  type DataTableColumnDef,
+} from "@loftlancer/ui/data-table/data-table";
+import { DataTableActionsColumnHeader } from "@loftlancer/ui/data-table/data-table-actions-column";
 import { Monitor, MonitorSmartphone, Smartphone, Tablet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { formatDateTime } from "@/lib/format";
 import { formatRelativeShort } from "@/lib/format-relative-short";
@@ -29,41 +33,41 @@ const DEVICE_ICONS: Record<SessionDeviceKind, typeof Monitor> = {
   unknown: MonitorSmartphone,
 };
 
-const ROW_CLASS = "flex min-h-14 items-center gap-3 px-4 py-2.5";
+type SessionsTableProps = {
+  sessions: AuthSessionRow[];
+  currentToken?: string;
+  pendingToken?: string | null;
+  disabled?: boolean;
+  isLoading?: boolean;
+  isError?: boolean;
+  errorDescription?: string;
+  onRevoke: (token: string) => void;
+};
 
-/** Skeleton mirroring {@link SessionsList} rows (zero layout shift). */
+/** Loading state: the shared table skeleton at the same size. */
 export function SessionsListSkeleton({ rows = 2 }: { rows?: number }) {
   return (
-    <ul className="divide-y divide-border/60" aria-busy>
-      {Array.from({ length: rows }, (_, i) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton rows
-        <li key={i} className={ROW_CLASS}>
-          <Skeleton className="size-8 shrink-0 rounded-lg" />
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-            <Skeleton className="h-4 w-36" />
-            <Skeleton className="h-3 w-48" />
-          </div>
-          <Skeleton className="h-8 w-20 shrink-0" />
-        </li>
-      ))}
-    </ul>
+    <SessionsList
+      sessions={[]}
+      isLoading
+      skeletonRows={rows}
+      onRevoke={() => {}}
+    />
   );
 }
 
-/** Session rows after reui settings-10: device, IP, last active, Current badge. */
+/** Account sessions on the shared @loftlancer/ui DataTable (#290). */
 export function SessionsList({
   sessions,
   currentToken,
   pendingToken,
   disabled,
+  isLoading,
+  isError,
+  errorDescription,
   onRevoke,
-}: {
-  sessions: AuthSessionRow[];
-  currentToken?: string;
-  pendingToken?: string | null;
-  disabled?: boolean;
-  onRevoke: (token: string) => void;
-}) {
+  skeletonRows = 2,
+}: SessionsTableProps & { skeletonRows?: number }) {
   const ordered = [...sessions].sort((a, b) => {
     if (a.token === currentToken) return -1;
     if (b.token === currentToken) return 1;
@@ -72,56 +76,98 @@ export function SessionsList({
       new Date(String(a.updatedAt ?? a.createdAt ?? 0)).getTime()
     );
   });
-  return (
-    <ul className="divide-y divide-border/60">
-      {ordered.map((row) => {
-        const isCurrent = row.token === currentToken;
-        const lastActive = row.updatedAt ?? row.createdAt;
-        const Icon = DEVICE_ICONS[parseSessionDevice(row.userAgent).kind];
-        const pending = pendingToken === row.token;
+  const columns: DataTableColumnDef<AuthSessionRow>[] = [
+    {
+      id: "device",
+      header: "Device",
+      cell: ({ row }) => {
+        const r = row.original;
+        const Icon = DEVICE_ICONS[parseSessionDevice(r.userAgent).kind];
         return (
-          <li key={row.token} className={ROW_CLASS}>
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted ring-1 ring-border/60">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted ring-1 ring-border/60">
               <Icon className="size-4 text-muted-foreground" aria-hidden />
             </span>
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <div className="flex min-w-0 items-center gap-1.5">
-                <p className="truncate font-medium text-sm">
-                  {sessionDeviceLabel(row.userAgent)}
-                </p>
-                {isCurrent ? (
-                  <Badge variant="secondary" className="shrink-0">
-                    Current
-                  </Badge>
-                ) : null}
-              </div>
-              <p className="flex min-w-0 flex-wrap gap-x-3 gap-y-0.5 text-muted-foreground text-xs">
-                <span className="tabular-nums">
-                  {row.ipAddress ? row.ipAddress : "IP unknown"}
-                </span>
-                {lastActive ? (
-                  <span title={formatDateTime(String(lastActive))}>
-                    {isCurrent
-                      ? "Active now"
-                      : `Last active ${formatRelativeShort(String(lastActive))}`}
-                  </span>
-                ) : null}
-              </p>
-            </div>
+            <span className="truncate font-medium">
+              {sessionDeviceLabel(r.userAgent)}
+            </span>
+            {r.token === currentToken ? (
+              <Badge variant="secondary" className="shrink-0">
+                Current
+              </Badge>
+            ) : null}
+          </div>
+        );
+      },
+    },
+    {
+      id: "ip",
+      header: "IP address",
+      cell: ({ row }) => (
+        <span className="text-muted-foreground tabular-nums">
+          {row.original.ipAddress || "Unknown"}
+        </span>
+      ),
+    },
+    {
+      id: "lastActive",
+      header: "Last active",
+      cell: ({ row }) => {
+        const r = row.original;
+        const last = r.updatedAt ?? r.createdAt;
+        if (!last) return <span className="text-muted-foreground">—</span>;
+        return (
+          <span
+            className="text-muted-foreground"
+            title={formatDateTime(String(last))}
+          >
+            {r.token === currentToken
+              ? "Active now"
+              : formatRelativeShort(String(last))}
+          </span>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: () => <DataTableActionsColumnHeader />,
+      cell: ({ row }) => {
+        const r = row.original;
+        const pending = pendingToken === r.token;
+        return (
+          <div className="flex justify-end">
             <Button
               type="button"
               size="sm"
               variant="outline"
-              className="w-20 shrink-0"
+              className="h-8 w-20 shrink-0"
               disabled={disabled || pending}
-              onClick={() => onRevoke(row.token)}
+              onClick={() => onRevoke(r.token)}
             >
               {pending ? <Spinner className="size-3.5" /> : null}
-              {isCurrent ? "Sign out" : "Revoke"}
+              {r.token === currentToken ? "Sign out" : "Revoke"}
             </Button>
-          </li>
+          </div>
         );
-      })}
-    </ul>
+      },
+    },
+  ];
+  return (
+    <DataTable
+      framed
+      columns={columns}
+      data={ordered}
+      isLoading={isLoading}
+      isError={isError}
+      errorTitle="Could not load sessions"
+      errorDescription={errorDescription}
+      skeletonRowCount={skeletonRows}
+      empty={{
+        empty: {
+          title: "No active sessions",
+          description: "Sign in again to refresh this list.",
+        },
+      }}
+    />
   );
 }

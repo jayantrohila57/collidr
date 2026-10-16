@@ -9,8 +9,8 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty";
-import { cn } from "@/lib/utils";
+} from "../components/ui/empty";
+import { cn } from "../lib/utils";
 
 export function DataTableEmpty({
   icon: Icon,
