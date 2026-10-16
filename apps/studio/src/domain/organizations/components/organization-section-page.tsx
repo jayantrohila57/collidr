@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { notFound, usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import {
   Activity,
@@ -105,9 +106,21 @@ export function OrganizationSectionPage({
     <SettingsFrame
       LinkComponent={Link as never}
       back={{ href: base, label: "Organization overview" }}
-      avatar={{ src: organization?.logo, name: organization?.name ?? slug }}
-      title={organization?.name ?? slug}
-      subtitle={`/${organization?.slug ?? slug}`}
+      avatar={{ src: organization?.logo, name: organization?.name ?? null }}
+      title={
+        organization ? (
+          organization.name
+        ) : (
+          <Skeleton className="inline-block h-5 w-40 align-middle" />
+        )
+      }
+      subtitle={
+        organization ? (
+          `/${organization.slug}`
+        ) : (
+          <Skeleton className="inline-block h-3.5 w-24 align-middle" />
+        )
+      }
       actions={action}
       tabs={tabs}
       top={

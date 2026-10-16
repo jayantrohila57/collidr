@@ -480,6 +480,37 @@ export async function mcpTeamsList(userId: string, organizationId: string) {
   return { items: rows };
 }
 
+export async function teamMembersList(
+  userId: string,
+  organizationId: string,
+  teamId: string,
+) {
+  await requireAction("member.list", { userId, organizationId });
+  const [row] = await db
+    .select({ id: team.id })
+    .from(team)
+    .where(
+      and(
+        eq(team.id, teamId),
+        eq(team.organizationId, organizationId),
+        isNull(team.deletedAt),
+      ),
+    )
+    .limit(1);
+  if (!row) {
+    throw new Error("Team not found");
+  }
+  const rows = await db
+    .select({
+      id: teamMember.id,
+      userId: teamMember.userId,
+      teamId: teamMember.teamId,
+    })
+    .from(teamMember)
+    .where(eq(teamMember.teamId, teamId));
+  return { items: rows };
+}
+
 export async function mcpTeamCreate(
   userId: string,
   organizationId: string,

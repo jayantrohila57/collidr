@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentType, ReactNode } from "react";
+import { headerIconButtonClassName } from "../lib/utils";
 import { DashboardInsetContainer } from "./dashboard-inset-container";
 import { DashboardPageHeaderBar, DashboardPageHeaderRow } from "./page-chrome";
 import { DashboardShellMain } from "./shell-main";
@@ -14,7 +15,10 @@ export type DashboardShellUiComponents = {
     className?: string;
     children: ReactNode;
   }>;
-  SidebarTrigger: ComponentType<{ className?: string }>;
+  SidebarTrigger: ComponentType<{
+    className?: string;
+    variant?: "outline";
+  }>;
   Separator: ComponentType<{
     orientation?: "horizontal" | "vertical";
     className?: string;
@@ -50,7 +54,10 @@ export function DashboardAppShell({
           <DashboardInsetContainer>
             <DashboardPageHeaderRow>
               <div className="flex min-w-0 flex-1 items-center gap-1.5">
-                <SidebarTrigger className="size-8 shrink-0 rounded-md" />
+                <SidebarTrigger
+                  variant="outline"
+                  className={headerIconButtonClassName}
+                />
                 <Separator
                   orientation="vertical"
                   className="my-auto hidden h-4 lg:block"

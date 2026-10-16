@@ -2,9 +2,11 @@
 
 import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
 
-import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";
+import { ErrorState } from "@/components/patterns/error-state";
 import { FormField } from "@/components/patterns/form-field";
 import {
   FormSheet,
@@ -28,6 +30,7 @@ import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { authClient, MEMBER_PAGE_LIMIT } from "@/lib/auth-client";
 import { appIcons } from "@/lib/icons";
 import { toast } from "@/lib/toast";
+import { trpc } from "@/utils/trpc";
 
 type OrgMemberRow = {
   id: string;
@@ -41,9 +44,6 @@ type TeamMemberRow = {
 };
 
 type OrganizationTeamsClient = {
-  listTeamMembers?: (input: {
-    query: { teamId: string };
-  }) => Promise<{ data?: TeamMemberRow[] } | TeamMemberRow[]>;
   addTeamMember?: (input: {
     teamId: string;
     userId: string;
@@ -53,14 +53,6 @@ type OrganizationTeamsClient = {
     userId: string;
   }) => Promise<unknown>;
 };
-
-function unwrapTeamMembers(
-  result: { data?: TeamMemberRow[] } | TeamMemberRow[] | undefined,
-): TeamMemberRow[] {
-  if (!result) return [];
-  if (Array.isArray(result)) return result;
-  return result.data ?? [];
-}
 
 type TeamMembersSheetProps = {
   organizationId: string;
@@ -79,57 +71,46 @@ export function TeamMembersSheet({
   const { allowed: canAdd } = useCan("team.member.add");
   const { allowed: canRemove } = useCan("team.member.remove");
 
-  const [loading, setLoading] = useState(false);
-  const [orgMembers, setOrgMembers] = useState<OrgMemberRow[]>([]);
-  const [teamMembers, setTeamMembers] = useState<TeamMemberRow[]>([]);
-  const [listBlocked, setListBlocked] = useState(false);
+  const queryClient = useQueryClient();
   const [addUserId, setAddUserId] = useState("");
   const [addPending, setAddPending] = useState(false);
   const [removingUserId, setRemovingUserId] = useState<string | null>(null);
 
-  const loadMembers = useCallback(async () => {
-    if (!teamsClient.listTeamMembers) {
-      setListBlocked(true);
-      setTeamMembers([]);
-      return;
-    }
-    try {
-      const result = await teamsClient.listTeamMembers({
-        query: { teamId: team.id },
-      });
-      setTeamMembers(unwrapTeamMembers(result));
-      setListBlocked(false);
-    } catch {
-      setListBlocked(true);
-      setTeamMembers([]);
-    }
-  }, [team.id, teamsClient.listTeamMembers]);
-
-  const loadOrgMembers = useCallback(async () => {
-    const list = await authClient.organization.listMembers({
-      query: { organizationId, limit: MEMBER_PAGE_LIMIT },
-    });
-    setOrgMembers((list.data?.members ?? []) as OrgMemberRow[]);
-  }, [organizationId]);
-
   useEffect(() => {
-    if (!open) {
-      setAddUserId("");
-      return;
-    }
-    let cancelled = false;
-    setLoading(true);
-    void (async () => {
-      try {
-        await Promise.all([loadOrgMembers(), loadMembers()]);
-      } finally {
-        if (!cancelled) setLoading(false);
+    if (!open) setAddUserId("");
+  }, [open]);
+
+  const teamMembersQueryOptions = trpc.teams.members.queryOptions(
+    { teamId: team.id },
+    { enabled: open, retry: false, refetchOnWindowFocus: false },
+  );
+  const teamMembersQuery = useQuery(teamMembersQueryOptions);
+  const orgMembersQuery = useQuery({
+    queryKey: ["team-members-sheet", "org-members", organizationId],
+    enabled: open,
+    retry: false,
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const list = await authClient.organization.listMembers({
+        query: { organizationId, limit: MEMBER_PAGE_LIMIT },
+      });
+      if (list.error) {
+        throw new Error(list.error.message ?? "Could not load members");
       }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [open, loadMembers, loadOrgMembers]);
+      return (list.data?.members ?? []) as OrgMemberRow[];
+    },
+  });
+
+  const loading = teamMembersQuery.isPending || orgMembersQuery.isPending;
+  const loadError = teamMembersQuery.error ?? orgMembersQuery.error;
+  const orgMembers = orgMembersQuery.data ?? [];
+  const teamMembers: TeamMemberRow[] = teamMembersQuery.data?.items ?? [];
+
+  const loadMembers = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: teamMembersQueryOptions.queryKey,
+    });
+  };
 
   const memberByUserId = new Map(
     orgMembers
@@ -199,15 +180,14 @@ export function TeamMembersSheet({
             <SettingsPanelSkeleton rows={3} />
           ) : (
             <div className="flex flex-col gap-6">
-              {listBlocked && teamMembers.length === 0 ? (
-                <EmptyState
-                  icon={appIcons.member}
-                  title="Members hidden"
-                  description={
-                    canAdd
-                      ? "Add a member below to view the team roster, or join this team from another account."
-                      : "You must belong to this team to view its members."
-                  }
+              {loadError ? (
+                <ErrorState
+                  title="Could not load team members"
+                  description={loadError.message}
+                  onRetry={() => {
+                    void teamMembersQuery.refetch();
+                    void orgMembersQuery.refetch();
+                  }}
                 />
               ) : teamMembers.length === 0 ? (
                 <EmptyState
@@ -259,7 +239,7 @@ export function TeamMembersSheet({
                 </Table>
               )}
 
-              {canAdd && addableMembers.length > 0 ? (
+              {!loadError && canAdd && addableMembers.length > 0 ? (
                 <div className="flex flex-col gap-3">
                   <FormField id="team-add-member" label="Add member">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
