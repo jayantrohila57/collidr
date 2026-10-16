@@ -1,7 +1,6 @@
 "use client";
 
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
-import type { Route } from "next";
 import Link from "next/link";
 import type { OrgListItem } from "@/components/org/active-organization-context";
 import { AppIcon } from "@/components/patterns/app-icon";
@@ -10,6 +9,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { initialsFromLabel } from "@/lib/initials";
 import { isPersonalOrganization } from "@/lib/org-personal";
+
+import { routes } from "@/utils/navigation";
 
 const columnHelper = legacyCreateColumnHelper<OrgListItem>();
 
@@ -21,7 +22,7 @@ export function createOrganizationsTableColumns(
       header: "Organization",
       cell: ({ row }) => {
         const org = row.original;
-        const href = `/dashboard/organizations/${org.slug}` as Route;
+        const href = routes.org(org.slug);
         return (
           <TableLeadingCell
             leading={
@@ -62,7 +63,7 @@ export function createOrganizationsTableColumns(
       header: "",
       cell: ({ row }) => {
         const org = row.original;
-        const href = `/dashboard/organizations/${org.slug}` as Route;
+        const href = routes.org(org.slug);
         return (
           <Button
             type="button"

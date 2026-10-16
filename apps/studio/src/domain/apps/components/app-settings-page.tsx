@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Route } from "next";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
@@ -14,14 +13,16 @@ import { useProjectTabs } from "@/domain/projects/hooks/use-project-tabs";
 import { FieldSelect } from "@/domain/tasks/components/field-select";
 import { actionToast } from "@/lib/action-toast";
 import { LayoutGrid } from "@/lib/icons";
+import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";
+import { useOrgSlug } from "@/utils/use-route-scope";
 import { useProjectApps } from "../hooks/use-project-apps";
 import { AppGlyph } from "./app-glyph";
 
 const cardClass =
   "flex flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-border/60";
 
-/** /p/[slug]/apps/[app] — details, real manifest settings, uninstall (#258). */
+/** /[org]/[project]/[app]/settings — details, real manifest settings, uninstall (#258). */
 export function AppSettingsPage({
   slug,
   appId,
@@ -29,6 +30,7 @@ export function AppSettingsPage({
   slug: string;
   appId: string;
 }) {
+  const org = useOrgSlug();
   const queryClient = useQueryClient();
   const {
     project,
@@ -54,7 +56,7 @@ export function AppSettingsPage({
         queryKey: trpc.projectApps.list.pathKey(),
       }),
   });
-  const back = `/p/${slug}/apps` as Route;
+  const back = routes.projectSection(org, slug, "apps");
 
   if (isLoading) {
     return (
@@ -78,7 +80,7 @@ export function AppSettingsPage({
               : "This app doesn't exist."
           }
           actionLabel="Go to Apps"
-          actionHref={`/p/${slug}/apps`}
+          actionHref={routes.projectSection(org, slug, "apps")}
         />
       </DashboardSection>
     );
@@ -93,7 +95,7 @@ export function AppSettingsPage({
   const customized = app.settingsSchema.some(
     (d) => app.settings[d.key] !== d.default,
   );
-  const openHref = `/p/${slug}/${app.nav[0]?.path ?? app.id}` as Route;
+  const openHref = routes.app(org, slug, app.nav[0]?.path ?? app.id);
 
   return (
     <DashboardSection

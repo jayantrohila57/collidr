@@ -1,10 +1,11 @@
 "use client";
 
-import type { Route } from "next";
 import { ErrorState } from "@/components/patterns/error-state";
 import DashboardSection from "@/components/section-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProjectTabs } from "@/domain/projects/hooks/use-project-tabs";
+import { routes } from "@/utils/navigation";
+import { useOrgSlug } from "@/utils/use-route-scope";
 import { useProjectApps } from "../hooks/use-project-apps";
 import { AppCard } from "./app-card";
 
@@ -24,7 +25,7 @@ export function AppGridSkeleton({ count = 2 }: { count?: number }) {
   );
 }
 
-/** /p/[slug]/apps — app directory for one project. */
+/** /[org]/[project]/apps — app directory for one project. */
 export function ProjectAppsDirectory({ slug }: { slug: string }) {
   const {
     project,
@@ -36,6 +37,7 @@ export function ProjectAppsDirectory({ slug }: { slug: string }) {
     uninstall,
     isMutating,
   } = useProjectApps(slug);
+  const org = useOrgSlug();
   const projectTabs = useProjectTabs(slug);
 
   return (
@@ -43,7 +45,7 @@ export function ProjectAppsDirectory({ slug }: { slug: string }) {
       {...projectTabs}
       title="Apps"
       description="Install apps to add features to this project. Apps are per project."
-      back={`/p/${slug}` as Route}
+      back={routes.project(org, slug)}
     >
       {isLoading ? (
         <AppGridSkeleton />

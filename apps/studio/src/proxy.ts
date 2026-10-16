@@ -1,7 +1,9 @@
 import { platformSessionMiddleware } from "@loftlancer/auth/platform-middleware";
 import { DEFAULT_STUDIO_URL } from "@loftlancer/env/platform";
 import { resolvePublicServiceUrl } from "@loftlancer/env/vercel-services";
+import { isReservedOrgSlug } from "@loftlancer/ui/studio-routes";
 import { type NextRequest, NextResponse } from "next/server";
+import { siblingAuth } from "@/lib/sibling-auth";
 
 const appOrigin = (
   process.env.NEXT_PUBLIC_STUDIO_URL ??
@@ -10,37 +12,82 @@ const appOrigin = (
     : DEFAULT_STUDIO_URL)
 ).replace(/\/$/, "");
 
-export function proxy(request: NextRequest) {
+/**
+ * The URL org is the source of truth (#299). Before rendering /[org]/…, make
+ * the session's active org match it, so tRPC and server guards read the same
+ * org. Cheap: getSession hits the cookie cache; setActive only runs on a
+ * mismatch (one extra hop, then the same URL again).
+ */
+async function syncActiveOrganization(
+  request: NextRequest,
+  orgSlug: string,
+): Promise<NextResponse | undefined> {
+  const session = await siblingAuth.api
+    .getSession({ headers: request.headers })
+    .catch(() => null);
+  if (!session) return undefined;
+  const activeId = (session.session as { activeOrganizationId?: string | null })
+    .activeOrganizationId;
+  const synced = request.cookies.get("ll_org")?.value;
+  if (activeId && synced === `${orgSlug}:${activeId}`) return undefined;
+
+  const result = await siblingAuth.api
+    .setActiveOrganization({
+      headers: request.headers,
+      body: { organizationSlug: orgSlug },
+      asResponse: true,
+    })
+    .catch(() => null);
+  // Not a member (or no such org): let the org layout render its 404.
+  if (!result?.ok) return undefined;
+  const body = (await result
+    .clone()
+    .json()
+    .catch(() => null)) as {
+    id?: string;
+  } | null;
+  if (body?.id && body.id === activeId) {
+    const response = NextResponse.next();
+    response.cookies.set("ll_org", `${orgSlug}:${body.id}`, {
+      path: "/",
+      sameSite: "lax",
+      httpOnly: true,
+      secure: request.nextUrl.protocol === "https:",
+    });
+    response.headers.set("x-pathname", request.nextUrl.pathname);
+    return response;
+  }
+  const response = NextResponse.redirect(request.nextUrl);
+  for (const cookie of result.headers.getSetCookie()) {
+    response.headers.append("set-cookie", cookie);
+  }
+  if (body?.id) {
+    response.cookies.set("ll_org", `${orgSlug}:${body.id}`, {
+      path: "/",
+      sameSite: "lax",
+      httpOnly: true,
+      secure: request.nextUrl.protocol === "https:",
+    });
+  }
+  return response;
+}
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/sign-in")) {
-    const params = new URLSearchParams(request.nextUrl.search);
-    const legacyRedirect = params.get("redirect");
-    const returnPath =
-      legacyRedirect?.startsWith("/") && !legacyRedirect.startsWith("//")
-        ? legacyRedirect
-        : "/dashboard";
-    const returnTo = `${appOrigin}${returnPath}`;
-    const authBase = resolvePublicServiceUrl("auth").replace(/\/$/, "");
-    const signIn = new URL(`${authBase}/sign-in`);
-    signIn.searchParams.set("return_to", returnTo);
-    return NextResponse.redirect(signIn.toString());
-  }
-
-  if (pathname.startsWith("/dashboard/settings")) {
-    const accountBase = resolvePublicServiceUrl("auth").replace(/\/$/, "");
-    const suffix = pathname.replace("/dashboard/settings", "/settings");
-    return NextResponse.redirect(
-      `${accountBase}${suffix}${request.nextUrl.search}`,
-    );
-  }
-
+  // Everything in studio needs a session; signed-out visitors go to the landing.
   const gated = platformSessionMiddleware(request, {
     appOrigin,
-    protectedPrefixes: ["/dashboard"],
+    protectedPrefixes: ["/"],
   });
   if (gated) {
     return gated;
+  }
+
+  const first = pathname.split("/")[1] ?? "";
+  if (first && !isReservedOrgSlug(first)) {
+    const synced = await syncActiveOrganization(request, first);
+    if (synced) return synced;
   }
 
   const response = NextResponse.next();
@@ -49,5 +96,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/sign-in", "/sign-in/:path*"],
+  // All pages; not API routes, Next internals or static files.
+  matcher: ["/((?!api/|_next/|.*\\.[a-zA-Z0-9]+$).*)"],
 };

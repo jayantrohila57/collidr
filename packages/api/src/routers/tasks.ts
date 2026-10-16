@@ -1,7 +1,7 @@
 import { resolveAppSettings, tasksApp } from "@loftlancer/actions";
 import { activeMemberWhere, db } from "@loftlancer/db";
 import { user } from "@loftlancer/db/schema/auth";
-import { member } from "@loftlancer/db/schema/organization";
+import { member, organization } from "@loftlancer/db/schema/organization";
 import {
   projectApp,
   task,
@@ -65,8 +65,10 @@ async function projectInfo(projectId: string) {
       slug: project.slug,
       name: project.name,
       organizationId: project.organizationId,
+      organizationSlug: organization.slug,
     })
     .from(project)
+    .leftJoin(organization, eq(organization.id, project.organizationId))
     .where(eq(project.id, projectId))
     .limit(1);
   return p;
@@ -91,6 +93,7 @@ async function notifyTask(
     organizationId: p.organizationId,
     entity: { type: "task", id: t.id },
     data: {
+      organizationSlug: p.organizationSlug ?? undefined,
       projectSlug: p.slug,
       projectName: p.name,
       taskId: t.id,

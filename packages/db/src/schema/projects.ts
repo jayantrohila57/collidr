@@ -46,8 +46,9 @@ export const project = pgTable(
     }),
   },
   (table) => [
-    uniqueIndex("project_slug_active_uidx")
-      .on(table.slug)
+    // Per-org slugs (#301): URLs are /[org]/[project].
+    uniqueIndex("project_org_slug_active_uidx")
+      .on(table.organizationId, table.slug)
       .where(sql`${table.deletedAt} IS NULL`),
     index("project_userId_idx").on(table.userId),
     index("project_slug_idx").on(table.slug),

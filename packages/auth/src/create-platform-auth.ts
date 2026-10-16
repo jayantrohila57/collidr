@@ -10,11 +10,11 @@ import { deviceAuthorization, jwt, oneTimeToken } from "better-auth/plugins";
 import {
   coreAuthPlugins,
   platformDatabaseConfig,
-  withNextCookies,
   sharedAuthAdvanced,
   sharedDatabaseHooks,
   sharedE2eEmailPassword,
   sharedSessionConfig,
+  withNextCookies,
 } from "./auth-shared";
 import {
   DEFAULT_AUTH_URL,
@@ -40,7 +40,7 @@ function buildMcpPlugins(): BetterAuthPlugin[] {
 
   return [
     mcp({
-      loginPage: "/sign-in",
+      loginPage: "/",
       consentPage: "/consent",
       resource: mcpResource,
       scopes: [...MCP_OAUTH_SCOPES],

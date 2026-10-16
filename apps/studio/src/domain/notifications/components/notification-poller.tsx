@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { withBasePath } from "@/lib/base-path";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { toast } from "@/lib/toast";
+import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";
 import { NOTIFICATIONS_POLL_MS } from "../constants";
 
@@ -69,7 +70,7 @@ export function NotificationPoller() {
         action: {
           label: "View all",
           onClick: () => {
-            window.location.assign(withBasePath("/dashboard/notifications"));
+            window.location.assign(withBasePath(routes.notifications()));
           },
         },
       });

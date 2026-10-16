@@ -1,9 +1,10 @@
 "use client";
 
-import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+
+import { routes } from "@/utils/navigation";
 
 export function OrganizationsFeatureGate({
   children,
@@ -14,7 +15,7 @@ export function OrganizationsFeatureGate({
 
   useEffect(() => {
     if (!isOrganizationsEnabledOnClient()) {
-      router.replace("/dashboard" as Route);
+      router.replace(routes.home());
     }
   }, [router]);
 

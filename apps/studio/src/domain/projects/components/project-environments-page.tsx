@@ -1,12 +1,13 @@
 "use client";
 
-import type { Route } from "next";
 import { ErrorState } from "@/components/patterns/error-state";
 import DashboardSection from "@/components/section-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CreateEnvironmentSheet } from "@/domain/environments/components/create-environment-sheet";
 import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
 import { useEnvironments } from "@/domain/environments/hooks/use-environments";
+import { routes } from "@/utils/navigation";
+import { useOrgSlug } from "@/utils/use-route-scope";
 import { useProjectTabs } from "../hooks/use-project-tabs";
 import ProjectDetail from "./project-detail";
 
@@ -43,7 +44,8 @@ export default function ProjectEnvironmentsPage({
     createEnvironment,
     isCreating,
   } = useEnvironments(slug);
-  const backHref = `/p/${slug}` as Route;
+  const org = useOrgSlug();
+  const backHref = routes.project(org, slug);
   const projectTabs = useProjectTabs(slug);
 
   const showHeaderAction = Boolean(projectId && environments.length > 0);

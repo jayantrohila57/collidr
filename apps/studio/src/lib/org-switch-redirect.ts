@@ -1,32 +1,41 @@
+import {
+  isReservedOrgSlug,
+  isReservedProjectSlug,
+} from "@loftlancer/ui/studio-routes";
 import type { Route } from "next";
 import type { OrgListItem } from "@/components/org/active-organization-context";
+import { routes } from "@/utils/navigation";
 
-const ORG_SECTION = /^\/dashboard\/organizations\/([^/]+)(\/.*)?$/;
-const PROJECT_SECTION = /^\/p\/([^/]+)(\/.*)?$/;
-
+/**
+ * Where to go after switching org (#299). The org is in the URL, so an
+ * org-scoped page moves to the same place in the new org; a project page
+ * keeps its path only when the new org has a project with that slug.
+ * User-level pages (support, notifications…) stay put.
+ */
 export function pathAfterOrganizationSwitch(
   pathname: string,
   nextOrg: OrgListItem | undefined,
   projectSlugs: ReadonlySet<string>,
 ): Route | null {
   if (!nextOrg) {
-    return "/dashboard" as Route;
+    return routes.home();
   }
-
-  const orgMatch = ORG_SECTION.exec(pathname);
-  if (orgMatch && orgMatch[1] !== nextOrg.slug) {
-    const rest = orgMatch[2] ?? "";
-    return `/dashboard/organizations/${nextOrg.slug}${rest}` as Route;
+  const parts = pathname.split("/").filter(Boolean);
+  const [orgSlug, second, ...rest] = parts;
+  if (!orgSlug || isReservedOrgSlug(orgSlug)) {
+    return null;
   }
-
-  const projectMatch = PROJECT_SECTION.exec(pathname);
-  if (projectMatch) {
-    const slug = projectMatch[1];
-    if (slug === "new") return null;
-    if (!projectSlugs.has(slug)) {
-      return "/dashboard/projects" as Route;
-    }
+  if (orgSlug === nextOrg.slug) {
+    return null;
   }
-
-  return null;
+  if (!second) {
+    return routes.org(nextOrg.slug);
+  }
+  if (isReservedProjectSlug(second)) {
+    return `/${[nextOrg.slug, second, ...rest].join("/")}` as Route;
+  }
+  if (projectSlugs.has(second)) {
+    return `/${[nextOrg.slug, second, ...rest].join("/")}` as Route;
+  }
+  return routes.projects(nextOrg.slug);
 }

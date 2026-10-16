@@ -1,43 +1,34 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import {
-  buildSignInUrl,
-  buildSignOutUrl,
-  defaultStudioReturnTo,
-} from "./auth-links";
+import { buildSignInUrl, landingUrl, studioHomeUrl } from "./auth-links";
 
-describe("defaultStudioReturnTo", () => {
+describe("studioHomeUrl", () => {
   it("uses explicit studio URL", () => {
     assert.equal(
-      defaultStudioReturnTo({ studioUrl: "https://studio.example.com" }),
-      "https://studio.example.com/dashboard",
+      studioHomeUrl({ studioUrl: "https://example.com/studio/" }),
+      "https://example.com/studio",
     );
   });
 });
 
-describe("buildSignOutUrl", () => {
-  it("builds sign-out with encoded return_to", () => {
-    const url = buildSignOutUrl({
-      authUrl: "https://auth.example.com",
-      returnTo: "https://studio.example.com/dashboard",
-    });
+describe("landingUrl", () => {
+  it("is the site root", () => {
     assert.equal(
-      url,
-      "https://auth.example.com/sign-out?return_to=https%3A%2F%2Fstudio.example.com%2Fdashboard",
+      landingUrl({ studioUrl: "https://example.com/studio" }),
+      "https://example.com/",
     );
   });
 });
 
 describe("buildSignInUrl", () => {
-  it("builds sign-in with encoded return_to", () => {
-    const url = buildSignInUrl({
-      authUrl: "https://auth.example.com",
-      returnTo: "https://studio.example.com/dashboard",
-    });
+  it("starts GitHub sign-in on the auth app, no return_to", () => {
     assert.equal(
-      url,
-      "https://auth.example.com/sign-in?return_to=https%3A%2F%2Fstudio.example.com%2Fdashboard",
+      buildSignInUrl({
+        authUrl: "https://example.com/auth",
+        returnTo: "https://example.com/studio/acme",
+      }),
+      "https://example.com/auth/api/sign-in/github",
     );
   });
 });

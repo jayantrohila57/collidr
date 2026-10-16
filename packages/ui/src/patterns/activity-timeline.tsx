@@ -48,6 +48,8 @@ export type AuditEventRow = {
   projectId: string | null;
   projectName: string | null;
   projectSlug: string | null;
+  /** Org the event belongs to; project links are /[org]/[project]. */
+  organizationSlug?: string | null;
   entityType: string | null;
   entitySlug: string | null;
   targetUserId: string | null;
@@ -86,11 +88,11 @@ function words(s: string) {
   return s.replace(/[_.]/g, " ").trim();
 }
 
-/** Map an audit row to a timeline item. `projectHref(slug)` builds app links. */
+/** Map an audit row to a timeline item. `projectHref(slug, orgSlug)` builds app links. */
 export function auditRowToActivityItem(
   row: AuditEventRow,
   opts: {
-    projectHref: (slug: string) => string;
+    projectHref: (slug: string, orgSlug: string | null) => string | null;
     memberHref?: (userId: string) => string | null;
   },
 ): ActivityItem {
@@ -111,7 +113,10 @@ export function auditRowToActivityItem(
       (category === "environment" || category === "variable") && row.entitySlug
         ? `${row.projectName ?? row.projectSlug} / ${row.entitySlug}`
         : (row.projectName ?? row.projectSlug);
-    target = { label, href: opts.projectHref(row.projectSlug) };
+    target = {
+      label,
+      href: opts.projectHref(row.projectSlug, row.organizationSlug ?? null),
+    };
   } else if (row.targetUserId) {
     target = {
       label: row.targetUserName ?? row.entitySlug ?? "member",

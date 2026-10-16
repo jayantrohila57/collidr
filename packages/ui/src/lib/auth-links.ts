@@ -3,8 +3,7 @@ import { resolvePublicServiceUrl } from "@loftlancer/env/vercel-services";
 const DEFAULT_AUTH_URL = "https://loftlancer.com/auth";
 const DEFAULT_STUDIO_URL = "https://loftlancer.com/studio";
 const DEFAULT_CONSOLE_URL = "https://loftlancer.com/studio";
-const DEFAULT_SUPPORT_URL =
-  "https://loftlancer.com/studio/dashboard/support/tickets";
+const DEFAULT_SUPPORT_URL = "https://loftlancer.com/studio/support/tickets";
 
 function authUrlDefault(): string {
   return process.env.VERCEL_SERVICES === "1"
@@ -37,21 +36,27 @@ export function defaultSupportReturnTo(env: PlatformUrlEnv = {}): string {
       process.env.NEXT_PUBLIC_SUPPORT_URL ??
       DEFAULT_SUPPORT_URL,
   );
-  return supportOrigin.includes("/dashboard/support")
+  return supportOrigin.includes("/support/tickets")
     ? supportOrigin
-    : `${supportOrigin}/dashboard/support/tickets`;
+    : `${supportOrigin}/support/tickets`;
 }
 
 function trimTrailingSlash(url: string): string {
   return url.endsWith("/") ? url.slice(0, -1) : url;
 }
 
-/** Absolute studio dashboard URL used as default `return_to` after sign-in. */
-export function defaultStudioReturnTo(env: PlatformUrlEnv = {}): string {
-  const studio = trimTrailingSlash(
+/** Absolute studio home (org list): where every sign-in lands (#302). */
+export function studioHomeUrl(env: PlatformUrlEnv = {}): string {
+  return trimTrailingSlash(
     env.studioUrl ?? process.env.NEXT_PUBLIC_STUDIO_URL ?? studioUrlDefault(),
   );
-  return `${studio}/dashboard`;
+}
+
+/** Public landing (site root, docs app). Signed-out studio visits land here. */
+export function landingUrl(env: PlatformUrlEnv = {}): string {
+  const docs = process.env.NEXT_PUBLIC_DOCS_URL?.trim();
+  if (docs && !env.studioUrl) return `${trimTrailingSlash(docs)}/`;
+  return new URL("/", `${studioHomeUrl(env)}/`).toString();
 }
 
 /**
@@ -64,30 +69,21 @@ export function defaultConsoleReturnTo(env: PlatformUrlEnv = {}): string {
       process.env.NEXT_PUBLIC_CONSOLE_URL ??
       consoleUrlDefault(),
   );
-  return `${consoleOrigin}/dashboard`;
+  return consoleOrigin;
 }
 
+/**
+ * Start GitHub sign-in directly (no sign-in screen, #302). A plain link: the
+ * auth app route starts the OAuth flow and GitHub returns to /studio.
+ * `returnTo` is ignored (no deep-link return by design).
+ */
 export function buildSignInUrl(
   options: PlatformUrlEnv & { returnTo?: string } = {},
 ): string {
   const auth = trimTrailingSlash(
     options.authUrl ?? process.env.NEXT_PUBLIC_AUTH_URL ?? authUrlDefault(),
   );
-  const returnTo = options.returnTo ?? defaultStudioReturnTo(options);
-  const params = new URLSearchParams({ return_to: returnTo });
-  return `${auth}/sign-in?${params.toString()}`;
-}
-
-/** Auth app sign-out with allowlisted `return_to` (revokes shared session). */
-export function buildSignOutUrl(
-  options: PlatformUrlEnv & { returnTo?: string } = {},
-): string {
-  const auth = trimTrailingSlash(
-    options.authUrl ?? process.env.NEXT_PUBLIC_AUTH_URL ?? authUrlDefault(),
-  );
-  const returnTo = options.returnTo ?? buildSignInUrl(options);
-  const params = new URLSearchParams({ return_to: returnTo });
-  return `${auth}/sign-out?${params.toString()}`;
+  return `${auth}/api/sign-in/github`;
 }
 
 export function resolveAuthAppOrigin(env: PlatformUrlEnv = {}): string {
@@ -96,12 +92,10 @@ export function resolveAuthAppOrigin(env: PlatformUrlEnv = {}): string {
   );
 }
 
-/** Post sign-out landing: sign-in for this app with dashboard as return target. */
+/** Post sign-out landing: the public site root. */
 export function defaultAppSignInAfterSignOut(
-  appOrigin: string,
+  _appOrigin: string,
   env: PlatformUrlEnv = {},
 ): string {
-  const origin = trimTrailingSlash(appOrigin);
-  const returnTo = `${origin}/dashboard`;
-  return buildSignInUrl({ ...env, returnTo });
+  return landingUrl(env);
 }

@@ -19,6 +19,7 @@ import {
   Users,
   UsersRound,
 } from "@/lib/icons";
+import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { ActivityOverview } from "./activity-overview";
@@ -88,7 +89,7 @@ export function OrganizationSectionPage({
     notFound();
   }
 
-  const base = `/dashboard/organizations/${slug}`;
+  const base = routes.org(slug);
   const tabs = [
     { href: base, label: "Overview", icon: <LayoutGrid /> },
     { href: `${base}/settings`, label: "General", icon: <Settings /> },
@@ -97,7 +98,7 @@ export function OrganizationSectionPage({
     { href: `${base}/teams`, label: "Teams", icon: <UsersRound /> },
     { href: `${base}/roles`, label: "Roles", icon: <KeyRound /> },
     ...(isActionsAuditEnabledOnClient()
-      ? [{ href: `${base}/timeline`, label: "Activity", icon: <Activity /> }]
+      ? [{ href: `${base}/activity`, label: "Activity", icon: <Activity /> }]
       : []),
   ].map((t) => ({ ...t, active: pathname === t.href }));
 

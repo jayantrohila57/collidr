@@ -39,7 +39,7 @@ async function currentReturnPath(): Promise<string> {
       /* ignore */
     }
   }
-  return "/dashboard";
+  return "/";
 }
 
 export async function guardAuthenticatedPage(): Promise<AuthSession> {

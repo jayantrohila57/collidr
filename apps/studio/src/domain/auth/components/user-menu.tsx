@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { accountSettingsUrl } from "@/lib/account-url";
 import { withBasePath } from "@/lib/base-path";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
+import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";
 import { performSignOut, useSession } from "../lib/auth-actions";
 
@@ -29,7 +30,7 @@ export function useUserMenuProps(): UserMenuProps & { ready: boolean } {
     accountHref: accountSettingsUrl(),
     organizationSettingsHref:
       isOrganizationsEnabledOnClient() && orgSlug
-        ? withBasePath(`/dashboard/organizations/${orgSlug}/settings`)
+        ? withBasePath(routes.orgSection(orgSlug, "settings"))
         : null,
     docsHref: docsSiteUrl(),
     onSignOut: () => performSignOut({ queryClient, router }),

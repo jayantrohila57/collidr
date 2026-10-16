@@ -19,7 +19,7 @@ const defaultPresentation = (fallback: {
   title: fallback.title?.trim() || "Notification",
   body: fallback.body?.trim() || "",
   icon: "organization",
-  href: "/dashboard/notifications",
+  href: "/notifications",
 });
 
 /**

@@ -1,8 +1,6 @@
-import { resolvePublicServiceUrl } from "@loftlancer/env/vercel-services";
 import { type NextRequest, NextResponse } from "next/server";
 import { readOttFromSearchParams, stripOttFromPath } from "./cross-app-session";
-import { DEFAULT_AUTH_URL, trimTrailingSlash } from "./platform-urls";
-import { validateReturnTo } from "./return-to";
+import { trimTrailingSlash } from "./platform-urls";
 import { hasSessionCookieFromAnyPrefix } from "./session-cookies";
 
 export type PlatformMiddlewareOptions = {
@@ -12,15 +10,11 @@ export type PlatformMiddlewareOptions = {
   appOrigin: string;
 };
 
-function buildAuthSignInUrl(returnTo: string): string {
-  const auth = trimTrailingSlash(
-    process.env.NEXT_PUBLIC_AUTH_URL ??
-      (process.env.VERCEL_SERVICES === "1"
-        ? resolvePublicServiceUrl("auth")
-        : DEFAULT_AUTH_URL),
-  );
-  const params = new URLSearchParams({ return_to: returnTo });
-  return `${auth}/sign-in?${params.toString()}`;
+/** Signed-out visitors go to the public landing (site root, #302). */
+export function buildLandingUrl(appOrigin: string): string {
+  const docs = process.env.NEXT_PUBLIC_DOCS_URL?.trim();
+  if (docs) return `${trimTrailingSlash(docs)}/`;
+  return new URL("/", `${trimTrailingSlash(appOrigin)}/`).toString();
 }
 
 export function platformSessionMiddleware(
@@ -50,6 +44,5 @@ export function platformSessionMiddleware(
     return undefined;
   }
 
-  const returnTo = validateReturnTo(`${options.appOrigin}${pathname}${search}`);
-  return NextResponse.redirect(buildAuthSignInUrl(returnTo));
+  return NextResponse.redirect(buildLandingUrl(options.appOrigin));
 }

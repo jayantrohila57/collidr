@@ -6,14 +6,18 @@ import type { PageHeaderTab } from "@/components/layout/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProjectApps } from "@/domain/apps/hooks/use-project-apps";
 
+import { routes } from "@/utils/navigation";
+import { useOrgSlug } from "@/utils/use-route-scope";
+
 /** Widths of "Environments" and "Tasks" tab labels. */
 const APP_TAB_PLACEHOLDERS = ["w-[5.75rem]", "w-[2.25rem]"];
 
 /** Link tabs for every project page: Overview, installed app pages, Apps. */
 export function useProjectTabs(slug: string) {
+  const org = useOrgSlug();
   const pathname = usePathname() ?? "";
   const { installed, isLoading } = useProjectApps(slug);
-  const base = `/p/${slug}`;
+  const base = routes.project(org, slug);
 
   const tabs = useMemo<PageHeaderTab[]>(
     () => [

@@ -70,7 +70,8 @@
     "./input-group": "./src/components/ui/input-group.tsx",
     "./textarea": "./src/components/ui/textarea.tsx",
     "./data-table/*": "./src/data-table/*.tsx",
-    "./patterns/page-header": "./src/patterns/page-header.tsx"
+    "./patterns/page-header": "./src/patterns/page-header.tsx",
+    "./studio-routes": "./src/lib/studio-routes.ts"
   },
   "scripts": {
     "check-types": "tsc --noEmit",

@@ -1,6 +1,5 @@
 "use client";
 
-import type { Route } from "next";
 import Link from "next/link";
 import type { OrgListItem } from "@/components/org/active-organization-context";
 import { AppIcon } from "@/components/patterns/app-icon";
@@ -10,6 +9,8 @@ import { initialsFromLabel } from "@/lib/initials";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import { cn } from "@/lib/utils";
 
+import { routes } from "@/utils/navigation";
+
 export function OrganizationCard({
   org,
   isActive,
@@ -17,7 +18,7 @@ export function OrganizationCard({
   org: OrgListItem;
   isActive: boolean;
 }) {
-  const href = `/dashboard/organizations/${org.slug}` as Route;
+  const href = routes.org(org.slug);
   const personal = isPersonalOrganization(org);
 
   return (

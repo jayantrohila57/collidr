@@ -1,5 +1,6 @@
 "use client";
 
+import { routes } from "@loftlancer/ui/studio-routes";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { KeyRoundIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -470,7 +471,7 @@ export function AccountSettingsClient({
                       className="w-fit gap-2"
                       render={
                         <a
-                          href={studioDashboardPath("/dashboard/organizations")}
+                          href={studioDashboardPath(routes.home())}
                           rel="noopener noreferrer"
                         >
                           <AppIcon name="settings" className="text-current" />

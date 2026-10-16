@@ -3,12 +3,15 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useCurrentOrgSlug } from "@/components/org/use-current-org-slug";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { AppGlyph } from "@/domain/apps/components/app-glyph";
 import { useProjectApps } from "@/domain/apps/hooks/use-project-apps";
+import { routes } from "@/utils/navigation";
 
 /** Installed apps nested under the active project (apps system, #245). */
 export function SidebarProjectApps({ slug }: { slug: string }) {
+  const org = useCurrentOrgSlug() ?? "";
   const pathname = usePathname();
   const { installed, canManage, isLoading } = useProjectApps(slug);
   if (isLoading) return null;
@@ -17,7 +20,7 @@ export function SidebarProjectApps({ slug }: { slug: string }) {
       key: a.id,
       label: a.name,
       icon: a.icon,
-      href: `/p/${slug}/${a.nav[0]?.path ?? a.id}`,
+      href: routes.app(org, slug, a.nav[0]?.path ?? a.id),
     })),
     ...(canManage
       ? [
@@ -25,7 +28,7 @@ export function SidebarProjectApps({ slug }: { slug: string }) {
             key: "apps",
             label: "Apps",
             icon: "LayoutGrid",
-            href: `/p/${slug}/apps`,
+            href: routes.projectSection(org, slug, "apps"),
           },
         ]
       : []),

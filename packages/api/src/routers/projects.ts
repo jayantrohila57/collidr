@@ -1,4 +1,8 @@
-import { activeEnvironmentWhere, db, softDeleteProjectById } from "@loftlancer/db";
+import {
+  activeEnvironmentWhere,
+  db,
+  softDeleteProjectById,
+} from "@loftlancer/db";
 import { environment, project } from "@loftlancer/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
@@ -240,7 +244,10 @@ export const projectsRouter = router({
       try {
         await assertUniqueProjectName(ctx.session.user.id, input.name);
         const baseSlug = buildProjectSlugFromName(input.name);
-        const slug = await ensureUniqueProjectSlug(baseSlug);
+        const slug = await ensureUniqueProjectSlug(
+          baseSlug,
+          ctx.activeOrganizationId ?? null,
+        );
 
         const newProject = await db
           .insert(project)

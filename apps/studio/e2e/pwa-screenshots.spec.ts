@@ -36,7 +36,7 @@ test("capture Loftlancer PWA screenshots", async ({ page, baseURL }) => {
   const studioWide = path.join(outDir, "studio-wide.png");
   const studioNarrow = path.join(outDir, "studio-narrow.png");
 
-  await page.goto(`${baseURL}/dashboard`, { waitUntil: "networkidle" });
+  await page.goto(`${baseURL}/`, { waitUntil: "networkidle" });
   await page.setViewportSize({ width: 1200, height: 630 });
   await page.screenshot({ path: studioWide, type: "png" });
   await page.setViewportSize({ width: 390, height: 844 });

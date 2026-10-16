@@ -8,6 +8,7 @@ import {
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useCurrentOrgSlug } from "@/components/org/use-current-org-slug";
 import { ErrorState } from "@/components/patterns/error-state";
 import {
   Empty,
@@ -21,6 +22,8 @@ import {
 } from "@/domain/permissions/contact-manager";
 import { useUnassignedOrgMember } from "@/domain/permissions/hooks/use-permissions";
 import { formatActionLabel } from "@/lib/format-action-label";
+
+import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";
 
 type TimelinePageClientProps = {
@@ -29,6 +32,7 @@ type TimelinePageClientProps = {
 
 export function TimelinePageClient({ scope }: TimelinePageClientProps) {
   const { unassigned, isLoading: unassignedLoading } = useUnassignedOrgMember();
+  const org = useCurrentOrgSlug() ?? "";
   const [action, setAction] = useState("");
   const [result, setResult] = useState<ActivityResult | "">("");
 
@@ -53,10 +57,11 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
     () =>
       rows.map((row) =>
         auditRowToActivityItem(row, {
-          projectHref: (slug) => `/p/${slug}`,
+          projectHref: (slug, orgSlug) =>
+            orgSlug || org ? routes.project(orgSlug || org, slug) : null,
         }),
       ),
-    [rows],
+    [rows, org],
   );
   const [seenActions, setSeenActions] = useState<string[]>([]);
   const actionOptions = useMemo(() => {

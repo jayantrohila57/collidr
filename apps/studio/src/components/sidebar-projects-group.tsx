@@ -3,10 +3,10 @@
 import type { ProjectOutput } from "@loftlancer/api/types";
 import { ProjectPinMenu } from "@loftlancer/ui/patterns/sidebar-kit";
 import { ChevronRight, ChevronUp, MoreHorizontal } from "lucide-react";
-import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useMemo, useState } from "react";
+import { useCurrentOrgSlug } from "@/components/org/use-current-org-slug";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { SidebarProjectApps } from "@/components/sidebar-project-apps";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -28,7 +28,10 @@ import { initialsFromLabel } from "@/lib/initials";
 import { prefetchProjectDetail } from "@/lib/prefetch-project-detail";
 import { selectSidebarProjects } from "@/lib/sidebar-project-nav";
 import { cn } from "@/lib/utils";
+
+import { routes } from "@/utils/navigation";
 import { queryClient } from "@/utils/trpc";
+import { useRouteScope } from "@/utils/use-route-scope";
 
 const PROJECTS_GROUP_OPEN_KEY = "loftlancer-sidebar-projects-open";
 const PROJECTS_LIST_EXPANDED_KEY = "loftlancer-sidebar-projects-list-expanded";
@@ -41,8 +44,8 @@ function readStoredBoolean(key: string, defaultValue: boolean) {
   return defaultValue;
 }
 
-function projectPathActive(pathname: string, slug: string) {
-  const href = `/p/${slug}`;
+function projectPathActive(pathname: string, org: string, slug: string) {
+  const href = routes.project(org, slug);
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -63,6 +66,7 @@ export function SidebarProjectsGroup({
   status: "loading" | "error" | "empty" | "success";
   onRetry: () => void;
 }) {
+  const org = useCurrentOrgSlug() ?? "";
   const pathname = usePathname();
   const [groupOpen, setGroupOpen] = useState(true);
   const [listExpanded, setListExpanded] = useState(false);
@@ -72,10 +76,7 @@ export function SidebarProjectsGroup({
     setListExpanded(readStoredBoolean(PROJECTS_LIST_EXPANDED_KEY, false));
   }, []);
 
-  const activeSlug = useMemo(() => {
-    const match = pathname.match(/^\/p\/([^/]+)/);
-    return match?.[1] ?? null;
-  }, [pathname]);
+  const activeSlug = useRouteScope().project ?? null;
 
   const { visible, listToggleVisible } = useMemo(
     () =>
@@ -161,11 +162,15 @@ export function SidebarProjectsGroup({
                   <Fragment key={project.id}>
                     <SidebarMenuItem>
                       <SidebarMenuButton
-                        isActive={projectPathActive(pathname, project.slug)}
+                        isActive={projectPathActive(
+                          pathname,
+                          org,
+                          project.slug,
+                        )}
                         tooltip={project.name}
                         render={
                           <Link
-                            href={`/p/${project.slug}` as Route}
+                            href={routes.project(org, project.slug)}
                             onMouseEnter={() =>
                               prefetchProjectDetail(queryClient, project.slug)
                             }

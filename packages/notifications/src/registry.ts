@@ -38,6 +38,8 @@ const supportTicketReplyData = z.object({
 });
 
 const taskData = z.object({
+  /** Missing on rows written before per-org URLs (#299). */
+  organizationSlug: z.string().optional(),
   projectSlug: z.string(),
   projectName: z.string(),
   taskId: z.string(),
@@ -64,6 +66,12 @@ export type NotificationRenderResult = {
   href: string;
 };
 
+/** Studio-relative task link; old rows without an org fall back to the inbox. */
+function taskHref(data: z.infer<typeof taskData>): string {
+  if (!data.organizationSlug) return "/notifications";
+  return `/${encodeURIComponent(data.organizationSlug)}/${encodeURIComponent(data.projectSlug)}/tasks/${data.taskNumber}`;
+}
+
 export const notificationRenderers: Record<
   NotificationType,
   (data: unknown, ctx: NotificationRenderContext) => NotificationRenderResult
@@ -74,7 +82,7 @@ export const notificationRenderers: Record<
       title: "Organization invitation",
       body: `${data.inviterName} invited you to join ${data.organizationName}.`,
       icon: "invite",
-      href: "/dashboard/settings/organization",
+      href: "/",
     };
   },
   "invitation.accepted": (raw) => {
@@ -83,7 +91,7 @@ export const notificationRenderers: Record<
       title: "Invitation accepted",
       body: `${data.memberName} joined ${data.organizationName}.`,
       icon: "member",
-      href: "/dashboard/settings/organization",
+      href: "/",
     };
   },
   "support.ticket.reply": (raw) => {
@@ -92,7 +100,7 @@ export const notificationRenderers: Record<
       title: `Reply on ticket #${data.ticketNumber}`,
       body: data.subject,
       icon: "organization",
-      href: `/dashboard/support/tickets/${data.ticketId}`,
+      href: `/support/tickets/${encodeURIComponent(data.ticketId)}`,
     };
   },
   "task.assigned": (raw, ctx) => {
@@ -101,7 +109,7 @@ export const notificationRenderers: Record<
       title: `Assigned: ${data.title}`,
       body: `${ctx.actorName ?? "Someone"} assigned you task #${data.taskNumber} in ${data.projectName}.`,
       icon: "member",
-      href: `/p/${data.projectSlug}/tasks?task=${data.taskNumber}`,
+      href: taskHref(data),
     };
   },
   "task.mentioned": (raw, ctx) => {
@@ -110,7 +118,7 @@ export const notificationRenderers: Record<
       title: `Mentioned on #${data.taskNumber}`,
       body: `${ctx.actorName ?? "Someone"} mentioned you on "${data.title}" in ${data.projectName}.`,
       icon: "member",
-      href: `/p/${data.projectSlug}/tasks?task=${data.taskNumber}`,
+      href: taskHref(data),
     };
   },
 };

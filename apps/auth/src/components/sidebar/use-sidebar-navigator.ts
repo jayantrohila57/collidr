@@ -1,6 +1,9 @@
 "use client";
 
-import type { CommandGroup, FavoriteProject } from "@loftlancer/ui/patterns/sidebar-kit";
+import type {
+  CommandGroup,
+  FavoriteProject,
+} from "@loftlancer/ui/patterns/sidebar-kit";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { trpc } from "@/utils/trpc";
@@ -10,8 +13,8 @@ import { trpc } from "@/utils/trpc";
  * `projectHref`/`settingsLinks` let each app build its own URLs.
  */
 export function useSidebarNavigator(opts: {
-  projectHref: (slug: string) => string;
-  envHref: (projectSlug: string, envSlug: string) => string;
+  projectHref: (orgSlug: string, slug: string) => string;
+  envHref: (orgSlug: string, projectSlug: string, envSlug: string) => string;
   memberHref: (orgSlug: string, userId: string) => string;
   settingsLinks: { label: string; href: string }[];
 }) {
@@ -23,18 +26,25 @@ export function useSidebarNavigator(opts: {
   const data = query.data;
   const pinMutation = useMutation(
     trpc.sidebar.pin.mutationOptions({
-      onSettled: () => qc.invalidateQueries({ queryKey: trpc.sidebar.navigator.queryKey() }),
+      onSettled: () =>
+        qc.invalidateQueries({ queryKey: trpc.sidebar.navigator.queryKey() }),
     }),
   );
 
   const { projectHref, envHref, memberHref, settingsLinks } = opts;
+  const org = data?.organizationSlug ?? "";
   const groups = useMemo<CommandGroup[]>(() => {
-    const projects = data?.projects ?? [];
+    const projects = org ? (data?.projects ?? []) : [];
     return [
       {
         heading: "Projects",
         icon: "project",
-        items: projects.map((p) => ({ id: `p:${p.id}`, label: p.name, href: projectHref(p.slug), keywords: p.slug })),
+        items: projects.map((p) => ({
+          id: `p:${p.id}`,
+          label: p.name,
+          href: projectHref(org, p.slug),
+          keywords: p.slug,
+        })),
       },
       {
         heading: "Environments",
@@ -44,7 +54,7 @@ export function useSidebarNavigator(opts: {
             id: `e:${p.id}:${e.slug}`,
             label: e.name,
             hint: p.name,
-            href: envHref(p.slug, e.slug),
+            href: envHref(org, p.slug, e.slug),
             keywords: `${p.slug} ${e.slug}`,
           })),
         ),
@@ -52,23 +62,30 @@ export function useSidebarNavigator(opts: {
       {
         heading: "Settings",
         icon: "settings",
-        items: settingsLinks.map((s) => ({ id: `s:${s.href}`, label: s.label, href: s.href })),
+        items: settingsLinks.map((s) => ({
+          id: `s:${s.href}`,
+          label: s.label,
+          href: s.href,
+        })),
       },
       {
         heading: "Members",
         icon: "member",
-        items: (data?.organizationSlug ? (data?.members ?? []) : []).map((m) => ({
-          id: `m:${m.userId}`,
-          label: m.name || m.email,
-          hint: m.email,
-          href: memberHref(data?.organizationSlug ?? "", m.userId),
-        })),
+        items: (data?.organizationSlug ? (data?.members ?? []) : []).map(
+          (m) => ({
+            id: `m:${m.userId}`,
+            label: m.name || m.email,
+            hint: m.email,
+            href: memberHref(data?.organizationSlug ?? "", m.userId),
+          }),
+        ),
       },
     ];
-  }, [data, projectHref, envHref, memberHref, settingsLinks]);
+  }, [data, org, projectHref, envHref, memberHref, settingsLinks]);
 
   const pins = data?.pins ?? [];
   const favorites = useMemo<FavoriteProject[]>(() => {
+    if (!org) return [];
     const byId = new Map((data?.projects ?? []).map((p) => [p.id, p]));
     return pins.flatMap((id) => {
       const p = byId.get(id);
@@ -79,12 +96,21 @@ export function useSidebarNavigator(opts: {
         {
           id: p.id,
           label: p.name,
-          href: projectHref(p.slug),
-          env: env ? { label: prod ? "Prod" : env.name.length > 8 ? `${env.name.slice(0, 7)}…` : env.name, production: Boolean(prod) } : null,
+          href: projectHref(org, p.slug),
+          env: env
+            ? {
+                label: prod
+                  ? "Prod"
+                  : env.name.length > 8
+                    ? `${env.name.slice(0, 7)}…`
+                    : env.name,
+                production: Boolean(prod),
+              }
+            : null,
         },
       ];
     });
-  }, [data, pins, projectHref]);
+  }, [data, org, pins, projectHref]);
 
   return {
     loading: query.isPending,
