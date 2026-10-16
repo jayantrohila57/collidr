@@ -1,33 +1,60 @@
 "use client";
 
+import {
+  pageHeaderActionsClass,
+  pageHeaderMetaRowClass,
+  pageHeaderRootClass,
+  pageHeaderTabActiveClass,
+  pageHeaderTabClass,
+  pageHeaderTabInactiveClass,
+  pageHeaderTabsEndClass,
+  pageHeaderTabsListClass,
+  pageHeaderTabsRowClass,
+  pageHeaderTitleClass,
+  pageHeaderTitleRowClass,
+  pageHeaderTopRowClass,
+} from "@loftlancer/ui/page-header-classes";
+import type { Route } from "next";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { PageBackButton } from "@/components/layout/page-back-button";
 import { PageHeaderDescription } from "@/components/layout/page-header-description";
-import { Separator } from "@/components/ui/separator";
-import {
-  layoutGapClass,
-  layoutPageHeaderRowClass,
-  layoutPageTitleClass,
-} from "@/lib/layout-spacing";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   getPageBackFallback,
   getPageBackHref,
-  isDashboardRootPath,
   type PageBackHref,
 } from "@/lib/page-back";
-import {
-  pageHeaderDescriptionGridActionClass,
-  pageHeaderDescriptionGridDescClass,
-  pageHeaderDescriptionGridTitleClass,
-} from "@/lib/page-header-grid-classes";
 import { cn } from "@/lib/utils";
 
+/**
+ * Back is always rendered. `false` and `"auto"` both resolve to the logical
+ * parent route (or history back with a parent fallback); a string or object
+ * pins the target.
+ */
 export type PageHeaderBackProp =
   | false
   | "auto"
   | PageBackHref
   | { href?: PageBackHref | null; useHistory?: boolean };
+
+export type PageHeaderTab = {
+  value: string;
+  label: ReactNode;
+  /** Link tabs navigate (cmd-click opens a new tab). */
+  href?: string;
+  disabled?: boolean;
+};
+
+export type PageHeaderTabsProps = {
+  /** Defaults to a single "All" tab. */
+  tabs?: PageHeaderTab[];
+  activeTab?: string;
+  onTabChange?: (value: string) => void;
+  /** Right side of the tabs row (filters, view toggles…). */
+  tabsEnd?: ReactNode;
+};
 
 type ResolvedBack = {
   href?: PageBackHref | null;
@@ -35,371 +62,86 @@ type ResolvedBack = {
   useHistory: boolean;
 };
 
+const DEFAULT_TABS: PageHeaderTab[] = [{ value: "all", label: "All" }];
+
 function resolveBack(
   back: PageHeaderBackProp | undefined,
   pathname: string,
-): ResolvedBack | null {
-  if (back === false) return null;
-
-  if (back === "auto" || back === undefined) {
-    if (isDashboardRootPath(pathname)) {
-      return null;
-    }
+): ResolvedBack {
+  if (back === false || back === "auto" || back === undefined) {
     const href = getPageBackHref(pathname);
-    if (href) {
-      return { href, fallbackHref: href, useHistory: false };
-    }
-    return {
-      fallbackHref: getPageBackFallback(pathname),
-      useHistory: true,
-    };
+    if (href) return { href, fallbackHref: href, useHistory: false };
+    return { fallbackHref: getPageBackFallback(pathname), useHistory: true };
   }
-
   if (typeof back === "string") {
     return { href: back, fallbackHref: back, useHistory: false };
   }
-
-  if (back.useHistory) {
-    const fallback =
-      back.href ??
-      getPageBackFallback(pathname) ??
-      ("/dashboard" as PageBackHref);
-    return {
-      href: back.href ?? null,
-      fallbackHref: fallback,
-      useHistory: true,
-    };
-  }
-
-  if (back.href) {
-    return { href: back.href, fallbackHref: back.href, useHistory: false };
-  }
-
+  const fallback = back.href ?? getPageBackFallback(pathname);
   return {
-    fallbackHref: getPageBackFallback(pathname),
-    useHistory: true,
+    href: back.href ?? null,
+    fallbackHref: fallback,
+    useHistory: Boolean(back.useHistory) || !back.href,
   };
 }
 
-function TitleHeading({
-  title,
-  titleAccessory,
-  className,
-}: {
-  title: string;
-  titleAccessory?: ReactNode;
-  className?: string;
-}) {
+const rootClass = pageHeaderRootClass;
+const topRowClass = pageHeaderTopRowClass;
+const metaRowClass = pageHeaderMetaRowClass;
+const tabsRowClass = pageHeaderTabsRowClass;
+const actionsClass = cn(pageHeaderActionsClass, "*:data-[slot=button]:h-8");
+
+export function PageHeaderTabs({
+  tabs,
+  activeTab,
+  onTabChange,
+  tabsEnd,
+}: PageHeaderTabsProps) {
+  const list = tabs?.length ? tabs : DEFAULT_TABS;
+  const value = activeTab ?? list[0]?.value;
   return (
-    <div className={cn("flex min-w-0 flex-wrap items-center gap-2", className)}>
-      <h1 className={cn(layoutPageTitleClass, "truncate")}>{title}</h1>
-      {titleAccessory}
-    </div>
-  );
-}
-
-function PageHeaderDescriptionSlot({
-  description,
-  className,
-}: {
-  description: string;
-  className?: string;
-}) {
-  return (
-    <PageHeaderDescription
-      text={description}
-      className={cn("max-md:max-w-none", className)}
-    />
-  );
-}
-
-function TitleBlock({
-  title,
-  titleAccessory,
-  description,
-  className,
-}: {
-  title: string;
-  titleAccessory?: ReactNode;
-  description?: string;
-  className?: string;
-}) {
-  return (
-    <div className={cn("flex min-w-0 flex-col gap-0.5", className)}>
-      <TitleHeading title={title} titleAccessory={titleAccessory} />
-      {description ? <PageHeaderDescription text={description} /> : null}
-    </div>
-  );
-}
-
-function PageHeaderSimple({
-  resolved,
-  title,
-  titleAccessory,
-  description,
-  action,
-}: {
-  resolved: ResolvedBack | null;
-  title: string;
-  titleAccessory?: ReactNode;
-  description?: string;
-  action?: ReactNode;
-}) {
-  const hasBack = Boolean(resolved);
-  const hasAction = Boolean(action);
-
-  if (description && !hasBack) {
-    return (
-      <div className={cn(layoutPageHeaderRowClass, "items-start")}>
-        <TitleBlock
-          title={title}
-          titleAccessory={titleAccessory}
-          description={description}
-        />
-        {action ? <div className="shrink-0">{action}</div> : null}
-      </div>
-    );
-  }
-
-  if (description) {
-    const mobileCols = hasBack
-      ? hasAction
-        ? "grid-cols-[auto_minmax(0,1fr)_auto]"
-        : "grid-cols-[auto_minmax(0,1fr)]"
-      : hasAction
-        ? "grid-cols-[minmax(0,1fr)_auto]"
-        : "grid-cols-1";
-
-    const mobileAreas = hasBack
-      ? hasAction
-        ? "[grid-template-areas:'leading_title_action'_'desc_desc_desc']"
-        : "[grid-template-areas:'leading_title_title'_'desc_desc_desc']"
-      : hasAction
-        ? "[grid-template-areas:'title_action'_'desc_desc']"
-        : "[grid-template-areas:'title'_'desc']";
-
-    const desktopAreas = hasBack
-      ? hasAction
-        ? "md:[grid-template-areas:'leading_title_action'_'leading_desc_desc']"
-        : "md:[grid-template-areas:'leading_title_title'_'leading_desc_desc']"
-      : hasAction
-        ? "md:[grid-template-areas:'title_action'_'desc_desc']"
-        : "md:[grid-template-areas:'title'_'desc']";
-
-    return (
+    <div className={tabsRowClass} data-slot="page-header-tabs">
       <div
-        className={cn(
-          "grid w-full min-w-0 gap-2 py-0.5",
-          layoutGapClass,
-          mobileCols,
-          mobileAreas,
-          desktopAreas,
-          hasBack && "md:grid-cols-[auto_minmax(0,1fr)_auto]",
-        )}
+        role="tablist"
+        aria-label="Sections"
+        className={pageHeaderTabsListClass}
       >
-        {hasBack ? (
-          <div className="self-center [grid-area:leading] md:self-start">
-            <PageBackButton
-              href={resolved?.href}
-              fallbackHref={resolved?.fallbackHref ?? "/dashboard"}
-              useHistory={resolved?.useHistory ?? false}
-            />
-          </div>
-        ) : null}
-        <TitleHeading
-          title={title}
-          titleAccessory={titleAccessory}
-          className={pageHeaderDescriptionGridTitleClass(hasBack)}
-        />
-        {action ? (
-          <div className={pageHeaderDescriptionGridActionClass(hasBack)}>
-            {action}
-          </div>
-        ) : null}
-        <PageHeaderDescriptionSlot
-          description={description}
-          className={pageHeaderDescriptionGridDescClass(hasBack)}
-        />
+        {list.map((tab) => {
+          const active = tab.value === value;
+          const className = cn(
+            pageHeaderTabClass,
+            active ? pageHeaderTabActiveClass : pageHeaderTabInactiveClass,
+            tab.disabled && "pointer-events-none opacity-60",
+          );
+          if (tab.href) {
+            return (
+              <Link
+                key={tab.value}
+                href={tab.href as Route}
+                role="tab"
+                aria-selected={active}
+                aria-current={active ? "page" : undefined}
+                className={className}
+              >
+                {tab.label}
+              </Link>
+            );
+          }
+          return (
+            <button
+              key={tab.value}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              disabled={tab.disabled}
+              className={className}
+              onClick={() => onTabChange?.(tab.value)}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
-    );
-  }
-
-  return (
-    <div
-      className={cn(
-        "flex w-full min-w-0 items-center justify-between gap-2 py-0.5",
-        "min-h-12",
-      )}
-    >
-      <div className="flex min-w-0 flex-1 items-center gap-2">
-        {resolved ? (
-          <>
-            <PageBackButton
-              href={resolved.href}
-              fallbackHref={resolved.fallbackHref}
-              useHistory={resolved.useHistory}
-            />
-            <Separator
-              orientation="vertical"
-              className="my-auto hidden h-8 shrink-0 md:block"
-            />
-          </>
-        ) : null}
-        <TitleBlock
-          title={title}
-          titleAccessory={titleAccessory}
-          description={description}
-        />
-      </div>
-      {action ? <div className="shrink-0">{action}</div> : null}
-    </div>
-  );
-}
-
-function PageHeaderWithMetadata({
-  resolved,
-  title,
-  titleAccessory,
-  description,
-  metadata,
-  action,
-}: {
-  resolved: ResolvedBack | null;
-  title: string;
-  titleAccessory?: ReactNode;
-  description?: string;
-  metadata: ReactNode;
-  action?: ReactNode;
-}) {
-  const hasBack = Boolean(resolved);
-  const hasAction = Boolean(action);
-
-  const mobileCols = hasBack
-    ? hasAction
-      ? "grid-cols-[auto_minmax(0,1fr)_auto]"
-      : "grid-cols-[auto_minmax(0,1fr)]"
-    : hasAction
-      ? "grid-cols-[minmax(0,1fr)_auto]"
-      : "grid-cols-1";
-
-  const mobileAreas = hasBack
-    ? hasAction
-      ? description
-        ? "[grid-template-areas:'leading_title_action'_'desc_desc_desc'_'div_div_div'_'meta_meta_meta']"
-        : "[grid-template-areas:'leading_title_action'_'div_div_div'_'meta_meta_meta']"
-      : description
-        ? "[grid-template-areas:'leading_title_title'_'desc_desc_desc'_'div_div_div'_'meta_meta_meta']"
-        : "[grid-template-areas:'leading_title'_'div_div'_'meta_meta']"
-    : hasAction
-      ? description
-        ? "[grid-template-areas:'title_action'_'desc_desc'_'div_div'_'meta_meta']"
-        : "[grid-template-areas:'title_action'_'div_div'_'meta_meta']"
-      : description
-        ? "[grid-template-areas:'title'_'desc'_'div'_'meta']"
-        : "[grid-template-areas:'title'_'div'_'meta']";
-
-  const desktopCols = hasBack
-    ? hasAction
-      ? "md:grid-cols-[auto_auto_minmax(0,1fr)_auto_auto_auto]"
-      : "md:grid-cols-[auto_auto_minmax(0,1fr)_auto_auto]"
-    : hasAction
-      ? "md:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
-      : "md:grid-cols-[minmax(0,1fr)_auto_auto]";
-
-  const desktopAreas = hasBack
-    ? hasAction
-      ? description
-        ? "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta_action'_'leading_leading-sep_desc_desc_desc_action']"
-        : "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta_action']"
-      : description
-        ? "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta'_'leading_leading-sep_desc_desc_desc']"
-        : "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta']"
-    : hasAction
-      ? description
-        ? "md:[grid-template-areas:'title_meta-sep_meta_action'_'desc_desc_desc_action']"
-        : "md:[grid-template-areas:'title_meta-sep_meta_action']"
-      : description
-        ? "md:[grid-template-areas:'title_meta-sep_meta'_'desc_desc_desc']"
-        : "md:[grid-template-areas:'title_meta-sep_meta']";
-
-  return (
-    <div
-      className={cn(
-        "grid w-full min-w-0 gap-2 py-0.5",
-        layoutGapClass,
-        mobileCols,
-        mobileAreas,
-        desktopCols,
-        desktopAreas,
-        description ? "md:items-start" : "md:items-center",
-      )}
-    >
-      {hasBack ? (
-        <div
-          className={cn(
-            "self-center [grid-area:leading]",
-            description && "md:mt-1 md:self-start",
-          )}
-        >
-          <PageBackButton
-            href={resolved?.href}
-            fallbackHref={resolved?.fallbackHref ?? "/dashboard"}
-            useHistory={resolved?.useHistory ?? false}
-          />
-        </div>
-      ) : null}
-      {hasBack ? (
-        <Separator
-          orientation="vertical"
-          className={cn(
-            "hidden h-8 shrink-0 self-center [grid-area:leading-sep] md:block",
-            description && "md:mt-1 md:self-start",
-          )}
-        />
-      ) : null}
-
-      <TitleHeading
-        title={title}
-        titleAccessory={titleAccessory}
-        className="[grid-area:title]"
-      />
-
-      {description ? (
-        <PageHeaderDescriptionSlot
-          description={description}
-          className="[grid-area:desc]"
-        />
-      ) : null}
-
-      <Separator className="[grid-area:div] md:hidden" />
-
-      <div
-        className={cn(
-          "w-full min-w-0 [grid-area:meta]",
-          description ? "md:mt-1 md:self-start" : "md:self-center",
-        )}
-      >
-        {metadata}
-      </div>
-
-      <Separator
-        orientation="vertical"
-        className={cn(
-          "hidden h-8 shrink-0 [grid-area:meta-sep] md:block",
-          description ? "md:mt-1 md:self-start" : "md:self-center",
-        )}
-      />
-
-      {action ? (
-        <div
-          className={cn(
-            "flex shrink-0 items-center justify-end gap-1 self-center [grid-area:action]",
-            description ? "md:mt-1 md:self-start" : "md:self-center",
-          )}
-        >
-          {action}
-        </div>
-      ) : null}
+      {tabsEnd ? <div className={pageHeaderTabsEndClass}>{tabsEnd}</div> : null}
     </div>
   );
 }
@@ -410,39 +152,100 @@ export function PageHeader({
   description,
   action,
   metadata,
+  meta,
   back = "auto",
+  tabs,
+  activeTab,
+  onTabChange,
+  tabsEnd,
 }: {
   title: string;
   titleAccessory?: ReactNode;
   description?: string;
   action?: ReactNode;
+  /** @deprecated use `meta` */
   metadata?: ReactNode;
+  /** Badges, links, key/value data under the title row. Height is fixed. */
+  meta?: ReactNode;
   back?: PageHeaderBackProp;
-}) {
+} & PageHeaderTabsProps) {
   const pathname = usePathname() ?? "";
   const resolved = resolveBack(back, pathname);
-
-  if (metadata) {
-    return (
-      <PageHeaderWithMetadata
-        resolved={resolved}
-        title={title}
-        titleAccessory={titleAccessory}
-        description={description}
-        metadata={metadata}
-        action={action}
-      />
-    );
-  }
+  const metaContent = meta ?? metadata;
 
   return (
-    <PageHeaderSimple
-      resolved={resolved}
-      title={title}
-      titleAccessory={titleAccessory}
-      description={description}
-      action={action}
-    />
+    <header className={rootClass} data-slot="page-header">
+      <div className={topRowClass}>
+        <PageBackButton
+          href={resolved.href}
+          fallbackHref={resolved.fallbackHref}
+          useHistory={resolved.useHistory}
+        />
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <div className={pageHeaderTitleRowClass}>
+            <h1 className={pageHeaderTitleClass}>{title}</h1>
+            {titleAccessory}
+          </div>
+          {description ? <PageHeaderDescription text={description} /> : null}
+        </div>
+        {action ? (
+          <div className={actionsClass} data-slot="page-header-actions">
+            {action}
+          </div>
+        ) : null}
+      </div>
+      <div className={metaRowClass} data-slot="page-header-meta">
+        {metaContent}
+      </div>
+      <PageHeaderTabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+        tabsEnd={tabsEnd}
+      />
+    </header>
+  );
+}
+
+/** Same footprint as {@link PageHeader} while data loads. */
+export function PageHeaderSkeleton({
+  withDescription = true,
+  withAction = true,
+  tabCount = 1,
+}: {
+  withDescription?: boolean;
+  withAction?: boolean;
+  tabCount?: number;
+}) {
+  return (
+    <div className={rootClass} aria-hidden data-slot="page-header-skeleton">
+      <div className={topRowClass}>
+        <Skeleton className="size-8 shrink-0 rounded-md" />
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <div className="flex h-8 items-center">
+            <Skeleton className="h-5 w-40" />
+          </div>
+          {withDescription ? (
+            <div className="flex h-4 items-center">
+              <Skeleton className="h-3 w-64 max-w-full" />
+            </div>
+          ) : null}
+        </div>
+        {withAction ? (
+          <Skeleton className="h-8 w-28 shrink-0 rounded-md" />
+        ) : null}
+      </div>
+      <div className={metaRowClass}>
+        <Skeleton className="h-3 w-32" />
+      </div>
+      <div className={tabsRowClass}>
+        <div className="flex h-9 items-center gap-3 px-2.5">
+          {Array.from({ length: tabCount }, (_, i) => (
+            <Skeleton key={`tab-${String(i)}`} className="h-3 w-12" />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 

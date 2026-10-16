@@ -13,6 +13,7 @@ import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import {
   Activity,
   KeyRound,
+  LayoutGrid,
   Mail,
   Settings,
   Users,
@@ -89,6 +90,7 @@ export function OrganizationSectionPage({
 
   const base = `/dashboard/organizations/${slug}`;
   const tabs = [
+    { href: base, label: "Overview", icon: <LayoutGrid /> },
     { href: `${base}/settings`, label: "General", icon: <Settings /> },
     { href: `${base}/members`, label: "Members", icon: <Users /> },
     { href: `${base}/invitations`, label: "Invitations", icon: <Mail /> },
