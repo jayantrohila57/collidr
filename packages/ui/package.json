@@ -37,6 +37,7 @@
     "./separator": "./src/components/ui/separator.tsx",
     "./patterns/app-shell": "./src/patterns/app-shell.tsx",
     "./patterns/settings-frame": "./src/patterns/settings-frame.tsx",
+    "./patterns/activity-timeline": "./src/patterns/activity-timeline.tsx",
     "./patterns/auth-5": "./src/patterns/auth-5.tsx",
     "./patterns/page-state": "./src/patterns/page-state.tsx",
     "./patterns/app-route-states": "./src/patterns/app-route-states.tsx",

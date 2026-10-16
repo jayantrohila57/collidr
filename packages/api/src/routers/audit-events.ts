@@ -5,6 +5,9 @@ import { user } from "@loftlancer/db/schema/auth";
 import { project } from "@loftlancer/db/schema/projects";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, gte, lt, lte, ne, sql, type SQL } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
+
+const targetUser = alias(user, "target_user");
 import { z } from "zod/v3";
 import { requireAction } from "../actions/require-action";
 import { passiveActionSqlFilter } from "../audit-passive-actions";
@@ -83,7 +86,16 @@ export const auditEventsRouter = router({
       conditions.push(ne(auditEvent.result, "denied"));
     }
     if (input.cursor) {
-      conditions.push(lte(auditEvent.createdAt, new Date(input.cursor)));
+      // Keyset cursor "<iso>|<id>"; a bare ISO string is accepted for old clients.
+      const [iso, cursorId] = input.cursor.split("|");
+      const at = new Date(iso ?? "");
+      if (!Number.isNaN(at.getTime())) {
+        conditions.push(
+          cursorId
+            ? sql`(${auditEvent.createdAt}, ${auditEvent.id}) < (${at.toISOString()}::timestamptz, ${cursorId})`
+            : lte(auditEvent.createdAt, at),
+        );
+      }
     }
 
     const rows = await db
@@ -94,6 +106,7 @@ export const auditEventsRouter = router({
         actorUserId: auditEvent.actorUserId,
         actorName: user.name,
         actorEmail: user.email,
+        actorImage: user.image,
         organizationId: auditEvent.organizationId,
         projectId: auditEvent.projectId,
         projectName: project.name,
@@ -103,6 +116,7 @@ export const auditEventsRouter = router({
         entityId: auditEvent.entityId,
         entitySlug: auditEvent.entitySlug,
         targetUserId: auditEvent.targetUserId,
+        targetUserName: targetUser.name,
         denialReason: auditEvent.denialReason,
         errorCode: auditEvent.errorCode,
         payload: auditEvent.payload,
@@ -114,15 +128,18 @@ export const auditEventsRouter = router({
       .from(auditEvent)
       .leftJoin(user, eq(auditEvent.actorUserId, user.id))
       .leftJoin(project, eq(auditEvent.projectId, project.id))
+      .leftJoin(targetUser, eq(auditEvent.targetUserId, targetUser.id))
       .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(desc(auditEvent.createdAt))
+      .orderBy(desc(auditEvent.createdAt), desc(auditEvent.id))
       .limit(input.limit + 1);
 
     const hasMore = rows.length > input.limit;
     const items = hasMore ? rows.slice(0, input.limit) : rows;
-    const nextCursor = hasMore
-      ? items[items.length - 1]?.createdAt?.toISOString()
-      : undefined;
+    const lastItem = items[items.length - 1];
+    const nextCursor =
+      hasMore && lastItem
+        ? `${lastItem.createdAt.toISOString()}|${lastItem.id}`
+        : undefined;
 
     return { items, nextCursor };
   }),
