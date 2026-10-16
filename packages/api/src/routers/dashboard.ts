@@ -16,7 +16,7 @@ import {
   project,
 } from "@loftlancer/db/schema/projects";
 import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
-import { and, count, eq, gte, or, sql } from "drizzle-orm";
+import { and, count, eq, gt, gte, or, sql } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
 import type { Context } from "../context";
@@ -346,6 +346,8 @@ async function fetchOrgSettingsStats(ctx: OrgCtx) {
             and(
               eq(invitation.organizationId, organizationId),
               eq(invitation.status, "pending"),
+              // Same rule as the sidebar badge: expired invites aren't pending (#251).
+              gt(invitation.expiresAt, new Date()),
             ),
           ),
         ),
