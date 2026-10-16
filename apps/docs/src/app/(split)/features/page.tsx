@@ -20,7 +20,7 @@ export default function FeaturesPage() {
             key={feature.title}
             className="rounded-lg border bg-card p-5 text-card-foreground lg:col-span-2"
           >
-            <h2 className="font-semibold text-base">{feature.title}</h2>
+            <h2 className="mt-0! font-semibold text-base">{feature.title}</h2>
             <p className="mt-2 text-muted-foreground text-sm">
               {feature.description}
             </p>
