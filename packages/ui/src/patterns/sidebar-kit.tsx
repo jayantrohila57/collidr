@@ -56,7 +56,7 @@ import {
   SidebarRail,
 } from "../components/ui/sidebar";
 import { Skeleton } from "../components/ui/skeleton";
-import { cn } from "../lib/utils";
+import { cn, headerIconButtonClassName } from "../lib/utils";
 import { countBadgeClassName, formatCount } from "./count-badge";
 import { SettingsAvatar } from "./settings-frame";
 
@@ -460,15 +460,9 @@ export function SidebarFavorites({
   );
 }
 
-/* ---------------- Footer user menu ---------------- */
+/* ---------------- User menu (shared: sidebar footer + header avatar) ---------------- */
 
-export function SidebarUserMenu({
-  user,
-  accountHref,
-  organizationSettingsHref,
-  docsHref,
-  onSignOut,
-}: {
+export type UserMenuProps = {
   user: {
     name?: string | null;
     email?: string | null;
@@ -478,10 +472,91 @@ export function SidebarUserMenu({
   organizationSettingsHref?: string | null;
   docsHref: string;
   onSignOut: () => void | Promise<void>;
+};
+
+/** One popup for both triggers so labels, width and text sizes never drift. */
+function UserMenuPopup({
+  user,
+  accountHref,
+  organizationSettingsHref,
+  docsHref,
+  onSignOut,
+  side,
+  align,
+}: UserMenuProps & {
+  side: "top" | "bottom";
+  align: "start" | "end";
 }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   useEffect(() => setMounted(true), []);
+  const name = user?.name || user?.email || "Account";
+  return (
+    <MenuPopup side={side} align={align} className="w-60 text-sm">
+      <MenuGroup>
+        <MenuGroupLabel>
+          <span className="block truncate font-medium text-foreground">
+            {name}
+          </span>
+          {user?.email ? (
+            <span className="block truncate font-normal">{user.email}</span>
+          ) : null}
+        </MenuGroupLabel>
+      </MenuGroup>
+      <MenuSeparator />
+      <MenuLinkItem href={accountHref}>
+        <UserIcon /> Account
+      </MenuLinkItem>
+      {organizationSettingsHref ? (
+        <MenuLinkItem href={organizationSettingsHref}>
+          <Building2Icon /> Organization settings
+        </MenuLinkItem>
+      ) : null}
+      <MenuSeparator />
+      <MenuGroup>
+        <MenuGroupLabel>Theme</MenuGroupLabel>
+        <MenuRadioGroup
+          value={mounted ? (theme ?? "system") : "system"}
+          onValueChange={(v) => setTheme(String(v))}
+        >
+          <MenuRadioItem value="light">
+            <span className="flex items-center gap-2">
+              <SunIcon className="size-4" /> Light
+            </span>
+          </MenuRadioItem>
+          <MenuRadioItem value="dark">
+            <span className="flex items-center gap-2">
+              <MoonIcon className="size-4" /> Dark
+            </span>
+          </MenuRadioItem>
+          <MenuRadioItem value="system">
+            <span className="flex items-center gap-2">
+              <MonitorIcon className="size-4" /> System
+            </span>
+          </MenuRadioItem>
+        </MenuRadioGroup>
+      </MenuGroup>
+      <MenuSeparator />
+      <MenuLinkItem href={docsHref}>
+        <BookOpenIcon /> Docs
+      </MenuLinkItem>
+      <MenuItem
+        variant="destructive"
+        disabled={signingOut}
+        onClick={() => {
+          setSigningOut(true);
+          void Promise.resolve(onSignOut()).finally(() => setSigningOut(false));
+        }}
+      >
+        <LogOutIcon /> Sign out
+      </MenuItem>
+    </MenuPopup>
+  );
+}
+
+export function SidebarUserMenu(props: UserMenuProps) {
+  const { user } = props;
   const name = user?.name || user?.email || "Account";
   return (
     <SidebarMenu>
@@ -511,63 +586,35 @@ export function SidebarUserMenu({
             </span>
             <ChevronsUpDownIcon className="ms-auto size-4 opacity-60" />
           </MenuTrigger>
-          <MenuPopup side="top" align="start" className="min-w-60">
-            <MenuGroup>
-              <MenuGroupLabel>
-                <span className="block truncate font-medium text-foreground">
-                  {name}
-                </span>
-                {user?.email ? (
-                  <span className="block truncate font-normal">
-                    {user.email}
-                  </span>
-                ) : null}
-              </MenuGroupLabel>
-            </MenuGroup>
-            <MenuSeparator />
-            <MenuLinkItem href={accountHref}>
-              <UserIcon /> Account
-            </MenuLinkItem>
-            {organizationSettingsHref ? (
-              <MenuLinkItem href={organizationSettingsHref}>
-                <Building2Icon /> Organization settings
-              </MenuLinkItem>
-            ) : null}
-            <MenuSeparator />
-            <MenuGroup>
-              <MenuGroupLabel>Theme</MenuGroupLabel>
-              <MenuRadioGroup
-                value={mounted ? (theme ?? "system") : "system"}
-                onValueChange={(v) => setTheme(String(v))}
-              >
-                <MenuRadioItem value="light">
-                  <span className="flex items-center gap-2">
-                    <SunIcon className="size-4" /> Light
-                  </span>
-                </MenuRadioItem>
-                <MenuRadioItem value="dark">
-                  <span className="flex items-center gap-2">
-                    <MoonIcon className="size-4" /> Dark
-                  </span>
-                </MenuRadioItem>
-                <MenuRadioItem value="system">
-                  <span className="flex items-center gap-2">
-                    <MonitorIcon className="size-4" /> System
-                  </span>
-                </MenuRadioItem>
-              </MenuRadioGroup>
-            </MenuGroup>
-            <MenuSeparator />
-            <MenuLinkItem href={docsHref}>
-              <BookOpenIcon /> Docs
-            </MenuLinkItem>
-            <MenuItem variant="destructive" onClick={() => void onSignOut()}>
-              <LogOutIcon /> Sign out
-            </MenuItem>
-          </MenuPopup>
+          <UserMenuPopup {...props} side="top" align="start" />
         </Menu>
       </SidebarMenuItem>
     </SidebarMenu>
+  );
+}
+
+/** Header avatar trigger: same size-8 square as the other header buttons. */
+export function HeaderUserMenu(props: UserMenuProps) {
+  const { user } = props;
+  const name = user?.name || user?.email || "Account";
+  return (
+    <Menu>
+      <MenuTrigger
+        aria-label="Open account menu"
+        data-testid="header-user-menu"
+        className={cn(
+          headerIconButtonClassName,
+          "inline-flex items-center justify-center overflow-hidden border bg-background outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        )}
+      >
+        <SettingsAvatar
+          src={user?.image}
+          name={name}
+          className="size-full rounded-none text-xs"
+        />
+      </MenuTrigger>
+      <UserMenuPopup {...props} side="bottom" align="end" />
+    </Menu>
   );
 }
 
