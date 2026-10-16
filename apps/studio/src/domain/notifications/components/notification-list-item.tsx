@@ -3,7 +3,6 @@
 import { AppIcon } from "@/components/patterns/app-icon";
 import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import type { AppIconName } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
@@ -37,68 +36,118 @@ function resolveIcon(icon: string): AppIconName {
   return "organization";
 }
 
+/**
+ * Notification row after ReUI c-item-12 (activity feed item: avatar media,
+ * title, muted description, trailing relative time) inside the Sheet 7
+ * notifications feed pattern. Dense: two fixed lines (title, then one muted
+ * line of sender + message), trailing time + unread dot. A per-row
+ * "Mark read" action swaps in over the time on hover/focus in the same fixed
+ * slot, so nothing shifts. Plain elements, not <Button>: Button's size variant
+ * keeps `sm:h-8`, which clipped rows to one line (#253).
+ */
 export function NotificationListItem({
   item,
   onClick,
+  onMarkRead,
   compact = false,
   disabled = false,
 }: {
   item: NotificationListItemData;
   onClick?: () => void;
+  onMarkRead?: () => void;
   compact?: boolean;
   disabled?: boolean;
 }) {
   const unread = !item.readAt;
+  const actor = item.actorUser;
+  const canMarkRead = unread && Boolean(onMarkRead);
 
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      onClick={onClick}
-      disabled={disabled}
+    <div
+      role="listitem"
+      data-slot="notification-row"
+      data-unread={unread || undefined}
       className={cn(
-        "relative isolate box-border h-auto w-full min-w-0 shrink-0 items-start justify-start gap-3 overflow-hidden whitespace-normal rounded-md px-2 text-start font-normal",
-        compact ? "py-3" : "py-2.5",
+        "group/notif relative flex min-w-0 items-start gap-3 rounded-md px-2 transition-colors hover:bg-accent/60 has-focus-visible:bg-accent/60",
+        compact ? "py-2" : "py-2.5",
         unread && "bg-muted/30",
       )}
     >
-      <span className="relative mt-0.5 shrink-0 self-start">
-        <span className="flex size-8 items-center justify-center rounded-full border bg-card">
-          <AppIcon name={resolveIcon(item.icon)} className="size-4" />
+      <span className="relative mt-0.5 shrink-0">
+        {actor ? (
+          <Avatar className="size-8">
+            {actor.image ? <AvatarImage src={actor.image} alt="" /> : null}
+            <AvatarFallback className="text-[10px]">
+              {initials(actor.name)}
+            </AvatarFallback>
+          </Avatar>
+        ) : (
+          <span className="flex size-8 items-center justify-center rounded-full border border-border/60 bg-card">
+            <AppIcon name={resolveIcon(item.icon)} className="size-4" />
+          </span>
+        )}
+      </span>
+
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        className="flex min-w-0 flex-1 flex-col gap-0.5 text-start outline-none before:absolute before:inset-0 before:rounded-md focus-visible:before:ring-2 focus-visible:before:ring-ring disabled:cursor-default"
+      >
+        <span
+          className={cn(
+            "truncate text-sm leading-5",
+            unread ? "font-medium" : "text-foreground/90",
+          )}
+        >
+          {item.title}
         </span>
-        {unread ? (
-          <span
-            className="absolute -end-0.5 -top-0.5 size-2 rounded-full bg-destructive"
-            aria-hidden
-          />
+        <span className="flex min-w-0 items-center gap-1 text-muted-foreground text-xs leading-4">
+          {actor ? (
+            <>
+              <span className="max-w-[40%] shrink-0 truncate text-foreground/70">
+                {actor.name}
+              </span>
+              <span aria-hidden>·</span>
+            </>
+          ) : null}
+          <span className="min-w-0 truncate" title={item.body}>
+            {item.body}
+          </span>
+        </span>
+      </button>
+
+      {/* Fixed-width trailing slot: time + dot, or the mark-read action. */}
+      <span className="relative flex h-5 w-16 shrink-0 items-center justify-end gap-1.5">
+        <span
+          className={cn(
+            "text-muted-foreground text-xs tabular-nums transition-opacity",
+            canMarkRead &&
+              "group-focus-within/notif:opacity-0 group-hover/notif:opacity-0",
+          )}
+        >
+          <ClientRelativeTime value={item.createdAt} />
+        </span>
+        <span
+          className={cn(
+            "size-1.5 shrink-0 rounded-full",
+            unread ? "bg-primary" : "bg-transparent",
+          )}
+          aria-hidden
+        />
+        {canMarkRead ? (
+          <button
+            type="button"
+            onClick={onMarkRead}
+            disabled={disabled}
+            aria-label={`Mark "${item.title}" as read`}
+            className="pointer-events-none absolute inset-y-0 end-0 z-10 inline-flex items-center gap-1 rounded-md px-1.5 text-muted-foreground text-xs opacity-0 outline-none transition-opacity hover:bg-background hover:text-foreground focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring group-hover/notif:pointer-events-auto group-hover/notif:opacity-100"
+          >
+            <AppIcon name="markAllRead" className="size-3.5" />
+            Read
+          </button>
         ) : null}
       </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="flex items-start justify-between gap-2">
-          <span className="line-clamp-2 font-medium text-sm leading-snug">
-            {item.title}
-          </span>
-          <span className="shrink-0 text-muted-foreground text-xs leading-snug">
-            <ClientRelativeTime value={item.createdAt} />
-          </span>
-        </span>
-        <span className="line-clamp-2 text-muted-foreground text-xs leading-snug">
-          {item.body}
-        </span>
-        {item.actorUser ? (
-          <span className="flex items-center gap-1.5 text-muted-foreground text-xs leading-snug">
-            <Avatar className="size-4 shrink-0">
-              {item.actorUser.image ? (
-                <AvatarImage src={item.actorUser.image} alt="" />
-              ) : null}
-              <AvatarFallback className="text-[8px]">
-                {initials(item.actorUser.name)}
-              </AvatarFallback>
-            </Avatar>
-            <span className="truncate">{item.actorUser.name}</span>
-          </span>
-        ) : null}
-      </span>
-    </Button>
+    </div>
   );
 }
