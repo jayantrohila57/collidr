@@ -1,7 +1,8 @@
 "use client";
 
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
-import { useCallback, useMemo, useState } from "react";
+import { CheckIcon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableActionsColumnHeader } from "@/components/data-table/data-table-actions-column";
 import { variablesTableEmpty } from "@/components/data-table/data-table-empty-presets";
@@ -13,10 +14,12 @@ import { SecretValue } from "@/components/patterns/secret-value";
 import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { looksLikeDotenv } from "@/lib/dotenv";
 import { toast } from "@/lib/toast";
 import { isVariablesV2EnabledOnClient } from "@/lib/variables-v2-enabled";
 import { AddVariableSheet } from "./add-variable-sheet";
 import { EditVariableSheet } from "./edit-variable-sheet";
+import { ImportEnvDialog } from "./import-env-dialog";
 
 interface Variable {
   id: string;
@@ -34,6 +37,14 @@ interface Variable {
 interface VariablesTableViewProps {
   variables: Variable[];
   isLoading?: boolean;
+  isError?: boolean;
+  /** Returns the environment as dotenv text (server export). */
+  onCopyEnv: () => Promise<string>;
+  onImport: (input: {
+    variables: { key: string; value: string }[];
+    overwrite: boolean;
+  }) => Promise<unknown>;
+  isImporting: boolean;
   revealedIds: Set<string>;
   revealingIds?: Set<string>;
   onReveal: (id: string) => void;
@@ -61,6 +72,10 @@ const columnHelper = legacyCreateColumnHelper<Variable>();
 export function VariablesTableView({
   variables,
   isLoading = false,
+  isError = false,
+  onCopyEnv,
+  onImport,
+  isImporting,
   revealedIds,
   revealingIds,
   onReveal,
@@ -78,6 +93,7 @@ export function VariablesTableView({
 
   const isValueRevealed = (variable: Variable) =>
     variable.type === "config" || revealedIds.has(variable.id);
+  const isValueRevealedFn = isValueRevealed;
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     key: string;
@@ -86,6 +102,70 @@ export function VariablesTableView({
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editVariable, setEditVariable] = useState<Variable | null>(null);
   const [editLoadingValue, setEditLoadingValue] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importText, setImportText] = useState("");
+  const [copyingEnv, setCopyingEnv] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const copiedTimer = useRef<number | undefined>(undefined);
+
+  const flashCopied = useCallback((id: string) => {
+    setCopiedId(id);
+    window.clearTimeout(copiedTimer.current);
+    copiedTimer.current = window.setTimeout(() => setCopiedId(null), 1500);
+  }, []);
+
+  const copyValue = useCallback(
+    async (variable: Variable) => {
+      try {
+        const value =
+          variable.value !== undefined && isValueRevealedFn(variable)
+            ? variable.value
+            : await onFetchValue(variable.id);
+        await navigator.clipboard.writeText(value);
+        flashCopied(variable.id);
+        toast.success(`Copied ${variable.key}`);
+      } catch {
+        toast.error("Could not copy value");
+      }
+    },
+    // biome-ignore lint/correctness/useExhaustiveDependencies: isValueRevealedFn reads revealedIds
+    [onFetchValue, flashCopied, revealedIds],
+  );
+
+  const copyAsEnv = async () => {
+    setCopyingEnv(true);
+    try {
+      const text = await onCopyEnv();
+      await navigator.clipboard.writeText(text ? `${text}\n` : "");
+      toast.success("Copied environment as .env");
+    } catch {
+      toast.error("Could not copy .env");
+    } finally {
+      setCopyingEnv(false);
+    }
+  };
+
+  // Paste a .env block anywhere on the page (outside inputs) to import it.
+  useEffect(() => {
+    const onPaste = (event: ClipboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest?.("input, textarea, [contenteditable=true], [role=dialog]"))
+        return;
+      const text = event.clipboardData?.getData("text/plain") ?? "";
+      if (!looksLikeDotenv(text)) return;
+      event.preventDefault();
+      setImportText(text);
+      setImportOpen(true);
+    };
+    document.addEventListener("paste", onPaste);
+    return () => document.removeEventListener("paste", onPaste);
+  }, []);
+
+  const existingKeys = useMemo(
+    () => new Set(variables.map((v) => v.key)),
+    [variables],
+  );
+
   const [expandedValueIds, setExpandedValueIds] = useState<Set<string>>(
     () => new Set(),
   );
@@ -146,8 +226,7 @@ export function VariablesTableView({
         enableSorting: false,
         meta: {
           className:
-            "min-w-0 max-w-none w-auto py-2 ps-2 pe-1 sm:max-w-[12rem] sm:py-2.5 sm:ps-2.5 sm:pe-2.5",
-          headerClassName: "ps-2 sm:ps-2.5",
+            "min-w-0 max-w-none w-auto sm:max-w-[12rem]",
         },
         header: () => (
           <span className="font-medium text-muted-foreground text-xs">Key</span>
@@ -192,7 +271,7 @@ export function VariablesTableView({
         id: "value",
         meta: {
           className:
-            "hidden min-w-0 max-w-[10rem] py-2.5 sm:table-cell md:max-w-[14rem]",
+            "hidden min-w-0 max-w-[12rem] sm:table-cell md:max-w-[18rem]",
         },
         header: "Value",
         enableSorting: false,
@@ -203,13 +282,49 @@ export function VariablesTableView({
           const showExpand =
             isRevealed && Boolean(variable.value && variable.value.length > 80);
 
+          const isConfig = variable.type === "config";
+          const revealing = revealingIds?.has(variable.id) ?? false;
           return (
             <div>
-              <SecretValue
-                revealed={isRevealed}
-                value={variable.value}
-                expanded={isValueExpanded}
-              />
+              <div className="flex min-w-0 items-center gap-1">
+                <SecretValue
+                  revealed={isRevealed}
+                  value={variable.value}
+                  expanded={isValueExpanded}
+                  className="min-w-0 flex-1"
+                />
+                {isConfig ? (
+                  <span className="size-7 shrink-0" aria-hidden />
+                ) : (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="size-7 shrink-0 text-muted-foreground"
+                    aria-label={isRevealed ? `Hide ${variable.key}` : `Reveal ${variable.key}`}
+                    loading={revealing}
+                    onClick={() => onReveal(variable.id)}
+                    data-testid="variable-reveal"
+                  >
+                    <AppIcon name={isRevealed ? "hide" : "reveal"} />
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="size-7 shrink-0 text-muted-foreground"
+                  aria-label={`Copy ${variable.key}`}
+                  onClick={() => void copyValue(variable)}
+                  data-testid="variable-copy"
+                >
+                  {copiedId === variable.id ? (
+                    <CheckIcon className="size-4" />
+                  ) : (
+                    <AppIcon name="copy" />
+                  )}
+                </Button>
+              </div>
               {showExpand ? (
                 <Button
                   type="button"
@@ -228,7 +343,7 @@ export function VariablesTableView({
             columnHelper.display({
               id: "updatedBy",
               meta: {
-                className: "hidden min-w-[10rem] py-2.5 md:table-cell",
+                className: "hidden min-w-[10rem] md:table-cell",
               },
               header: "Updated",
               enableSorting: false,
@@ -248,7 +363,7 @@ export function VariablesTableView({
       columnHelper.display({
         id: "actions",
         meta: {
-          className: "w-10 py-2 pe-2 ps-0 sm:py-2.5 sm:pe-2.5",
+          className: "w-10 ps-0",
         },
         header: () => <DataTableActionsColumnHeader />,
         enableSorting: false,
@@ -278,11 +393,7 @@ export function VariablesTableView({
                     icon: (
                       <AppIcon name="copy" className="me-2 text-foreground" />
                     ),
-                    disabled: !isRevealed || !variable.value,
-                    onSelect: () => {
-                      void navigator.clipboard.writeText(variable.value ?? "");
-                      toast.success("Copied to clipboard");
-                    },
+                    onSelect: () => void copyValue(variable),
                   },
                   {
                     label: "Edit",
@@ -307,6 +418,8 @@ export function VariablesTableView({
       }),
     ],
     [
+      copiedId,
+      copyValue,
       expandedValueIds,
       handleDelete,
       handleEdit,
@@ -324,6 +437,38 @@ export function VariablesTableView({
         columns={columns}
         data={variables}
         isLoading={isLoading}
+        isError={isError}
+        errorTitle="Failed to load variables"
+        errorDescription="We could not load environment variables."
+        toolbarTrailing={
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-8"
+              loading={copyingEnv}
+              disabled={variables.length === 0}
+              onClick={() => void copyAsEnv()}
+              data-testid="copy-as-env"
+            >
+              <AppIcon name="copyEnv" />
+              Copy as .env
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-8"
+              onClick={() => {
+                setImportText("");
+                setImportOpen(true);
+              }}
+              data-testid="import-env"
+            >
+              <AppIcon name="importFile" />
+              Import .env
+            </Button>
+          </>
+        }
         searchable
         searchPlaceholder="Search variables…"
         enablePagination={variables.length > 15}
@@ -396,6 +541,15 @@ export function VariablesTableView({
         confirmLabel="Delete"
         variant="destructive"
         onConfirm={confirmDelete}
+      />
+
+      <ImportEnvDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        initialText={importText}
+        existingKeys={existingKeys}
+        onImport={onImport}
+        isPending={isImporting}
       />
     </>
   );
