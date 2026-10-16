@@ -7,7 +7,10 @@ export function getStudioAppOrigin(): string {
   );
 }
 
+/** Absolute studio URL; the studio home is the origin itself (no trailing slash, #319). */
 export function studioDashboardPath(path: string): string {
   const normalized = path.startsWith("/") ? path : `/${path}`;
-  return `${getStudioAppOrigin()}${normalized}`;
+  return normalized === "/"
+    ? getStudioAppOrigin()
+    : `${getStudioAppOrigin()}${normalized}`;
 }

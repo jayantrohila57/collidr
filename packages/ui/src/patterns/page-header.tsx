@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import type React from "react";
 import { type ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -59,10 +59,17 @@ export function PageHeaderBackLink({
   LinkComponent?: LinkLike | "a";
 }) {
   const L = LinkComponent as React.ElementType;
-  const icon = <ArrowLeft className="size-4" aria-hidden />;
+  // Same chevron as studio's PageBackButton (AppIcon "back") so every
+  // header's back control looks identical (#319).
+  const icon = <ChevronLeft className="size-4" aria-hidden />;
   if (href) {
     return (
-      <L href={href} className={pageHeaderBackButtonClass} aria-label="Back">
+      <L
+        href={href}
+        className={pageHeaderBackButtonClass}
+        aria-label="Back"
+        title="Back"
+      >
         {icon}
       </L>
     );
@@ -72,6 +79,7 @@ export function PageHeaderBackLink({
       type="button"
       className={pageHeaderBackButtonClass}
       aria-label="Back"
+      title="Back"
       onClick={() => window.history.back()}
     >
       {icon}
