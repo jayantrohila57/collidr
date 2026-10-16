@@ -18,6 +18,7 @@ import { DEFAULT_STUDIO_URL } from "@loftlancer/env/platform";
 import type { Route } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { getServerSession } from "@/lib/server-auth";
 
 const appOrigin = (
@@ -79,13 +80,14 @@ export async function guardPageAction(
   return session;
 }
 
-export async function guardOrganizationSlugMembership(slug: string) {
+/** Cached per request: the [slug] layout and its page both call this. */
+export const guardOrganizationSlugMembership = cache(async (slug: string) => {
   const session = await guardAuthenticatedPage();
   const org = await runPageGuard(() =>
     resolveOrganizationForPage(session.user.id, slug),
   );
   return { session, org };
-}
+});
 
 export async function guardOrganizationSlugPage(
   slug: string,
@@ -158,9 +160,9 @@ export async function guardSupportTicketPage(
   ticketId: string,
 ): Promise<AuthSession> {
   const session = await guardAuthenticatedPage();
-  const { requireSupportTicketPage } = await import("@loftlancer/api/page-guards");
-  await runPageGuard(() =>
-    requireSupportTicketPage(session.user.id, ticketId),
+  const { requireSupportTicketPage } = await import(
+    "@loftlancer/api/page-guards"
   );
+  await runPageGuard(() => requireSupportTicketPage(session.user.id, ticketId));
   return session;
 }

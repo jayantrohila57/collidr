@@ -144,13 +144,13 @@ export const auditEventsRouter = router({
         await requireAction("audit.timeline.view.self", {
           userId,
           organizationId,
-        audit: false,
+          audit: false,
         });
       } else {
         await requireAction("audit.timeline.view.org", {
           userId,
           organizationId,
-        audit: false,
+          audit: false,
         });
       }
 
@@ -180,7 +180,7 @@ export const auditEventsRouter = router({
       return { total: rows.length, byResult, byAction };
     }),
   /**
-   * Per-day event counts (UTC) for one calendar year, for the activity heatmap.
+   * Per-day event counts (in the viewer's time zone) for one calendar year, for the activity heatmap.
    * Same scope + permission rules as `stats`; passive and denied events excluded.
    */
   heatmap: orgAwareProcedure
@@ -188,9 +188,24 @@ export const auditEventsRouter = router({
       z.object({
         scope: z.enum(["org", "self"]).default("self"),
         year: z.number().int().min(2000).max(2100).optional(),
+        /** IANA zone the viewer buckets days in (e.g. Asia/Calcutta). */
+        timeZone: z
+          .string()
+          .max(64)
+          .regex(/^[A-Za-z0-9_+\-/]+$/)
+          .optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
+      let tz = "UTC";
+      if (input.timeZone) {
+        try {
+          new Intl.DateTimeFormat("en", { timeZone: input.timeZone });
+          tz = input.timeZone;
+        } catch {
+          tz = "UTC";
+        }
+      }
       if (!isActionsAuditEnabled()) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
@@ -217,26 +232,38 @@ export const auditEventsRouter = router({
         ne(auditEvent.result, "denied"),
       );
 
-      const yearExpr = sql<number>`extract(year from ${auditEvent.createdAt} at time zone 'UTC')::int`;
+      const yearExpr = sql<number>`extract(year from ${auditEvent.createdAt} at time zone ${tz})::int`;
       const yearRows = await db
         .selectDistinct({ year: yearExpr })
         .from(auditEvent)
         .where(filters);
-      const currentYear = new Date().getUTCFullYear();
+      const currentYear = Number(
+        new Intl.DateTimeFormat("en", { timeZone: tz, year: "numeric" }).format(
+          new Date(),
+        ),
+      );
       const years = Array.from(
         new Set([currentYear, ...yearRows.map((r) => Number(r.year))]),
       ).sort((a, b) => b - a);
       const year = input.year ?? currentYear;
 
-      const dayExpr = sql<string>`to_char(${auditEvent.createdAt} at time zone 'UTC', 'YYYY-MM-DD')`;
+      const dayExpr = sql<string>`to_char(${auditEvent.createdAt} at time zone ${tz}, 'YYYY-MM-DD')`;
       const rows = await db
         .select({ date: dayExpr, count: sql<number>`count(*)::int` })
         .from(auditEvent)
         .where(
           and(
             filters,
-            gte(auditEvent.createdAt, new Date(Date.UTC(year, 0, 1))),
-            lt(auditEvent.createdAt, new Date(Date.UTC(year + 1, 0, 1))),
+            // ±1 day margin covers any zone offset; exact year filter below.
+            gte(
+              auditEvent.createdAt,
+              new Date(Date.UTC(year, 0, 1) - 86_400_000),
+            ),
+            lt(
+              auditEvent.createdAt,
+              new Date(Date.UTC(year + 1, 0, 1) + 86_400_000),
+            ),
+            sql`${yearExpr} = ${year}`,
           ),
         )
         .groupBy(dayExpr);

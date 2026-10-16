@@ -22,7 +22,11 @@ export function ActivityOverview({
   const enabled = isActionsAuditEnabledOnClient();
   const [year, setYear] = useState<number | undefined>(undefined);
   const { data, isPending, isError } = useQuery({
-    ...trpc.auditEvents.heatmap.queryOptions({ scope, year }),
+    ...trpc.auditEvents.heatmap.queryOptions({
+      scope,
+      year,
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    }),
     enabled,
   });
   if (!enabled || isError) return null;
@@ -54,7 +58,10 @@ export function ActivityOverview({
           <div className="flex flex-wrap gap-2">
             <StatChip label="events" value={data.total} />
             <StatChip label="active days" value={streaks.activeDays} />
-            <StatChip label="longest streak (days)" value={streaks.longestStreak} />
+            <StatChip
+              label="longest streak (days)"
+              value={streaks.longestStreak}
+            />
           </div>
           <ActivityHeatmap year={data.year} days={data.days} />
         </>

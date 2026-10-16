@@ -145,11 +145,13 @@ export function RoleBadge({
   const label =
     normalized === "owner"
       ? "Owner"
-      : normalized === "admin" || normalized === "manager"
+      : normalized === "manager"
         ? "Manager"
-        : normalized === "member"
-          ? "Member"
-          : formatLabel(role);
+        : normalized === "admin"
+          ? "Admin"
+          : normalized === "member"
+            ? "Member"
+            : formatLabel(role);
 
   return (
     <OutlineStatusBadge label={label} tone="muted" className={className} />
