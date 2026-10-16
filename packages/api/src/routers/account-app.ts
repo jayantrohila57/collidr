@@ -1,3 +1,4 @@
+import { sidebarRouter } from "./sidebar";
 import { actionGuard } from "../actions/action-guard";
 import { protectedProcedure, publicProcedure, router } from "../index";
 import { accountRouter } from "./account";
@@ -16,6 +17,7 @@ export const accountAppRouter = router({
       .query(async ({ ctx }) => fetchUserAccountStats(ctx.session.user.id)),
   }),
   permissions: permissionsRouter,
+  sidebar: sidebarRouter,
 });
 
 export type AccountAppRouter = typeof accountAppRouter;

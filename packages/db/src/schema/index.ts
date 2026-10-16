@@ -14,3 +14,4 @@ export * from "./rate-limit-bucket";
 export * from "./support";
 export * from "./team";
 export * from "./variable-type";
+export * from "./project-pin";
