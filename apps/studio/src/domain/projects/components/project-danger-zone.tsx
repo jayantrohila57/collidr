@@ -108,6 +108,7 @@ export function ProjectDangerZone({ project }: ProjectDangerZoneProps) {
         actionText="Delete project"
         variant="destructive"
         onConfirm={deleteProject}
+        confirmText={project.name}
         isPending={isDeleting}
       />
 

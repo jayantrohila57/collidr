@@ -227,6 +227,7 @@ export function ProjectActions({ project, onUpdate }: ProjectActionsProps) {
         actionText="Delete Project"
         variant="destructive"
         onConfirm={deleteProject}
+        confirmText={project.name}
         isPending={isDeleting}
       />
 

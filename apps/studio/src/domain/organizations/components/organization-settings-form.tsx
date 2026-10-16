@@ -39,15 +39,6 @@ import {
 } from "@/components/patterns/settings-tabs";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
-import {
-  AlertDialog,
-  AlertDialogClose,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogPopup,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -166,7 +157,6 @@ export function OrganizationSettingsForm({
   const [memberQuery, setMemberQuery] = useState("");
   const editOrgCloseWithoutPromptRef = useRef<(() => void) | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteConfirmName, setDeleteConfirmName] = useState("");
   const [deletePending, setDeletePending] = useState(false);
   const [leavePending, setLeavePending] = useState(false);
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
@@ -258,7 +248,6 @@ export function OrganizationSettingsForm({
     setError(false);
     setSlugError(undefined);
     setDeleteOpen(false);
-    setDeleteConfirmName("");
 
     void (async () => {
       try {
@@ -399,7 +388,6 @@ export function OrganizationSettingsForm({
   };
 
   const handleDelete = async () => {
-    if (deleteConfirmName !== orgName) return;
     const deletedId = organizationId;
     const deletedName = orgName;
     const fallback = orgs.find((o) => o.id !== deletedId);
@@ -778,7 +766,6 @@ export function OrganizationSettingsForm({
                         className="w-fit"
                         disabled={orgs.length <= 1 || deletePending}
                         onClick={() => {
-                          setDeleteConfirmName("");
                           setDeleteOpen(true);
                         }}
                       >
@@ -926,45 +913,17 @@ export function OrganizationSettingsForm({
         isPending={rolePendingId !== null}
       />
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogPopup>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete organization</AlertDialogTitle>
-            <AlertDialogDescription>
-              Type <strong>{orgName}</strong> to confirm deleting organization{" "}
-              <strong>{orgSlug}</strong>. This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <Input
-            value={deleteConfirmName}
-            onChange={(e) => setDeleteConfirmName(e.target.value)}
-            placeholder={orgName}
-            aria-label="Confirm organization name"
-          />
-          <AlertDialogFooter>
-            <AlertDialogClose
-              render={<Button variant="ghost" disabled={deletePending} />}
-            >
-              Cancel
-            </AlertDialogClose>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={deletePending || deleteConfirmName !== orgName}
-              onClick={() => void handleDelete()}
-            >
-              {deletePending ? (
-                <>
-                  <Spinner className="me-2" />
-                  Deleting…
-                </>
-              ) : (
-                "Delete"
-              )}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogPopup>
-      </AlertDialog>
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Delete organization"
+        description={`Delete organization ${orgSlug} with all its projects, environments and variables? This cannot be undone.`}
+        confirmLabel="Delete organization"
+        confirmText={orgName}
+        variant="destructive"
+        onConfirm={handleDelete}
+        isPending={deletePending}
+      />
     </>
   );
 }
