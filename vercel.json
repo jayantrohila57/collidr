@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "$comment": "Single Vercel project (Services): docs at /, auth (incl. account settings) at /auth, studio at /studio. Same-origin cookies on loftlancer.com.",
   "git": {
     "deploymentEnabled": {
       "*": false,
@@ -12,30 +11,57 @@
       "root": "apps/docs",
       "framework": "nextjs",
       "installCommand": "cd ../.. && pnpm install",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=docs",
-      "env": { "VERCEL_SERVICES": "1" }
+      "buildCommand": "cd ../.. && VERCEL_SERVICES=1 pnpm turbo run build --filter=docs"
     },
     "auth": {
       "root": "apps/auth",
       "framework": "nextjs",
       "installCommand": "cd ../.. && pnpm install",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=auth",
-      "env": { "VERCEL_SERVICES": "1", "NEXT_BASE_PATH": "/auth" }
+      "buildCommand": "cd ../.. && VERCEL_SERVICES=1 NEXT_BASE_PATH=/auth pnpm turbo run build --filter=auth"
     },
     "studio": {
       "root": "apps/studio",
       "framework": "nextjs",
       "installCommand": "cd ../.. && pnpm install",
-      "buildCommand": "cd ../.. && pnpm turbo run build --filter=studio",
-      "env": { "VERCEL_SERVICES": "1", "NEXT_BASE_PATH": "/studio" }
+      "buildCommand": "cd ../.. && VERCEL_SERVICES=1 NEXT_BASE_PATH=/studio pnpm turbo run build --filter=studio"
     }
   },
   "rewrites": [
-    { "source": "/auth", "destination": { "service": "auth" } },
-    { "source": "/auth/:path*", "destination": { "service": "auth" } },
-    { "source": "/studio", "destination": { "service": "studio" } },
-    { "source": "/studio/:path*", "destination": { "service": "studio" } },
-    { "source": "/", "destination": { "service": "docs" } },
-    { "source": "/:path*", "destination": { "service": "docs" } }
+    {
+      "source": "/auth",
+      "destination": {
+        "service": "auth"
+      }
+    },
+    {
+      "source": "/auth/:path*",
+      "destination": {
+        "service": "auth"
+      }
+    },
+    {
+      "source": "/studio",
+      "destination": {
+        "service": "studio"
+      }
+    },
+    {
+      "source": "/studio/:path*",
+      "destination": {
+        "service": "studio"
+      }
+    },
+    {
+      "source": "/",
+      "destination": {
+        "service": "docs"
+      }
+    },
+    {
+      "source": "/:path*",
+      "destination": {
+        "service": "docs"
+      }
+    }
   ]
 }
