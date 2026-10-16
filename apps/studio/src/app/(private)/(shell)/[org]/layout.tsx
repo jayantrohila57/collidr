@@ -2,7 +2,7 @@ import { isReservedOrgSlug } from "@loftlancer/ui/studio-routes";
 import { notFound } from "next/navigation";
 import {
   guardOrganizationSlugMembership,
-  preflightProjectSegment,
+  preflightOrgSubtree,
 } from "@/lib/page-guards";
 
 /**
@@ -20,6 +20,6 @@ export default async function OrganizationLayout({
   // Route words (old /dashboard, /p/…) can never be an org: 404 without a DB hit.
   if (isReservedOrgSlug(slug)) notFound();
   await guardOrganizationSlugMembership(slug);
-  await preflightProjectSegment(slug);
+  await preflightOrgSubtree(slug);
   return children;
 }
