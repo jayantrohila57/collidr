@@ -4,7 +4,7 @@ import {
   HeaderUserMenu,
   type UserMenuProps,
 } from "@loftlancer/ui/patterns/sidebar-kit";
-import { docsSiteUrl } from "@loftlancer/ui/platform-urls";
+import { docsUrl } from "@loftlancer/ui/platform-urls";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { accountSettingsUrl } from "@/lib/account-url";
@@ -32,7 +32,7 @@ export function useUserMenuProps(): UserMenuProps & { ready: boolean } {
       isOrganizationsEnabledOnClient() && orgSlug
         ? withBasePath(routes.orgSection(orgSlug, "settings"))
         : null,
-    docsHref: docsSiteUrl(),
+    docsHref: docsUrl(),
     supportHref: withBasePath(routes.supportTickets()),
     onSignOut: () => performSignOut({ queryClient, router }),
   };
