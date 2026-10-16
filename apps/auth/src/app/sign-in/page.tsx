@@ -1,11 +1,6 @@
 import { Button } from "@loftlancer/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardPanel,
-  CardTitle,
-} from "@loftlancer/ui/card";
+import { Auth5Panel, AuthDivider } from "@loftlancer/ui/patterns/auth-5";
+import { ChevronLeftIcon } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -30,27 +25,30 @@ export default async function SignInPage({
   }
 
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Sign in</CardTitle>
-          <CardDescription>
-            GitHub is the sign-in method for Loftlancer (enterprise SSO is not
-            enabled yet).
-          </CardDescription>
-        </CardHeader>
-        <CardPanel className="flex flex-col gap-4">
-          <Suspense fallback={null}>
-            <GitHubSignInButton />
-          </Suspense>
-          <Button variant="outline" render={<Link href="/device" />}>
-            Device sign-in (CLI)
-          </Button>
-          <Button variant="ghost" render={<Link href="/sign-up" />}>
-            Create an account
-          </Button>
-        </CardPanel>
-      </Card>
-    </div>
+    <Auth5Panel
+      topLeft={
+        <Button variant="ghost" render={<a href="https://loftlancer.com/" />}>
+          <ChevronLeftIcon aria-hidden />
+          Home
+        </Button>
+      }
+      footer={
+        <>
+          <AuthDivider>OR</AuthDivider>
+          <div className="flex flex-col gap-2">
+            <Button variant="outline" render={<Link href="/device" />}>
+              Device sign-in (CLI)
+            </Button>
+            <Button variant="ghost" render={<Link href="/sign-up" />}>
+              Create an account
+            </Button>
+          </div>
+        </>
+      }
+    >
+      <Suspense fallback={null}>
+        <GitHubSignInButton />
+      </Suspense>
+    </Auth5Panel>
   );
 }

@@ -29,6 +29,7 @@
     },
     "./page-header-grid-classes": "./src/lib/page-header-grid-classes.ts",
     "./patterns/impersonation-banner": "./src/patterns/impersonation-banner.tsx",
+    "./patterns/auth-5": "./src/patterns/auth-5.tsx",
     "./patterns/page-state": "./src/patterns/page-state.tsx",
     "./patterns/app-route-states": "./src/patterns/app-route-states.tsx",
     "./app-shell": {

@@ -9,7 +9,9 @@ export const metadata = {
 };
 
 export default function HomePage() {
-  const signInHref = buildSignInUrl();
+  const signInHref = buildSignInUrl({
+    returnTo: "https://loftlancer.com/studio/dashboard",
+  });
 
   return (
     <MarketingLanding signInHref={signInHref} headerActions={<ModeToggle />} />
