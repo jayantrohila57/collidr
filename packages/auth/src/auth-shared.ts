@@ -255,11 +255,17 @@ export function organizationPlugin() {
         },
         afterCreateTeam: async ({ team, user }) => {
           if (!user?.id) return;
-          await db.insert(teamMember).values({
-            id: crypto.randomUUID(),
-            teamId: team.id,
-            userId: user.id,
-          });
+          // Better Auth already adds the creator to the default team when it
+          // creates an organization; a plain insert hit team_member_team_user_uidx
+          // and turned organization/create into a 500 after the org was saved.
+          await db
+            .insert(teamMember)
+            .values({
+              id: crypto.randomUUID(),
+              teamId: team.id,
+              userId: user.id,
+            })
+            .onConflictDoNothing();
         },
       },
     }),

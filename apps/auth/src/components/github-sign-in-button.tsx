@@ -2,6 +2,7 @@
 
 import { validateReturnTo } from "@loftlancer/auth/return-to";
 import { Button } from "@loftlancer/ui/button";
+import { GithubIcon } from "@loftlancer/ui/github-icon";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
@@ -45,6 +46,7 @@ export function GitHubSignInButton({
       disabled={loading}
       onClick={handleClick}
     >
+      <GithubIcon aria-hidden />
       {loading ? "Redirecting to GitHub…" : label}
     </Button>
   );
