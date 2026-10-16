@@ -1,3 +1,4 @@
+import { appUrl } from "@/lib/base-path";
 import { appendOttToUrl, isCrossOriginReturnTo } from "@loftlancer/auth";
 import { validateReturnTo } from "@loftlancer/auth/return-to";
 import { env } from "@loftlancer/env/server";
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
   const session = await platformAuth.api.getSession({ headers: headerList });
 
   if (!session) {
-    const signIn = new URL("/sign-in", request.url);
+    const signIn = appUrl(request, "/sign-in");
     signIn.searchParams.set("return_to", returnTo);
     return NextResponse.redirect(signIn);
   }
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
     },
   });
   if (!tokenResponse.ok) {
-    return NextResponse.redirect(new URL("/sign-in", request.url));
+    return NextResponse.redirect(appUrl(request, "/sign-in"));
   }
   const { token } = (await tokenResponse.json()) as { token: string };
 

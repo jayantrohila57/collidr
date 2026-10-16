@@ -1,4 +1,5 @@
 "use client";
+import { withBasePath } from "@/lib/base-path";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
@@ -56,7 +57,7 @@ export function NotificationPoller() {
         action: {
           label: "View",
           onClick: () => {
-            window.location.assign(item.href);
+            window.location.assign(withBasePath(item.href));
           },
         },
       });
@@ -68,7 +69,7 @@ export function NotificationPoller() {
         action: {
           label: "View all",
           onClick: () => {
-            window.location.assign("/dashboard/notifications");
+            window.location.assign(withBasePath("/dashboard/notifications"));
           },
         },
       });

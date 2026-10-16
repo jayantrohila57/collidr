@@ -1,4 +1,5 @@
 "use client";
+import { withBasePath } from "@/lib/base-path";
 
 import Link from "next/link";
 import { AppIcon } from "@/components/patterns/app-icon";
@@ -45,7 +46,7 @@ export default function EditProjectPage({ projectSlug }: EditProjectPageProps) {
         project={project}
         onSuccess={() => {
           // Redirect back to project page after successful edit
-          window.location.href = `/dashboard/projects/${projectSlug}`;
+          window.location.href = withBasePath(`/dashboard/projects/${projectSlug}`);
         }}
       />
     </div>
