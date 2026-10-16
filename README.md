@@ -1,37 +1,60 @@
 # Loftlancer
 
-![Loftlancer OG Image](https://studio.loftlancer.com/opengraph-image.png)
+![Loftlancer OG Image](https://loftlancer.com/opengraph-image.png)
 
-**Live app:** [https://loftlancer.com/studio](https://loftlancer.com/studio)
+**Loftlancer** is an environment and secrets manager for teams. Store and organize environment variables across **organizations**, **projects** and **environments** (dev, staging, production), with values encrypted at rest, role-based access, an audit timeline, notifications and soft deletes.
 
-Loftlancer is a web dashboard and **pnpm/Turbo monorepo** for storing and organizing environment variables across **organizations**, **projects**, and **environments** (dev, staging, production). Values are encrypted at rest; changes flow through a **canonical actions** layer with optional **audit timeline**, **notifications**, and **soft deletes**.
+**Live:** [loftlancer.com](https://loftlancer.com) · [Sign in](https://loftlancer.com/auth/sign-in) · [Studio](https://loftlancer.com/studio)
+
+## Architecture
+
+Loftlancer runs as **one Vercel project** (Vercel Services) on **loftlancer.com**, with three Next.js apps routed by path:
+
+| Path | App | Purpose |
+| ---- | --- | ------- |
+| `/` | `apps/docs` | Landing page and Fumadocs documentation (static export) |
+| `/auth` | `apps/auth` | Sign-in (GitHub OAuth), sessions and account settings (`/auth/settings/*`) |
+| `/studio` | `apps/studio` | Product dashboard: organizations, projects, environments, variables |
+
+Routing lives in the root [`vercel.json`](./vercel.json) (`services` + `rewrites`). Session cookies are same-origin on loftlancer.com. Better Auth is served at `/auth/api/auth`; the GitHub OAuth callback is `https://loftlancer.com/auth/api/auth/callback/github`.
+
+```mermaid
+flowchart LR
+  B[Browser] --> D[loftlancer.com]
+  D --> R{Vercel rewrites}
+  R -->|/| Docs[apps/docs]
+  R -->|/auth| Auth[apps/auth]
+  R -->|/studio| Studio[apps/studio]
+  Auth <-->|OAuth| GH[GitHub OAuth]
+  Auth --> DB[(Neon Postgres)]
+  Studio --> DB
+```
 
 ## Workflow & contributions
 
-- Track work in [GitHub issues](https://github.com/jayantrohila57/loftlancer/issues) on the Loftlancer project. Agents work **from issues only**; closing commits use **`Fixes #N`**.
-- Delivery: commits on **`main`** → `git pull --rebase origin main` → push (no feature-branch previews, no force-push). See [AGENTS.md](./AGENTS.md).
+- Track work in [GitHub issues](https://github.com/jayantrohila57/loftlancer/issues). Every commit references its issue with **`Fixes #N`**.
+- Delivery: feature branch → `dev` → `main`. Only `main` deploys (one Vercel production deploy per push). See [AGENTS.md](./AGENTS.md).
 
 ## Monorepo layout
 
 | Path | Purpose |
 | ---- | ------- |
-| `apps/web` | **Legacy** production app (unchanged until P3 cutover [#97](https://github.com/jayantrohila57/loftlancer/issues/97)) |
-| `apps/auth` | Platform auth issuer — sign-in, device flow, MCP OAuth config, email-link origin |
-| `apps/studio` | Product UI (parity with `apps/web`); per-app tRPC + session via auth redirects |
-| `apps/account` | Account settings at `/settings/*`; per-app tRPC subset |
-| `apps/www` | Public marketing landing (Decision 4); CTAs → auth `sign-in` with `return_to` studio |
-| `apps/docs` | Public Fumadocs site (product guides, API overview, MCP reference) |
+| `apps/docs` | Landing + docs at `/` |
+| `apps/auth` | Auth issuer + account settings at `/auth` |
+| `apps/studio` | Product UI at `/studio` |
 | `packages/api` | tRPC routers (projects, orgs, access, audit, notifications, account, …) |
 | `packages/actions` | Canonical action registry, org roles, `requireAction` evaluation |
 | `packages/auth` | Better Auth (GitHub OAuth, organizations, teams) |
+| `packages/auth-client` | Shared Better Auth React client |
 | `packages/db` | Drizzle schema, migrations, soft-delete helpers, `db:reset-seed` |
 | `packages/notifications` | Notification types, triggers, idempotent writers |
 | `packages/crypto` | AES-256-GCM encrypt/decrypt for secret values |
 | `packages/env` | Shared Zod env validation & feature flags |
+| `packages/mcp` | MCP tool definitions (used by the docs tool reference) |
 | `packages/config` | Shared TypeScript/Biome config |
-| `packages/ui` | Shared coss/shadcn UI (`@loftlancer/ui`) — marketing chrome and primitives |
+| `packages/ui` | Shared coss/shadcn UI (`@loftlancer/ui`) |
 
-Further apps: `apps/console`, `apps/mcp`, `apps/docs`, … — see [docs/PLAN_PLATFORM_APPS.md](./docs/PLAN_PLATFORM_APPS.md). MCP deploy env: [docs/MCP_DEPLOY.md](./docs/MCP_DEPLOY.md).
+**Legacy history:** `apps/web`, `apps/www`, `apps/console`, `apps/mcp`, `apps/account` and `apps/support` were removed in October 2026 ([#163](https://github.com/jayantrohila57/loftlancer/issues/163)). Account settings moved into `apps/auth`; the admin console, standalone MCP server and support app are no longer deployed. Their history remains in git.
 
 ## Product concepts
 
@@ -67,13 +90,13 @@ pnpm install
 
 ## Environment variables
 
-Create **`apps/web/.env`** (Drizzle Kit reads this path for database commands). Validated via `@loftlancer/env`:
+Create **`apps/studio/.env`** (Drizzle Kit reads this path for database commands). Validated via `@loftlancer/env`:
 
 | Variable | Required | Description |
 | -------- | -------- | ----------- |
 | `DATABASE_URL` | yes | PostgreSQL connection URL |
 | `BETTER_AUTH_SECRET` | yes | Session secret (≥ 32 characters) |
-| `BETTER_AUTH_URL` | yes | Public app URL (e.g. `http://localhost:3000`) |
+| `BETTER_AUTH_URL` | yes | Public auth app URL (`https://loftlancer.com/auth` in production, `http://localhost:3000` locally) |
 | `CORS_ORIGIN` | yes | Browser origin (usually same as `BETTER_AUTH_URL` in dev) |
 | `ENCRYPTION_KEY` | yes | 64 hex chars (32 bytes) for AES-256-GCM |
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | yes | GitHub OAuth |
@@ -93,7 +116,7 @@ openssl rand -hex 32    # ENCRYPTION_KEY
 openssl rand -base64 32 # BETTER_AUTH_SECRET
 ```
 
-GitHub OAuth callback: `{BETTER_AUTH_URL}/api/auth/callback/github`.
+GitHub OAuth callback: `{BETTER_AUTH_URL}/api/auth/callback/github` (production: `https://loftlancer.com/auth/api/auth/callback/github`).
 
 ## Database
 
@@ -115,15 +138,14 @@ Production uses **reviewed SQL / push**, not automatic migrate on deploy — [pa
 ## Run & build
 
 ```bash
-pnpm dev:web
-pnpm dev:www    # marketing site on :3006          # Next.js on http://localhost:3000
-pnpm dev              # Turbo dev (all apps with dev tasks)
+pnpm dev:auth     # http://localhost:3000
+pnpm dev:studio   # http://localhost:3001
+pnpm dev:docs
+pnpm dev          # all apps via Turbo
 pnpm build
 pnpm check-types
-pnpm a11y             # accessibility checks (web, Turbo task `a11y` → web)
+pnpm test
 ```
-
-**Turbo / remote cache (`a11y`):** Root `pnpm a11y` runs the `a11y` pipeline in `turbo.json` (scoped to `web`). Turbo restores a cached run when inputs (`e2e/**`, `playwright.config.ts`, and default package files) and env are unchanged. Cache keys include `globalEnv` feature flags plus `tasks.a11y.env` (CI, Playwright/E2E URLs and secrets, auth/DB URLs). Change those env vars or e2e sources to invalidate the cache — same pattern as `build` and CI `pnpm a11y`.
 
 ## Tech stack
 
