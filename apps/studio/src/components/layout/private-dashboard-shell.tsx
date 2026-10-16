@@ -12,8 +12,11 @@ import { NotificationPoller } from "@/domain/notifications/components/notificati
 
 export function PrivateDashboardShell({
   children,
+  orgReady = false,
 }: {
   children: React.ReactNode;
+  /** Server session already has an active org (see OrgOnboardingGate). */
+  orgReady?: boolean;
 }) {
   return (
     <ActiveOrganizationProvider>
@@ -29,7 +32,9 @@ export function PrivateDashboardShell({
           </>
         }
       >
-        <OrgOnboardingGate>{children}</OrgOnboardingGate>
+        <OrgOnboardingGate initialReady={orgReady}>
+          {children}
+        </OrgOnboardingGate>
       </AppShell>
     </ActiveOrganizationProvider>
   );

@@ -1,3 +1,4 @@
+import { getSessionActiveOrganizationId } from "@loftlancer/auth/session-types";
 import { HydrationBoundary } from "@tanstack/react-query";
 import { PrivateDashboardShell } from "@/components/layout/private-dashboard-shell";
 import { guardAuthenticatedPage } from "@/lib/page-guards";
@@ -13,7 +14,11 @@ export default async function DashboardLayout({
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <PrivateDashboardShell>{children}</PrivateDashboardShell>
+      <PrivateDashboardShell
+        orgReady={Boolean(getSessionActiveOrganizationId(session))}
+      >
+        {children}
+      </PrivateDashboardShell>
     </HydrationBoundary>
   );
 }

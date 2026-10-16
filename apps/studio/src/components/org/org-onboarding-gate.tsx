@@ -18,11 +18,24 @@ function isExemptPath(pathname: string): boolean {
   );
 }
 
-export function OrgOnboardingGate({ children }: { children: React.ReactNode }) {
+/**
+ * `initialReady` comes from the server session (an active org is set), so the
+ * page renders during SSR. Without it the server HTML is only a spinner, and a
+ * child `notFound()` can't set a 404 status (#306).
+ */
+export function OrgOnboardingGate({
+  children,
+  initialReady = false,
+}: {
+  children: React.ReactNode;
+  initialReady?: boolean;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const { data: session, isPending: sessionPending } = useSession();
-  const [ready, setReady] = useState(!isOrganizationsEnabledOnClient());
+  const [ready, setReady] = useState(
+    initialReady || !isOrganizationsEnabledOnClient(),
+  );
 
   useEffect(() => {
     if (!isOrganizationsEnabledOnClient()) {

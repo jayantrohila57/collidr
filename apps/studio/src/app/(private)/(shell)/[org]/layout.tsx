@@ -1,4 +1,9 @@
-import { guardOrganizationSlugMembership } from "@/lib/page-guards";
+import { isReservedOrgSlug } from "@loftlancer/ui/studio-routes";
+import { notFound } from "next/navigation";
+import {
+  guardOrganizationSlugMembership,
+  preflightProjectSegment,
+} from "@/lib/page-guards";
 
 /**
  * ORG SCOPE (/studio/[org]). Members only (the guard 404s otherwise). The
@@ -12,6 +17,9 @@ export default async function OrganizationLayout({
   params: Promise<{ org: string }>;
 }) {
   const { org: slug } = await params;
+  // Route words (old /dashboard, /p/…) can never be an org: 404 without a DB hit.
+  if (isReservedOrgSlug(slug)) notFound();
   await guardOrganizationSlugMembership(slug);
+  await preflightProjectSegment(slug);
   return children;
 }
