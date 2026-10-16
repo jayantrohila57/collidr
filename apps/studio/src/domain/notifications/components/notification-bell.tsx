@@ -107,22 +107,25 @@ export function NotificationBell() {
             </p>
           ) : (
             items.map((item) => (
-              <div key={item.id} className="w-full shrink-0 border-border/60 border-b last:border-b-0">
+              <div
+                key={item.id}
+                className="w-full shrink-0 border-border/60 border-b last:border-b-0"
+              >
                 <NotificationListItem
                   item={item}
                   compact
                   onClick={() => {
-                  void (async () => {
-                    if (!item.readAt) {
-                      try {
-                        await markReadWithToast({ id: item.id });
-                      } catch {
-                        return;
+                    void (async () => {
+                      if (!item.readAt) {
+                        try {
+                          await markReadWithToast({ id: item.id });
+                        } catch {
+                          return;
+                        }
                       }
-                    }
-                    router.push(item.href as Route);
-                  })();
-                }}
+                      router.push(item.href as Route);
+                    })();
+                  }}
                   disabled={isMarkingRead}
                 />
               </div>

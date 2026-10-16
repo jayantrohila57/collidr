@@ -6,6 +6,10 @@ import {
   SettingsSection,
 } from "@loftlancer/ui/patterns/settings-frame";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { notFound, usePathname } from "next/navigation";
+import type { ReactNode } from "react";
+import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import {
   Activity,
   KeyRound,
@@ -13,11 +17,7 @@ import {
   Settings,
   Users,
   UsersRound,
-} from "lucide-react";
-import Link from "next/link";
-import { notFound, usePathname } from "next/navigation";
-import type { ReactNode } from "react";
-import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
+} from "@/lib/icons";
 import { trpc } from "@/utils/trpc";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { ActivityOverview } from "./activity-overview";
@@ -34,11 +34,18 @@ type OrganizationSectionPageProps = {
 
 function OrgHealthCard() {
   const { data, isError } = useQuery(
-    trpc.dashboard.getOrgSettingsStats.queryOptions(undefined, { retry: false }),
+    trpc.dashboard.getOrgSettingsStats.queryOptions(undefined, {
+      retry: false,
+    }),
   );
   if (!data || isError) return null;
   const rows: [string, ReactNode][] = [
-    ["Your role", <span className="capitalize">{data.role}</span>],
+    [
+      "Your role",
+      <span key="role" className="capitalize">
+        {data.role}
+      </span>,
+    ],
     ["Members", data.memberCount],
     ["Pending invites", data.pendingInvites],
     ["Projects", data.projectCount],
@@ -101,17 +108,30 @@ export function OrganizationSectionPage({
       subtitle={`/${organization?.slug ?? slug}`}
       actions={action}
       tabs={tabs}
-      top={activity ? <ActivityOverview scope="org" title="Organization activity" /> : undefined}
+      top={
+        activity ? (
+          <ActivityOverview scope="org" title="Organization activity" />
+        ) : undefined
+      }
       aside={
         organization ? (
           <>
             <SettingsRailCard
               title="Audit rail"
               items={[
-                { label: "Organization ID", value: organization.id, copy: true },
+                {
+                  label: "Organization ID",
+                  value: organization.id,
+                  copy: true,
+                },
                 { label: "Slug", value: organization.slug, copy: true },
                 ...(organization.createdAt
-                  ? [{ label: "Created", value: formatDay(organization.createdAt) }]
+                  ? [
+                      {
+                        label: "Created",
+                        value: formatDay(organization.createdAt),
+                      },
+                    ]
                   : []),
               ]}
             />

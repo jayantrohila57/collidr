@@ -23,12 +23,13 @@ import {
   cancelOrganizationInvitation,
   type OrganizationInvitationRow,
   parseOrganizationInvitations,
+  pendingOrganizationInvitations,
   resendOrganizationInvitation,
   sortOrganizationInvitations,
 } from "@/lib/organization-invitations";
 import { toast } from "@/lib/toast";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
-import { InviteMemberSheet } from "./invite-member-sheet";
+import { BulkInviteDialog } from "./bulk-invite-dialog";
 import { OrganizationSectionPage } from "./organization-section-page";
 
 export function OrganizationInvitationsPage({ slug }: { slug: string }) {
@@ -178,10 +179,13 @@ export function OrganizationInvitationsPage({ slug }: { slug: string }) {
       )}
 
       {organization ? (
-        <InviteMemberSheet
+        <BulkInviteDialog
           organizationId={organization.id}
           open={inviteOpen}
           onOpenChange={setInviteOpen}
+          pendingEmails={pendingOrganizationInvitations(invitations).map(
+            (i) => i.email,
+          )}
           onInvited={() => void loadInvitations(organization.id)}
         />
       ) : null}

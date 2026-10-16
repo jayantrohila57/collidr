@@ -8,10 +8,12 @@ import {
 } from "@/components/patterns/settings-layout";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/domain/auth/lib/auth-actions";
+import { sessionDeviceLabel } from "@/lib/session-device";
 
 export function SecuritySettingsPanel() {
   const { data: session } = useSession();
   const user = session?.user;
+  const current = session?.session;
 
   if (!user) {
     return null;
@@ -24,6 +26,19 @@ export function SecuritySettingsPanel() {
         description="Used for authentication and account recovery."
       >
         <span className="text-sm">{user.email}</span>
+      </SettingsRow>
+      <SettingsRow
+        label="This device"
+        description="The browser you are using right now."
+      >
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span className="truncate text-sm">
+            {sessionDeviceLabel(current?.userAgent)}
+          </span>
+          <span className="text-muted-foreground text-xs tabular-nums">
+            {current?.ipAddress ?? "IP unknown"}
+          </span>
+        </span>
       </SettingsRow>
       <SettingsRow
         label="Active sessions"

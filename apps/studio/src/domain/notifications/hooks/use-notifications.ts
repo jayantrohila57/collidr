@@ -1,6 +1,11 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { actionToast } from "@/lib/action-toast";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { trpc } from "@/utils/trpc";
@@ -36,6 +41,8 @@ export function useNotificationsList(options?: {
       unreadOnly: options?.unreadOnly,
     }),
     enabled,
+    // Tab switches keep the previous list on screen (dimmed) instead of blanking.
+    placeholderData: keepPreviousData,
     refetchInterval: poll
       ? (query) => pollIntervalWhenVisible(query.state.status)
       : false,

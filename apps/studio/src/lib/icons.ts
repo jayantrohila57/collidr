@@ -1,8 +1,6 @@
 import { Github } from "@loftlancer/ui/github-icon";
 import type { LucideIcon } from "lucide-react";
 import {
-  ClipboardCopy,
-  FileUp,
   Activity,
   Archive,
   ArchiveRestore,
@@ -10,13 +8,16 @@ import {
   Bell,
   Building2,
   Calendar,
+  CheckCheck,
   ChevronLeft,
   ChevronRight,
   Circle,
+  ClipboardCopy,
   Copy,
   ExternalLink,
   Eye,
   EyeOff,
+  FileUp,
   Folder,
   FolderKanban,
   Globe,
@@ -65,6 +66,7 @@ export const appIcons = {
   danger: ShieldAlert,
   activity: Activity,
   bell: Bell,
+  markAllRead: CheckCheck,
   searchEmpty: SearchX,
   mail: Mail,
   plus: Plus,
@@ -99,3 +101,14 @@ export type AppIconName = keyof typeof appIcons;
 export function getAppIcon(name: AppIconName): LucideIcon {
   return appIcons[name];
 }
+
+/** Direct lucide components for domain code that needs a raw icon element (keeps imports routed through this module). */
+export {
+  Activity,
+  CheckIcon,
+  KeyRound,
+  Mail,
+  Settings,
+  Users,
+  UsersRound,
+} from "lucide-react";
