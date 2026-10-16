@@ -1,28 +1,29 @@
+import { SettingsSection } from "@loftlancer/ui/patterns/settings-frame";
 import type { ReactNode } from "react";
-import DashboardSection from "@/components/section-dashboard";
-import { AccountSettingsHeaderActions } from "@/domain/settings/components/account-settings-header-actions";
-import { UserSettingsStats } from "@/domain/settings/components/user-settings-stats";
+import { AccountSettingsFrame } from "@/domain/settings/components/account-settings-frame";
+import { ActivityOverview } from "@/domain/settings/components/activity-overview";
 
 export function SettingsSectionShell({
   title,
   description,
   children,
-  showStats = false,
+  activity = false,
 }: {
   title: string;
   description: string;
   children: ReactNode;
+  /** @deprecated stats moved to the Health rail card. */
   showStats?: boolean;
+  /** Show the activity heatmap above the section (Activity tab). */
+  activity?: boolean;
 }) {
   return (
-    <DashboardSection
-      title={title}
-      description={description}
-      back={false}
-      action={<AccountSettingsHeaderActions />}
-      stats={showStats ? <UserSettingsStats /> : undefined}
+    <AccountSettingsFrame
+      top={activity ? <ActivityOverview scope="self" title="User activity" /> : undefined}
     >
-      {children}
-    </DashboardSection>
+      <SettingsSection title={title} description={description} bare>
+        {children}
+      </SettingsSection>
+    </AccountSettingsFrame>
   );
 }
