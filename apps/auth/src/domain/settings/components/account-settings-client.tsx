@@ -1,8 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Route } from "next";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
@@ -32,7 +30,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -58,13 +55,16 @@ import {
 import { PermissionGate } from "@/domain/permissions/components/permission-gate";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { accountSettingsActions } from "@/domain/permissions/org-section-actions";
+import {
+  type AuthSessionRow,
+  SessionsList,
+  SessionsListSkeleton,
+} from "@/domain/settings/components/sessions-list";
 import { TimelinePageClient } from "@/domain/timeline/components/timeline-page-client";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { formatDate } from "@/lib/format";
-import { formatRelativeShort } from "@/lib/format-relative-short";
 import { initialsFromLabel } from "@/lib/initials";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
-import { sessionDeviceLabel } from "@/lib/session-device";
 import { studioDashboardPath } from "@/lib/studio-url";
 import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";
@@ -86,15 +86,6 @@ function readTabFromSearch(param: string | null): AccountTab {
     ? (param as AccountTab)
     : "profile";
 }
-
-type AuthSessionRow = {
-  id?: string;
-  token: string;
-  ipAddress?: string | null;
-  userAgent?: string | null;
-  updatedAt?: Date | string;
-  createdAt?: Date | string;
-};
 
 function downloadJson(filename: string, data: unknown) {
   const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -479,18 +470,20 @@ export function AccountSettingsClient({
                       size="sm"
                       variant="outline"
                       className="w-fit"
-                      disabled={sessions.length <= 1 || sessionsLoading}
+                      disabled={sessions.length <= 1 || revokePending}
                       onClick={() => setRevokeOthersOpen(true)}
                     >
                       Revoke all other sessions
+                      {sessions.length > 1 ? (
+                        <span className="text-muted-foreground tabular-nums">
+                          {sessions.length - 1}
+                        </span>
+                      ) : null}
                     </Button>
                   </SettingsRow>
-                  {sessionsLoading ? (
-                    <div className="space-y-3 px-4 py-4">
-                      <Skeleton className="h-14 w-full" />
-                      <Skeleton className="h-14 w-full" />
-                    </div>
-                  ) : sessionsError ? (
+                  {sessionsLoading && sessions.length === 0 ? (
+                    <SessionsListSkeleton />
+                  ) : sessionsError && sessions.length === 0 ? (
                     <div className="px-4 py-4">
                       <ErrorState
                         title="Could not load sessions"
@@ -513,47 +506,13 @@ export function AccountSettingsClient({
                       </Empty>
                     </div>
                   ) : (
-                    <ul className="divide-y">
-                      {sessions.map((row) => {
-                        const isCurrent = row.token === sessionToken;
-                        const lastActive = row.updatedAt ?? row.createdAt;
-                        return (
-                          <li
-                            key={row.token}
-                            className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
-                          >
-                            <div className="min-w-0 space-y-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <p className="font-medium text-sm">
-                                  {sessionDeviceLabel(row.userAgent ?? null)}
-                                </p>
-                                {isCurrent ? (
-                                  <Badge variant="secondary">This device</Badge>
-                                ) : null}
-                              </div>
-                              <p className="text-muted-foreground text-xs">
-                                {row.ipAddress
-                                  ? `IP ${row.ipAddress}`
-                                  : "IP unknown"}
-                                {lastActive
-                                  ? ` · Last active ${formatRelativeShort(String(lastActive))}`
-                                  : null}
-                              </p>
-                            </div>
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              className="w-fit shrink-0"
-                              disabled={revokePending}
-                              onClick={() => setRevokeToken(row.token)}
-                            >
-                              Revoke
-                            </Button>
-                          </li>
-                        );
-                      })}
-                    </ul>
+                    <SessionsList
+                      sessions={sessions}
+                      currentToken={sessionToken}
+                      pendingToken={revokePending ? revokeToken : null}
+                      disabled={revokePending}
+                      onRevoke={(token) => setRevokeToken(token)}
+                    />
                   )}
                 </SettingsPanel>
               </PermissionGate>
@@ -803,14 +762,8 @@ export function AccountSettingsClient({
                     if (revokeToken) void handleRevokeSession(revokeToken);
                   }}
                 >
-                  {revokePending ? (
-                    <>
-                      <Spinner className="me-2" />
-                      Revoking…
-                    </>
-                  ) : (
-                    "Revoke"
-                  )}
+                  {revokePending ? <Spinner className="size-3.5" /> : null}
+                  Revoke
                 </Button>
               </AlertDialogFooter>
             </AlertDialogPopup>
@@ -839,14 +792,8 @@ export function AccountSettingsClient({
                   disabled={revokePending}
                   onClick={() => void handleRevokeOthers()}
                 >
-                  {revokePending ? (
-                    <>
-                      <Spinner className="me-2" />
-                      Revoking…
-                    </>
-                  ) : (
-                    "Revoke all others"
-                  )}
+                  {revokePending ? <Spinner className="size-3.5" /> : null}
+                  Revoke all others
                 </Button>
               </AlertDialogFooter>
             </AlertDialogPopup>
