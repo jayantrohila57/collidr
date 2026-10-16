@@ -4,6 +4,7 @@ import type { Route } from "next";
 import { ErrorState } from "@/components/patterns/error-state";
 import DashboardSection from "@/components/section-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useProjectTabs } from "@/domain/projects/hooks/use-project-tabs";
 import { useProjectApps } from "../hooks/use-project-apps";
 import { AppCard } from "./app-card";
 
@@ -35,9 +36,11 @@ export function ProjectAppsDirectory({ slug }: { slug: string }) {
     uninstall,
     isMutating,
   } = useProjectApps(slug);
+  const projectTabs = useProjectTabs(slug);
 
   return (
     <DashboardSection
+      {...projectTabs}
       title="Apps"
       description="Install apps to add features to this project. Apps are per project."
       back={`/p/${slug}` as Route}

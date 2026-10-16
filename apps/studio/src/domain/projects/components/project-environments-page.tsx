@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CreateEnvironmentSheet } from "@/domain/environments/components/create-environment-sheet";
 import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
 import { useEnvironments } from "@/domain/environments/hooks/use-environments";
+import { useProjectTabs } from "../hooks/use-project-tabs";
 import ProjectDetail from "./project-detail";
 
 interface ProjectEnvironmentsPageProps {
@@ -43,6 +44,7 @@ export default function ProjectEnvironmentsPage({
     isCreating,
   } = useEnvironments(slug);
   const backHref = `/p/${slug}` as Route;
+  const projectTabs = useProjectTabs(slug);
 
   const showHeaderAction = Boolean(projectId && environments.length > 0);
 
@@ -59,6 +61,7 @@ export default function ProjectEnvironmentsPage({
   if (isLoading && !project) {
     return (
       <DashboardSection
+        {...projectTabs}
         title="Environments"
         description="Variables and secrets per deployment target."
         back={backHref}
@@ -73,7 +76,7 @@ export default function ProjectEnvironmentsPage({
 
   if (status === "error" || !project) {
     return (
-      <DashboardSection title="Environments" back={backHref}>
+      <DashboardSection title="Environments" back={backHref} {...projectTabs}>
         <ErrorState
           title="Project unavailable"
           description="This project could not be loaded. It may have been deleted."
@@ -85,6 +88,7 @@ export default function ProjectEnvironmentsPage({
 
   return (
     <DashboardSection
+      {...projectTabs}
       title="Environments"
       description="Variables and secrets per deployment target."
       back={backHref}

@@ -28,6 +28,7 @@
       "default": "./src/lib/platform-urls.ts"
     },
     "./page-header-grid-classes": "./src/lib/page-header-grid-classes.ts",
+    "./page-header-classes": "./src/lib/page-header-classes.ts",
     "./patterns/impersonation-banner": "./src/patterns/impersonation-banner.tsx",
     "./badge": "./src/components/ui/badge.tsx",
     "./spinner": "./src/components/ui/spinner.tsx",

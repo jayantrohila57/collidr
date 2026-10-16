@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useProjectApps } from "@/domain/apps/hooks/use-project-apps";
 import { CreateEnvironmentSheet } from "@/domain/environments/components/create-environment-sheet";
 import { useEnvironments } from "@/domain/environments/hooks/use-environments";
+import { useProjectTabs } from "../hooks/use-project-tabs";
 import { EditProjectSheet } from "./edit-project-sheet";
 import { ProjectActions } from "./project-actions";
 import { ProjectDetailStats } from "./project-detail-stats";
@@ -68,6 +69,7 @@ function ProjectDetailPageContent({
   } = useEnvironments(slug);
   const { installed } = useProjectApps(slug);
   const envInstalled = installed.some((a) => a.id === "env");
+  const projectTabs = useProjectTabs(slug);
 
   useEffect(() => {
     if (searchParams.get("edit") === "1" && status === "success" && project) {
@@ -96,15 +98,15 @@ function ProjectDetailPageContent({
             ? E2E_LONG_DESCRIPTION
             : initialDescription
         }
-        titleAccessory={
-          <div className="flex flex-wrap gap-2">
+        {...projectTabs}
+        action={<Skeleton className="h-8 w-40 rounded-md" />}
+        meta={
+          <>
             <Skeleton className="h-5 w-16 rounded-md" />
             <Skeleton className="h-5 w-14 rounded-md" />
-            <Skeleton className="h-5 w-20 rounded-md" />
-          </div>
+            <PageHeaderMetadataSkeleton />
+          </>
         }
-        action={<Skeleton className="size-7 rounded-md" />}
-        metadata={<PageHeaderMetadataSkeleton />}
         stats={<ProjectDetailStats slug={slug} />}
       >
         <ProjectOverviewSectionsSkeleton />
@@ -114,7 +116,7 @@ function ProjectDetailPageContent({
 
   if (status === "error" || !project) {
     return (
-      <DashboardSection title={initialName}>
+      <DashboardSection title={initialName} {...projectTabs}>
         <ErrorState
           title="Project unavailable"
           description="This project could not be loaded. It may have been deleted."
@@ -129,15 +131,9 @@ function ProjectDetailPageContent({
       <DashboardSection
         title={project.name}
         description={headerDescription}
-        titleAccessory={
-          <ProjectHeaderBadges
-            isPublic={project.isPublic}
-            isArchived={project.isArchived}
-            status={project.status}
-          />
-        }
+        {...projectTabs}
         action={
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-2">
             {projectId && envInstalled ? (
               <CreateEnvironmentSheet
                 onConfirm={async (name) => {
@@ -151,7 +147,16 @@ function ProjectDetailPageContent({
             <ProjectActions project={project} />
           </div>
         }
-        metadata={<ProjectMetadataRow project={project} />}
+        meta={
+          <>
+            <ProjectHeaderBadges
+              isPublic={project.isPublic}
+              isArchived={project.isArchived}
+              status={project.status}
+            />
+            <ProjectMetadataRow project={project} />
+          </>
+        }
         stats={<ProjectDetailStats slug={slug} />}
       >
         <ProjectOverviewSections slug={slug} />

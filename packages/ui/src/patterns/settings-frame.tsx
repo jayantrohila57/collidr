@@ -1,9 +1,24 @@
 "use client";
 
-import { Check, ChevronLeft, Copy } from "lucide-react";
+import { ArrowLeft, Check, Copy } from "lucide-react";
 import type React from "react";
 import { type ReactNode, useState } from "react";
 
+import {
+  pageHeaderActionsClass,
+  pageHeaderBackClass,
+  pageHeaderDescriptionClass,
+  pageHeaderMetaRowClass,
+  pageHeaderRootClass,
+  pageHeaderTabActiveClass,
+  pageHeaderTabClass,
+  pageHeaderTabInactiveClass,
+  pageHeaderTabsListClass,
+  pageHeaderTabsRowClass,
+  pageHeaderTitleClass,
+  pageHeaderTitleRowClass,
+  pageHeaderTopRowClass,
+} from "../lib/page-header-classes";
 import { cn } from "../lib/utils";
 
 /**
@@ -68,27 +83,34 @@ export function SettingsTabs({
 }) {
   const L = LinkComponent as React.ElementType;
   return (
-    <nav
-      aria-label="Settings sections"
-      className="flex flex-wrap gap-x-1 border-b"
-    >
-      {tabs.map((tab) => (
-        <L
-          key={tab.href}
-          href={tab.href}
-          aria-current={tab.active ? "page" : undefined}
-          className={cn(
-            "-mb-px inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 font-medium text-sm transition-colors [&_svg]:size-4",
-            tab.active
-              ? "border-foreground text-foreground"
-              : "border-transparent text-muted-foreground hover:text-foreground",
-          )}
-        >
-          {tab.icon}
-          {tab.label}
-        </L>
-      ))}
-    </nav>
+    <div className={pageHeaderTabsRowClass} data-slot="page-header-tabs">
+      <nav aria-label="Sections" className={pageHeaderTabsListClass}>
+        {tabs.length === 0 ? (
+          <span
+            aria-current="page"
+            className={cn(pageHeaderTabClass, pageHeaderTabActiveClass)}
+          >
+            All
+          </span>
+        ) : null}
+        {tabs.map((tab) => (
+          <L
+            key={tab.href}
+            href={tab.href}
+            aria-current={tab.active ? "page" : undefined}
+            className={cn(
+              pageHeaderTabClass,
+              tab.active
+                ? pageHeaderTabActiveClass
+                : pageHeaderTabInactiveClass,
+            )}
+          >
+            {tab.icon}
+            {tab.label}
+          </L>
+        ))}
+      </nav>
+    </div>
   );
 }
 
@@ -97,6 +119,9 @@ export type SettingsFrameProps = {
   avatar?: { src?: string | null; name?: string | null };
   title: ReactNode;
   subtitle?: ReactNode;
+  description?: ReactNode;
+  /** Meta row content (badges, links); defaults to `subtitle`. */
+  meta?: ReactNode;
   actions?: ReactNode;
   tabs?: SettingsTab[];
   LinkComponent?: LinkLike | "a";
@@ -112,6 +137,8 @@ export function SettingsFrame({
   avatar,
   title,
   subtitle,
+  description,
+  meta,
   actions,
   tabs,
   LinkComponent = "a",
@@ -120,34 +147,62 @@ export function SettingsFrame({
   children,
 }: SettingsFrameProps) {
   const L = LinkComponent as React.ElementType;
+  const backClass = cn(
+    pageHeaderBackClass,
+    "inline-flex items-center justify-center rounded-md border bg-background text-foreground shadow-xs/5 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+  );
   return (
     <div data-testid="settings-frame" className="w-full min-w-0 space-y-6">
-      {back ? (
-        <L
-          href={back.href}
-          className="inline-flex items-center gap-1 text-muted-foreground text-sm hover:text-foreground"
-        >
-          <ChevronLeft className="size-4" aria-hidden />
-          {back.label}
-        </L>
-      ) : null}
-      <div className="flex flex-wrap items-center gap-3">
-        {avatar ? <SettingsAvatar src={avatar.src} name={avatar.name} /> : null}
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate font-semibold text-lg leading-tight">
-            {title}
-          </h1>
-          {subtitle ? (
-            <p className="truncate text-muted-foreground text-sm">{subtitle}</p>
+      <header className={pageHeaderRootClass} data-slot="page-header">
+        <div className={pageHeaderTopRowClass}>
+          {back ? (
+            <L
+              href={back.href}
+              className={backClass}
+              aria-label={back.label}
+              title={back.label}
+            >
+              <ArrowLeft className="size-4" aria-hidden />
+            </L>
+          ) : (
+            <button
+              type="button"
+              className={backClass}
+              aria-label="Back"
+              onClick={() => window.history.back()}
+            >
+              <ArrowLeft className="size-4" aria-hidden />
+            </button>
+          )}
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <div className={pageHeaderTitleRowClass}>
+              {avatar ? (
+                <SettingsAvatar
+                  src={avatar.src}
+                  name={avatar.name}
+                  className="size-6 text-[10px]"
+                />
+              ) : null}
+              <h1 className={pageHeaderTitleClass}>{title}</h1>
+            </div>
+            {description ? (
+              <p className={cn(pageHeaderDescriptionClass, "line-clamp-2")}>
+                {description}
+              </p>
+            ) : null}
+          </div>
+          {actions ? (
+            <div className={pageHeaderActionsClass}>{actions}</div>
           ) : null}
         </div>
-        {actions ? (
-          <div className="flex items-center gap-2">{actions}</div>
-        ) : null}
-      </div>
-      {tabs?.length ? (
-        <SettingsTabs tabs={tabs} LinkComponent={LinkComponent} />
-      ) : null}
+        <div className={pageHeaderMetaRowClass} data-slot="page-header-meta">
+          {meta ??
+            (subtitle ? (
+              <span className="truncate font-mono">{subtitle}</span>
+            ) : null)}
+        </div>
+        <SettingsTabs tabs={tabs ?? []} LinkComponent={LinkComponent} />
+      </header>
       {top}
       {aside ? (
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]">

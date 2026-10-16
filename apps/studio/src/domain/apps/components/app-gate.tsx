@@ -4,6 +4,7 @@ import type { Route } from "next";
 import type { ReactNode } from "react";
 import { EmptyState } from "@/components/patterns/empty-state";
 import DashboardSection from "@/components/section-dashboard";
+import { useProjectTabs } from "@/domain/projects/hooks/use-project-tabs";
 import { LayoutGrid } from "@/lib/icons";
 import { useProjectApps } from "../hooks/use-project-apps";
 import { AppGridSkeleton } from "./project-apps-directory";
@@ -21,11 +22,16 @@ export function AppGate({
   children: ReactNode;
 }) {
   const { apps, isLoading, canManage } = useProjectApps(slug);
+  const projectTabs = useProjectTabs(slug);
   if (isLoading) return <>{fallback}</>;
   const app = apps.find((a) => a.id === appId);
   if (app?.status === "active") return <>{children}</>;
   return (
-    <DashboardSection title={app?.name ?? "App"} back={`/p/${slug}` as Route}>
+    <DashboardSection
+      {...projectTabs}
+      title={app?.name ?? "App"}
+      back={`/p/${slug}` as Route}
+    >
       <EmptyState
         icon={LayoutGrid}
         title={`${app?.name ?? "This app"} isn't installed`}
