@@ -1,6 +1,6 @@
 /**
  * Stress-test seed: fills three seed orgs with lots of varied data for UI testing.
- * Idempotent (deterministic `seed-` ids + ON CONFLICT DO NOTHING) and batched.
+ * Idempotent (deterministic `seed-` ids / seed UUIDs + ON CONFLICT DO NOTHING) and batched.
  *
  *   SEED_CONFIRM=yes DATABASE_URL=... ENCRYPTION_KEY=... SKIP_ENV_VALIDATION=1 \
  *     pnpm --filter @loftlancer/db db:seed-stress
@@ -9,6 +9,8 @@
  * SEED_VARS_MAX, SEED_PINS, SEED_AUDIT_EVENTS, SEED_NOTIFICATIONS, SEED_BATCH.
  * Remove everything with `db:seed-stress:clean`.
  */
+
+import { createHash } from "node:crypto";
 import { type ActionDefinition, actionRegistry } from "@loftlancer/actions";
 import { decrypt, encrypt } from "@loftlancer/crypto";
 import { auditEvent } from "@loftlancer/db/schema/audit-event";
@@ -31,7 +33,7 @@ import {
   project,
 } from "@loftlancer/db/schema/projects";
 import { team, teamMember } from "@loftlancer/db/schema/team";
-import { eq, like, not, sql } from "drizzle-orm";
+import { eq, inArray, not, sql } from "drizzle-orm";
 import type { PgTable } from "drizzle-orm/pg-core";
 
 let db: Awaited<ReturnType<typeof getSeedDb>>;
@@ -51,6 +53,22 @@ const APPS_LABELS = new Set([
   "task comments",
   "task notifications",
 ]);
+
+/**
+ * Deterministic RFC 4122 v5-style UUID for a seed key. Projects, environments,
+ * variables, apps and tasks must use UUIDs: the API validates those ids with
+ * z.string().uuid(), so `seed-proj-0126`-style ids 400 (#248, #250).
+ */
+function seedUuid(key: string): string {
+  const h = createHash("sha1").update(`loftlancer-seed:${key}`).digest();
+  h[6] = ((h[6] ?? 0) & 0x0f) | 0x50;
+  h[8] = ((h[8] ?? 0) & 0x3f) | 0x80;
+  const x = h.subarray(0, 16).toString("hex");
+  return `${x.slice(0, 8)}-${x.slice(8, 12)}-${x.slice(12, 16)}-${x.slice(16, 20)}-${x.slice(20)}`;
+}
+/** Seed project uuid -> its zero-padded seed number, for child ids. */
+const projectKey = new Map<string, string>();
+const pkey = (pid: string) => projectKey.get(pid) ?? pid;
 
 const DAY = 86_400_000;
 const NOW = Date.now();
@@ -348,7 +366,19 @@ async function preflight(cfg: SeedConfig) {
   const [sample] = await db
     .select({ v: environmentVariable.encryptedValue })
     .from(environmentVariable)
-    .where(not(like(environmentVariable.id, "seed-%")))
+    .innerJoin(
+      environment,
+      eq(environment.id, environmentVariable.environmentId),
+    )
+    .innerJoin(project, eq(project.id, environment.projectId))
+    .where(
+      not(
+        inArray(
+          project.organizationId,
+          SEED_ORGS.map((o) => o.id),
+        ),
+      ),
+    )
     .limit(1);
   if (sample) decrypt(sample.v);
   const roundTrip = decrypt(encrypt("seed-check"));
@@ -507,7 +537,8 @@ async function main() {
   );
   for (let i = 1; i <= cfg.projects; i++) {
     const org = weightedOrg();
-    const pid = `seed-proj-${pad(i)}`;
+    const pid = seedUuid(`proj-${pad(i)}`);
+    projectKey.set(pid, pad(i));
     const name = chance(0.1)
       ? `${pick(WORDS)} ${pick(WORDS)} ${pick(SUFFIX)} for the ${pick(TEAM_KINDS)} team (legacy migration ${i})`
       : chance(0.15)
@@ -549,7 +580,7 @@ async function main() {
     );
     for (const envName of new Set([...base, ...custom])) {
       const eslug = slugify(envName);
-      const eid = `seed-env-${pad(i)}-${eslug}`;
+      const eid = seedUuid(`env-${pad(i)}-${eslug}`);
       envs.push({ id: eid, projectId: pid, orgId: org.id, slug: eslug });
       envRows.push({
         id: eid,
@@ -602,7 +633,7 @@ async function main() {
       if (!env) continue;
       const { value, type, note } = makeValue();
       buffer.push({
-        id: `seed-var-${pid.slice(10)}-${pad(v, 3)}`,
+        id: seedUuid(`var-${pkey(pid)}-${pad(v, 3)}`),
         key: makeKey(v),
         encryptedValue: ONLY_APPS ? "" : encrypt(value),
         type,
@@ -685,7 +716,7 @@ async function main() {
     const orgId = p.organizationId as string;
     for (const appId of ["env", "tasks"]) {
       appRows.push({
-        id: `seed-app-${pid.slice(10)}-${appId}`,
+        id: seedUuid(`app-${pkey(pid)}-${appId}`),
         organizationId: orgId,
         projectId: pid,
         appId,
@@ -699,7 +730,7 @@ async function main() {
     const pool = members.length ? members : [{ userId: owner, role: "owner" }];
     const n = int(cfg.tasksMin, cfg.tasksMax);
     for (let t = 1; t <= n; t++) {
-      const id = `seed-task-${pid.slice(10)}-${pad(t, 3)}`;
+      const id = seedUuid(`task-${pkey(pid)}-${pad(t, 3)}`);
       const created = pastDate(180);
       const assignee = chance(0.75)
         ? chance(0.15)
@@ -733,7 +764,7 @@ async function main() {
       });
       for (let c = 1, cn = chance(0.5) ? int(1, 6) : 0; c <= cn; c++) {
         commentRows.push({
-          id: `seed-tc-${pid.slice(10)}-${pad(t, 3)}-${c}`,
+          id: seedUuid(`tc-${pkey(pid)}-${pad(t, 3)}-${c}`),
           taskId: id,
           authorId: chance(0.2) ? owner : pick(pool).userId,
           body: Array.from({ length: int(3, 40) }, () => pick(WORDS)).join(" "),
