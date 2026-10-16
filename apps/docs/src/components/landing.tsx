@@ -1,9 +1,13 @@
 "use client";
 
+import { appRegistry } from "@loftlancer/actions/apps";
 import { buildSignInUrl } from "@loftlancer/ui/auth-links";
 import { buttonVariants } from "@loftlancer/ui/button";
-import { GithubMark as GithubIcon } from "@loftlancer/ui/patterns/auth-5";
-import { Auth5Panel, AuthDivider } from "@loftlancer/ui/patterns/auth-5";
+import {
+  Auth5Panel,
+  AuthDivider,
+  GithubMark as GithubIcon,
+} from "@loftlancer/ui/patterns/auth-5";
 import { cn } from "@loftlancer/ui/utils";
 
 import { ModeToggle } from "@/components/mode-toggle";
@@ -49,6 +53,28 @@ export function Landing() {
         <GithubIcon aria-hidden />
         Sign in with GitHub
       </a>
+      <ul className="mt-4 flex flex-col divide-y divide-border/60 rounded-xl text-left ring-1 ring-border/60">
+        {appRegistry.map((app) => (
+          <li key={app.id} className="flex flex-col gap-0.5 px-3 py-2">
+            <span className="flex items-center gap-1.5 font-medium text-sm">
+              {app.name}
+              <span className="rounded-sm bg-muted px-1 text-muted-foreground text-xs">
+                App
+              </span>
+            </span>
+            <span className="text-muted-foreground text-xs">
+              {app.description}
+            </span>
+          </li>
+        ))}
+        <li className="flex flex-col gap-0.5 px-3 py-2">
+          <span className="font-medium text-sm">Roles and MCP</span>
+          <span className="text-muted-foreground text-xs">
+            Owner, manager and member roles enforced on every call, including AI
+            agents connected over MCP with OAuth.
+          </span>
+        </li>
+      </ul>
     </Auth5Panel>
   );
 }
