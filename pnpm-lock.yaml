@@ -931,6 +931,9 @@ importers:
       '@loftlancer/env':
         specifier: workspace:*
         version: link:../env
+      '@tanstack/react-table':
+        specifier: ^9.3.1
+        version: 9.3.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

@@ -1,6 +1,6 @@
+import { SearchX } from "lucide-react";
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
-import { appIcons } from "@/lib/icons";
+import { Button } from "../components/ui/button";
 import { DataTableEmpty } from "./data-table-empty";
 import type { DataTableEmptyConfig } from "./data-table-empty-types";
 
@@ -22,7 +22,7 @@ export function resolveDataTableEmptyMarkup({
       return (
         <DataTableEmpty
           compact={compact}
-          icon={appIcons.searchEmpty}
+          icon={SearchX}
           title="No results"
           description="Try adjusting your search."
           action={

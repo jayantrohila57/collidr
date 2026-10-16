@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHeaderActionsPortal } from "@loftlancer/ui/patterns/page-header";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -562,12 +563,27 @@ export function OrganizationSettingsForm({
 
         {(mode === "legacy-tabs" || mode === "members") && (
           <SettingsTabsPanel value="members" className="min-w-0 space-y-2">
+            {mode === "members" && canInvite ? (
+              <PageHeaderActionsPortal>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="h-8 gap-2"
+                  onClick={() => setInviteOpen(true)}
+                >
+                  <AppIcon name="invite" className="text-current" />
+                  Invite member
+                </Button>
+              </PageHeaderActionsPortal>
+            ) : null}
             <SettingsPanel>
-              <SettingsSectionHeader
-                title="Members"
-                description="Invite teammates and manage roles."
-                icon="member"
-              />
+              {mode !== "members" ? (
+                <SettingsSectionHeader
+                  title="Members"
+                  description="Invite teammates and manage roles."
+                  icon="member"
+                />
+              ) : null}
               {mode !== "members" ? (
                 <SettingsRow label="Invite" description="Add someone by email.">
                   {canInvite ? (

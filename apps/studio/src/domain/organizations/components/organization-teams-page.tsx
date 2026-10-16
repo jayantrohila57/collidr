@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Can } from "@/domain/permissions/components/can";
+import { useConfirm } from "@/hooks/use-confirm";
 import { isTeamCreateFormDirty } from "@/lib/form-dirty";
 import { appIcons } from "@/lib/icons";
 import { toast } from "@/lib/toast";
@@ -83,6 +84,7 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
   );
 
   const teams = teamsQuery.data?.items ?? [];
+  const { confirm, ConfirmDialog: confirmOutlet } = useConfirm();
 
   return (
     <OrganizationSectionPage
@@ -164,7 +166,19 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
                         size="sm"
                         disabled={deleteMutation.isPending}
                         onClick={() =>
-                          deleteMutation.mutate({ teamId: team.id })
+                          confirm({
+                            title: `Delete ${team.name}?`,
+                            description:
+                              "Members stay in the organization but lose any project access granted through this team. This can't be undone.",
+                            confirmLabel: "Delete team",
+                            variant: "destructive",
+                            onConfirm: async () => {
+                              // onError already toasts; keep the dialog flow quiet.
+                              await deleteMutation
+                                .mutateAsync({ teamId: team.id })
+                                .catch(() => undefined);
+                            },
+                          })
                         }
                       >
                         Delete
@@ -280,6 +294,7 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
           }}
         />
       ) : null}
+      {confirmOutlet}
     </OrganizationSectionPage>
   );
 }

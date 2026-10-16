@@ -127,7 +127,11 @@ export function SearchableCombobox({
       <ComboboxPopup
         side={side}
         align={align}
-        className={cn("w-(--anchor-width) min-w-56", popupClassName)}
+        className={cn(
+          "w-(--anchor-width) min-w-56",
+          options.some((o) => o.hint) && "min-w-72",
+          popupClassName,
+        )}
       >
         <div className="border-border/60 border-b p-1">
           <ComboboxInput
@@ -149,12 +153,17 @@ export function SearchableCombobox({
             >
               <span className="flex min-w-0 items-center gap-1.5">
                 {item.icon}
-                <span className="truncate">{item.label}</span>
                 {item.hint ? (
-                  <span className="ms-auto truncate ps-2 text-muted-foreground text-xs">
-                    {item.hint}
+                  // Name over muted email so long names aren't truncated.
+                  <span className="flex min-w-0 flex-col">
+                    <span className="truncate">{item.label}</span>
+                    <span className="truncate text-muted-foreground text-xs">
+                      {item.hint}
+                    </span>
                   </span>
-                ) : null}
+                ) : (
+                  <span className="truncate">{item.label}</span>
+                )}
               </span>
             </ComboboxItem>
           )}

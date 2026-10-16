@@ -1,20 +1,15 @@
 "use client";
 
 import {
-  pageHeaderActionsClass,
   pageHeaderMetaRowClass,
   pageHeaderRootClass,
-  pageHeaderTabActiveClass,
-  pageHeaderTabClass,
-  pageHeaderTabInactiveClass,
-  pageHeaderTabsEndClass,
-  pageHeaderTabsListClass,
   pageHeaderTabsRowClass,
-  pageHeaderTitleClass,
-  pageHeaderTitleRowClass,
   pageHeaderTopRowClass,
 } from "@loftlancer/ui/page-header-classes";
-import type { Route } from "next";
+import {
+  PageHeaderLayout,
+  PageHeaderTabsRow,
+} from "@loftlancer/ui/patterns/page-header";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -26,7 +21,6 @@ import {
   getPageBackHref,
   type PageBackHref,
 } from "@/lib/page-back";
-import { cn } from "@/lib/utils";
 
 /**
  * Back is always rendered. `false` and `"auto"` both resolve to the logical
@@ -88,7 +82,6 @@ const rootClass = pageHeaderRootClass;
 const topRowClass = pageHeaderTopRowClass;
 const metaRowClass = pageHeaderMetaRowClass;
 const tabsRowClass = pageHeaderTabsRowClass;
-const actionsClass = cn(pageHeaderActionsClass, "*:data-[slot=button]:h-8");
 
 export function PageHeaderTabs({
   tabs,
@@ -96,53 +89,14 @@ export function PageHeaderTabs({
   onTabChange,
   tabsEnd,
 }: PageHeaderTabsProps) {
-  const list = tabs?.length ? tabs : DEFAULT_TABS;
-  const value = activeTab ?? list[0]?.value;
   return (
-    <div className={tabsRowClass} data-slot="page-header-tabs">
-      <div
-        role="tablist"
-        aria-label="Sections"
-        className={pageHeaderTabsListClass}
-      >
-        {list.map((tab) => {
-          const active = tab.value === value;
-          const className = cn(
-            pageHeaderTabClass,
-            active ? pageHeaderTabActiveClass : pageHeaderTabInactiveClass,
-            tab.disabled && "pointer-events-none opacity-60",
-          );
-          if (tab.href) {
-            return (
-              <Link
-                key={tab.value}
-                href={tab.href as Route}
-                role="tab"
-                aria-selected={active}
-                aria-current={active ? "page" : undefined}
-                className={className}
-              >
-                {tab.label}
-              </Link>
-            );
-          }
-          return (
-            <button
-              key={tab.value}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              disabled={tab.disabled}
-              className={className}
-              onClick={() => onTabChange?.(tab.value)}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
-      {tabsEnd ? <div className={pageHeaderTabsEndClass}>{tabsEnd}</div> : null}
-    </div>
+    <PageHeaderTabsRow
+      tabs={tabs?.length ? tabs : DEFAULT_TABS}
+      activeTab={activeTab}
+      onTabChange={onTabChange}
+      end={tabsEnd}
+      LinkComponent={Link as never}
+    />
   );
 }
 
@@ -171,39 +125,31 @@ export function PageHeader({
 } & PageHeaderTabsProps) {
   const pathname = usePathname() ?? "";
   const resolved = resolveBack(back, pathname);
-  const metaContent = meta ?? metadata;
-
   return (
-    <header className={rootClass} data-slot="page-header">
-      <div className={topRowClass}>
+    <PageHeaderLayout
+      back={
         <PageBackButton
           href={resolved.href}
           fallbackHref={resolved.fallbackHref}
           useHistory={resolved.useHistory}
         />
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <div className={pageHeaderTitleRowClass}>
-            <h1 className={pageHeaderTitleClass}>{title}</h1>
-            {titleAccessory}
-          </div>
-          {description ? <PageHeaderDescription text={description} /> : null}
-        </div>
-        {action ? (
-          <div className={actionsClass} data-slot="page-header-actions">
-            {action}
-          </div>
-        ) : null}
-      </div>
-      <div className={metaRowClass} data-slot="page-header-meta">
-        {metaContent}
-      </div>
-      <PageHeaderTabs
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={onTabChange}
-        tabsEnd={tabsEnd}
-      />
-    </header>
+      }
+      title={title}
+      titleAccessory={titleAccessory}
+      description={
+        description ? <PageHeaderDescription text={description} /> : null
+      }
+      actions={action}
+      meta={meta ?? metadata}
+      tabs={
+        <PageHeaderTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={onTabChange}
+          tabsEnd={tabsEnd}
+        />
+      }
+    />
   );
 }
 

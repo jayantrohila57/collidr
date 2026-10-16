@@ -3,7 +3,6 @@
 import {
   SettingsFrame,
   SettingsRailCard,
-  SettingsSection,
 } from "@loftlancer/ui/patterns/settings-frame";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -107,20 +106,16 @@ export function OrganizationSectionPage({
       LinkComponent={Link as never}
       back={{ href: base, label: "Organization overview" }}
       avatar={{ src: organization?.logo, name: organization?.name ?? null }}
-      title={
+      title={title}
+      description={description}
+      identity={
         organization ? (
           organization.name
         ) : (
-          <Skeleton className="inline-block h-5 w-40 align-middle" />
+          <Skeleton className="inline-block h-3 w-28 align-middle" />
         )
       }
-      subtitle={
-        organization ? (
-          `/${organization.slug}`
-        ) : (
-          <Skeleton className="inline-block h-3.5 w-24 align-middle" />
-        )
-      }
+      subtitle={organization ? `/${organization.slug}` : undefined}
       actions={action}
       tabs={tabs}
       top={
@@ -155,9 +150,7 @@ export function OrganizationSectionPage({
         ) : null
       }
     >
-      <SettingsSection title={title} description={description} bare>
-        {children}
-      </SettingsSection>
+      {children}
     </SettingsFrame>
   );
 }
