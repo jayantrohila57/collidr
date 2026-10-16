@@ -4,6 +4,7 @@
     { "path": "/studio/api/cron/purge-apps", "schedule": "30 21 * * *" }
   ],
   "regions": ["sin1"],
+  "trailingSlash": false,
   "git": {
     "deploymentEnabled": {
       "*": false,
