@@ -15,6 +15,7 @@ import {
   getSessionActiveOrganizationId,
 } from "@loftlancer/auth/session-types";
 import { DEFAULT_STUDIO_URL } from "@loftlancer/env/platform";
+import { isReservedProjectSlug } from "@loftlancer/env/reserved-slugs";
 import type { Route } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -131,7 +132,8 @@ export async function guardProjectEditPage(slug: string) {
   return project;
 }
 
-export async function guardProjectSlugPage(slug: string) {
+/** Cached per request so the org-layout preflight and the project layout share one lookup. */
+export const guardProjectSlugPage = cache(async (slug: string) => {
   const session = await guardAuthenticatedPage();
   const organizationId = getSessionActiveOrganizationId(session);
   const projectRow = await runPageGuard(() =>
@@ -145,6 +147,26 @@ export async function guardProjectSlugPage(slug: string) {
     }),
   );
   return { session, project: projectRow };
+});
+
+/**
+ * The org layout's loading.tsx streams everything below it, so a notFound()
+ * in the project layout would arrive after a 200 (#306). The org layout calls
+ * this first: it resolves the /[org]/[project] segment from the request path
+ * (same cached guard the project layout uses) so a missing project 404s.
+ */
+export async function preflightProjectSegment(orgSlug: string) {
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const [first, second] = pathname.split("/").filter(Boolean);
+  if (!first || !second || first !== orgSlug) return;
+  let projectSlug: string;
+  try {
+    projectSlug = decodeURIComponent(second);
+  } catch {
+    return;
+  }
+  if (isReservedProjectSlug(projectSlug)) return;
+  await guardProjectSlugPage(projectSlug);
 }
 
 export async function guardSupportManagerPage(): Promise<AuthSession> {

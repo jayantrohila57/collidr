@@ -13,6 +13,16 @@ const appOrigin = (
 ).replace(/\/$/, "");
 
 /**
+ * Continue to the page with `x-pathname` on the REQUEST, so server layouts
+ * can read it via headers() (page guards, the org layout preflight, #306).
+ */
+function nextWithPathname(request: NextRequest): NextResponse {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", request.nextUrl.pathname);
+  return NextResponse.next({ request: { headers: requestHeaders } });
+}
+
+/**
  * The URL org is the source of truth (#299). Before rendering /[org]/…, make
  * the session's active org match it, so tRPC and server guards read the same
  * org. Cheap: getSession hits the cookie cache; setActive only runs on a
@@ -47,14 +57,13 @@ async function syncActiveOrganization(
     id?: string;
   } | null;
   if (body?.id && body.id === activeId) {
-    const response = NextResponse.next();
+    const response = nextWithPathname(request);
     response.cookies.set("ll_org", `${orgSlug}:${body.id}`, {
       path: "/",
       sameSite: "lax",
       httpOnly: true,
       secure: request.nextUrl.protocol === "https:",
     });
-    response.headers.set("x-pathname", request.nextUrl.pathname);
     return response;
   }
   const response = NextResponse.redirect(request.nextUrl);
@@ -90,9 +99,7 @@ export async function proxy(request: NextRequest) {
     if (synced) return synced;
   }
 
-  const response = NextResponse.next();
-  response.headers.set("x-pathname", pathname);
-  return response;
+  return nextWithPathname(request);
 }
 
 export const config = {
