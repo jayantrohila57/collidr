@@ -6,6 +6,7 @@ import {
   ChevronsUpDownIcon,
   FolderClosedIcon,
   LayersIcon,
+  LogInIcon,
   LogOutIcon,
   MonitorIcon,
   MoreHorizontalIcon,
@@ -40,14 +41,19 @@ import {
   MenuTrigger,
 } from "../components/ui/menu";
 import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuAction,
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
 } from "../components/ui/sidebar";
 import { cn } from "../lib/utils";
 import { SettingsAvatar } from "./settings-frame";
@@ -480,5 +486,125 @@ export function ProjectPinMenu({
         </MenuItem>
       </MenuPopup>
     </Menu>
+  );
+}
+
+/* ---------------- Public (unguarded) sidebar ---------------- */
+
+export type PublicNavGroup = {
+  label: string;
+  items: {
+    label: string;
+    href: string;
+    icon?: ComponentType<{ className?: string }>;
+  }[];
+};
+
+type PublicSession = {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+};
+
+/**
+ * Session is read client-side only, so nothing user-specific is in the
+ * static HTML. Cross-app links are plain <a> (no prefetch).
+ */
+function usePublicSession(sessionUrl: string) {
+  const [user, setUser] = useState<PublicSession | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetch(sessionUrl, { credentials: "include", cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { user?: PublicSession } | null) => {
+        if (alive) setUser(d?.user ?? null);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [sessionUrl]);
+  return user;
+}
+
+export function PublicSidebar({
+  homeHref,
+  groups,
+  currentPath,
+  sessionUrl,
+  signInHref,
+  signOutHref,
+  accountHref,
+  docsHref,
+}: {
+  homeHref: string;
+  groups: PublicNavGroup[];
+  currentPath?: string;
+  sessionUrl: string;
+  signInHref: string;
+  signOutHref: string;
+  accountHref: string;
+  docsHref: string;
+}) {
+  const user = usePublicSession(sessionUrl);
+  return (
+    <Sidebar collapsible="icon" variant="inset" data-testid="public-sidebar">
+      <SidebarHeader className="shrink-0">
+        <SidebarBrand href={homeHref} />
+      </SidebarHeader>
+      <SidebarContent>
+        {groups.map((g) => (
+          <SidebarGroup key={g.label}>
+            <SidebarGroupLabel className="text-muted-foreground">
+              {g.label}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {g.items.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        tooltip={item.label}
+                        isActive={currentPath === item.href}
+                        render={<a href={item.href} />}
+                      >
+                        {Icon ? <Icon className="shrink-0 text-muted-foreground" /> : null}
+                        <span className="min-w-0 truncate">{item.label}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+      </SidebarContent>
+      <SidebarFooter className="mt-auto shrink-0 border-border/60 border-t bg-sidebar">
+        {user ? (
+          <SidebarUserMenu
+            user={user}
+            accountHref={accountHref}
+            docsHref={docsHref}
+            onSignOut={() => window.location.assign(signOutHref)}
+          />
+        ) : (
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="Sign in"
+                render={<a href={signInHref} />}
+                className="h-8 justify-center gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                data-testid="public-sign-in"
+              >
+                <LogInIcon />
+                <span>Sign in</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        )}
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
   );
 }

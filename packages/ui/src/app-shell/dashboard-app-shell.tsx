@@ -46,14 +46,14 @@ export function DashboardAppShell({
     <>
       {sidebar}
       <SidebarInset id={mainId} className={dashboardSidebarInsetClassName}>
-        <DashboardPageHeaderBar>
+        <DashboardPageHeaderBar className="h-14 justify-center border-border/60 py-0">
           <DashboardInsetContainer>
             <DashboardPageHeaderRow>
-              <div className="flex min-w-0 flex-1 items-center gap-2">
+              <div className="flex min-w-0 flex-1 items-center gap-1.5">
                 <SidebarTrigger className="size-8 shrink-0" />
                 <Separator
                   orientation="vertical"
-                  className="my-auto hidden h-8 lg:block"
+                  className="my-auto hidden h-4 lg:block"
                 />
                 <div className="hidden min-w-0 flex-1 lg:block">{breadcrumbs}</div>
                 <div className="min-w-0 flex-1 overflow-hidden lg:hidden">

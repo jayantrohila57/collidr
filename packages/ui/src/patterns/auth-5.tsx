@@ -1,5 +1,7 @@
+"use client";
+
 import type React from "react";
-import type { ReactNode } from "react";
+import { createContext, type ReactNode, useContext } from "react";
 
 import { cn } from "../lib/utils";
 
@@ -19,11 +21,11 @@ export function AuthDivider({
 }: React.ComponentProps<"div">) {
   return (
     <div className="relative flex w-full items-center" {...props}>
-      <div className="w-full border-t" />
+      <div className="w-full border-border/60 border-t" />
       <div className="flex w-max justify-center text-nowrap px-2 text-muted-foreground text-xs">
         {children}
       </div>
-      <div className="w-full border-t" />
+      <div className="w-full border-border/60 border-t" />
     </div>
   );
 }
@@ -103,6 +105,64 @@ export function Auth5Panel({
   termsHref = "https://loftlancer.com/terms",
   privacyHref = "https://loftlancer.com/privacy",
 }: Auth5PanelProps) {
+  const body = (
+    <>
+      {topLeft ? <div className="absolute top-7 left-5">{topLeft}</div> : null}
+      {topRight ? (
+        <div className="absolute top-7 right-5">{topRight}</div>
+      ) : null}
+
+      <div className="mx-auto space-y-4 sm:w-sm">
+        <Logo className="h-4.5 lg:hidden" />
+        {title || description ? (
+          <div className="flex flex-col space-y-1">
+            {title ? (
+              <h1 className="font-bold font-heading text-2xl tracking-wide">
+                {title}
+              </h1>
+            ) : null}
+            {description ? (
+              <p className="text-muted-foreground text-sm">{description}</p>
+            ) : null}
+          </div>
+        ) : null}
+        <div className="space-y-2">{children}</div>
+        {footer}
+        {showTerms ? (
+          <p className="mt-8 text-muted-foreground text-xs">
+            By clicking continue, you agree to our{" "}
+            <a
+              className="underline underline-offset-4 hover:text-primary"
+              href={termsHref}
+            >
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a
+              className="underline underline-offset-4 hover:text-primary"
+              href={privacyHref}
+            >
+              Privacy Policy
+            </a>
+            .
+          </p>
+        ) : null}
+      </div>
+    </>
+  );
+  if (useContext(Auth5FrameContext)) return body;
+  return <Auth5Frame>{body}</Auth5Frame>;
+}
+
+const Auth5FrameContext = createContext(false);
+
+/**
+ * The auth-5 split frame (brand panel + right column) for use in a layout.
+ * `Auth5Panel`s rendered inside it fill the right column only; use
+ * `Auth5Content` for wider marketing/onboarding content. The right
+ * column scrolls for long content.
+ */
+export function Auth5Frame({ children }: { children: ReactNode }) {
   return (
     <main
       data-testid="auth-5"
@@ -129,7 +189,7 @@ export function Auth5Panel({
           <FloatingPaths position={-1} />
         </div>
       </div>
-      <div className="relative flex min-h-screen flex-col justify-center px-8">
+      <div className="relative flex min-h-screen flex-col justify-center-safe px-8 md:h-screen md:overflow-y-auto">
         {/* Top Shades */}
         <div
           aria-hidden
@@ -139,51 +199,27 @@ export function Auth5Panel({
           <div className="absolute top-0 right-0 h-320 w-60 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,--theme(--color-foreground/.04)_0,--theme(--color-foreground/.01)_80%,transparent_100%)] [translate:5%_-50%]" />
           <div className="absolute top-0 right-0 h-320 w-60 -translate-y-87.5 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,--theme(--color-foreground/.04)_0,--theme(--color-foreground/.01)_80%,transparent_100%)]" />
         </div>
-        {topLeft ? (
-          <div className="absolute top-7 left-5">{topLeft}</div>
-        ) : null}
-        {topRight ? (
-          <div className="absolute top-7 right-5">{topRight}</div>
-        ) : null}
-
-        <div className="mx-auto space-y-4 sm:w-sm">
-          <Logo className="h-4.5 lg:hidden" />
-          {title || description ? (
-            <div className="flex flex-col space-y-1">
-              {title ? (
-                <h1 className="font-bold font-heading text-2xl tracking-wide">
-                  {title}
-                </h1>
-              ) : null}
-              {description ? (
-                <p className="text-base text-muted-foreground">{description}</p>
-              ) : null}
-            </div>
-          ) : null}
-          <div className="space-y-2">{children}</div>
-          {footer}
-          {showTerms ? (
-            <p className="mt-8 text-muted-foreground text-sm">
-              By clicking continue, you agree to our{" "}
-              <a
-                className="underline underline-offset-4 hover:text-primary"
-                href={termsHref}
-              >
-                Terms of Service
-              </a>{" "}
-              and{" "}
-              <a
-                className="underline underline-offset-4 hover:text-primary"
-                href={privacyHref}
-              >
-                Privacy Policy
-              </a>
-              .
-            </p>
-          ) : null}
-        </div>
+        <Auth5FrameContext.Provider value={true}>
+          {children}
+        </Auth5FrameContext.Provider>
       </div>
     </main>
+  );
+}
+
+/** Wide content column inside `Auth5Frame` (marketing, onboarding, route states). */
+export function Auth5Content({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("mx-auto w-full max-w-2xl space-y-4 py-12", className)}>
+      <Logo className="h-4.5 lg:hidden" />
+      {children}
+    </div>
   );
 }
 
