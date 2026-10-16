@@ -51,7 +51,6 @@ export function SettingsAvatar({
       )}
     >
       {src ? (
-        // biome-ignore lint/performance/noImgElement: remote avatar, no Next image config in shared package
         <img src={src} alt="" className="size-full object-cover" />
       ) : (
         initials
@@ -342,15 +341,28 @@ export function ActivityHeatmap({
       : "";
   });
 
+  // Stable keys: a week is identified by its first dated cell; padding cells by position in the trailing week.
+  const weekRows = weeks.map((week, wi) => {
+    const id = week.find((c) => c !== null)?.date ?? `pad-week-${wi}`;
+    return {
+      id,
+      label: monthLabels[wi],
+      cells: week.map((cell, di) => ({
+        id: cell?.date ?? `${id}-pad-${di}`,
+        cell,
+      })),
+    };
+  });
+
   return (
     <div className="overflow-x-auto" data-testid="activity-heatmap">
       <div className="inline-flex flex-col gap-1.5">
         <div
-          className="flex gap-0.75 text-muted-foreground text-[10px]"
+          className="flex gap-0.75 text-[10px] text-muted-foreground"
           aria-hidden
         >
-          {monthLabels.map((m, wi) => (
-            <span key={wi} className="relative h-3 w-2.5 shrink-0">
+          {weekRows.map(({ id, label: m }) => (
+            <span key={id} className="relative h-3 w-2.5 shrink-0">
               {m ? (
                 <span className="absolute left-0 whitespace-nowrap">{m}</span>
               ) : null}
@@ -358,12 +370,12 @@ export function ActivityHeatmap({
           ))}
         </div>
         <div className="flex gap-0.75">
-          {weeks.map((week, wi) => (
-            <div key={wi} className="flex flex-col gap-0.75">
-              {week.map((cell, di) =>
+          {weekRows.map((week) => (
+            <div key={week.id} className="flex flex-col gap-0.75">
+              {week.cells.map(({ id, cell }) =>
                 cell ? (
                   <span
-                    key={cell.date}
+                    key={id}
                     title={`${cell.count} event${cell.count === 1 ? "" : "s"} on ${cell.date}`}
                     className={cn(
                       "size-2.5 rounded-[2px]",
@@ -371,13 +383,13 @@ export function ActivityHeatmap({
                     )}
                   />
                 ) : (
-                  <span key={`e${di}`} className="size-2.5" />
+                  <span key={id} className="size-2.5" />
                 ),
               )}
             </div>
           ))}
         </div>
-        <div className="flex items-center justify-end gap-1 text-muted-foreground text-[10px]">
+        <div className="flex items-center justify-end gap-1 text-[10px] text-muted-foreground">
           Less
           {levelClass.map((c) => (
             <span key={c} className={cn("size-2.5 rounded-[2px]", c)} />
