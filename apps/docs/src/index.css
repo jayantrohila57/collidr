@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Workspace UI package lives outside this app; Tailwind v4 does not scan it by default. */
+@source "../../../packages/ui/src";
 @import "@loftlancer/ui/globals.css";
 @import "fumadocs-ui/css/preset.css";
 @import "fumadocs-ui/css/neutral.css";

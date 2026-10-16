@@ -1,3 +1,4 @@
+import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
 import { Button } from "@loftlancer/ui/button";
 import {
   Card,
@@ -29,8 +30,8 @@ function toUrlSearchParams(resolved: SearchParams): URLSearchParams {
 
 function InvalidConsentRequest() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-md">
+    <Auth5Panel showTerms={false}>
+      <Card className="w-full border-0 bg-transparent shadow-none before:hidden">
         <CardHeader>
           <CardTitle>Authorization request invalid</CardTitle>
           <CardDescription>
@@ -42,7 +43,7 @@ function InvalidConsentRequest() {
           <Button render={<Link href="/sign-in" />}>Back to sign in</Button>
         </CardPanel>
       </Card>
-    </div>
+    </Auth5Panel>
   );
 }
 

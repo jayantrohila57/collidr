@@ -1,5 +1,6 @@
 "use client";
 
+import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
 import { Button } from "@loftlancer/ui/button";
 import {
   Card,
@@ -66,8 +67,8 @@ export function DeviceCodeForm() {
   };
 
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-md">
+    <Auth5Panel showTerms={false}>
+      <Card className="w-full border-0 bg-transparent shadow-none before:hidden">
         <CardHeader>
           <CardTitle>Device sign-in</CardTitle>
           <CardDescription>
@@ -128,6 +129,6 @@ export function DeviceCodeForm() {
           </Button>
         </CardPanel>
       </Card>
-    </div>
+    </Auth5Panel>
   );
 }
