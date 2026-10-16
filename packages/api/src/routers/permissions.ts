@@ -1,11 +1,11 @@
 import { z } from "zod/v3";
-import { actionGuard } from "../actions/action-guard";
-import { projectIdFromInput } from "../actions/guard-resolve";
 import { buildPermissionsSnapshot } from "../actions/permissions-snapshot";
 import { orgAwareProcedure, router } from "../index";
 import { getActiveOrganizationId } from "../org-access";
 
 export const permissionsRouter = router({
+  // Reports the caller's own capabilities (all false without an org), so it is
+  // not action-gated; zero-org users need it to reach onboarding.
   snapshot: orgAwareProcedure
     .input(
       z
@@ -14,7 +14,6 @@ export const permissionsRouter = router({
         })
         .optional(),
     )
-    .use(actionGuard("organization.view", projectIdFromInput))
     .query(async ({ ctx, input }) => {
       const organizationId = getActiveOrganizationId(ctx.session);
       return buildPermissionsSnapshot({
