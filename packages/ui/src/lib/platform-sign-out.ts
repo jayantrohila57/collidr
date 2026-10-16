@@ -27,7 +27,9 @@ export async function performPlatformSignOut(
 
   options.onClearClient?.();
 
-  const appOrigin = window.location.origin;
+  // App URL including its Next basePath (e.g. https://loftlancer.com/studio).
+  const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/$/, "");
+  const appOrigin = `${window.location.origin}${basePath}`;
   const authOrigin = resolveAuthAppOrigin();
   const onAuthHost = appOrigin === authOrigin;
   const returnTo =

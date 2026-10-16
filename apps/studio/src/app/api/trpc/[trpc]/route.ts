@@ -1,3 +1,4 @@
+import { BASE_PATH } from "@/lib/base-path";
 import { createContextWithAuth } from "@loftlancer/api/create-context";
 import { studioRouter } from "@loftlancer/api/routers/studio";
 import { logSchemaOutOfDateOnce } from "@loftlancer/db/postgres-errors";
@@ -7,7 +8,9 @@ import { siblingAuth } from "@/lib/sibling-auth";
 
 function handler(req: NextRequest) {
   return fetchRequestHandler({
-    endpoint: "/api/trpc",
+    endpoint: new URL(req.url).pathname.startsWith(`${BASE_PATH}/api/trpc`)
+      ? `${BASE_PATH}/api/trpc`
+      : "/api/trpc",
     req,
     router: studioRouter,
     createContext: () => createContextWithAuth(req, siblingAuth),

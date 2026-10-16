@@ -1,3 +1,4 @@
+import { appUrl } from "@/lib/base-path";
 import { type NextRequest, NextResponse } from "next/server";
 import { siblingAuth } from "@/lib/sibling-auth";
 
@@ -7,7 +8,7 @@ export async function GET(request: NextRequest) {
     request.nextUrl.searchParams.get("next")?.trim() || "/dashboard";
 
   if (!ott) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(appUrl(request, "/dashboard"));
   }
 
   const verifyResponse = await siblingAuth.api.verifyOneTimeToken({
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
     asResponse: true,
   });
 
-  const redirect = NextResponse.redirect(new URL(nextPath, request.url));
+  const redirect = NextResponse.redirect(appUrl(request, nextPath));
   for (const cookie of verifyResponse.headers.getSetCookie()) {
     redirect.headers.append("Set-Cookie", cookie);
   }

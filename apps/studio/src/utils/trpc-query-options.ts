@@ -1,3 +1,4 @@
+import { withBasePath } from "@/lib/base-path";
 import "server-only";
 
 import type { StudioRouter } from "@loftlancer/api/routers/studio";
@@ -11,7 +12,7 @@ const prefetchQueryClient = new QueryClient();
 const prefetchTrpcClient = createTRPCClient<StudioRouter>({
   links: [
     httpBatchLink({
-      url: "/api/trpc",
+      url: withBasePath("/api/trpc"),
       transformer,
     }),
   ],

@@ -1,3 +1,4 @@
+import { withBasePath } from "@/lib/base-path";
 import type { AccountAppRouter } from "@loftlancer/api/routers/account-app";
 import { transformer } from "@loftlancer/api/transformer";
 
@@ -76,7 +77,7 @@ export const createTrpcClient = () =>
   createTRPCClient<AccountAppRouter>({
     links: [
       httpBatchLink({
-        url: "/api/trpc",
+        url: withBasePath("/api/trpc"),
         transformer,
         fetch(url, options) {
           return fetch(url, {

@@ -1,3 +1,4 @@
+import { appUrl } from "@/lib/base-path";
 import { platformSessionMiddleware } from "@loftlancer/auth/platform-middleware";
 import { DEFAULT_AUTH_URL } from "@loftlancer/env/platform";
 import { resolvePublicServiceUrl } from "@loftlancer/env/vercel-services";
@@ -24,19 +25,19 @@ export function proxy(request: NextRequest) {
 
   if (pathname === "/account" || pathname.startsWith("/account/")) {
     const suffix = pathname.replace(/^\/account/, "") || "";
-    return NextResponse.redirect(new URL(`/settings${suffix}`, request.url));
+    return NextResponse.redirect(appUrl(request, `/settings${suffix}`));
   }
 
   if (pathname === "/settings" || pathname.startsWith("/settings/")) {
     const tab = request.nextUrl.searchParams.get("tab");
     if (tab && LEGACY_TAB_PATHS[tab]) {
-      return NextResponse.redirect(new URL(LEGACY_TAB_PATHS[tab], request.url));
+      return NextResponse.redirect(appUrl(request, LEGACY_TAB_PATHS[tab]));
     }
     if (
       pathname === "/settings/deploy" ||
       pathname === "/settings/organization"
     ) {
-      return NextResponse.redirect(new URL("/settings/profile", request.url));
+      return NextResponse.redirect(appUrl(request, "/settings/profile"));
     }
   }
 
