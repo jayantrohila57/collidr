@@ -1,7 +1,5 @@
 "use client";
 
-import type { Route } from "next";
-
 import { useMemo, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";
