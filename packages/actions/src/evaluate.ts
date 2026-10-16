@@ -108,3 +108,30 @@ export function orgRoleSatisfiesAction(
   if (!requiredRole) return false;
   return isOrgRoleAtLeast(orgRole, requiredRole);
 }
+
+export type RoleCapability = "yes" | "grant" | "no";
+
+/**
+ * What a built-in org role can do for an action, using the same evaluator the
+ * server enforces: "yes" without project context, "grant" only once assigned
+ * to the project (manager) or granted via a team (member), "no" otherwise.
+ */
+export function roleCapability(
+  action: ActionName,
+  orgRole: OrgRole,
+): RoleCapability {
+  if (evaluatePermission({ action, orgRole, project: null }).allowed) {
+    return "yes";
+  }
+  const def = getActionDefinition(action);
+  const withAccess = evaluatePermission({
+    action,
+    orgRole,
+    project: {
+      isProjectManager: true,
+      hasTeamLink: true,
+      memberGrants: [def.projectGrantKey ?? def.name],
+    },
+  });
+  return withAccess.allowed ? "grant" : "no";
+}
