@@ -4,7 +4,7 @@ import { CountBadge } from "@loftlancer/ui/patterns/count-badge";
 import { headerIconButtonClassName } from "@loftlancer/ui/utils";
 import type { Route } from "next";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
 import { AppIcon } from "@/components/patterns/app-icon";
 import { LoadingButton } from "@/components/patterns/loading-button";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,6 @@ import {
 import { NotificationListItem } from "./notification-list-item";
 
 export function NotificationBell() {
-  const router = useRouter();
   const enabled = isNotificationsEnabledOnClient();
   const unreadQuery = useNotificationsUnreadCount();
   const listQuery = useNotificationsList({ limit: 10, poll: true });
@@ -138,17 +137,10 @@ export function NotificationBell() {
                 key={item.id}
                 item={item}
                 compact
+                href={item.href}
                 onClick={() => {
-                  void (async () => {
-                    if (!item.readAt) {
-                      try {
-                        await markReadWithToast({ id: item.id });
-                      } catch {
-                        return;
-                      }
-                    }
-                    router.push(item.href as Route);
-                  })();
+                  if (!item.readAt)
+                    void markReadWithToast({ id: item.id }).catch(() => {});
                 }}
                 onMarkRead={() => void markReadWithToast({ id: item.id })}
                 disabled={isMarkingRead}

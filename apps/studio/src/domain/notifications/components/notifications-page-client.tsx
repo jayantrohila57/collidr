@@ -1,7 +1,7 @@
 "use client";
 
 import type { Route } from "next";
-import { useRouter } from "next/navigation";
+
 import { useMemo, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";
@@ -78,7 +78,6 @@ function NotificationRowSkeleton({ width }: { width: string }) {
 }
 
 export function NotificationsPageClient() {
-  const router = useRouter();
   const [tab, setTab] = useState<"all" | "unread">("all");
   const unreadOnly = tab === "unread";
   const listQuery = useNotificationsList({
@@ -242,17 +241,12 @@ export function NotificationsPageClient() {
                     <NotificationListItem
                       key={item.id}
                       item={item}
+                      href={item.href}
                       onClick={() => {
-                        void (async () => {
-                          if (!item.readAt) {
-                            try {
-                              await markReadWithToast({ id: item.id });
-                            } catch {
-                              return;
-                            }
-                          }
-                          router.push(item.href as Route);
-                        })();
+                        if (!item.readAt)
+                          void markReadWithToast({ id: item.id }).catch(
+                            () => {},
+                          );
                       }}
                       onMarkRead={() => void markReadWithToast({ id: item.id })}
                       disabled={isMarkingRead}
