@@ -6,6 +6,7 @@ import {
   ChevronsUpDownIcon,
   FolderClosedIcon,
   LayersIcon,
+  LifeBuoyIcon,
   LogInIcon,
   LogOutIcon,
   MonitorIcon,
@@ -472,6 +473,8 @@ export type UserMenuProps = {
   accountHref: string;
   organizationSettingsHref?: string | null;
   docsHref: string;
+  /** User-level support (outside any org), e.g. studio /support/tickets. */
+  supportHref?: string | null;
   onSignOut: () => void | Promise<void>;
 };
 
@@ -481,6 +484,7 @@ function UserMenuPopup({
   accountHref,
   organizationSettingsHref,
   docsHref,
+  supportHref,
   onRequestSignOut,
   side,
   align,
@@ -542,6 +546,11 @@ function UserMenuPopup({
       <MenuLinkItem href={docsHref}>
         <BookOpenIcon /> Docs
       </MenuLinkItem>
+      {supportHref ? (
+        <MenuLinkItem href={supportHref} data-testid="menu-support">
+          <LifeBuoyIcon /> Support
+        </MenuLinkItem>
+      ) : null}
       <MenuItem
         variant="destructive"
         data-testid="menu-sign-out"

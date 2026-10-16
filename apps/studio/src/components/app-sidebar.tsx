@@ -69,6 +69,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { label: "Account settings", href: accountSettingsHref },
     { label: "Notifications", href: routes.notifications() },
     { label: "Activity", href: routes.activity() },
+    { label: "Support", href: routes.supportTickets() },
     { label: "Organizations", href: routes.home() },
   ];
   const nav = useSidebarNavigator({

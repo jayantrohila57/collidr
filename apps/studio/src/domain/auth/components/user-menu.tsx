@@ -33,6 +33,7 @@ export function useUserMenuProps(): UserMenuProps & { ready: boolean } {
         ? withBasePath(routes.orgSection(orgSlug, "settings"))
         : null,
     docsHref: docsSiteUrl(),
+    supportHref: withBasePath(routes.supportTickets()),
     onSignOut: () => performSignOut({ queryClient, router }),
   };
 }

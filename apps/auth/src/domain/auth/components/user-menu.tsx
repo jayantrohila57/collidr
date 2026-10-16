@@ -33,6 +33,7 @@ export function useUserMenuProps(): UserMenuProps & { ready: boolean } {
         ? studioDashboardPath(routes.orgSection(orgSlug, "settings"))
         : null,
     docsHref: docsSiteUrl(),
+    supportHref: studioDashboardPath(routes.supportTickets()),
     onSignOut: () => performSignOut({ queryClient, router }),
   };
 }
