@@ -1,15 +1,9 @@
+import { EmptyState as SharedEmptyState } from "@loftlancer/ui/patterns/empty-state";
 import type { LucideIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
 
 interface EmptyStateProps {
   icon: LucideIcon;
@@ -18,38 +12,35 @@ interface EmptyStateProps {
   actionLabel?: string;
   actionHref?: string;
   onAction?: () => void;
+  /** Custom primary action (e.g. a sheet trigger); overrides actionLabel. */
+  action?: ReactNode;
+  secondaryAction?: ReactNode;
+  bare?: boolean;
+  className?: string;
+  "data-testid"?: string;
 }
 
+/** Studio adapter over the shared `@loftlancer/ui` empty state (#214). */
 export function EmptyState({
-  icon: Icon,
-  title,
-  description,
   actionLabel,
   actionHref,
   onAction,
+  action,
+  ...props
 }: EmptyStateProps) {
-  return (
-    <Empty className="border border-dashed">
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <Icon className="size-6" aria-hidden />
-        </EmptyMedia>
-        <EmptyTitle>{title}</EmptyTitle>
-        <EmptyDescription>{description}</EmptyDescription>
-      </EmptyHeader>
-      {actionLabel && (actionHref || onAction) && (
-        <EmptyContent>
-          {actionHref ? (
-            <Button render={<Link href={actionHref as Route} />}>
-              {actionLabel}
-            </Button>
-          ) : (
-            <Button type="button" onClick={onAction}>
-              {actionLabel}
-            </Button>
-          )}
-        </EmptyContent>
-      )}
-    </Empty>
-  );
+  const primary =
+    action ??
+    (actionLabel && (actionHref || onAction) ? (
+      actionHref ? (
+        <Button size="sm" render={<Link href={actionHref as Route} />}>
+          {actionLabel}
+        </Button>
+      ) : (
+        <Button type="button" size="sm" onClick={onAction}>
+          {actionLabel}
+        </Button>
+      )
+    ) : null);
+
+  return <SharedEmptyState {...props} action={primary} />;
 }
