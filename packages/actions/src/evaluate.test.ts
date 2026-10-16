@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { evaluatePermission } from "./evaluate";
+import { evaluatePermission, roleCapability } from "./evaluate";
 
 describe("evaluatePermission", () => {
   it("allows owners for project-scoped actions", () => {
@@ -76,5 +76,21 @@ describe("evaluatePermission", () => {
     if (!result.allowed) {
       assert.equal(result.reason, "no_team_on_project");
     }
+  });
+});
+
+describe("roleCapability", () => {
+  it("maps roles to yes / grant / no", () => {
+    assert.equal(
+      roleCapability("organization.settings.update", "owner"),
+      "yes",
+    );
+    assert.equal(
+      roleCapability("organization.settings.update", "member"),
+      "no",
+    );
+    assert.equal(roleCapability("member.invite", "manager"), "yes");
+    assert.equal(roleCapability("variable.reveal", "owner"), "yes");
+    assert.notEqual(roleCapability("variable.reveal", "member"), "yes");
   });
 });

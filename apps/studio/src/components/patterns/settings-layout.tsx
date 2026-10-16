@@ -13,7 +13,7 @@ export function SettingsPanel({
   return (
     <div
       className={cn(
-        "divide-y rounded-xl border bg-card text-card-foreground",
+        "divide-y divide-border/60 rounded-xl border border-border/60 bg-card text-card-foreground",
         className,
       )}
     >
@@ -34,7 +34,7 @@ export function SettingsSectionHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("border-b px-4 py-3", className)}>
+    <div className={cn("px-4 py-3", className)}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <h3 className="font-medium text-sm">{title}</h3>
@@ -66,7 +66,7 @@ export function SettingsRow({
   return (
     <div
       className={cn(
-        "grid gap-4 px-4 py-4 md:grid-cols-[13.75rem_minmax(0,1fr)] md:items-center md:gap-6",
+        "grid gap-1.5 px-4 py-2.5 md:grid-cols-[13.75rem_minmax(0,1fr)] md:items-center md:gap-6",
         className,
       )}
     >
@@ -107,7 +107,7 @@ export function SettingsField({
   return (
     <div
       className={cn(
-        "grid gap-4 px-4 py-4 md:grid-cols-[13.75rem_minmax(0,1fr)] md:items-center md:gap-6",
+        "grid gap-1.5 px-4 py-2.5 md:grid-cols-[13.75rem_minmax(0,1fr)] md:items-center md:gap-6",
         className,
       )}
     >

@@ -3,20 +3,13 @@
 import type { ReactNode } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { ErrorState } from "@/components/patterns/error-state";
-import {
-  SettingsPanel,
-  SettingsRow,
-  SettingsSectionHeader,
-} from "@/components/patterns/settings-layout";
 import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
-import { RoleBadge } from "@/components/patterns/status-badge";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { orgSectionAction } from "@/domain/permissions/org-section-actions";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { OrganizationPermissionsMatrix } from "./organization-permissions-matrix";
+import { OrganizationRoleCards } from "./organization-role-cards";
 import { OrganizationSectionPage } from "./organization-section-page";
-
-const DEFAULT_ROLES = ["owner", "manager", "member", "admin"] as const;
 
 export function OrganizationRolesPage({ slug }: { slug: string }) {
   const { organization, status, error } = useOrganizationBySlug(slug);
@@ -46,30 +39,7 @@ export function OrganizationRolesPage({ slug }: { slug: string }) {
   } else {
     body = (
       <div className="flex flex-col gap-4">
-        <SettingsPanel>
-          <SettingsSectionHeader
-            title="Built-in roles"
-            description="Organization roles used for access control and MCP scope checks."
-            icon="lock"
-          />
-          {DEFAULT_ROLES.map((role) => (
-            <SettingsRow
-              key={role}
-              label={role}
-              description={
-                role === "owner"
-                  ? "Full control including deletion."
-                  : role === "manager"
-                    ? "Manage members, invites, teams, and project grants."
-                    : role === "admin"
-                      ? "Reserved for future platform console (not enabled)."
-                      : "Project access via teams and explicit grants."
-              }
-            >
-              <RoleBadge role={role} />
-            </SettingsRow>
-          ))}
-        </SettingsPanel>
+        <OrganizationRoleCards />
         <OrganizationPermissionsMatrix />
       </div>
     );
