@@ -1,7 +1,5 @@
 "use client";
 
-import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
-import { describeMcpOAuthScopes } from "@loftlancer/actions";
 import { Button } from "@loftlancer/ui/button";
 import {
   Card,
@@ -10,10 +8,14 @@ import {
   CardPanel,
   CardTitle,
 } from "@loftlancer/ui/card";
+import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { GitHubSignInButton } from "@/components/github-sign-in-button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  OAuthDecisionButtons,
+  OAuthScopeCard,
+} from "@/components/oauth-scope-card";
 import { authClient } from "@/lib/auth-client";
 
 type ConsentScreenProps = {
@@ -34,8 +36,6 @@ export function ConsentScreen({
   const [loadingClient, setLoadingClient] = useState(true);
   const [submitting, setSubmitting] = useState<"approve" | "deny" | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const scopeItems = describeMcpOAuthScopes(scope);
 
   useEffect(() => {
     if (!session?.user) {
@@ -99,75 +99,43 @@ export function ConsentScreen({
         <CardHeader>
           <CardTitle>Authorize application</CardTitle>
           <CardDescription>
-            Review what <span className="font-medium">{displayName}</span> is
-            requesting before you continue.
+            Review what this application is requesting before you continue.
           </CardDescription>
         </CardHeader>
-        <CardPanel className="flex flex-col gap-4">
-          {error ? (
-            <Alert variant="error">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          ) : null}
-
-          {isPending || loadingClient ? (
-            <p className="text-muted-foreground text-sm">Loading…</p>
-          ) : null}
-
+        <CardPanel className="flex flex-col gap-3">
           {!isPending && !session?.user ? (
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 rounded-xl p-4 ring-1 ring-border/60">
               <p className="text-muted-foreground text-sm">
                 Sign in to approve access for this application.
               </p>
               <GitHubSignInButton returnTo={consentReturnTo} />
             </div>
-          ) : null}
-
-          {session?.user ? (
+          ) : (
             <>
-              <div>
-                <p className="font-medium text-sm">Requested access</p>
-                {scopeItems.length === 0 ? (
-                  <p className="mt-2 text-muted-foreground text-sm">
-                    No additional scopes were requested.
-                  </p>
-                ) : (
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
-                    {scopeItems.map((item) => (
-                      <li key={item.scope}>
-                        <span className="font-medium">{item.description}</span>
-                        <span className="text-muted-foreground">
-                          {" "}
-                          ({item.scope})
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Button
-                  type="button"
-                  className="flex-1"
-                  disabled={submitting !== null}
-                  onClick={() => void handleConsent(true)}
-                >
-                  {submitting === "approve" ? "Approving…" : "Approve"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  disabled={submitting !== null}
-                  onClick={() => void handleConsent(false)}
-                >
-                  {submitting === "deny" ? "Denying…" : "Deny"}
-                </Button>
-              </div>
+              <OAuthScopeCard
+                appName={isPending || loadingClient ? null : displayName}
+                appMeta={
+                  clientName && clientName !== clientId
+                    ? `Client ID ${clientId}`
+                    : null
+                }
+                scope={scope}
+              />
+              <OAuthDecisionButtons
+                submitting={submitting}
+                disabled={isPending || loadingClient || !session?.user}
+                onApprove={() => void handleConsent(true)}
+                onDeny={() => void handleConsent(false)}
+              />
             </>
-          ) : null}
-
-          <Button variant="ghost" render={<Link href="/sign-in" />}>
+          )}
+          <p
+            role="alert"
+            className="min-h-4 text-destructive text-xs leading-4"
+          >
+            {error ?? ""}
+          </p>
+          <Button variant="ghost" size="sm" render={<Link href="/sign-in" />}>
             Back to sign in
           </Button>
         </CardPanel>
