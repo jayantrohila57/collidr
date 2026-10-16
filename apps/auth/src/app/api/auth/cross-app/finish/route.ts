@@ -31,7 +31,9 @@ export async function GET(request: NextRequest) {
   }
 
   const authService = resolveAuthServiceUrl();
-  const tokenUrl = new URL("/api/auth/one-time-token/generate", authService);
+  const tokenUrl = new URL(
+    `${authService.replace(/\/$/, "")}/api/auth/one-time-token/generate`,
+  );
   const tokenResponse = await fetch(tokenUrl, {
     headers: {
       cookie: headerList.get("cookie") ?? "",

@@ -22,7 +22,9 @@ export function GitHubSignInButton({
     const returnTo = validateReturnTo(
       returnToOverride ?? searchParams.get("return_to"),
     );
-    const finishUrl = new URL("/api/auth/cross-app/finish", window.location.origin);
+    const finishUrl = new URL(
+      `${(process.env.NEXT_PUBLIC_AUTH_URL ?? window.location.origin).replace(/\/$/, "")}/api/auth/cross-app/finish`,
+    );
     finishUrl.searchParams.set("return_to", returnTo);
 
     setLoading(true);

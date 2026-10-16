@@ -43,8 +43,16 @@ export function createLoftlancerAuthClient(
     );
   }
 
+  // Better Auth treats any path in baseURL as the full API path, so point it at
+  // `<auth app URL>/api/auth` (e.g. https://loftlancer.com/auth/api/auth).
+  const apiBaseURL = baseURL
+    ? baseURL.replace(/\/$/, "").endsWith("/api/auth")
+      ? baseURL.replace(/\/$/, "")
+      : `${baseURL.replace(/\/$/, "")}/api/auth`
+    : undefined;
+
   return createAuthClient({
-    ...(baseURL ? { baseURL } : {}),
+    ...(apiBaseURL ? { baseURL: apiBaseURL } : {}),
     plugins,
   });
 }

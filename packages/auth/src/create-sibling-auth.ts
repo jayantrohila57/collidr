@@ -29,8 +29,19 @@ export function createSiblingAuth(options: CreateSiblingAuthOptions) {
     legacyWebUrl: env.CORS_ORIGIN,
   });
 
+  // App under a Next basePath (e.g. `/studio`): serve Better Auth at
+  // origin + `<basePath>/api/auth` instead of deriving the path from baseURL.
+  const rawBase = (
+    options.baseURL ||
+    env.BETTER_AUTH_URL ||
+    DEFAULT_AUTH_URL
+  ).replace(/\/$/, "");
+  const parsedBase = new URL(rawBase);
+  const appPath = parsedBase.pathname.replace(/\/$/, "");
+
   return betterAuth({
-    baseURL: options.baseURL || env.BETTER_AUTH_URL || DEFAULT_AUTH_URL,
+    baseURL: appPath ? parsedBase.origin : rawBase,
+    ...(appPath ? { basePath: `${appPath}/api/auth` } : {}),
     secret:
       env.BETTER_AUTH_SECRET ?? "local-build-placeholder-secret-min-32-chars",
     advanced: sharedAuthAdvanced(),
