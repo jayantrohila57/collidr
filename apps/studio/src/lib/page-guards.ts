@@ -2,6 +2,8 @@ import "server-only";
 
 import type { ActionName } from "@loftlancer/actions";
 import {
+  assertProjectEnvironmentForPage,
+  assertProjectTaskForPage,
   organizationChildAction,
   requirePageAction,
   resolveOrganizationForPage,
@@ -15,11 +17,11 @@ import {
   getSessionActiveOrganizationId,
 } from "@loftlancer/auth/session-types";
 import { DEFAULT_STUDIO_URL } from "@loftlancer/env/platform";
-import { isReservedProjectSlug } from "@loftlancer/env/reserved-slugs";
 import type { Route } from "next";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
+import { planOrgSubtree } from "@/lib/org-route-preflight";
 import { getServerSession } from "@/lib/server-auth";
 
 const appOrigin = (
@@ -151,22 +153,25 @@ export const guardProjectSlugPage = cache(async (slug: string) => {
 
 /**
  * The org layout's loading.tsx streams everything below it, so a notFound()
- * in the project layout would arrive after a 200 (#306). The org layout calls
- * this first: it resolves the /[org]/[project] segment from the request path
- * (same cached guard the project layout uses) so a missing project 404s.
+ * in the project layout or any page under it would arrive after a 200 (#306,
+ * #309). The org layout calls this first, before that boundary: it resolves
+ * the whole request path (route shape, project, env / task) so every unknown
+ * route under a real org or project is a real 404. The project lookup is the
+ * same cached guard the project layout uses.
  */
-export async function preflightProjectSegment(orgSlug: string) {
+export async function preflightOrgSubtree(orgSlug: string): Promise<void> {
   const pathname = (await headers()).get("x-pathname") ?? "";
-  const [first, second] = pathname.split("/").filter(Boolean);
-  if (!first || !second || first !== orgSlug) return;
-  let projectSlug: string;
-  try {
-    projectSlug = decodeURIComponent(second);
-  } catch {
-    return;
-  }
-  if (isReservedProjectSlug(projectSlug)) return;
-  await guardProjectSlugPage(projectSlug);
+  const plan = planOrgSubtree(pathname, orgSlug);
+  if (plan.kind === "org") return;
+  if (plan.kind === "not-found") notFound();
+  const { project } = await guardProjectSlugPage(plan.projectSlug);
+  const resource = plan.resource;
+  if (!resource) return;
+  await runPageGuard(() =>
+    resource.kind === "env"
+      ? assertProjectEnvironmentForPage(project.id, resource.envSlug)
+      : assertProjectTaskForPage(project.id, resource.number),
+  );
 }
 
 export async function guardSupportManagerPage(): Promise<AuthSession> {

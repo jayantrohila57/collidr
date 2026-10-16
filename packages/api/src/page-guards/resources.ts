@@ -1,6 +1,12 @@
-import { activeMemberWhere, activeProjectWhere, db } from "@loftlancer/db";
+import {
+  activeEnvironmentWhere,
+  activeMemberWhere,
+  activeProjectWhere,
+  db,
+} from "@loftlancer/db";
 import { member, organization } from "@loftlancer/db/schema/organization";
-import { project } from "@loftlancer/db/schema/projects";
+import { task } from "@loftlancer/db/schema/project-app";
+import { environment, project } from "@loftlancer/db/schema/projects";
 import { and, eq, isNull } from "drizzle-orm";
 import { assertProjectAccess } from "../org-access";
 import { PageNotFoundError } from "./errors";
@@ -73,4 +79,53 @@ export async function resolveProjectForPage(
   await assertProjectAccess(userId, row.id, organizationId);
 
   return row;
+}
+
+/**
+ * /[org]/[project]/env/[envSlug]: 404 when the project has no such environment
+ * (#309). Call after resolveProjectForPage, which checks access.
+ */
+export async function assertProjectEnvironmentForPage(
+  projectId: string,
+  envSlug: string,
+): Promise<void> {
+  const [row] = await db
+    .select({ id: environment.id })
+    .from(environment)
+    .where(
+      activeEnvironmentWhere(
+        and(
+          eq(environment.projectId, projectId),
+          eq(environment.slug, envSlug),
+        ),
+      ),
+    )
+    .limit(1);
+  if (!row) {
+    throw new PageNotFoundError("Environment not found");
+  }
+}
+
+/**
+ * /[org]/[project]/tasks/[number]: 404 when the project has no such task
+ * (#309). Call after resolveProjectForPage, which checks access.
+ */
+export async function assertProjectTaskForPage(
+  projectId: string,
+  taskNumber: number,
+): Promise<void> {
+  const [row] = await db
+    .select({ id: task.id })
+    .from(task)
+    .where(
+      and(
+        eq(task.projectId, projectId),
+        eq(task.number, taskNumber),
+        isNull(task.deletedAt),
+      ),
+    )
+    .limit(1);
+  if (!row) {
+    throw new PageNotFoundError("Task not found");
+  }
 }
