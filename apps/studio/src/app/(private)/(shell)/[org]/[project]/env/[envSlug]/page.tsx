@@ -5,6 +5,7 @@ import { AppGate } from "@/domain/apps/components/app-gate";
 import ProjectEnvironmentsPage from "@/domain/projects/components/project-environments-page";
 import { loadProjectPageDataOrNotFound } from "@/lib/page-guards";
 import { loadProjectPageData } from "@/lib/project-page-loader";
+import { NOT_FOUND_DOCUMENT_TITLE } from "@/lib/siteConfig";
 import ProjectEnvironmentsLoading from "../loading";
 
 interface ProjectEnvironmentsPageProps {
@@ -18,10 +19,7 @@ export async function generateMetadata({
   const data = await loadProjectPageData(slug);
 
   if (!data) {
-    return {
-      title: "Environments",
-      description: "Manage project environments and variables.",
-    };
+    return { title: { absolute: NOT_FOUND_DOCUMENT_TITLE } };
   }
 
   return {
