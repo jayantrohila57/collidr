@@ -1,8 +1,12 @@
 import { isActionsAuditEnabled } from "@loftlancer/actions";
 import { activeMemberWhere, db } from "@loftlancer/db";
-import { member, organization } from "@loftlancer/db/schema/organization";
+import {
+  invitation,
+  member,
+  organization,
+} from "@loftlancer/db/schema/organization";
 import { TRPCError } from "@trpc/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, gt, isNull, lte, type SQL, sql } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
 import { requireAction } from "../actions/require-action";
@@ -92,5 +96,87 @@ export const organizationsRouter = router({
         return { items: [] };
       }
       return mcpMembersList(ctx.session.user.id, organizationId);
+    }),
+
+  /** Server-side paginated invitations with status filter (#261). Better
+   * Auth's listInvitations caps at 100 rows. */
+  listInvitations: orgProcedure
+    .input(
+      z.object({
+        organizationId: z.string().min(1),
+        status: z
+          .enum([
+            "all",
+            "pending",
+            "expired",
+            "accepted",
+            "rejected",
+            "canceled",
+          ])
+          .default("all"),
+        limit: z.number().int().min(1).max(200).default(50),
+        offset: z.number().int().min(0).default(0),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      await requireAction("member.list", {
+        userId: ctx.session.user.id,
+        organizationId: input.organizationId,
+        audit: false,
+      });
+      const now = new Date();
+      const org = eq(invitation.organizationId, input.organizationId);
+      const byStatus: Record<string, SQL | undefined> = {
+        all: org,
+        pending: and(
+          org,
+          eq(invitation.status, "pending"),
+          gt(invitation.expiresAt, now),
+        ),
+        expired: and(
+          org,
+          eq(invitation.status, "pending"),
+          lte(invitation.expiresAt, now),
+        ),
+        accepted: and(org, eq(invitation.status, "accepted")),
+        rejected: and(org, eq(invitation.status, "rejected")),
+        canceled: and(org, eq(invitation.status, "canceled")),
+      };
+      const where = byStatus[input.status];
+      const [rows, counts] = await Promise.all([
+        db
+          .select({
+            id: invitation.id,
+            email: invitation.email,
+            role: invitation.role,
+            status: invitation.status,
+            expiresAt: invitation.expiresAt,
+          })
+          .from(invitation)
+          .where(where)
+          .orderBy(desc(invitation.expiresAt))
+          .limit(input.limit)
+          .offset(input.offset),
+        db
+          .select({
+            all: sql<number>`count(*)::int`,
+            pending: sql<number>`count(*) filter (where ${invitation.status} = 'pending' and ${invitation.expiresAt} > ${now})::int`,
+            expired: sql<number>`count(*) filter (where ${invitation.status} = 'pending' and ${invitation.expiresAt} <= ${now})::int`,
+            accepted: sql<number>`count(*) filter (where ${invitation.status} = 'accepted')::int`,
+            rejected: sql<number>`count(*) filter (where ${invitation.status} = 'rejected')::int`,
+            canceled: sql<number>`count(*) filter (where ${invitation.status} = 'canceled')::int`,
+          })
+          .from(invitation)
+          .where(org),
+      ]);
+      const c = counts[0] ?? {
+        all: 0,
+        pending: 0,
+        expired: 0,
+        accepted: 0,
+        rejected: 0,
+        canceled: 0,
+      };
+      return { rows, counts: c, total: c[input.status] ?? 0 };
     }),
 });

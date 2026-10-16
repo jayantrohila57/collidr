@@ -9,8 +9,8 @@ import {
   LogInIcon,
   LogOutIcon,
   MonitorIcon,
-  MoreHorizontalIcon,
   MoonIcon,
+  MoreHorizontalIcon,
   SearchIcon,
   SettingsIcon,
   StarIcon,
@@ -57,13 +57,18 @@ import {
 } from "../components/ui/sidebar";
 import { Skeleton } from "../components/ui/skeleton";
 import { cn } from "../lib/utils";
+import { countBadgeClassName, formatCount } from "./count-badge";
 import { SettingsAvatar } from "./settings-frame";
 
 /* ---------------- Brand ---------------- */
 
 export function LoftlancerMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden className={cn("size-4 fill-current", className)}>
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden
+      className={cn("size-4 fill-current", className)}
+    >
       <path d="M3 21V9l9-6 9 6v12h-6v-7H9v7H3z" />
     </svg>
   );
@@ -83,7 +88,9 @@ export function SidebarBrand({ href }: { href: string }) {
           <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <LoftlancerMark className="size-4" />
           </span>
-          <span className="truncate font-semibold text-base tracking-tight">Loftlancer</span>
+          <span className="truncate font-semibold text-base tracking-tight">
+            Loftlancer
+          </span>
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>
@@ -114,12 +121,9 @@ export function NavCountBadge({
   return (
     <SidebarMenuBadge
       data-testid="nav-count"
-      className={cn(
-        "rounded-full px-1.5 tabular-nums",
-        tone === "alert" ? "bg-destructive text-white" : "bg-sidebar-accent text-sidebar-accent-foreground",
-      )}
+      className={countBadgeClassName(tone === "alert" ? "primary" : "muted")}
     >
-      {count > 99 ? "99+" : count}
+      {formatCount(count)}
     </SidebarMenuBadge>
   );
 }
@@ -133,7 +137,11 @@ export type CommandEntry = {
   hint?: string;
   keywords?: string;
 };
-export type CommandGroup = { heading: string; icon?: "project" | "env" | "settings" | "member"; items: CommandEntry[] };
+export type CommandGroup = {
+  heading: string;
+  icon?: "project" | "env" | "settings" | "member";
+  items: CommandEntry[];
+};
 
 const groupIcons = {
   project: FolderClosedIcon,
@@ -186,7 +194,9 @@ export function CommandPalette({
         ...g,
         items: needle
           ? g.items.filter((i) =>
-              `${i.label} ${i.hint ?? ""} ${i.keywords ?? ""}`.toLowerCase().includes(needle),
+              `${i.label} ${i.hint ?? ""} ${i.keywords ?? ""}`
+                .toLowerCase()
+                .includes(needle),
             )
           : g.items,
       }))
@@ -203,7 +213,11 @@ export function CommandPalette({
   let index = -1;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogPopup showCloseButton={false} className="overflow-hidden p-0 sm:max-w-lg" data-testid="command-palette">
+      <DialogPopup
+        showCloseButton={false}
+        className="overflow-hidden p-0 sm:max-w-lg"
+        data-testid="command-palette"
+      >
         <DialogTitle className="sr-only">Search</DialogTitle>
         <div className="flex items-center gap-2 border-b px-3">
           <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
@@ -239,7 +253,9 @@ export function CommandPalette({
               {["w-40", "w-32", "w-48"].map((w) => (
                 <div key={w} className="flex h-8 items-center gap-2 px-2">
                   <Skeleton className="size-4 motion-reduce:animate-none" />
-                  <Skeleton className={cn("h-4 motion-reduce:animate-none", w)} />
+                  <Skeleton
+                    className={cn("h-4 motion-reduce:animate-none", w)}
+                  />
                 </div>
               ))}
             </div>
@@ -252,7 +268,9 @@ export function CommandPalette({
               const Icon = g.icon ? groupIcons[g.icon] : null;
               return (
                 <div key={g.heading} className="py-1">
-                  <p className="px-2 pb-1 font-medium text-muted-foreground text-xs">{g.heading}</p>
+                  <p className="px-2 pb-1 font-medium text-muted-foreground text-xs">
+                    {g.heading}
+                  </p>
                   {g.items.map((item) => {
                     index += 1;
                     const i = index;
@@ -266,13 +284,19 @@ export function CommandPalette({
                         onClick={() => go(item)}
                         className={cn(
                           "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm",
-                          i === active ? "bg-accent text-accent-foreground" : "",
+                          i === active
+                            ? "bg-accent text-accent-foreground"
+                            : "",
                         )}
                       >
-                        {Icon ? <Icon className="size-4 shrink-0 text-muted-foreground" /> : null}
+                        {Icon ? (
+                          <Icon className="size-4 shrink-0 text-muted-foreground" />
+                        ) : null}
                         <span className="truncate">{item.label}</span>
                         {item.hint ? (
-                          <span className="ms-auto truncate text-muted-foreground text-xs">{item.hint}</span>
+                          <span className="ms-auto truncate text-muted-foreground text-xs">
+                            {item.hint}
+                          </span>
                         ) : null}
                       </button>
                     );
@@ -352,7 +376,11 @@ export function projectDotColor(id: string) {
   return DOT_COLORS[h % DOT_COLORS.length];
 }
 
-type LinkLike = ComponentType<{ href: string; className?: string; children?: ReactNode }>;
+type LinkLike = ComponentType<{
+  href: string;
+  className?: string;
+  children?: ReactNode;
+}>;
 
 export function SidebarFavorites({
   items,
@@ -378,7 +406,9 @@ export function SidebarFavorites({
               <SidebarMenuItem key={w}>
                 <div className="flex h-8 items-center gap-2 px-2">
                   <Skeleton className="size-2 rounded-full motion-reduce:animate-none" />
-                  <Skeleton className={cn("h-4 motion-reduce:animate-none", w)} />
+                  <Skeleton
+                    className={cn("h-4 motion-reduce:animate-none", w)}
+                  />
                 </div>
               </SidebarMenuItem>
             ))}
@@ -398,9 +428,15 @@ export function SidebarFavorites({
         <SidebarMenu>
           {items.map((p) => (
             <SidebarMenuItem key={p.id}>
-              <SidebarMenuButton tooltip={p.label} isActive={isActive?.(p.href)} render={<L href={p.href} />}>
+              <SidebarMenuButton
+                tooltip={p.label}
+                isActive={isActive?.(p.href)}
+                render={<L href={p.href} />}
+              >
                 <span className="flex size-4 shrink-0 items-center justify-center">
-                  <span className={cn("size-2 rounded-full", projectDotColor(p.id))} />
+                  <span
+                    className={cn("size-2 rounded-full", projectDotColor(p.id))}
+                  />
                 </span>
                 <span className="truncate">{p.label}</span>
                 {p.env ? (
@@ -433,7 +469,11 @@ export function SidebarUserMenu({
   docsHref,
   onSignOut,
 }: {
-  user: { name?: string | null; email?: string | null; image?: string | null } | null;
+  user: {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  } | null;
   accountHref: string;
   organizationSettingsHref?: string | null;
   docsHref: string;
@@ -449,14 +489,24 @@ export function SidebarUserMenu({
         <Menu>
           <MenuTrigger
             render={
-              <SidebarMenuButton size="lg" tooltip={name} data-testid="sidebar-user-menu" />
+              <SidebarMenuButton
+                size="lg"
+                tooltip={name}
+                data-testid="sidebar-user-menu"
+              />
             }
           >
-            <SettingsAvatar src={user?.image} name={name} className="size-8 rounded-md text-xs" />
+            <SettingsAvatar
+              src={user?.image}
+              name={name}
+              className="size-8 rounded-md text-xs"
+            />
             <span className="grid min-w-0 flex-1 text-left leading-tight">
               <span className="truncate font-medium text-sm">{name}</span>
               {user?.email ? (
-                <span className="truncate text-muted-foreground text-xs">{user.email}</span>
+                <span className="truncate text-muted-foreground text-xs">
+                  {user.email}
+                </span>
               ) : null}
             </span>
             <ChevronsUpDownIcon className="ms-auto size-4 opacity-60" />
@@ -464,8 +514,14 @@ export function SidebarUserMenu({
           <MenuPopup side="top" align="start" className="min-w-60">
             <MenuGroup>
               <MenuGroupLabel>
-                <span className="block truncate font-medium text-foreground">{name}</span>
-                {user?.email ? <span className="block truncate font-normal">{user.email}</span> : null}
+                <span className="block truncate font-medium text-foreground">
+                  {name}
+                </span>
+                {user?.email ? (
+                  <span className="block truncate font-normal">
+                    {user.email}
+                  </span>
+                ) : null}
               </MenuGroupLabel>
             </MenuGroup>
             <MenuSeparator />
@@ -480,7 +536,10 @@ export function SidebarUserMenu({
             <MenuSeparator />
             <MenuGroup>
               <MenuGroupLabel>Theme</MenuGroupLabel>
-              <MenuRadioGroup value={mounted ? (theme ?? "system") : "system"} onValueChange={(v) => setTheme(String(v))}>
+              <MenuRadioGroup
+                value={mounted ? (theme ?? "system") : "system"}
+                onValueChange={(v) => setTheme(String(v))}
+              >
                 <MenuRadioItem value="light">
                   <span className="flex items-center gap-2">
                     <SunIcon className="size-4" /> Light
@@ -527,7 +586,13 @@ export function ProjectPinMenu({
   return (
     <Menu>
       <MenuTrigger
-        render={<SidebarMenuAction showOnHover aria-label="Project actions" data-testid="project-row-menu" />}
+        render={
+          <SidebarMenuAction
+            showOnHover
+            aria-label="Project actions"
+            data-testid="project-row-menu"
+          />
+        }
       >
         <MoreHorizontalIcon />
       </MenuTrigger>
@@ -621,7 +686,9 @@ export function PublicSidebar({
                         isActive={currentPath === item.href}
                         render={<a href={item.href} />}
                       >
-                        {Icon ? <Icon className="shrink-0 text-muted-foreground" /> : null}
+                        {Icon ? (
+                          <Icon className="shrink-0 text-muted-foreground" />
+                        ) : null}
                         <span className="min-w-0 truncate">{item.label}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

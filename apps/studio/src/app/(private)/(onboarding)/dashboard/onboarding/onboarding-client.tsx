@@ -127,26 +127,22 @@ function Stepper({ current }: { current: StepIndex }) {
 export default function OnboardingClient() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const {
-    afterOrganizationCreated,
-    orgs,
-    initialLoadDone,
-    refreshOrganizations,
-  } = useActiveOrganization();
+  const { afterOrganizationCreated, orgs, initialLoadDone } =
+    useActiveOrganization();
   const [step, setStep] = useState<StepIndex>(0);
   const [projectSlug, setProjectSlug] = useState<string | null>(null);
   const startedRef = useRef(false);
 
   // Users who already belong to an org skip onboarding — but never mid-flow.
   useEffect(() => {
-    if (!initialLoadDone) {
-      void refreshOrganizations();
-      return;
-    }
+    // The provider runs the initial org load once the session is ready.
+    // Calling refreshOrganizations here raced the session and re-activated
+    // the first org (#262), so just wait for it.
+    if (!initialLoadDone) return;
     if (orgs.length > 0 && !startedRef.current) {
       router.replace("/dashboard");
     }
-  }, [initialLoadDone, orgs.length, refreshOrganizations, router]);
+  }, [initialLoadDone, orgs.length, router]);
 
   const orgForm = useForm({
     resolver: zodResolver(orgSchema),

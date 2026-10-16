@@ -1,8 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "regions": [
-    "sin1"
+  "crons": [
+    { "path": "/studio/api/cron/purge-apps", "schedule": "30 21 * * *" }
   ],
+  "regions": ["sin1"],
   "git": {
     "deploymentEnabled": {
       "*": false,
