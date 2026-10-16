@@ -3,7 +3,7 @@ title: Welcome
 description: Public documentation for Loftlancer — organizations, projects, encrypted variables, actions-based permissions, and MCP tools.
 ---
 
-Loftlancer is a multi-tenant workspace for **environment variables** with encryption at rest, canonical **actions** in `@loftlancer/actions`, and optional audit timeline and notifications.
+Loftlancer is a multi-tenant workspace for teams. Each project installs [apps](/docs/concepts/apps): **Environments** (encrypted variables with `.env` import/export) and **Tasks**. Permissions run through canonical **actions** in `@loftlancer/actions`, with an audit timeline and notifications.
 
 This site is **fully public** (no sign-in required to read docs). Use the header to open **Studio** or **Sign in** when you have an account.
 
@@ -12,19 +12,21 @@ This site is **fully public** (no sign-in required to read docs). Use the header
 | Section | What you will learn |
 | --- | --- |
 | [Getting started](/docs/getting-started) | Run apps locally and core vocabulary |
-| [Concepts](/docs/concepts/organizations) | Organizations, teams, roles, projects, encryption |
-| [Guides](/docs/guides/onboarding) | Onboarding, access control, timeline, notifications |
+| [Concepts](/docs/concepts/organizations) | Organizations, teams, roles, projects, apps, encryption |
+| [Guides](/docs/guides/onboarding) | Onboarding, access control, tasks, timeline, notifications |
 | [MCP](/docs/mcp/usage) | End-user guide, client setup, scopes, and per-tool reference |
 | [API](/docs/api/overview) | tRPC, auth, and MCP surfaces |
 | [Deploy](/docs/deploy/self-hosting) | Vercel + Neon production path |
 | [FAQ](/docs/faq) | Common questions |
 
-## Platform apps
+## How it is deployed
 
-| App | Role |
-| --- | --- |
-| `apps/web` / studio | Signed-in dashboard (projects, variables, org admin) |
-| `apps/auth` | Better Auth + GitHub OAuth + MCP OAuth |
-| `apps/mcp` | MCP HTTP server (`@loftlancer/mcp`) |
-| `apps/docs` | This documentation site |
-| `apps/www` | Marketing site |
+One domain, three Next.js apps behind path routing:
+
+| Path | App | Role |
+| --- | --- | --- |
+| `/` | `apps/docs` | Landing, pricing and this documentation |
+| `/auth` | `apps/auth` | Sign-in (GitHub via Better Auth), account settings, OAuth consent and device sign-in |
+| `/studio` | `apps/studio` | Signed-in dashboard: organizations, projects and their [apps](/docs/concepts/apps) |
+
+Projects live at `/studio/p/<slug>`.

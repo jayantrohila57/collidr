@@ -5,6 +5,7 @@
     "teams",
     "roles-and-permissions",
     "projects",
+    "apps",
     "environments",
     "variables",
     "encryption"
