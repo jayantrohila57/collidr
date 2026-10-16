@@ -358,7 +358,7 @@ export function VariablesTableView({
                 const variable = row.original;
                 return (
                   <ProvenanceAttribution
-                    user={variable.updatedBy}
+                    user={variable.updatedBy ?? variable.createdBy}
                     at={variable.updatedAt}
                     compact
                   />

@@ -1,5 +1,7 @@
 "use client";
 
+import type { Route } from "next";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";
@@ -24,6 +26,7 @@ import { EnvironmentTabCountBadge } from "./environment-tab-count-badge";
 interface Environment {
   id: string;
   name: string;
+  slug?: string;
   createdAt?: string | Date;
   updatedAt?: string | Date;
   createdBy?: {
@@ -42,6 +45,8 @@ interface EnvironmentsTabsViewProps {
   environments: Environment[];
   activeTab?: string;
   onTabChange: (id: string) => void;
+  /** Env is in the URL path: each tab is a real link (#318). */
+  tabHref?: (env: Environment) => Route;
   onCreate: (name: string) => Promise<void>;
   onUpdate: (id: string, name: string) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
@@ -55,6 +60,7 @@ export function EnvironmentsTabsView({
   environments,
   activeTab,
   onTabChange,
+  tabHref,
   onCreate,
   onUpdate,
   onDelete,
@@ -115,11 +121,38 @@ export function EnvironmentsTabsView({
             >
               {environments.map((env) => {
                 const count = variableCounts[env.id];
+                const href = tabHref?.(env);
                 return (
                   <TabsTab
                     key={env.id}
                     value={env.id}
                     size="sm"
+                    {...(href
+                      ? {
+                          nativeButton: false,
+                          render: <Link href={href} />,
+                          // Plain click: swap tabs in place (URL updates via
+                          // onTabChange). Modified click: let the browser open
+                          // the link and don't switch this page's tab.
+                          onClick: (
+                            event: React.MouseEvent & {
+                              preventBaseUIHandler?: () => void;
+                            },
+                          ) => {
+                            if (
+                              event.metaKey ||
+                              event.ctrlKey ||
+                              event.shiftKey ||
+                              event.altKey ||
+                              event.button !== 0
+                            ) {
+                              event.preventBaseUIHandler?.();
+                              return;
+                            }
+                            event.preventDefault();
+                          },
+                        }
+                      : {})}
                     className="h-9 min-h-9 shrink-0 grow-0 gap-1.5 whitespace-nowrap rounded-none px-2.5 data-active:shadow-none"
                   >
                     <AppIcon
