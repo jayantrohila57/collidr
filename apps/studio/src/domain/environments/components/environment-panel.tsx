@@ -1,6 +1,5 @@
 "use client";
 
-import { ErrorState } from "@/components/patterns/error-state";
 import { useVariables } from "../hooks/use-variables";
 import { VariablesTableView } from "./variables-table-view";
 
@@ -40,6 +39,9 @@ export function EnvironmentPanel({
     deleteVariable,
     getRevealedValue,
     fetchVariableValue,
+    bulkImport,
+    isImporting,
+    exportDotenv,
   } = useVariables(environmentId);
 
   const variablesWithValues = variables.map((variable) => ({
@@ -80,22 +82,16 @@ export function EnvironmentPanel({
     await deleteVariable({ id });
   };
 
-  if (status === "error") {
-    return (
-      <ErrorState
-        title="Failed to load variables"
-        description="We could not load environment variables."
-        onRetry={() => window.location.reload()}
-      />
-    );
-  }
-
   const isLoading = status === "loading" && variables.length === 0;
 
   return (
     <VariablesTableView
       variables={variablesWithValues}
       isLoading={isLoading}
+      isError={status === "error"}
+      onCopyEnv={exportDotenv}
+      onImport={(input) => bulkImport({ environmentId, ...input })}
+      isImporting={isImporting}
       revealedIds={revealedIds}
       revealingIds={revealingIds}
       onReveal={toggleReveal}

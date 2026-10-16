@@ -222,9 +222,12 @@ export function useVariables(environmentId: string) {
           trpc.environmentVariables.list.queryKey({ environmentId }),
         ) as VariablesQueryResponse | undefined;
 
-        // Optimistically add the new variables
+        // Optimistically add only keys that do not exist yet
         if (previousVariables?.data) {
-          const newVariables: VariableOutput[] = variables.variables.map(
+          const existing = new Set(previousVariables.data.map((v) => v.key));
+          const newVariables: VariableOutput[] = variables.variables
+            .filter((variable) => !existing.has(variable.key))
+            .map(
             (variable, index) => ({
               id: `temp-bulk-${Date.now()}-${index}`,
               key: variable.key,
@@ -254,8 +257,22 @@ export function useVariables(environmentId: string) {
           );
         }
       },
+      onSettled: () => {
+        void queryClient.invalidateQueries({
+          queryKey: trpc.environmentVariables.list.queryKey({ environmentId }),
+        });
+      },
     }),
   );
+
+  /** Fresh dotenv export of the whole environment (server decrypts + audits). */
+  const exportDotenv = async () => {
+    const result = await queryClient.fetchQuery({
+      ...trpc.environmentVariables.export.queryOptions({ environmentId }),
+      staleTime: 0,
+    });
+    return result.data ?? "";
+  };
 
   const toggleReveal = async (varId: string) => {
     if (revealedIds.has(varId)) {
@@ -392,6 +409,7 @@ export function useVariables(environmentId: string) {
         success: "Variables imported",
       }),
     isImporting: bulkImportMutation.isPending,
+    exportDotenv,
     getRevealedValue,
     fetchVariableValue,
   };

@@ -1,6 +1,8 @@
 import { Github } from "@loftlancer/ui/github-icon";
 import type { LucideIcon } from "lucide-react";
 import {
+  ClipboardCopy,
+  FileUp,
   Activity,
   Archive,
   ArchiveRestore,
@@ -88,6 +90,8 @@ export const appIcons = {
   chevronRight: ChevronRight,
   arrowLeft: ArrowLeft,
   logOut: LogOut,
+  importFile: FileUp,
+  copyEnv: ClipboardCopy,
 } as const satisfies Record<string, LucideIcon>;
 
 export type AppIconName = keyof typeof appIcons;
