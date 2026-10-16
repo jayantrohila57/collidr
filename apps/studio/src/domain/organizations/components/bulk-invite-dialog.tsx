@@ -1,5 +1,9 @@
 "use client";
 
+import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
+
+("use client");
+
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
@@ -17,13 +21,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
@@ -246,55 +243,37 @@ export function BulkInviteDialog({
                 <Label htmlFor="bulk-invite-role" className="text-sm">
                   Role
                 </Label>
-                <Select
+                <SearchableCombobox
+                  id="bulk-invite-role"
                   value={role}
-                  items={roles.map((r) => ({ value: r, label: r }))}
-                  onValueChange={(value) => {
-                    if (value) setRole(value as OrgInviteRole);
-                  }}
+                  onChange={(value) => setRole(value as OrgInviteRole)}
                   disabled={pending || roles.length === 0}
-                >
-                  <SelectTrigger
-                    id="bulk-invite-role"
-                    className="h-8 w-full capitalize"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roles.map((r) => (
-                      <SelectItem key={r} value={r} className="capitalize">
-                        {r}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  ariaLabel="Role"
+                  className="capitalize"
+                  options={roles.map((r) => ({
+                    value: r,
+                    label: r.charAt(0).toUpperCase() + r.slice(1),
+                  }))}
+                />
               </div>
               {teams.length > 0 ? (
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="bulk-invite-team" className="text-sm">
                     Team (optional)
                   </Label>
-                  <Select
+                  <SearchableCombobox
+                    id="bulk-invite-team"
                     value={teamId}
-                    items={[
+                    onChange={setTeamId}
+                    disabled={pending}
+                    ariaLabel="Team"
+                    placeholder="No team"
+                    searchPlaceholder="Search teams…"
+                    options={[
                       { value: "", label: "No team" },
                       ...teams.map((t) => ({ value: t.id, label: t.name })),
                     ]}
-                    onValueChange={(value) => setTeamId(value ?? "")}
-                    disabled={pending}
-                  >
-                    <SelectTrigger id="bulk-invite-team" className="h-8 w-full">
-                      <SelectValue placeholder="No team" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">No team</SelectItem>
-                      {teams.map((t) => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                 </div>
               ) : null}
             </div>

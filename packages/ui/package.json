@@ -41,6 +41,8 @@
     "./dialog": "./src/components/ui/dialog.tsx",
     "./patterns/app-shell": "./src/patterns/app-shell.tsx",
     "./patterns/sidebar-kit": "./src/patterns/sidebar-kit.tsx",
+    "./patterns/searchable-combobox": "./src/patterns/searchable-combobox.tsx",
+    "./combobox": "./src/components/ui/combobox.tsx",
     "./patterns/count-badge": "./src/patterns/count-badge.tsx",
     "./patterns/settings-frame": "./src/patterns/settings-frame.tsx",
     "./patterns/activity-timeline": "./src/patterns/activity-timeline.tsx",

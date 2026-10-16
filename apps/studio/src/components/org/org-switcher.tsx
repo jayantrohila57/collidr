@@ -1,21 +1,13 @@
 "use client";
 
+import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
+
 import { Building2, ChevronsUpDown, Plus, Settings } from "lucide-react";
 import type { Route } from "next";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { OrgListItem } from "@/components/org/active-organization-context";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Menu,
-  MenuGroup,
-  MenuGroupLabel,
-  MenuItem,
-  MenuLinkItem,
-  MenuPopup,
-  MenuSeparator,
-  MenuTrigger,
-} from "@/components/ui/menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -24,7 +16,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { actionToast } from "@/lib/action-toast";
-import { withBasePath } from "@/lib/base-path";
 import { initialsFromLabel } from "@/lib/initials";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
@@ -36,7 +27,6 @@ function orgSubtitle(org: OrgListItem | undefined): string {
 }
 
 export function OrgSwitcher() {
-  const router = useRouter();
   const { state, isMobile } = useSidebar();
   const menuOnRight = state === "collapsed" && !isMobile;
   const {
@@ -109,54 +99,59 @@ export function OrgSwitcher() {
     </>
   );
 
+  const linkClass =
+    "flex h-8 items-center gap-2 rounded-sm px-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent";
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <Menu modal>
-          <MenuTrigger
-            render={
-              <SidebarMenuButton
-                size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                disabled={showInitialLoading}
-                aria-label="Switch organization"
-                tooltip={triggerLabel}
-              />
-            }
-          >
-            {switcherBody}
-          </MenuTrigger>
-          <MenuPopup
-            side={isMobile ? "top" : menuOnRight ? "right" : "bottom"}
-            align="start"
-            sideOffset={isMobile ? 8 : menuOnRight ? 8 : 4}
-            className="min-w-56"
-          >
-            <MenuGroup>
-              <MenuGroupLabel>Organizations</MenuGroupLabel>
-              {orgs.map((org) => (
-                <MenuItem key={org.id} onClick={() => void onSelectOrg(org.id)}>
-                  <Building2 className="me-2 size-4" aria-hidden />
-                  <span className="truncate">{org.name}</span>
-                  {org.id === activeOrganizationId ? (
-                    <span className="ms-auto text-muted-foreground text-xs">
-                      ✓
-                    </span>
-                  ) : null}
-                </MenuItem>
-              ))}
-            </MenuGroup>
-            <MenuSeparator />
-            <MenuLinkItem href={withBasePath("/dashboard/organizations")}>
-              <Settings className="me-2 size-4" aria-hidden />
-              Manage organizations
-            </MenuLinkItem>
-            <MenuItem onClick={() => router.push("/dashboard/onboarding")}>
-              <Plus className="me-2 size-4" aria-hidden />
-              Create organization
-            </MenuItem>
-          </MenuPopup>
-        </Menu>
+        <SearchableCombobox
+          value={activeOrganizationId ?? active?.id ?? null}
+          onChange={(id) => void onSelectOrg(id)}
+          ariaLabel="Switch organization"
+          searchPlaceholder="Search organizations…"
+          emptyText="No organizations found"
+          side={isMobile ? "top" : menuOnRight ? "right" : "bottom"}
+          popupClassName="w-64"
+          disabled={showInitialLoading}
+          options={orgs.map((org) => ({
+            value: org.id,
+            label: org.name,
+            hint: orgSubtitle(org),
+            icon: (
+              <Building2 className="size-4 text-muted-foreground" aria-hidden />
+            ),
+          }))}
+          trigger={
+            <SidebarMenuButton
+              size="lg"
+              className="data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
+              tooltip={triggerLabel}
+            />
+          }
+          triggerContent={switcherBody}
+          footer={
+            <>
+              <Link
+                href={"/dashboard/organizations" as Route}
+                className={linkClass}
+              >
+                <Settings
+                  className="size-4 text-muted-foreground"
+                  aria-hidden
+                />
+                Manage organizations
+              </Link>
+              <Link
+                href={"/dashboard/organizations?create=1" as Route}
+                className={linkClass}
+              >
+                <Plus className="size-4 text-muted-foreground" aria-hidden />
+                Create organization
+              </Link>
+            </>
+          }
+        />
       </SidebarMenuItem>
     </SidebarMenu>
   );

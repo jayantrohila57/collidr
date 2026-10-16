@@ -1,5 +1,9 @@
 "use client";
 
+import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
+
+("use client");
+
 import { useCallback, useEffect, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";
@@ -13,13 +17,6 @@ import {
 import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { SheetDescription } from "@/components/ui/sheet";
 import {
   Table,
@@ -268,24 +265,20 @@ export function TeamMembersSheet({
                 <div className="flex flex-col gap-3">
                   <FormField id="team-add-member" label="Add member">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                      <Select
+                      <SearchableCombobox
+                        id="team-add-member"
                         value={addUserId}
-                        onValueChange={(value) => setAddUserId(value ?? "")}
-                      >
-                        <SelectTrigger id="team-add-member" className="flex-1">
-                          <SelectValue placeholder="Select a member" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {addableMembers.map((row) => {
-                            const userId = row.user.id ?? row.id;
-                            return (
-                              <SelectItem key={userId} value={userId}>
-                                {row.user.name} ({row.user.email})
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
+                        onChange={setAddUserId}
+                        ariaLabel="Add member"
+                        placeholder="Select a member"
+                        searchPlaceholder="Search members…"
+                        className="flex-1"
+                        options={addableMembers.map((row) => ({
+                          value: row.user.id ?? row.id,
+                          label: row.user.name || row.user.email,
+                          hint: row.user.email,
+                        }))}
+                      />
                       <Button
                         type="button"
                         size="sm"

@@ -2,6 +2,7 @@
 
 import { PROJECT_MEMBER_GRANT_KEYS } from "@loftlancer/actions";
 import type { ProjectOutput } from "@loftlancer/api/types";
+import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
@@ -15,13 +16,6 @@ import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skel
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -192,23 +186,21 @@ export function ProjectAccessSection({ project }: ProjectAccessSectionProps) {
             description="Assign an organization manager."
           >
             <div className="flex flex-wrap items-end gap-2">
-              <Select
+              <SearchableCombobox
                 value={managerUserId}
-                onValueChange={(value) => setManagerUserId(value ?? "")}
-              >
-                <SelectTrigger className="min-w-[220px]">
-                  <SelectValue placeholder="Select member" />
-                </SelectTrigger>
-                <SelectContent>
-                  {orgMembers
-                    .filter((m) => m.role === "manager" || m.role === "owner")
-                    .map((member) => (
-                      <SelectItem key={member.userId} value={member.userId}>
-                        {member.name ?? member.email ?? member.userId}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+                onChange={setManagerUserId}
+                ariaLabel="Manager"
+                placeholder="Select member"
+                searchPlaceholder="Search members…"
+                className="w-64"
+                options={orgMembers
+                  .filter((m) => m.role === "manager" || m.role === "owner")
+                  .map((member) => ({
+                    value: member.userId,
+                    label: member.name ?? member.email ?? member.userId,
+                    hint: member.name ? (member.email ?? undefined) : undefined,
+                  }))}
+              />
               <LoadingButton
                 type="button"
                 size="sm"
@@ -274,21 +266,18 @@ export function ProjectAccessSection({ project }: ProjectAccessSectionProps) {
           )}
           <SettingsRow label="Link team">
             <div className="flex flex-wrap items-end gap-2">
-              <Select
+              <SearchableCombobox
                 value={teamId}
-                onValueChange={(value) => setTeamId(value ?? "")}
-              >
-                <SelectTrigger className="min-w-[200px]">
-                  <SelectValue placeholder="Select team" />
-                </SelectTrigger>
-                <SelectContent>
-                  {teams.map((team) => (
-                    <SelectItem key={team.id} value={team.id}>
-                      {team.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={setTeamId}
+                ariaLabel="Team"
+                placeholder="Select team"
+                searchPlaceholder="Search teams…"
+                className="w-56"
+                options={teams.map((team) => ({
+                  value: team.id,
+                  label: team.name,
+                }))}
+              />
               <LoadingButton
                 type="button"
                 size="sm"
@@ -351,25 +340,21 @@ export function ProjectAccessSection({ project }: ProjectAccessSectionProps) {
             label="Member"
             description="Org members receive grants when on a linked team."
           >
-            <Select
+            <SearchableCombobox
               value={grantUserId}
-              onValueChange={(value) => {
-                if (value) loadGrantsForUser(value);
-              }}
-            >
-              <SelectTrigger className="min-w-[220px]">
-                <SelectValue placeholder="Select member" />
-              </SelectTrigger>
-              <SelectContent>
-                {orgMembers
-                  .filter((m) => m.role === "member")
-                  .map((member) => (
-                    <SelectItem key={member.userId} value={member.userId}>
-                      {member.name ?? member.email ?? member.userId}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+              onChange={(value) => loadGrantsForUser(value)}
+              ariaLabel="Member"
+              placeholder="Select member"
+              searchPlaceholder="Search members…"
+              className="w-64"
+              options={orgMembers
+                .filter((m) => m.role === "member")
+                .map((member) => ({
+                  value: member.userId,
+                  label: member.name ?? member.email ?? member.userId,
+                  hint: member.name ? (member.email ?? undefined) : undefined,
+                }))}
+            />
           </SettingsRow>
           {grantUserId ? (
             <div className="flex flex-col gap-3 px-4 pb-4">
