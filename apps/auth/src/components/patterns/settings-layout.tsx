@@ -66,7 +66,7 @@ export function SettingsRow({
   return (
     <div
       className={cn(
-        "grid gap-4 px-4 py-4 md:grid-cols-[minmax(12rem,0.32fr)_minmax(0,1fr)] md:items-start md:gap-10",
+        "grid gap-4 px-4 py-4 md:grid-cols-[13.75rem_minmax(0,1fr)] md:items-center md:gap-6",
         className,
       )}
     >
@@ -107,7 +107,7 @@ export function SettingsField({
   return (
     <div
       className={cn(
-        "grid gap-4 px-4 py-4 md:grid-cols-[minmax(12rem,0.32fr)_minmax(0,1fr)] md:items-start md:gap-10",
+        "grid gap-4 px-4 py-4 md:grid-cols-[13.75rem_minmax(0,1fr)] md:items-center md:gap-6",
         className,
       )}
     >

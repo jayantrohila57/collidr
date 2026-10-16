@@ -24,7 +24,7 @@ export function SettingsPanelSkeleton({
       {rowSlots.map((slot) => (
         <div
           key={slot}
-          className="grid gap-4 px-4 py-4 md:grid-cols-[minmax(12rem,0.32fr)_minmax(0,1fr)] md:gap-10"
+          className="grid gap-4 px-4 py-4 md:grid-cols-[13.75rem_minmax(0,1fr)] md:gap-6"
         >
           <div className="space-y-2">
             <Skeleton className="h-4 w-24" />

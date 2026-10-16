@@ -22,6 +22,7 @@ export default async function SettingsTimelinePage() {
   return (
     <SettingsSectionShell
       title="Timeline"
+      activity
       description="Security and activity events for your account."
     >
       <Suspense fallback={null}>

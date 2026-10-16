@@ -30,6 +30,7 @@ export default async function OrganizationTimelineRoute({
       <OrganizationSectionPage
         slug={slug}
         title="Timeline"
+        activity
         description="Audit events for this organization."
       >
         <TimelinePageClient scope="org" />
