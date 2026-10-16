@@ -1,44 +1,33 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CheckIcon } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod/v3";
-import { PageStack } from "@/components/layout/app-layout";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { AppIcon } from "@/components/patterns/app-icon";
+import { CopyButton } from "@/components/patterns/copy-button";
 import { FormField } from "@/components/patterns/form-field";
-import {
-  FormSheet,
-  FormSheetBody,
-  FormSheetFooter,
-  FormSheetForm,
-  FormSheetHeader,
-  FormSheetPopup,
-} from "@/components/patterns/form-sheet";
-import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
 import { UnsavedChangesPageGuard } from "@/components/patterns/unsaved-changes-page-guard";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
-import { Frame } from "@/components/ui/frame";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SheetDescription } from "@/components/ui/sheet";
 import { actionToast } from "@/lib/action-toast";
 import { authClient } from "@/lib/auth-client";
 import {
   formatOrganizationCreateError,
   slugifyOrganizationName,
 } from "@/lib/org-slug";
+import { cn } from "@/lib/utils";
+import { trpc } from "@/utils/trpc";
 
-const schema = z.object({
+const orgSchema = z.object({
   name: z
     .string()
     .trim()
@@ -60,180 +49,384 @@ const schema = z.object({
     ),
 });
 
+const projectSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Project name is required")
+    .max(100, "Project name must be 100 characters or fewer"),
+});
+
+/** Real MCP endpoint (same resolution as the docs' McpHttpUrl). */
+function mcpHttpEndpoint(): string {
+  const origin = (
+    process.env.NEXT_PUBLIC_MCP_URL?.trim() || "https://loftlancer.com"
+  ).replace(/\/$/, "");
+  return origin.endsWith("/api/mcp") ? origin : `${origin}/api/mcp`;
+}
+
+const STEPS = [
+  { title: "Organization", description: "Your workspace" },
+  { title: "Project", description: "Where variables live" },
+  { title: "Connect CLI", description: "Use it from your agent" },
+] as const;
+
+type StepIndex = 0 | 1 | 2 | 3; // 3 = done
+
+/** reui onboarding-4 style horizontal stepper; fixed height in every state. */
+function Stepper({ current }: { current: StepIndex }) {
+  return (
+    <ol className="grid grid-cols-3 gap-3" aria-label="Onboarding progress">
+      {STEPS.map((step, i) => {
+        const done = current > i;
+        const active = current === i;
+        return (
+          <li
+            key={step.title}
+            aria-current={active ? "step" : undefined}
+            className="flex min-w-0 flex-col gap-2"
+          >
+            <span
+              className={cn(
+                "h-1 w-full rounded-full",
+                done || active ? "bg-primary" : "bg-muted",
+              )}
+            />
+            <span className="flex min-w-0 items-center gap-1.5">
+              <span
+                className={cn(
+                  "flex size-5 shrink-0 items-center justify-center rounded-full border text-[10px] tabular-nums",
+                  done && "border-primary bg-primary text-primary-foreground",
+                  active && "border-primary text-foreground",
+                  !done && !active && "border-border text-muted-foreground",
+                )}
+              >
+                {done ? <CheckIcon className="size-3" /> : i + 1}
+              </span>
+              <span className="min-w-0">
+                <span
+                  className={cn(
+                    "block truncate font-medium text-sm",
+                    !active && !done && "text-muted-foreground",
+                  )}
+                >
+                  {step.title}
+                </span>
+                <span className="block truncate text-muted-foreground text-xs">
+                  {step.description}
+                </span>
+              </span>
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 export default function OnboardingClient() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const {
     afterOrganizationCreated,
     orgs,
     initialLoadDone,
     refreshOrganizations,
   } = useActiveOrganization();
-  const [navigating, setNavigating] = useState(false);
+  const [step, setStep] = useState<StepIndex>(0);
+  const [projectSlug, setProjectSlug] = useState<string | null>(null);
+  const startedRef = useRef(false);
 
+  // Users who already belong to an org skip onboarding — but never mid-flow.
   useEffect(() => {
     if (!initialLoadDone) {
       void refreshOrganizations();
       return;
     }
-    if (orgs.length > 0) {
+    if (orgs.length > 0 && !startedRef.current) {
       router.replace("/dashboard");
     }
   }, [initialLoadDone, orgs.length, refreshOrganizations, router]);
-  const form = useForm({
-    resolver: zodResolver(schema),
+
+  const orgForm = useForm({
+    resolver: zodResolver(orgSchema),
     defaultValues: { name: "", slug: "" },
     mode: "onChange",
   });
+  const projectForm = useForm({
+    resolver: zodResolver(projectSchema),
+    defaultValues: { name: "" },
+    mode: "onChange",
+  });
 
-  const nameValue = useWatch({ control: form.control, name: "name" });
-  const slugTouched = form.formState.touchedFields.slug;
-
+  const nameValue = useWatch({ control: orgForm.control, name: "name" });
+  const slugTouched = orgForm.formState.touchedFields.slug;
   useEffect(() => {
     if (slugTouched) return;
     const next = slugifyOrganizationName(nameValue);
-    if (next) form.setValue("slug", next, { shouldValidate: true });
-  }, [nameValue, slugTouched, form]);
+    if (next) orgForm.setValue("slug", next, { shouldValidate: true });
+  }, [nameValue, slugTouched, orgForm]);
 
-  const isBusy = form.formState.isSubmitting || navigating;
+  const createProject = useMutation(
+    trpc.projects.create.mutationOptions({
+      meta: { skipGlobalErrorToast: true },
+      onSuccess: () => {
+        void queryClient.invalidateQueries({
+          queryKey: trpc.projects.list.queryKey(),
+        });
+      },
+    }),
+  );
+
+  const onCreateOrg = async (data: z.infer<typeof orgSchema>) => {
+    orgForm.clearErrors("slug");
+    startedRef.current = true;
+    try {
+      const created = await actionToast(
+        (async () => {
+          const result = await authClient.organization.create({
+            name: data.name,
+            slug: data.slug,
+          });
+          if (result.error) {
+            const message = formatOrganizationCreateError(result.error.message);
+            if (message.toLowerCase().includes("slug")) {
+              orgForm.setError("slug", { message });
+            }
+            throw new Error(message);
+          }
+          return result;
+        })(),
+        {
+          loading: "Creating organization…",
+          success: "Organization created",
+          error: "Could not create organization",
+        },
+      );
+      const orgId = created.data?.id;
+      if (orgId) await afterOrganizationCreated(orgId);
+      orgForm.reset(data);
+      setStep(1);
+    } catch {
+      startedRef.current = false;
+    }
+  };
+
+  const onCreateProject = async (data: z.infer<typeof projectSchema>) => {
+    try {
+      const result = await actionToast(
+        createProject.mutateAsync({ name: data.name.trim(), isPublic: false }),
+        {
+          loading: "Creating project…",
+          success: "Project created",
+          error: "Could not create project",
+        },
+      );
+      setProjectSlug(result?.data?.slug ?? null);
+      projectForm.reset(data);
+      setStep(2);
+    } catch {
+      // toast shown
+    }
+  };
+
+  const command = `claude mcp add --transport http loftlancer ${mcpHttpEndpoint()}`;
+  const projectHref = (
+    projectSlug ? `/dashboard/projects/${projectSlug}` : "/dashboard/projects"
+  ) as Route;
+
+  const dirty =
+    step === 0 ? orgForm.formState.isDirty : step === 1 && projectForm.formState.isDirty;
 
   return (
     <UnsavedChangesPageGuard
-      isDirty={form.formState.isDirty}
-      onDiscard={() => form.reset()}
-    >
-      {({ allowNextNavigationWithoutPrompt }) => {
-        const onSubmit = async (data: z.infer<typeof schema>) => {
-          form.clearErrors("slug");
-          try {
-            const created = await actionToast(
-              (async () => {
-                const result = await authClient.organization.create({
-                  name: data.name,
-                  slug: data.slug,
-                });
-                if (result.error) {
-                  const message = formatOrganizationCreateError(
-                    result.error.message,
-                  );
-                  if (message.toLowerCase().includes("slug")) {
-                    form.setError("slug", { message });
-                  }
-                  throw new Error(message);
-                }
-                return result;
-              })(),
-              {
-                loading: "Creating organization…",
-                success: "Organization created",
-                error: "Could not create organization",
-              },
-            );
-
-            const orgId = created.data?.id;
-            setNavigating(true);
-
-            if (orgId) {
-              await afterOrganizationCreated(orgId);
-            }
-
-            form.reset();
-            allowNextNavigationWithoutPrompt();
-            router.replace("/dashboard");
-          } catch {
-            // Toast handled by actionToast
-          }
-        };
-
-        return (
-          <PageStack className="min-h-svh flex-1">
-            <Frame className="w-full flex-1">
-              <Empty className="border border-dashed py-10">
-                <EmptyHeader>
-                  <EmptyMedia variant="icon">
-                    <AppIcon name="organization" className="size-6" />
-                  </EmptyMedia>
-                  <EmptyTitle>Create your organization</EmptyTitle>
-                  <EmptyDescription>
-                    You need a workspace before adding projects and
-                    environments.
-                  </EmptyDescription>
-                </EmptyHeader>
-              </Empty>
-            </Frame>
-            <FormSheet
-              open
-              isDirty={form.formState.isDirty}
-              onOpenChange={() => {}}
-            >
-              <FormSheetPopup showCloseButton={false}>
-                <FormSheetHeader>
-                  <SheetTitleWithIcon icon="organization">
-                    Create your organization
-                  </SheetTitleWithIcon>
-                  <SheetDescription>
-                    This name appears in the sidebar team switcher.
-                  </SheetDescription>
-                </FormSheetHeader>
-                <FormSheetForm onSubmit={form.handleSubmit(onSubmit)}>
-                  <FormSheetBody>
-                    <Controller
-                      name="name"
-                      control={form.control}
-                      render={({ field, fieldState }) => (
-                        <FormField
-                          id="org-name"
-                          label="Organization name"
-                          required
-                          error={fieldState.error?.message}
-                        >
-                          <Input
-                            {...field}
-                            id="org-name"
-                            placeholder="Acme Inc."
-                          />
-                        </FormField>
-                      )}
-                    />
-                    <Controller
-                      name="slug"
-                      control={form.control}
-                      render={({ field, fieldState }) => (
-                        <FormField
-                          id="org-slug"
-                          label="URL slug"
-                          required
-                          hint="Slugs use lowercase letters, numbers, and hyphens."
-                          error={fieldState.error?.message}
-                        >
-                          <OrgSlugInput
-                            id="org-slug"
-                            placeholder="acme-inc"
-                            autoComplete="off"
-                            value={field.value}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            name={field.name}
-                            ref={field.ref}
-                          />
-                        </FormField>
-                      )}
-                    />
-                  </FormSheetBody>
-                  <FormSheetFooter>
-                    <SubmitButton
-                      isLoading={isBusy}
-                      loadingLabel="Creating…"
-                      disabled={!form.formState.isValid || isBusy}
-                    >
-                      Continue
-                    </SubmitButton>
-                  </FormSheetFooter>
-                </FormSheetForm>
-              </FormSheetPopup>
-            </FormSheet>
-          </PageStack>
-        );
+      isDirty={Boolean(dirty)}
+      onDiscard={() => {
+        orgForm.reset();
+        projectForm.reset();
       }}
+    >
+      {() => (
+        <div className="space-y-6" data-testid="onboarding">
+          <div className="space-y-1">
+            <h1 className="font-semibold text-xl tracking-tight">
+              Set up Loftlancer
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Three quick steps to a working project.
+            </p>
+          </div>
+
+          <Stepper current={step} />
+
+          {/* Fixed-height panel: steps swap inside, the frame never resizes. */}
+          <div className="flex min-h-80 flex-col rounded-xl border border-border/60 bg-card p-4">
+            {step === 0 ? (
+              <form
+                className="flex flex-1 flex-col gap-4"
+                onSubmit={orgForm.handleSubmit(onCreateOrg)}
+              >
+                <StepHeading
+                  title="Create your organization"
+                  description="This name appears in the sidebar team switcher."
+                />
+                <Controller
+                  name="name"
+                  control={orgForm.control}
+                  render={({ field, fieldState }) => (
+                    <FormField
+                      id="org-name"
+                      label="Organization name"
+                      required
+                      error={fieldState.error?.message}
+                    >
+                      <Input {...field} id="org-name" placeholder="Acme Inc." autoFocus />
+                    </FormField>
+                  )}
+                />
+                <Controller
+                  name="slug"
+                  control={orgForm.control}
+                  render={({ field, fieldState }) => (
+                    <FormField
+                      id="org-slug"
+                      label="URL slug"
+                      required
+                      hint="Lowercase letters, numbers, and hyphens."
+                      error={fieldState.error?.message}
+                    >
+                      <OrgSlugInput
+                        id="org-slug"
+                        placeholder="acme-inc"
+                        autoComplete="off"
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        ref={field.ref}
+                      />
+                    </FormField>
+                  )}
+                />
+                <StepFooter>
+                  <SubmitButton
+                    isLoading={orgForm.formState.isSubmitting}
+                    loadingLabel="Creating organization…"
+                    disabled={!orgForm.formState.isValid}
+                  >
+                    Continue
+                  </SubmitButton>
+                </StepFooter>
+              </form>
+            ) : step === 1 ? (
+              <form
+                className="flex flex-1 flex-col gap-4"
+                onSubmit={projectForm.handleSubmit(onCreateProject)}
+              >
+                <StepHeading
+                  title="Create your first project"
+                  description="Projects hold environments and their variables."
+                />
+                <Controller
+                  name="name"
+                  control={projectForm.control}
+                  render={({ field, fieldState }) => (
+                    <FormField
+                      id="project-name"
+                      label="Project name"
+                      required
+                      error={fieldState.error?.message}
+                    >
+                      <Input {...field} id="project-name" placeholder="web-app" autoFocus />
+                    </FormField>
+                  )}
+                />
+                <StepFooter>
+                  <SubmitButton
+                    isLoading={createProject.isPending}
+                    loadingLabel="Creating project…"
+                    disabled={!projectForm.formState.isValid}
+                  >
+                    Continue
+                  </SubmitButton>
+                </StepFooter>
+              </form>
+            ) : step === 2 ? (
+              <div className="flex flex-1 flex-col gap-4">
+                <StepHeading
+                  title="Connect from your terminal"
+                  description="Add the Loftlancer MCP server to Claude Code. You'll approve access in the browser on first use."
+                />
+                <div className="flex h-10 items-center gap-2 rounded-lg border border-border/60 bg-muted/40 ps-3 pe-1">
+                  <code className="min-w-0 flex-1 truncate font-mono text-xs" title={command}>
+                    {command}
+                  </code>
+                  <CopyButton value={command} label="Copy command" />
+                </div>
+                <p className="text-muted-foreground text-xs">
+                  Using Cursor, VS Code or Claude Desktop?{" "}
+                  <a
+                    href="/docs/mcp/connecting-clients"
+                    className="text-foreground underline underline-offset-4"
+                  >
+                    See client setup
+                  </a>
+                  .
+                </p>
+                <StepFooter>
+                  <Button type="button" onClick={() => setStep(3)}>
+                    Finish
+                  </Button>
+                </StepFooter>
+              </div>
+            ) : (
+              <div
+                className="flex flex-1 flex-col items-center justify-center gap-4 text-center"
+                data-testid="onboarding-success"
+              >
+                <span className="flex size-9 items-center justify-center rounded-full bg-muted">
+                  <CheckIcon className="size-5 text-foreground" />
+                </span>
+                <div className="space-y-1">
+                  <p className="font-medium text-sm">You're all set</p>
+                  <p className="max-w-xs text-muted-foreground text-xs">
+                    Your organization and project are ready. Add environments
+                    and variables next.
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" render={<Link href={"/dashboard" as Route} />}>
+                    Go to dashboard
+                  </Button>
+                  <Button render={<Link href={projectHref} />}>
+                    <AppIcon name="project" />
+                    Open project
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </UnsavedChangesPageGuard>
   );
+}
+
+function StepHeading({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="space-y-0.5">
+      <h2 className="font-semibold text-sm">{title}</h2>
+      <p className="text-muted-foreground text-xs">{description}</p>
+    </div>
+  );
+}
+
+function StepFooter({ children }: { children: React.ReactNode }) {
+  return <div className="mt-auto flex justify-end gap-2 pt-2">{children}</div>;
 }
