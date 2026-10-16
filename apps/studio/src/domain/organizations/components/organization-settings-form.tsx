@@ -54,7 +54,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
-import { authClient } from "@/lib/auth-client";
+import { authClient, MEMBER_PAGE_LIMIT } from "@/lib/auth-client";
 import { isOrganizationProfileEditDirty } from "@/lib/form-dirty";
 import { invalidateAfterOrganizationChange } from "@/lib/invalidate-org-queries";
 import { assignableInviteRoles } from "@/lib/invite-emails";
@@ -229,7 +229,7 @@ export function OrganizationSettingsForm({
     setInitialSlug(org.data.slug);
     setOrgMetadata(org.data.metadata ?? null);
     const list = await authClient.organization.listMembers({
-      query: { organizationId: targetOrgId },
+      query: { organizationId: targetOrgId, limit: MEMBER_PAGE_LIMIT },
     });
     setMembers((list.data?.members ?? []) as MemberRow[]);
     const embeddedInvites = parseOrganizationInvitations(

@@ -1,11 +1,14 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import {
   type OrgHubSection,
   orgHubSectionActions,
 } from "@/domain/permissions/org-section-actions";
+import { useOrgQueryEnabled } from "@/hooks/use-org-query-enabled";
+import { trpc } from "@/utils/trpc";
 import { ORGANIZATION_SECTIONS } from "../config/org-sections";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { OrganizationSectionCard } from "./organization-section-card";
@@ -64,21 +67,26 @@ function SectionCardGated({
 
 export function OrganizationOverviewSections({ slug }: { slug: string }) {
   const { organization, status } = useOrganizationBySlug(slug);
+  const queryEnabled = useOrgQueryEnabled();
+  const stats = useQuery({
+    ...trpc.dashboard.getOrgSettingsStats.queryOptions(),
+    enabled: queryEnabled && status === "success" && Boolean(organization?.id),
+  });
 
-  if (status === "loading") {
+  if (status === "loading" || (queryEnabled && stats.isPending)) {
     return <OrganizationOverviewSectionsSkeleton />;
   }
 
-  const memberCount = organization?.memberCount;
-  const invitationCount = organization?.invitationCount;
+  // One source of truth with the stats rail: server SQL counts (#251).
+  // getFullOrganization caps members at 100, so its array length is wrong.
+  const memberCount = stats.data?.memberCount;
+  const invitationCount = stats.data?.pendingInvites;
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {ORGANIZATION_SECTIONS.map((section) => {
         let summary =
-          section.id === "teams" || section.id === "timeline"
-            ? "Open"
-            : "View";
+          section.id === "teams" || section.id === "timeline" ? "Open" : "View";
         if (section.id === "members" && memberCount !== undefined) {
           summary = formatCountLabel(memberCount, "member", "members");
           if (invitationCount !== undefined && invitationCount > 0) {

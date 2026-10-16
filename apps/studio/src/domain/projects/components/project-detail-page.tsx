@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { PageHeaderMetadataSkeleton } from "@/components/layout/page-header-metadata-skeleton";
@@ -77,7 +78,7 @@ function ProjectDetailPageContent({
   const handleEditOpenChange = (open: boolean) => {
     setEditOpen(open);
     if (!open && searchParams.get("edit") === "1") {
-      router.replace(`/p/${slug}`);
+      router.replace(`/p/${slug}` as Route);
     }
   };
 

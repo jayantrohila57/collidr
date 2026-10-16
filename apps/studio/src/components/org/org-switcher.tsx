@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { actionToast } from "@/lib/action-toast";
+import { withBasePath } from "@/lib/base-path";
 import { initialsFromLabel } from "@/lib/initials";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
@@ -146,7 +147,7 @@ export function OrgSwitcher() {
               ))}
             </MenuGroup>
             <MenuSeparator />
-            <MenuLinkItem href={"/dashboard/organizations" as Route}>
+            <MenuLinkItem href={withBasePath("/dashboard/organizations")}>
               <Settings className="me-2 size-4" aria-hidden />
               Manage organizations
             </MenuLinkItem>
