@@ -1,10 +1,10 @@
 import { resolvePublicServiceUrl } from "@loftlancer/env/vercel-services";
 
-const DEFAULT_AUTH_URL = "https://auth.loftlancer.com";
-const DEFAULT_STUDIO_URL = "https://studio.loftlancer.com";
-const DEFAULT_CONSOLE_URL = "https://console.loftlancer.com";
+const DEFAULT_AUTH_URL = "https://loftlancer.com/auth";
+const DEFAULT_STUDIO_URL = "https://loftlancer.com/studio";
+const DEFAULT_CONSOLE_URL = "https://loftlancer.com/studio";
 const DEFAULT_SUPPORT_URL =
-  "https://studio.loftlancer.com/dashboard/support/tickets";
+  "https://loftlancer.com/studio/dashboard/support/tickets";
 
 function authUrlDefault(): string {
   return process.env.VERCEL_SERVICES === "1"

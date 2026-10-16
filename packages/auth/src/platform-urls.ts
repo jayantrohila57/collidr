@@ -1,14 +1,14 @@
 import { resolvePublicServiceUrl } from "@loftlancer/env/vercel-services";
 
 /** Default production URLs — one Vercel project per app (no path prefix). */
-export const DEFAULT_AUTH_URL = "https://auth.loftlancer.com";
-export const DEFAULT_STUDIO_URL = "https://studio.loftlancer.com";
+export const DEFAULT_AUTH_URL = "https://loftlancer.com/auth";
+export const DEFAULT_STUDIO_URL = "https://loftlancer.com/studio";
 export const DEFAULT_ACCOUNT_URL = DEFAULT_AUTH_URL;
 export const DEFAULT_WWW_URL = "https://loftlancer.com";
-export const DEFAULT_MCP_URL = "https://mcp.loftlancer.com";
-export const DEFAULT_CONSOLE_URL = "https://console.loftlancer.com";
+export const DEFAULT_MCP_URL = "https://loftlancer.com";
+export const DEFAULT_CONSOLE_URL = "https://loftlancer.com/studio";
 export const DEFAULT_SUPPORT_URL =
-  "https://studio.loftlancer.com/dashboard/support/tickets";
+  "https://loftlancer.com/studio/dashboard/support/tickets";
 export const DEFAULT_DOCS_URL = "https://loftlancer.com";
 
 function defaultAuthUrl(): string {
@@ -35,18 +35,6 @@ function defaultWwwUrl(): string {
   return process.env.VERCEL_SERVICES === "1"
     ? resolvePublicServiceUrl("www")
     : DEFAULT_WWW_URL;
-}
-
-function defaultMcpPublicUrl(): string {
-  if (process.env.VERCEL_SERVICES === "1") {
-    const origin = resolvePublicServiceUrl("mcp");
-    return `${origin.replace(/\/$/, "")}/api/mcp`;
-  }
-  const fromEnv = process.env.NEXT_PUBLIC_MCP_URL?.trim();
-  if (fromEnv) {
-    return fromEnv.replace(/\/$/, "");
-  }
-  return `${DEFAULT_MCP_URL.replace(/\/$/, "")}/api/mcp`;
 }
 
 export function trimTrailingSlash(url: string): string {
@@ -92,14 +80,10 @@ export function getPlatformProductionOrigins(
     env.accountUrl ??
       process.env.NEXT_PUBLIC_ACCOUNT_URL ??
       defaultAccountUrl(),
-    env.consoleUrl ??
-      process.env.NEXT_PUBLIC_CONSOLE_URL ??
-      DEFAULT_CONSOLE_URL,
     env.supportUrl ??
       process.env.NEXT_PUBLIC_SUPPORT_URL ??
       DEFAULT_SUPPORT_URL,
     env.wwwUrl ?? process.env.NEXT_PUBLIC_WWW_URL ?? defaultWwwUrl(),
-    env.mcpUrl ?? process.env.NEXT_PUBLIC_MCP_URL ?? defaultMcpPublicUrl(),
     process.env.NEXT_PUBLIC_DOCS_URL ?? DEFAULT_DOCS_URL,
     ...parsePlatformOriginList(env.legacyWebUrl ?? process.env.CORS_ORIGIN),
   ].filter(Boolean) as string[];

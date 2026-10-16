@@ -12,16 +12,9 @@
     "build": "NODE_OPTIONS='--max-old-space-size=6144' turbo build --concurrency=2",
     "check-types": "turbo check-types",
     "test": "SKIP_ENV_VALIDATION=1 DATABASE_URL=postgresql://localhost:5432/test turbo test",
-    "dev:native": "turbo -F native dev",
-    "dev:web": "turbo -F web dev",
-    "dev:www": "turbo -F www dev",
     "dev:docs": "turbo -F docs dev",
-    "dev:console": "turbo -F console dev",
-    "dev:mcp": "turbo -F mcp dev",
     "dev:auth": "turbo -F auth dev",
     "dev:studio": "turbo -F studio dev",
-    "dev:account": "turbo -F account dev",
-    "dev:support": "turbo -F support dev",
     "db:push": "turbo -F @loftlancer/db db:push",
     "db:studio": "turbo -F @loftlancer/db db:studio",
     "db:generate": "turbo -F @loftlancer/db db:generate",
@@ -37,8 +30,7 @@
     "release:minor": "./scripts/release.sh minor",
     "release:major": "./scripts/release.sh major",
     "version-check": "node -p \"require('./package.json').version\"",
-    "changelog-check": "type CHANGELOG.md | more",
-    "a11y": "turbo -F web a11y"
+    "changelog-check": "type CHANGELOG.md | more"
   },
   "dependencies": {
     "@loftlancer/env": "workspace:*",

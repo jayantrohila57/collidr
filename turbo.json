@@ -1,7 +1,9 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
-  "globalPassThroughEnv": ["SKIP_ENV_VALIDATION"],
+  "globalPassThroughEnv": [
+    "SKIP_ENV_VALIDATION"
+  ],
   "globalEnv": [
     "ORGANIZATIONS_ENABLED",
     "NEXT_PUBLIC_ORGANIZATIONS_ENABLED",
@@ -12,33 +14,28 @@
     "ACTIONS_AUDIT_ENABLED",
     "NEXT_PUBLIC_ACTIONS_AUDIT_ENABLED",
     "SOFT_DELETES_ENABLED",
-    "AUTH_COOKIE_DOMAIN",
-    "AUTH_CROSS_SUBDOMAIN_COOKIES",
     "NEXT_PUBLIC_AUTH_URL",
     "NEXT_PUBLIC_STUDIO_URL",
     "NEXT_PUBLIC_ACCOUNT_URL",
-    "NEXT_PUBLIC_MCP_URL",
-    "NEXT_PUBLIC_WWW_URL",
-    "NEXT_PUBLIC_CONSOLE_URL",
-    "NEXT_PUBLIC_SUPPORT_URL",
-    "CONSOLE_ALLOWED_EMAILS",
-    "MCP_RESOURCE_URL",
-    "MCP_RATE_LIMIT_WINDOW_MS",
-    "MCP_RATE_LIMIT_MAX_REQUESTS",
-    "PLATFORM_AUTH_ENABLE_MCP",
     "VERCEL_SERVICES",
     "PLATFORM_PUBLIC_ORIGIN",
     "NEXT_PUBLIC_PLATFORM_ORIGIN",
-    "MCP_SERVICE_URL",
     "NEXT_BASE_PATH",
-    "NEXT_PUBLIC_SUPPORT_URL",
     "NEXT_PUBLIC_DOCS_URL"
   ],
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", ".next/**"],
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*"
+      ],
+      "outputs": [
+        "dist/**",
+        ".next/**"
+      ],
       "env": [
         "DATABASE_URL",
         "DATABASE_URL_POOLED",
@@ -63,38 +60,43 @@
         "NEXT_PUBLIC_AUTH_URL",
         "NEXT_PUBLIC_STUDIO_URL",
         "NEXT_PUBLIC_ACCOUNT_URL",
-        "NEXT_PUBLIC_MCP_URL",
-        "NEXT_PUBLIC_WWW_URL",
-        "NEXT_PUBLIC_CONSOLE_URL",
-        "NEXT_PUBLIC_SUPPORT_URL",
-        "CONSOLE_ALLOWED_EMAILS",
-        "MCP_RESOURCE_URL",
-        "MCP_RATE_LIMIT_WINDOW_MS",
-        "MCP_RATE_LIMIT_MAX_REQUESTS",
-        "PLATFORM_AUTH_ENABLE_MCP",
         "VERCEL_SERVICES",
         "PLATFORM_PUBLIC_ORIGIN",
         "NEXT_PUBLIC_PLATFORM_ORIGIN",
-        "MCP_SERVICE_URL",
         "NEXT_BASE_PATH",
-        "NEXT_PUBLIC_SUPPORT_URL",
         "NEXT_PUBLIC_DOCS_URL",
         "NODE_OPTIONS"
       ]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": [
+        "^lint"
+      ]
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": [
+        "^check-types"
+      ]
     },
     "test": {
-      "dependsOn": ["^test"],
-      "env": ["SKIP_ENV_VALIDATION", "DATABASE_URL", "DATABASE_URL_POOLED"]
+      "dependsOn": [
+        "^test"
+      ],
+      "env": [
+        "SKIP_ENV_VALIDATION",
+        "DATABASE_URL",
+        "DATABASE_URL_POOLED"
+      ]
     },
     "a11y": {
-      "dependsOn": ["^a11y"],
-      "inputs": ["$TURBO_DEFAULT$", "e2e/**", "playwright.config.ts"],
+      "dependsOn": [
+        "^a11y"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "e2e/**",
+        "playwright.config.ts"
+      ],
       "env": [
         "CI",
         "SKIP_ENV_VALIDATION",
