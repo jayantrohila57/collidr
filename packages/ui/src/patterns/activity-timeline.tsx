@@ -3,7 +3,7 @@
 import type { ComponentType, ReactNode } from "react";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
-import { Spinner } from "../components/ui/spinner";
+import { Skeleton } from "../components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
@@ -194,6 +194,24 @@ const resultVariant = {
 
 type LinkLike = ComponentType<{ href: string; className?: string; children: ReactNode }>;
 
+/** Mirrors ActivityRow 1:1 (avatar, sentence line, meta line, connector). */
+function ActivityRowSkeleton({ isLast, width }: { isLast: boolean; width: string }) {
+  return (
+    <li className="relative flex gap-3 pb-6 last:pb-0" aria-hidden>
+      {!isLast ? (
+        <span className="absolute top-8 bottom-0 left-[0.9375rem] w-px bg-border" />
+      ) : null}
+      <Skeleton className="z-10 size-8 shrink-0 rounded-full ring-4 ring-background motion-reduce:animate-none" />
+      <div className="min-w-0 flex-1 space-y-1 pt-1">
+        <Skeleton className={cn("h-4 motion-reduce:animate-none", width)} />
+        <Skeleton className="h-3 w-24 motion-reduce:animate-none" />
+      </div>
+    </li>
+  );
+}
+
+const SKELETON_WIDTHS = ["w-2/3", "w-1/2", "w-3/5", "w-2/5", "w-1/2"];
+
 function ActivityRow({
   item,
   LinkComponent,
@@ -344,14 +362,26 @@ export function ActivityTimeline({
           </div>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <Spinner />
+        {loading && items.length === 0 ? (
+          <div className="min-h-80 space-y-3" aria-busy="true">
+            <span className="sr-only">Loading…</span>
+            <Skeleton className="h-3 w-20 motion-reduce:animate-none" />
+            <ol className="relative">
+              {SKELETON_WIDTHS.map((w, i) => (
+                <ActivityRowSkeleton key={w + String(i)} width={w} isLast={i === SKELETON_WIDTHS.length - 1} />
+              ))}
+            </ol>
           </div>
         ) : items.length === 0 ? (
-          empty
+          <div className="flex min-h-80 flex-col justify-center">{empty}</div>
         ) : (
-          <div className="space-y-6">
+          <div
+            className={cn(
+              "min-h-80 space-y-6 transition-opacity motion-reduce:transition-none",
+              loading && "opacity-60",
+            )}
+            aria-busy={loading || undefined}
+          >
             {groups.map((g) => (
               <div key={g.key} className="space-y-3">
                 <h3 className="font-medium text-muted-foreground text-xs uppercase tracking-wide" suppressHydrationWarning>
@@ -371,8 +401,7 @@ export function ActivityTimeline({
             ))}
             {hasMore ? (
               <div className="flex justify-center">
-                <Button variant="outline" size="sm" onClick={onLoadMore} disabled={loadingMore}>
-                  {loadingMore ? <Spinner /> : null}
+                <Button variant="outline" size="sm" onClick={onLoadMore} loading={loadingMore}>
                   Load more
                 </Button>
               </div>

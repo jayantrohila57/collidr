@@ -17,16 +17,16 @@ type PaginatedTable = {
 export function DataTablePagination({
   table,
   className,
+  disabled = false,
 }: {
   table: PaginatedTable;
   className?: string;
+  /** Loading: keep the bar (same height) with controls disabled. */
+  disabled?: boolean;
 }) {
-  const pageCount = table.getPageCount();
-  const pageIndex = table.getState().pagination.pageIndex;
-
-  if (pageCount <= 1) {
-    return null;
-  }
+  // Always rendered so the table never changes height between states.
+  const pageCount = Math.max(table.getPageCount(), 1);
+  const pageIndex = Math.min(table.getState().pagination.pageIndex, pageCount - 1);
 
   return (
     <div
@@ -36,7 +36,7 @@ export function DataTablePagination({
         className,
       )}
     >
-      <span>
+      <span className="tabular-nums">
         Page {pageIndex + 1} of {pageCount}
       </span>
       <div className={cn("flex items-center", layoutGapClass)}>
@@ -46,7 +46,7 @@ export function DataTablePagination({
           size="sm"
           className="h-8"
           onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+          disabled={disabled || !table.getCanPreviousPage()}
         >
           <ChevronLeft className="size-4" aria-hidden />
           Previous
@@ -57,7 +57,7 @@ export function DataTablePagination({
           size="sm"
           className="h-8"
           onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
+          disabled={disabled || !table.getCanNextPage()}
         >
           Next
           <ChevronRight className="size-4" aria-hidden />

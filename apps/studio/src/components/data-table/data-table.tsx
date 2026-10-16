@@ -51,7 +51,10 @@ export type DataTableProps<TData extends RowData> = {
   isError?: boolean;
   errorTitle?: string;
   errorDescription?: string;
+  /** Skeleton/empty body rows; defaults to pageSize when paginated, else 5. */
   skeletonRowCount?: number;
+  /** Background refetch with data on screen: keep rows, dim them, never skeleton. */
+  isFetching?: boolean;
   emptyMessage?: string;
   /** Structured empty vs no-results states (rendered inside the table frame) */
   empty?: DataTableEmptyConfig;
@@ -125,7 +128,8 @@ export function DataTable<TData extends RowData>({
   isError = false,
   errorTitle = "Could not load data",
   errorDescription = "Something went wrong. Try refreshing the page.",
-  skeletonRowCount = 5,
+  skeletonRowCount: skeletonRowCountProp,
+  isFetching = false,
   emptyMessage = "No results.",
   empty,
   emptyState,
@@ -185,6 +189,11 @@ export function DataTable<TData extends RowData>({
   });
 
   const columnCount = columns.length;
+  const skeletonRowCount =
+    skeletonRowCountProp ?? (enablePagination ? pageSize : 5);
+  // First load only: once rows exist, a refetch keeps them (placeholderData).
+  const showSkeleton = isLoading && data.length === 0;
+  const refetching = !showSkeleton && (isFetching || isLoading);
   const rowModel = table.getRowModel();
   const hasRows = rowModel.rows.length > 0;
 
@@ -204,10 +213,10 @@ export function DataTable<TData extends RowData>({
       observer.observe(tableEl);
     }
     return () => observer.disconnect();
-  }, [columns, data, isLoading, hasRows, rowModel.rows.length]);
+  }, [columns, data, showSkeleton, hasRows, rowModel.rows.length]);
 
-  const showEmpty = !isLoading && !isError && !hasRows;
-  const showError = isError && !isLoading;
+  const showEmpty = !showSkeleton && !isError && !hasRows;
+  const showError = isError && !showSkeleton && !hasRows;
   const hasClientSearch = Boolean(
     searchEnabled && String(searchValue ?? "").trim(),
   );
@@ -279,10 +288,18 @@ export function DataTable<TData extends RowData>({
           </TableRow>
         ))}
       </TableHeader>
-      <TableBody>
-        {isLoading ? (
+      <TableBody
+        aria-busy={showSkeleton || refetching || undefined}
+        className={cn(
+          "transition-opacity motion-reduce:transition-none",
+          refetching && "opacity-60",
+        )}
+      >
+        {showSkeleton ? (
           <DataTableSkeletonBody
-            columnCount={columnCount}
+            columnClassNames={columns.map((c) =>
+              columnClassName(c, pinActions, "cell"),
+            )}
             rows={skeletonRowCount}
           />
         ) : hasRows ? (
@@ -307,7 +324,12 @@ export function DataTable<TData extends RowData>({
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={columnCount} className="p-0">
+            <TableCell
+              colSpan={columnCount}
+              className="p-0"
+              // Same body height as the skeleton/ready state (40px rows).
+              style={{ height: `${Math.min(skeletonRowCount, 5) * 2.5}rem` }}
+            >
               {emptyMarkup ?? (
                 <p className="px-4 py-6 text-center text-muted-foreground text-sm">
                   {emptyMessage}
@@ -343,8 +365,8 @@ export function DataTable<TData extends RowData>({
           {tableMarkup}
         </div>
       )}
-      {enablePagination && !isLoading && hasRows ? (
-        <DataTablePagination table={table} />
+      {enablePagination ? (
+        <DataTablePagination table={table} disabled={showSkeleton} />
       ) : null}
     </div>
   );
