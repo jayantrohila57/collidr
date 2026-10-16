@@ -1,8 +1,8 @@
 "use client";
-import { withBasePath } from "@/lib/base-path";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
+import { withBasePath } from "@/lib/base-path";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { toast } from "@/lib/toast";
 import { trpc } from "@/utils/trpc";
