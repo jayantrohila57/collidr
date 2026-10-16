@@ -1,5 +1,6 @@
 "use client";
 
+import { CountBadge } from "@loftlancer/ui/patterns/count-badge";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,21 +23,6 @@ import {
   useNotificationsUnreadCount,
 } from "../hooks/use-notifications";
 import { NotificationListItem } from "./notification-list-item";
-
-function CountBadge({ count }: { count: number }) {
-  if (count <= 0) {
-    return null;
-  }
-  const label = count > 99 ? "99+" : String(count);
-  return (
-    <span
-      className="absolute -end-1 -top-1 flex min-w-4 items-center justify-center rounded-full bg-destructive px-1 font-medium text-[10px] text-destructive-foreground leading-none"
-      aria-hidden
-    >
-      {label}
-    </span>
-  );
-}
 
 export function NotificationBell() {
   const router = useRouter();
@@ -73,7 +59,11 @@ export function NotificationBell() {
         }
       >
         <AppIcon name="bell" className="text-foreground" />
-        <CountBadge count={unread} />
+        <CountBadge
+          count={unread}
+          tone="primary"
+          className="absolute -end-1.5 -top-1.5 ring-2 ring-background"
+        />
       </MenuTrigger>
       <MenuPopup align="end" className="w-[min(100vw-2rem,24rem)] p-2">
         {/* Header after ReUI Sheet 7: title + unread badge + mark all read.

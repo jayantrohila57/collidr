@@ -83,6 +83,15 @@ export function AppCard({
             {retained !== null ? "Reinstall" : "Install"}
           </Button>
         ) : null}
+        {active ? (
+          <Button
+            size="sm"
+            variant="ghost"
+            render={<Link href={`/p/${slug}/apps/${app.id}` as Route} />}
+          >
+            Settings
+          </Button>
+        ) : null}
         {canManage && active ? (
           <Button
             size="sm"

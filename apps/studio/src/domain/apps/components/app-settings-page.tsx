@@ -1,0 +1,249 @@
+"use client";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { Route } from "next";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
+import { EmptyState } from "@/components/patterns/empty-state";
+import DashboardSection from "@/components/section-dashboard";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { FieldSelect } from "@/domain/tasks/components/field-select";
+import { actionToast } from "@/lib/action-toast";
+import { LayoutGrid } from "@/lib/icons";
+import { trpc } from "@/utils/trpc";
+import { useProjectApps } from "../hooks/use-project-apps";
+import { AppGlyph } from "./app-glyph";
+
+const cardClass =
+  "flex flex-col gap-3 rounded-xl bg-card p-4 ring-1 ring-border/60";
+
+/** /p/[slug]/apps/[app] — details, real manifest settings, uninstall (#258). */
+export function AppSettingsPage({
+  slug,
+  appId,
+}: {
+  slug: string;
+  appId: string;
+}) {
+  const queryClient = useQueryClient();
+  const {
+    project,
+    projectId,
+    apps,
+    isLoading,
+    canManage,
+    uninstall,
+    isMutating,
+  } = useProjectApps(slug);
+  const app = apps.find((a) => a.id === appId);
+  const [draft, setDraft] = useState<Record<string, string>>({});
+  const [uninstallOpen, setUninstallOpen] = useState(false);
+  useEffect(() => {
+    if (app) setDraft(app.settings);
+  }, [app]);
+  const configure = useMutation({
+    ...trpc.projectApps.configure.mutationOptions(),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: trpc.projectApps.list.pathKey(),
+      }),
+  });
+  const back = `/p/${slug}/apps` as Route;
+
+  if (isLoading) {
+    return (
+      <DashboardSection title="App settings" back={back}>
+        <div className="flex flex-col gap-4" role="status" aria-busy="true">
+          <Skeleton className="h-32 rounded-xl" />
+          <Skeleton className="h-40 rounded-xl" />
+        </div>
+      </DashboardSection>
+    );
+  }
+  if (!app || app.status !== "active") {
+    return (
+      <DashboardSection title={app?.name ?? "App"} back={back}>
+        <EmptyState
+          icon={LayoutGrid}
+          title={app ? `${app.name} isn't installed` : "Unknown app"}
+          description={
+            app
+              ? "Install it from the Apps page to configure it."
+              : "This app doesn't exist."
+          }
+          actionLabel="Go to Apps"
+          actionHref={`/p/${slug}/apps`}
+        />
+      </DashboardSection>
+    );
+  }
+
+  const dirty = app.settingsSchema.some(
+    (d) => draft[d.key] !== app.settings[d.key],
+  );
+  const openHref = `/p/${slug}/${app.nav[0]?.path ?? app.id}` as Route;
+
+  return (
+    <DashboardSection
+      title={`${app.name} settings`}
+      description={
+        project ? `Configure ${app.name} for ${project.name}.` : undefined
+      }
+      back={back}
+      action={
+        <Button size="sm" variant="outline" render={<Link href={openHref} />}>
+          Open {app.name}
+        </Button>
+      }
+    >
+      <div className="flex max-w-3xl flex-col gap-4">
+        <section className={cardClass}>
+          <div className="flex items-center gap-3">
+            <AppGlyph icon={app.icon} />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <h2 className="font-medium text-sm">{app.name}</h2>
+                <Badge variant="success" size="sm">
+                  Installed
+                </Badge>
+              </div>
+              <p className="text-muted-foreground text-xs">
+                {app.category}
+                {app.installedAt
+                  ? ` · installed ${new Date(app.installedAt).toLocaleDateString()}`
+                  : ""}
+              </p>
+            </div>
+          </div>
+          <p className="text-muted-foreground text-xs">{app.description}</p>
+          <div className="grid gap-3 text-xs sm:grid-cols-2">
+            <div>
+              <p className="font-medium">Permissions</p>
+              <ul className="list-disc ps-4 text-muted-foreground">
+                {app.permissions.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="font-medium">Data it stores</p>
+              <ul className="list-disc ps-4 text-muted-foreground">
+                {app.dataCreated.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section className={cardClass}>
+          <h2 className="font-medium text-sm">Settings</h2>
+          {app.settingsSchema.length === 0 ? (
+            <p className="text-muted-foreground text-xs">
+              {app.name} has no settings.
+            </p>
+          ) : (
+            <>
+              {app.settingsSchema.map((d) => (
+                <div
+                  key={d.key}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm">{d.label}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {d.description}
+                    </p>
+                  </div>
+                  <FieldSelect
+                    ariaLabel={d.label}
+                    className="w-40"
+                    disabled={!canManage}
+                    value={draft[d.key] ?? d.default}
+                    onChange={(v) => setDraft((s) => ({ ...s, [d.key]: v }))}
+                    options={d.options}
+                  />
+                </div>
+              ))}
+              {canManage ? (
+                <div className="flex justify-end gap-1.5">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={!dirty}
+                    onClick={() => setDraft(app.settings)}
+                  >
+                    Reset
+                  </Button>
+                  <Button
+                    size="sm"
+                    disabled={!dirty || configure.isPending || !projectId}
+                    onClick={() =>
+                      actionToast(
+                        configure.mutateAsync({
+                          projectId: projectId!,
+                          appId: app.id,
+                          settings: draft,
+                        }),
+                        {
+                          loading: "Saving…",
+                          success: "Settings saved",
+                          error: "Couldn't save settings",
+                        },
+                      )
+                    }
+                  >
+                    Save settings
+                  </Button>
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-xs">
+                  Only project managers and owners can change settings.
+                </p>
+              )}
+            </>
+          )}
+        </section>
+
+        {canManage ? (
+          <section className={`${cardClass} ring-destructive/30`}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h2 className="font-medium text-sm">Uninstall {app.name}</h2>
+                <p className="text-muted-foreground text-xs">
+                  Hidden for everyone. Data is kept for 30 days, then
+                  permanently deleted.
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="destructive-outline"
+                disabled={isMutating}
+                onClick={() => setUninstallOpen(true)}
+              >
+                Uninstall
+              </Button>
+            </div>
+          </section>
+        ) : null}
+      </div>
+      <ConfirmDialog
+        open={uninstallOpen}
+        onOpenChange={setUninstallOpen}
+        variant="destructive"
+        title={`Uninstall ${app.name}?`}
+        description={`${app.name} disappears from ${project?.name ?? "this project"} for everyone. Its data is kept for 30 days, so reinstalling restores it. After that it's deleted.`}
+        confirmText={project?.name}
+        confirmLabel="Uninstall"
+        isPending={isMutating}
+        onConfirm={async () => {
+          await uninstall(app.id, app.name);
+          setUninstallOpen(false);
+        }}
+      />
+    </DashboardSection>
+  );
+}

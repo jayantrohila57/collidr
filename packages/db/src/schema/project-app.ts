@@ -101,6 +101,7 @@ export const taskComment = pgTable(
       onDelete: "set null",
     }),
     body: text("body").notNull(),
+    editedAt: timestamp("edited_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

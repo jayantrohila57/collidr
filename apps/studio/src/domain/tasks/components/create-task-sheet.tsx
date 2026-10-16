@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,18 +31,22 @@ export function CreateTaskSheet({
   projectId,
   people,
   onCreated,
+  defaults,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
   people: { value: string; label: string }[];
   onCreated: (number: number) => void;
+  defaults?: { status: TaskStatus; priority: TaskPriority };
 }) {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState<TaskStatus>("todo");
-  const [priority, setPriority] = useState<TaskPriority>("none");
+  const [status, setStatus] = useState<TaskStatus>(defaults?.status ?? "todo");
+  const [priority, setPriority] = useState<TaskPriority>(
+    defaults?.priority ?? "none",
+  );
   const [assigneeId, setAssigneeId] = useState("none");
   const create = useMutation({
     ...trpc.tasks.create.mutationOptions(),
@@ -50,11 +54,19 @@ export function CreateTaskSheet({
       queryClient.invalidateQueries({ queryKey: trpc.tasks.list.pathKey() }),
   });
 
+  // App settings (#258) load after mount; adopt them while the sheet is closed.
+  useEffect(() => {
+    if (!open && defaults) {
+      setStatus(defaults.status);
+      setPriority(defaults.priority);
+    }
+  }, [open, defaults]);
+
   const reset = () => {
     setTitle("");
     setDescription("");
-    setStatus("todo");
-    setPriority("none");
+    setStatus(defaults?.status ?? "todo");
+    setPriority(defaults?.priority ?? "none");
     setAssigneeId("none");
   };
 

@@ -24,6 +24,7 @@ import { initialsFromLabel } from "@/lib/initials";
 import { trpc } from "@/utils/trpc";
 import { TASK_PRIORITY_OPTIONS, TASK_STATUS_OPTIONS } from "../hooks/task-meta";
 import { FieldSelect } from "./field-select";
+import { TaskCommentItem } from "./task-comment-item";
 
 type Person = {
   id: string;
@@ -260,29 +261,17 @@ export function TaskDetailSheet({
                 {detail.data?.comments.length ? (
                   <ol className="flex flex-col gap-3">
                     {detail.data.comments.map((c) => (
-                      <li key={c.id} className="flex gap-2">
-                        <Avatar className="size-6">
-                          {c.authorImage ? (
-                            <AvatarImage src={c.authorImage} alt="" />
-                          ) : null}
-                          <AvatarFallback className="text-[9px]">
-                            {initialsFromLabel(c.authorName ?? "?", "?")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs">
-                            <span className="font-medium">
-                              {c.authorName ?? "Deleted user"}
-                            </span>{" "}
-                            <span className="text-muted-foreground">
-                              <ClientRelativeTime value={c.createdAt} />
-                            </span>
-                          </p>
-                          <p className="whitespace-pre-wrap break-words text-sm">
-                            {c.body}
-                          </p>
-                        </div>
-                      </li>
+                      <TaskCommentItem
+                        key={c.id}
+                        comment={c}
+                        canEdit={
+                          canUpdate && c.authorId === detail.data?.viewerId
+                        }
+                        canDelete={
+                          c.authorId === detail.data?.viewerId ||
+                          Boolean(detail.data?.canModerate)
+                        }
+                      />
                     ))}
                   </ol>
                 ) : (

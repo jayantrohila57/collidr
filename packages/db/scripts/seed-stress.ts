@@ -646,7 +646,11 @@ async function main() {
     }
   }
   await flush();
-  console.log(`  variables: ${varCount}`);
+  console.log(
+    ONLY_APPS
+      ? "  variables: skipped (SEED_ONLY=apps)"
+      : `  variables: ${varCount}`,
+  );
 
   // Pins for the owner (Seed Test projects)
   const pinPool = projectsByOrg.get(SEED_ORGS[0].id) ?? [];
@@ -930,12 +934,24 @@ async function main() {
   await insertBatched("notifications", notification, notifs, cfg);
   await insertBatched("task notifications", notification, taskNotifs, cfg);
 
-  const [{ count }] = (
+  // Final totals straight from the DB (#259): one line per seeded table.
+  const totals = (
     await db.execute(
-      sql`select count(*)::int as count from environment_variable where id like 'seed-%'`,
+      sql`select
+        (select count(*)::int from environment_variable where id like 'seed-%') as variables,
+        (select count(*)::int from project_app where id like 'seed-%') as apps,
+        (select count(*)::int from task where id like 'seed-%') as tasks,
+        (select count(*)::int from task_comment where id like 'seed-%') as comments`,
     )
-  ).rows as [{ count: number }];
-  console.log(`Done. Seed variables now in DB: ${count}`);
+  ).rows[0] as {
+    variables: number;
+    apps: number;
+    tasks: number;
+    comments: number;
+  };
+  console.log(
+    `Done. Seed rows in DB: ${totals.variables} variables, ${totals.apps} app installs, ${totals.tasks} tasks, ${totals.comments} task comments.`,
+  );
   process.exit(0);
 }
 

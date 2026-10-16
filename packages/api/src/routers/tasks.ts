@@ -1,7 +1,12 @@
+import { resolveAppSettings, tasksApp } from "@loftlancer/actions";
 import { activeMemberWhere, db } from "@loftlancer/db";
 import { user } from "@loftlancer/db/schema/auth";
 import { member } from "@loftlancer/db/schema/organization";
-import { task, taskComment } from "@loftlancer/db/schema/project-app";
+import {
+  projectApp,
+  task,
+  taskComment,
+} from "@loftlancer/db/schema/project-app";
 import { project } from "@loftlancer/db/schema/projects";
 import { notify } from "@loftlancer/notifications/notify";
 import { TRPCError } from "@trpc/server";
@@ -9,7 +14,10 @@ import { and, asc, desc, eq, ilike, isNull, type SQL, sql } from "drizzle-orm";
 import { z } from "zod/v3";
 import { actionGuard } from "../actions/action-guard";
 import { projectIdFromInput } from "../actions/guard-resolve";
-import type { RequireActionContext } from "../actions/require-action";
+import {
+  type RequireActionContext,
+  requireAction,
+} from "../actions/require-action";
 import { orgProcedure, router } from "../index";
 
 export const TASK_STATUSES = [
@@ -91,6 +99,55 @@ async function notifyTask(
     },
     idempotencyKey: key,
   }).catch((e) => console.error("task notify failed", e));
+}
+
+async function projectIdForComment(
+  input: unknown,
+): Promise<Partial<RequireActionContext>> {
+  const id = (input as { commentId?: string })?.commentId;
+  if (!id) return {};
+  const [row] = await db
+    .select({ projectId: task.projectId })
+    .from(taskComment)
+    .innerJoin(task, eq(task.id, taskComment.taskId))
+    .where(eq(taskComment.id, id))
+    .limit(1);
+  return { projectId: row?.projectId ?? null };
+}
+
+async function loadComment(commentId: string) {
+  const [row] = await db
+    .select({
+      id: taskComment.id,
+      authorId: taskComment.authorId,
+      projectId: task.projectId,
+    })
+    .from(taskComment)
+    .innerJoin(task, eq(task.id, taskComment.taskId))
+    .where(and(eq(taskComment.id, commentId), isNull(taskComment.deletedAt)))
+    .limit(1);
+  if (!row)
+    throw new TRPCError({ code: "NOT_FOUND", message: "Comment not found" });
+  return row;
+}
+
+/** Owners and project managers moderate comments; same rule as app configure. */
+async function isProjectManagerOrOwner(
+  userId: string,
+  organizationId: string | null | undefined,
+  projectId: string,
+) {
+  try {
+    await requireAction("project.app.configure", {
+      userId,
+      organizationId,
+      projectId,
+      audit: false,
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 const listInput = z.object({
@@ -184,7 +241,7 @@ export const tasksRouter = router({
   get: orgProcedure
     .input(z.object({ projectId: z.string().min(1), number: z.number().int() }))
     .use(actionGuard("tasks.task.read", projectIdFromInput))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const [row] = await db
         .select()
         .from(task)
@@ -201,6 +258,7 @@ export const tasksRouter = router({
         .select({
           id: taskComment.id,
           body: taskComment.body,
+          editedAt: taskComment.editedAt,
           createdAt: taskComment.createdAt,
           authorId: taskComment.authorId,
           authorName: user.name,
@@ -212,7 +270,17 @@ export const tasksRouter = router({
           and(eq(taskComment.taskId, row.id), isNull(taskComment.deletedAt)),
         )
         .orderBy(asc(taskComment.createdAt));
-      return { task: row, comments };
+      const canModerate = await isProjectManagerOrOwner(
+        ctx.session.user.id,
+        ctx.activeOrganizationId,
+        input.projectId,
+      );
+      return {
+        task: row,
+        comments,
+        canModerate,
+        viewerId: ctx.session.user.id,
+      };
     }),
 
   create: orgProcedure
@@ -225,6 +293,17 @@ export const tasksRouter = router({
           code: "NOT_FOUND",
           message: "Project not found",
         });
+      const [appRow] = await db
+        .select({ settings: projectApp.settings })
+        .from(projectApp)
+        .where(
+          and(
+            eq(projectApp.projectId, input.projectId),
+            eq(projectApp.appId, "tasks"),
+          ),
+        )
+        .limit(1);
+      const defaults = resolveAppSettings(tasksApp, appRow?.settings);
       const id = crypto.randomUUID();
       // Per-project numbering; retry once on a concurrent unique clash.
       let created: typeof task.$inferSelect | undefined;
@@ -239,8 +318,12 @@ export const tasksRouter = router({
               number: sql`(select coalesce(max(number), 0) + 1 from task where project_id = ${input.projectId})`,
               title: input.title,
               description: input.description ?? null,
-              status: input.status ?? "todo",
-              priority: input.priority ?? "none",
+              status:
+                input.status ??
+                (defaults.defaultStatus as (typeof TASK_STATUSES)[number]),
+              priority:
+                input.priority ??
+                (defaults.defaultPriority as (typeof TASK_PRIORITIES)[number]),
               assigneeId: input.assigneeId ?? null,
               reporterId: ctx.session.user.id,
               dueDate: input.dueDate ?? null,
@@ -345,5 +428,55 @@ export const tasksRouter = router({
         );
       }
       return c;
+    }),
+
+  editComment: orgProcedure
+    .input(
+      z.object({
+        commentId: z.string().min(1),
+        body: z.string().trim().min(1).max(10_000),
+      }),
+    )
+    .use(actionGuard("tasks.comment.create", projectIdForComment))
+    .mutation(async ({ ctx, input }) => {
+      const c = await loadComment(input.commentId);
+      if (c.authorId !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only the author can edit a comment.",
+        });
+      }
+      const [updated] = await db
+        .update(taskComment)
+        .set({ body: input.body, editedAt: new Date() })
+        .where(eq(taskComment.id, c.id))
+        .returning();
+      return updated;
+    }),
+
+  deleteComment: orgProcedure
+    .input(z.object({ commentId: z.string().min(1) }))
+    .use(actionGuard("tasks.comment.create", projectIdForComment))
+    .mutation(async ({ ctx, input }) => {
+      const c = await loadComment(input.commentId);
+      const allowed =
+        c.authorId === ctx.session.user.id ||
+        (await isProjectManagerOrOwner(
+          ctx.session.user.id,
+          ctx.activeOrganizationId,
+          c.projectId,
+        ));
+      if (!allowed) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message:
+            "Only the author or a project manager can delete this comment.",
+        });
+      }
+      await db
+        .update(taskComment)
+        .set({ deletedAt: new Date() })
+        .where(eq(taskComment.id, c.id));
+      return { ok: true as const };
     }),
 });

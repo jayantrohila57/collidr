@@ -27,6 +27,8 @@ export type OrganizationInvitationsTableProps = {
   resendingId: string | null;
   onRevoke: (invitationId: string) => void;
   onResend: (invite: OrganizationInvitationRow) => void;
+  /** Off when the caller paginates server-side (#261). */
+  clientPagination?: boolean;
 };
 
 export function OrganizationInvitationsTable({
@@ -36,6 +38,7 @@ export function OrganizationInvitationsTable({
   resendingId,
   onRevoke,
   onResend,
+  clientPagination = true,
 }: OrganizationInvitationsTableProps) {
   const columns: DataTableColumnDef<OrganizationInvitationRow>[] = [
     columnHelper.accessor("email", {
@@ -114,7 +117,7 @@ export function OrganizationInvitationsTable({
       empty={empty}
       framed
       compactLayout
-      enablePagination
+      enablePagination={clientPagination}
       pageSize={10}
     />
   );

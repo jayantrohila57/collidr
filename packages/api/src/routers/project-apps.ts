@@ -2,6 +2,7 @@ import {
   APP_RETENTION_DAYS,
   appRegistry,
   getAppManifest,
+  resolveAppSettings,
 } from "@loftlancer/actions";
 import { db } from "@loftlancer/db";
 import { projectApp } from "@loftlancer/db/schema/project-app";
@@ -63,6 +64,15 @@ export const projectAppsRouter = router({
             | "available",
           installedAt: row?.installedAt ?? null,
           purgeAfter: row?.status === "uninstalled" ? row.purgeAfter : null,
+          settingsSchema: m.settings.map((d) => ({
+            key: d.key,
+            label: d.label,
+            description: d.description,
+            options: d.options.map((o) => ({ value: o.value, label: o.label })),
+            default: d.default,
+          })),
+          settings: resolveAppSettings(m, row?.settings),
+          installedBy: row?.installedBy ?? null,
         };
       });
     }),
@@ -133,5 +143,39 @@ export const projectAppsRouter = router({
           message: "App isn't installed",
         });
       return { ok: true as const, purgeAfter };
+    }),
+
+  configure: orgProcedure
+    .input(appInput.extend({ settings: z.record(z.string()) }))
+    .use(actionGuard("project.app.configure", projectIdFromInput))
+    .mutation(async ({ input }) => {
+      const manifest = requireManifest(input.appId);
+      for (const [key, value] of Object.entries(input.settings)) {
+        const def = manifest.settings.find((d) => d.key === key);
+        if (!def || !def.options.some((o) => o.value === value)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Invalid setting ${key}`,
+          });
+        }
+      }
+      const settings = resolveAppSettings(manifest, input.settings);
+      const res = await db
+        .update(projectApp)
+        .set({ settings, updatedAt: new Date() })
+        .where(
+          and(
+            eq(projectApp.projectId, input.projectId),
+            eq(projectApp.appId, input.appId),
+            eq(projectApp.status, "active"),
+          ),
+        )
+        .returning({ id: projectApp.id });
+      if (res.length === 0)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "App isn't installed",
+        });
+      return { ok: true as const, settings };
     }),
 });

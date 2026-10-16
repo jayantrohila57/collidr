@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 import { invitationsEmpty } from "@/components/data-table/data-table-empty-presets";
 import { OrganizationInvitationsTable } from "@/components/org/organization-invitations-table";
 import { AppIcon } from "@/components/patterns/app-icon";
@@ -13,6 +14,13 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
@@ -22,59 +30,61 @@ import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import {
   cancelOrganizationInvitation,
   type OrganizationInvitationRow,
-  parseOrganizationInvitations,
   pendingOrganizationInvitations,
   resendOrganizationInvitation,
   sortOrganizationInvitations,
 } from "@/lib/organization-invitations";
 import { toast } from "@/lib/toast";
+import { trpc } from "@/utils/trpc";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { BulkInviteDialog } from "./bulk-invite-dialog";
 import { OrganizationSectionPage } from "./organization-section-page";
 
+const PAGE_SIZE = 50;
+const STATUS_OPTIONS = [
+  { value: "pending", label: "Pending" },
+  { value: "expired", label: "Expired" },
+  { value: "accepted", label: "Accepted" },
+  { value: "rejected", label: "Rejected" },
+  { value: "canceled", label: "Canceled" },
+  { value: "all", label: "All" },
+] as const;
+type InvitationStatusFilter = (typeof STATUS_OPTIONS)[number]["value"];
+
 export function OrganizationInvitationsPage({ slug }: { slug: string }) {
+  const queryClient = useQueryClient();
   const { organization, status: orgStatus } = useOrganizationBySlug(slug);
   const { data: session } = useSession();
   const { syncInvitationReceived } = useNotificationMutations();
   const currentUserId = session?.user?.id;
-  const [invitations, setInvitations] = useState<OrganizationInvitationRow[]>(
-    [],
-  );
-  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<InvitationStatusFilter>("pending");
+  const [page, setPage] = useState(0);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const [resendingId, setResendingId] = useState<string | null>(null);
-
-  const loadInvitations = useCallback(async (organizationId: string) => {
-    setLoading(true);
-    try {
-      const result = await authClient.organization.listInvitations({
-        query: { organizationId },
+  const listQuery = useQuery({
+    ...trpc.organizations.listInvitations.queryOptions({
+      organizationId: organization?.id ?? "",
+      status,
+      limit: PAGE_SIZE,
+      offset: page * PAGE_SIZE,
+    }),
+    enabled: Boolean(organization?.id),
+    placeholderData: (prev) => prev,
+  });
+  const invitations = (listQuery.data?.rows ??
+    []) as OrganizationInvitationRow[];
+  const counts = listQuery.data?.counts;
+  const total = listQuery.data?.total ?? 0;
+  const loading = listQuery.isPending;
+  const loadInvitations = useCallback(
+    async (_organizationId: string) => {
+      await queryClient.invalidateQueries({
+        queryKey: trpc.organizations.listInvitations.pathKey(),
       });
-      const listed = parseOrganizationInvitations(result.data);
-      if (listed.length > 0) {
-        setInvitations(listed);
-        return;
-      }
-      const full = await authClient.organization.getFullOrganization({
-        query: { organizationId },
-      });
-      setInvitations(
-        parseOrganizationInvitations(
-          (full.data as { invitations?: unknown } | null)?.invitations,
-        ),
-      );
-    } catch {
-      setInvitations([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!organization?.id) return;
-    void loadInvitations(organization.id);
-  }, [organization?.id, loadInvitations]);
+    },
+    [queryClient],
+  );
 
   const revokeInvitation = async (invitationId: string) => {
     if (!organization?.id) return;
@@ -152,30 +162,87 @@ export function OrganizationInvitationsPage({ slug }: { slug: string }) {
     >
       {orgStatus === "loading" || !organization ? (
         <Skeleton className="h-48 w-full rounded-xl" />
-      ) : loading ? (
-        <Skeleton className="h-32 w-full rounded-xl" />
-      ) : sorted.length === 0 ? (
-        <Empty className="border border-dashed py-10">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <AppIcon name="mail" className="size-5" />
-            </EmptyMedia>
-            <EmptyTitle>{invitationsEmpty().empty.title}</EmptyTitle>
-            <EmptyDescription>
-              {invitationsEmpty().empty.description}
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>{inviteAction}</EmptyContent>
-        </Empty>
       ) : (
-        <OrganizationInvitationsTable
-          invitations={sorted}
-          empty={invitationsEmpty(inviteAction)}
-          revokingId={revokingId}
-          resendingId={resendingId}
-          onRevoke={(id) => void revokeInvitation(id)}
-          onResend={(invite) => void resendInvitation(invite)}
-        />
+        <div className="flex flex-col gap-3">
+          <div className="flex h-8 items-center gap-1.5">
+            <Select
+              value={status}
+              items={STATUS_OPTIONS.map((o) => ({
+                value: o.value,
+                label: `${o.label}${counts ? ` (${counts[o.value]})` : ""}`,
+              }))}
+              onValueChange={(v) => {
+                setStatus((v as InvitationStatusFilter | null) ?? "pending");
+                setPage(0);
+              }}
+            >
+              <SelectTrigger
+                size="sm"
+                className="w-44"
+                aria-label="Filter by status"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                    {counts ? ` (${counts[o.value]})` : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <span className="ms-auto text-muted-foreground text-xs tabular-nums">
+              {listQuery.data
+                ? total === 0
+                  ? "0 invitations"
+                  : `${page * PAGE_SIZE + 1}–${Math.min(total, (page + 1) * PAGE_SIZE)} of ${total}`
+                : "\u00a0"}
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={page === 0}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={(page + 1) * PAGE_SIZE >= total}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+          {loading ? (
+            <Skeleton className="h-32 w-full rounded-xl" />
+          ) : sorted.length === 0 && counts?.all === 0 ? (
+            <Empty className="border border-dashed py-10">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <AppIcon name="mail" className="size-5" />
+                </EmptyMedia>
+                <EmptyTitle>{invitationsEmpty().empty.title}</EmptyTitle>
+                <EmptyDescription>
+                  {invitationsEmpty().empty.description}
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>{inviteAction}</EmptyContent>
+            </Empty>
+          ) : (
+            <OrganizationInvitationsTable
+              invitations={sorted}
+              empty={invitationsEmpty(inviteAction)}
+              revokingId={revokingId}
+              resendingId={resendingId}
+              onRevoke={(id) => void revokeInvitation(id)}
+              onResend={(invite) => void resendInvitation(invite)}
+              clientPagination={false}
+            />
+          )}
+        </div>
       )}
 
       {organization ? (

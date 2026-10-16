@@ -11,6 +11,16 @@ export type AppNavItem = {
   action: ActionName | null;
 };
 
+/** A real, enforced app setting rendered on /p/[slug]/apps/[app] (#258). */
+export type AppSettingDef = {
+  key: string;
+  label: string;
+  description: string;
+  type: "select";
+  options: readonly { value: string; label: string }[];
+  default: string;
+};
+
 export type AppManifest = {
   id: string;
   version: number;
@@ -25,6 +35,7 @@ export type AppManifest = {
   permissions: readonly string[];
   dataCreated: readonly string[];
   nav: readonly AppNavItem[];
+  settings: readonly AppSettingDef[];
   /** Reserved: "free" today; paid plans later. */
   plan: "free";
 };
@@ -57,6 +68,7 @@ export const envApp: AppManifest = {
   ],
   dataCreated: ["Environments", "Encrypted variables"],
   nav: [{ path: "env", label: "Environments", action: "environment.read" }],
+  settings: [],
   plan: "free",
 };
 
@@ -82,6 +94,34 @@ export const tasksApp: AppManifest = {
   ],
   dataCreated: ["Tasks", "Task comments"],
   nav: [{ path: "tasks", label: "Tasks", action: "tasks.task.read" }],
+  settings: [
+    {
+      key: "defaultStatus",
+      label: "Default status",
+      description: "Status new tasks start in.",
+      type: "select",
+      options: [
+        { value: "backlog", label: "Backlog" },
+        { value: "todo", label: "Todo" },
+        { value: "in_progress", label: "In progress" },
+      ],
+      default: "todo",
+    },
+    {
+      key: "defaultPriority",
+      label: "Default priority",
+      description: "Priority new tasks start with.",
+      type: "select",
+      options: [
+        { value: "none", label: "No priority" },
+        { value: "low", label: "Low" },
+        { value: "medium", label: "Medium" },
+        { value: "high", label: "High" },
+        { value: "urgent", label: "Urgent" },
+      ],
+      default: "none",
+    },
+  ],
   plan: "free",
 };
 
@@ -97,4 +137,24 @@ export function appIdForAction(action: string): AppId | undefined {
   return appRegistry.find((a) => a.actions.includes(action))?.id as
     | AppId
     | undefined;
+}
+
+/** Stored settings merged over manifest defaults; unknown keys/values dropped. */
+export function resolveAppSettings(
+  manifest: AppManifest,
+  stored: unknown,
+): Record<string, string> {
+  const raw = (stored && typeof stored === "object" ? stored : {}) as Record<
+    string,
+    unknown
+  >;
+  const out: Record<string, string> = {};
+  for (const def of manifest.settings) {
+    const v = raw[def.key];
+    out[def.key] =
+      typeof v === "string" && def.options.some((o) => o.value === v)
+        ? v
+        : def.default;
+  }
+  return out;
 }

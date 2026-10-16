@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useDeferredValue, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { ErrorState } from "@/components/patterns/error-state";
@@ -58,7 +58,18 @@ export function TasksPage({ slug }: { slug: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { projectId, project } = useProjectApps(slug);
+  const { projectId, project, apps } = useProjectApps(slug);
+  const taskSettings = apps.find((a) => a.id === "tasks")?.settings;
+  const createDefaults = useMemo(
+    () =>
+      taskSettings
+        ? {
+            status: taskSettings.defaultStatus as TaskStatus,
+            priority: taskSettings.defaultPriority as TaskPriority,
+          }
+        : undefined,
+    [taskSettings],
+  );
   const [status, setStatus] = useState("all");
   const [priority, setPriority] = useState("all");
   const [assignee, setAssignee] = useState("all");
@@ -351,6 +362,7 @@ export function TasksPage({ slug }: { slug: string }) {
             projectId={projectId}
             people={peopleOptions}
             onCreated={(n) => setOpenNumber(n)}
+            defaults={createDefaults}
           />
           <TaskDetailSheet
             projectId={projectId}
