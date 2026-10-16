@@ -5,13 +5,13 @@ import {
   type UserMenuProps,
 } from "@loftlancer/ui/patterns/sidebar-kit";
 import { docsUrl } from "@loftlancer/ui/platform-urls";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useCurrentOrgSlug } from "@/components/org/use-current-org-slug";
 import { accountSettingsUrl } from "@/lib/account-url";
 import { withBasePath } from "@/lib/base-path";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { routes } from "@/utils/navigation";
-import { trpc } from "@/utils/trpc";
 import { performSignOut, useSession } from "../lib/auth-actions";
 
 /** Props for the shared user menu, used by the header avatar and sidebar footer. */
@@ -19,11 +19,8 @@ export function useUserMenuProps(): UserMenuProps & { ready: boolean } {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: session, isPending } = useSession();
-  const { data } = useQuery({
-    ...trpc.sidebar.navigator.queryOptions(),
-    staleTime: 30_000,
-  });
-  const orgSlug = data?.organizationSlug ?? null;
+  // Same org as the switcher: the URL org, else the last active org (#313).
+  const orgSlug = useCurrentOrgSlug();
   return {
     ready: !isPending,
     user: session?.user ?? null,

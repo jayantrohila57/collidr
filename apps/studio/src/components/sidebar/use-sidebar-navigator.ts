@@ -4,9 +4,10 @@ import type {
   CommandGroup,
   FavoriteProject,
 } from "@loftlancer/ui/patterns/sidebar-kit";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { trpc } from "@/utils/trpc";
+import { useNavigatorQuery } from "./use-navigator-query";
 
 /**
  * Real data for the shared sidebar (⌘K groups, Favorites, nav counts).
@@ -19,15 +20,12 @@ export function useSidebarNavigator(opts: {
   settingsLinks: { label: string; href: string }[];
 }) {
   const qc = useQueryClient();
-  const query = useQuery({
-    ...trpc.sidebar.navigator.queryOptions(),
-    staleTime: 30_000,
-  });
+  const query = useNavigatorQuery();
   const data = query.data;
   const pinMutation = useMutation(
     trpc.sidebar.pin.mutationOptions({
       onSettled: () =>
-        qc.invalidateQueries({ queryKey: trpc.sidebar.navigator.queryKey() }),
+        qc.invalidateQueries({ queryKey: trpc.sidebar.navigator.pathKey() }),
     }),
   );
 

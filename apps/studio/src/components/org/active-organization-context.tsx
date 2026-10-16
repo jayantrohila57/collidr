@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -62,6 +62,14 @@ export function ActiveOrganizationProvider({
   const queryClient = useQueryClient();
   const router = useRouter();
   const pathname = usePathname() ?? "";
+  // The URL org is the source of truth inside /[org]/… (#313); the session's
+  // active org (synced to the last URL org by proxy.ts) covers pre-org pages.
+  const params = useParams<{ org?: string }>();
+  const urlOrgSlug = typeof params?.org === "string" ? params.org : null;
+  const urlOrgSlugRef = useRef(urlOrgSlug);
+  useEffect(() => {
+    urlOrgSlugRef.current = urlOrgSlug;
+  }, [urlOrgSlug]);
   const {
     data: session,
     isPending: sessionPending,
@@ -82,6 +90,9 @@ export function ActiveOrganizationProvider({
     if (!enabled || sessionPending || isSwitching) {
       return;
     }
+    // Inside /[org]/… the URL org wins (effect below); never let a stale
+    // session value override it.
+    if (urlOrgSlugRef.current) return;
     if (sessionActiveOrganizationId) {
       // Only adopt the active id here. `initialLoadDone`/`loading` flip after
       // the org list has actually loaded; flipping them early made the list
@@ -96,8 +107,12 @@ export function ActiveOrganizationProvider({
       const list = await authClient.organization.list();
       const data = (list.data ?? []) as OrgListItem[];
       setOrgs(data);
+      const urlOrgId = urlOrgSlugRef.current
+        ? data.find((org) => org.slug === urlOrgSlugRef.current)?.id
+        : undefined;
       const active =
         options?.activeOrganizationId ??
+        urlOrgId ??
         sessionActiveOrganizationId ??
         data[0]?.id ??
         null;
@@ -163,6 +178,16 @@ export function ActiveOrganizationProvider({
       cancelled = true;
     };
   }, [enabled, queryClient, refreshOrganizations, sessionPending]);
+
+  // Follow the URL org on every client navigation into /[org]/…. After a
+  // switch the URL moves to the new org, so this agrees with the switch.
+  const urlOrgId = urlOrgSlug
+    ? (orgs.find((org) => org.slug === urlOrgSlug)?.id ?? null)
+    : null;
+  useEffect(() => {
+    if (!enabled || isSwitching || !urlOrgId) return;
+    setActiveOrganizationId(urlOrgId);
+  }, [enabled, isSwitching, urlOrgId]);
 
   const applyActiveOrganization = useCallback(
     async (organizationId: string, _options?: { awaitRefresh?: boolean }) => {
