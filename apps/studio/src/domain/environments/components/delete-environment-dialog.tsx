@@ -65,7 +65,8 @@ export function DeleteEnvironmentDialog({
         onOpenChange={setOpen}
         title="Delete environment"
         description={`Delete "${environmentName}" and all variables in it? This cannot be undone.`}
-        confirmLabel="Delete"
+        confirmLabel="Delete environment"
+        confirmText={environmentName}
         variant="destructive"
         isPending={isPending}
         onConfirm={handleConfirm}

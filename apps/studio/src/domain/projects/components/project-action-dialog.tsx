@@ -11,6 +11,8 @@ interface ProjectActionDialogProps {
   variant?: "default" | "destructive";
   onConfirm: () => void | Promise<void>;
   isPending?: boolean;
+  /** Require typing this value (e.g. project name) before confirming. */
+  confirmText?: string;
 }
 
 export function ProjectActionDialog({
@@ -22,6 +24,7 @@ export function ProjectActionDialog({
   variant = "default",
   onConfirm,
   isPending = false,
+  confirmText,
 }: ProjectActionDialogProps) {
   return (
     <ConfirmDialog
@@ -33,6 +36,7 @@ export function ProjectActionDialog({
       variant={variant}
       onConfirm={onConfirm}
       isPending={isPending}
+      confirmText={confirmText}
     />
   );
 }

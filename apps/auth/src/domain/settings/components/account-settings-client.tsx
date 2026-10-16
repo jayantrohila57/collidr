@@ -1,9 +1,11 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { KeyRoundIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
+import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { ErrorState } from "@/components/patterns/error-state";
 import {
   SettingsField,
@@ -30,10 +32,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -146,6 +148,7 @@ export function AccountSettingsClient({
   );
   const exportMutation = useMutation(trpc.account.exportData.mutationOptions());
 
+  const [providerPending, setProviderPending] = useState<string | null>(null);
   const [sessions, setSessions] = useState<AuthSessionRow[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(
     () => forcedSection === "sessions",
@@ -177,7 +180,6 @@ export function AccountSettingsClient({
     }
   }, [forcedSection, activeTab, loadSessions]);
 
-  const [deleteConfirm, setDeleteConfirm] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const softDeleteMutation = useMutation(
@@ -222,10 +224,29 @@ export function AccountSettingsClient({
     deleteBlockersQuery.data?.data.soleOwnerOrganizations ?? [];
 
   const connectedAccounts = connectedQuery.data?.data ?? [];
-  const githubAccount = connectedAccounts.find(
-    (a) => a.providerId === "github",
-  );
-  const canUnlinkGithub = connectedAccounts.length > 1;
+  const canUnlinkAny = connectedAccounts.length > 1;
+  /** Only providers Better Auth is configured for are connectable (GitHub). */
+  const providerRows = [
+    {
+      key: "github",
+      label: "GitHub",
+      icon: "github" as const,
+      connectable: true,
+      account: connectedAccounts.find((a) => a.providerId === "github"),
+    },
+    ...connectedAccounts
+      .filter((a) => a.providerId !== "github")
+      .map((a) => ({
+        key: a.id,
+        label:
+          a.providerId === "credential"
+            ? "Email & password"
+            : a.providerId.charAt(0).toUpperCase() + a.providerId.slice(1),
+        icon: "key" as const,
+        connectable: false,
+        account: a,
+      })),
+  ];
 
   const orgLinkEnabled = isOrganizationsEnabledOnClient();
 
@@ -290,20 +311,31 @@ export function AccountSettingsClient({
   };
 
   const handleLinkGithub = async () => {
+    setProviderPending("github");
     try {
+      // Redirects to GitHub on success; keep the spinner until navigation.
       await linkGithubAccount();
     } catch (err) {
+      setProviderPending(null);
       toast.error(err instanceof Error ? err.message : "Could not link GitHub");
     }
   };
 
-  const handleUnlinkGithub = async (accountId: string) => {
+  /** `id` is the Better Auth account row id (what /unlink-account expects). */
+  const handleUnlinkAccount = async (
+    key: string,
+    id: string,
+    label: string,
+  ) => {
+    setProviderPending(key);
     try {
-      await unlinkProviderAccount(accountId);
-      toast.success("GitHub unlinked");
+      await unlinkProviderAccount(id);
+      toast.success(`${label} disconnected`);
       await connectedQuery.refetch();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not unlink");
+      toast.error(err instanceof Error ? err.message : "Could not disconnect");
+    } finally {
+      setProviderPending(null);
     }
   };
 
@@ -526,11 +558,7 @@ export function AccountSettingsClient({
                     description="OAuth providers linked to your login."
                     icon="github"
                   />
-                  {connectedQuery.isLoading ? (
-                    <div className="space-y-3 px-4 py-4">
-                      <Skeleton className="h-16 w-full" />
-                    </div>
-                  ) : connectedQuery.isError ? (
+                  {connectedQuery.isError ? (
                     <div className="px-4 py-4">
                       <ErrorState
                         title="Could not load accounts"
@@ -538,96 +566,105 @@ export function AccountSettingsClient({
                         onRetry={() => void connectedQuery.refetch()}
                       />
                     </div>
-                  ) : connectedAccounts.length === 0 ? (
-                    <div className="px-4 py-6">
-                      <Empty className="border border-dashed py-8">
-                        <EmptyHeader>
-                          <EmptyMedia variant="icon">
-                            <AppIcon name="github" className="size-5" />
-                          </EmptyMedia>
-                          <EmptyTitle>No connected accounts</EmptyTitle>
-                          <EmptyDescription>
-                            Link GitHub to sign in with OAuth.
-                          </EmptyDescription>
-                        </EmptyHeader>
-                        <EmptyContent>
-                          <Button
-                            type="button"
-                            size="sm"
-                            className="gap-2"
-                            onClick={() => void handleLinkGithub()}
-                          >
-                            <AppIcon name="github" className="text-current" />
-                            Link GitHub
-                          </Button>
-                        </EmptyContent>
-                      </Empty>
-                    </div>
                   ) : (
-                    <ul className="divide-y">
-                      {connectedAccounts.map((row) => (
-                        <li
-                          key={row.id}
-                          className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between"
-                        >
-                          <div className="min-w-0 space-y-1">
-                            <div className="flex items-center gap-2">
-                              <AppIcon name="github" />
-                              <p className="font-medium text-sm capitalize">
-                                {row.providerId}
+                    <ul className="divide-y divide-border/60">
+                      {providerRows.map((row) => {
+                        const busy = providerPending === row.key;
+                        return (
+                          <li
+                            key={row.key}
+                            className="flex h-16 items-center gap-3 px-4"
+                          >
+                            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted">
+                              {row.icon === "github" ? (
+                                <AppIcon name="github" className="size-4" />
+                              ) : (
+                                <KeyRoundIcon
+                                  aria-hidden
+                                  className="size-4 text-muted-foreground"
+                                />
+                              )}
+                            </span>
+                            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                              <div className="flex items-center gap-1.5">
+                                <p className="font-medium text-sm">
+                                  {row.label}
+                                </p>
+                                {connectedQuery.isLoading ? (
+                                  <Skeleton className="h-4.5 w-20 rounded-sm" />
+                                ) : row.account ? (
+                                  <Badge variant="success">Connected</Badge>
+                                ) : (
+                                  <Badge variant="outline">Not connected</Badge>
+                                )}
+                              </div>
+                              <p className="truncate text-muted-foreground text-xs">
+                                {connectedQuery.isLoading
+                                  ? "\u00a0"
+                                  : row.account
+                                    ? `Linked ${formatDate(row.account.createdAt)}${row.account.scope?.trim() ? ` · ${row.account.scope}` : ""}`
+                                    : row.connectable
+                                      ? `Sign in with ${row.label}.`
+                                      : "\u00a0"}
                               </p>
                             </div>
-                            <p className="font-mono text-muted-foreground text-xs">
-                              ID {row.accountId}
-                            </p>
-                            <p className="text-muted-foreground text-xs">
-                              Scopes: {row.scope?.trim() ? row.scope : "—"}
-                            </p>
-                            <p className="text-muted-foreground text-xs">
-                              Linked {formatDate(row.createdAt)}
-                            </p>
-                          </div>
-                          <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">
-                            {row.providerId === "github" ? (
+                            {row.account ? (
                               <Button
                                 type="button"
                                 size="sm"
                                 variant="outline"
-                                className="w-fit"
-                                disabled={!canUnlinkGithub}
+                                className="relative w-24 shrink-0"
+                                disabled={!canUnlinkAny || busy}
+                                title={
+                                  canUnlinkAny
+                                    ? undefined
+                                    : "Add another sign-in method before disconnecting your only one."
+                                }
                                 onClick={() =>
-                                  void handleUnlinkGithub(row.accountId)
+                                  void handleUnlinkAccount(
+                                    row.key,
+                                    row.account?.id ?? "",
+                                    row.label,
+                                  )
                                 }
                               >
-                                Unlink
+                                <span
+                                  className={busy ? "invisible" : undefined}
+                                >
+                                  Disconnect
+                                </span>
+                                {busy ? (
+                                  <Spinner className="absolute size-4" />
+                                ) : null}
+                              </Button>
+                            ) : row.connectable ? (
+                              <Button
+                                type="button"
+                                size="sm"
+                                className="relative w-24 shrink-0"
+                                disabled={connectedQuery.isLoading || busy}
+                                onClick={() => void handleLinkGithub()}
+                              >
+                                <span
+                                  className={busy ? "invisible" : undefined}
+                                >
+                                  Connect
+                                </span>
+                                {busy ? (
+                                  <Spinner className="absolute size-4" />
+                                ) : null}
                               </Button>
                             ) : null}
-                            {!canUnlinkGithub ? (
-                              <p className="max-w-[14rem] text-muted-foreground text-xs">
-                                Add another sign-in method before unlinking your
-                                only provider.
-                              </p>
-                            ) : null}
-                          </div>
-                        </li>
-                      ))}
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
-                  {!githubAccount && connectedAccounts.length > 0 ? (
-                    <SettingsRow
-                      label="Link GitHub"
-                      description="Add GitHub as a sign-in method."
-                    >
-                      <Button
-                        type="button"
-                        size="sm"
-                        className="w-fit gap-2"
-                        onClick={() => void handleLinkGithub()}
-                      >
-                        <AppIcon name="github" className="text-current" />
-                        Link GitHub
-                      </Button>
-                    </SettingsRow>
+                  {!connectedQuery.isLoading && !canUnlinkAny ? (
+                    <p className="border-border/60 border-t px-4 py-2 text-muted-foreground text-xs">
+                      You need at least one sign-in method, so your only
+                      connected account can't be disconnected.
+                    </p>
                   ) : null}
                 </SettingsPanel>
               </PermissionGate>
@@ -697,7 +734,6 @@ export function AccountSettingsClient({
                         !canDeleteAccount || softDeleteMutation.isPending
                       }
                       onClick={() => {
-                        setDeleteConfirm("");
                         setDeleteOpen(true);
                       }}
                     >
@@ -799,54 +835,19 @@ export function AccountSettingsClient({
             </AlertDialogPopup>
           </AlertDialog>
 
-          <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-            <AlertDialogPopup>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete account</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Type <strong>{deletePhrase}</strong> to confirm. Your profile
-                  will be anonymized and all sessions revoked.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <Input
-                value={deleteConfirm}
-                onChange={(e) => setDeleteConfirm(e.target.value)}
-                placeholder={deletePhrase}
-                aria-label="Confirm email"
-                autoComplete="off"
-              />
-              <AlertDialogFooter>
-                <AlertDialogClose
-                  render={
-                    <Button
-                      variant="ghost"
-                      disabled={softDeleteMutation.isPending}
-                    />
-                  }
-                >
-                  Cancel
-                </AlertDialogClose>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  disabled={
-                    softDeleteMutation.isPending ||
-                    deleteConfirm !== deletePhrase
-                  }
-                  onClick={() => softDeleteMutation.mutate()}
-                >
-                  {softDeleteMutation.isPending ? (
-                    <>
-                      <Spinner className="me-2" />
-                      Deleting…
-                    </>
-                  ) : (
-                    "Delete account"
-                  )}
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogPopup>
-          </AlertDialog>
+          <ConfirmDialog
+            open={deleteOpen}
+            onOpenChange={setDeleteOpen}
+            title="Delete account"
+            description="Your profile will be anonymized and all sessions revoked."
+            confirmLabel="Delete account"
+            confirmText={deletePhrase}
+            variant="destructive"
+            onConfirm={async () => {
+              await softDeleteMutation.mutateAsync();
+            }}
+            isPending={softDeleteMutation.isPending}
+          />
         </>
       )}
     </UnsavedChangesPageGuard>

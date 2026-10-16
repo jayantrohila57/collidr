@@ -4,11 +4,14 @@ import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
+import { EmptyState } from "@/components/patterns/empty-state";
 import { LoadingButton } from "@/components/patterns/loading-button";
 import DashboardSection from "@/components/section-dashboard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
+import { accountSettingsUrl } from "@/lib/account-url";
+import { appIcons } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import {
   useNotificationMutations,
@@ -175,41 +178,40 @@ export function NotificationsPageClient() {
             </Button>
           </div>
         ) : items.length === 0 ? (
-          <div
-            className={cn(
-              "flex flex-col items-center justify-center gap-4 p-6 text-center",
-              LIST_MIN_H,
-            )}
+          <EmptyState
+            bare
+            className={LIST_MIN_H}
             data-testid="notifications-empty"
-          >
-            <span className="flex size-9 items-center justify-center rounded-full bg-muted">
-              {unreadOnly ? (
-                <AppIcon name="markAllRead" className="size-5" />
+            icon={unreadOnly ? appIcons.markAllRead : appIcons.bell}
+            title={unreadOnly ? "You're all caught up" : "No notifications yet"}
+            description={
+              unreadOnly
+                ? "There are no unread notifications."
+                : "When something needs your attention, it will show up here."
+            }
+            action={
+              unreadOnly ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setTab("all")}
+                >
+                  View all
+                </Button>
               ) : (
-                <AppIcon name="bell" className="size-5" />
-              )}
-            </span>
-            <div className="space-y-1">
-              <p className="font-medium text-sm">
-                {unreadOnly ? "You're all caught up" : "No notifications yet"}
-              </p>
-              <p className="max-w-xs text-muted-foreground text-xs">
-                {unreadOnly
-                  ? "There are no unread notifications."
-                  : "When something needs your attention, it will show up here."}
-              </p>
-            </div>
-            {unreadOnly ? (
-              <Button
-                type="button"
-                variant="outline"
-                className="h-8"
-                onClick={() => setTab("all")}
-              >
-                View all
-              </Button>
-            ) : null}
-          </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  render={
+                    <a href={accountSettingsUrl("/settings/notifications")} />
+                  }
+                >
+                  Notification settings
+                </Button>
+              )
+            }
+          />
         ) : (
           <div
             className={cn(

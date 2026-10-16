@@ -1,6 +1,5 @@
 "use client";
 
-import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
 import { Button } from "@loftlancer/ui/button";
 import {
   Card,
@@ -9,14 +8,14 @@ import {
   CardPanel,
   CardTitle,
 } from "@loftlancer/ui/card";
+import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { GitHubSignInButton } from "@/components/github-sign-in-button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { SegmentedCodeInput } from "@/components/segmented-code-input";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { authAppReturnTo } from "@/lib/auth-return-to";
 import { formatDeviceUserCode } from "@/lib/format-user-code";
@@ -72,42 +71,39 @@ export function DeviceCodeForm() {
         <CardHeader>
           <CardTitle>Device sign-in</CardTitle>
           <CardDescription>
-            Enter the code from the Loftlancer CLI or another device. Only approve
-            codes you requested on a device you control.
+            Enter the code from the Loftlancer CLI or another device. Only
+            approve codes you requested on a device you control.
           </CardDescription>
         </CardHeader>
         <CardPanel className="flex flex-col gap-4">
-          {error ? (
-            <Alert variant="error">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          ) : null}
-
           <form
             className="flex flex-col gap-4"
             onSubmit={(e) => void handleSubmit(e)}
           >
             <Field>
               <FieldLabel htmlFor="user_code">Device code</FieldLabel>
-              <Input
+              <SegmentedCodeInput
                 id="user_code"
-                name="user_code"
-                autoComplete="off"
-                inputMode="text"
-                placeholder="ABCD-1234"
                 value={userCode}
-                onChange={(event) => setUserCode(event.target.value)}
-                maxLength={12}
+                onChange={setUserCode}
+                invalid={Boolean(error)}
+                disabled={verifying}
               />
               <FieldDescription>
-                Codes are usually eight characters, with or without a dash.
+                Eight characters. Paste the whole code into any box.
               </FieldDescription>
             </Field>
+            <p
+              role="alert"
+              className="-mt-2 min-h-4 text-destructive text-xs leading-4"
+            >
+              {error ?? ""}
+            </p>
 
             {isPending ? (
               <p className="text-muted-foreground text-sm">Loading session…</p>
             ) : session?.user ? (
-              <Button type="submit" disabled={verifying}>
+              <Button type="submit" size="sm" disabled={verifying}>
                 {verifying ? "Verifying…" : "Continue"}
               </Button>
             ) : (
