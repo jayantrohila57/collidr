@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@loftlancer/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import {
   type StatCardItem,
@@ -14,9 +15,10 @@ import { trpc } from "@/utils/trpc";
 
 export function UserSettingsStats() {
   const { data: session, isPending: sessionPending } = useSession();
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending, isError, refetch, isFetching } = useQuery({
     ...trpc.dashboard.getUserAccountStats.queryOptions(),
     enabled: Boolean(session?.user?.id),
+    retry: 1,
   });
 
   if (sessionPending || (isPending && Boolean(session?.user))) {
@@ -24,8 +26,22 @@ export function UserSettingsStats() {
   }
 
   if (isError) {
+    // Previously rendered skeletons forever, hiding the failure.
     return (
-      <StatCardRowSkeleton count={4} className="opacity-60" aria-label="Could not load stats" />
+      <div
+        role="alert"
+        className="flex items-center justify-between gap-3 rounded-lg border border-dashed p-4 text-muted-foreground text-sm"
+      >
+        <span>Could not load account stats.</span>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={isFetching}
+          onClick={() => void refetch()}
+        >
+          {isFetching ? "Retrying…" : "Retry"}
+        </Button>
+      </div>
     );
   }
 
