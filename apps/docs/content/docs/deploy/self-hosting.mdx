@@ -3,19 +3,17 @@ title: Self-hosting and deploy
 description: Vercel, Neon, feature flags, and monorepo build commands.
 ---
 
-Production deployments for this repository target **Vercel** (per app) and **Neon** PostgreSQL. The canonical runbook is [`docs/PRODUCTION_DEPLOY.md`](https://github.com/jayantrohila57/loftlancer/blob/main/docs/PRODUCTION_DEPLOY.md).
+Production runs as **one Vercel project** (path routing in `vercel.json`) and **Neon** PostgreSQL. The canonical runbook is [`docs/PRODUCTION_DEPLOY.md`](https://github.com/jayantrohila57/loftlancer/blob/main/docs/PRODUCTION_DEPLOY.md).
 
 ## Apps to deploy
 
 | App | Purpose |
 | --- | --- |
-| `apps/web` | Studio dashboard |
-| `apps/auth` | Authentication + MCP OAuth |
-| `apps/mcp` | MCP server |
-| `apps/docs` | Documentation (this site) |
-| `apps/www` | Marketing |
+| `apps/docs` | Landing, pricing and docs, served at `/` |
+| `apps/auth` | Authentication + OAuth, served at `/auth` |
+| `apps/studio` | Studio dashboard, served at `/studio` |
 
-Set platform URLs (`NEXT_PUBLIC_AUTH_URL`, `NEXT_PUBLIC_STUDIO_URL`, `NEXT_PUBLIC_DOCS_URL`, `NEXT_PUBLIC_WWW_URL`, `NEXT_PUBLIC_MCP_URL`) so CTAs and SSO redirects resolve correctly.
+Set platform URLs (`NEXT_PUBLIC_AUTH_URL`, `NEXT_PUBLIC_STUDIO_URL`, `NEXT_PUBLIC_DOCS_URL`, `NEXT_PUBLIC_MCP_URL`) so CTAs and SSO redirects resolve correctly.
 
 ## Database
 

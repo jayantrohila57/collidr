@@ -5,6 +5,8 @@ description: Named targets within a project (development, staging, production).
 
 An **environment** is a named slice inside a project (for example `development`, `staging`, `production`). Variables are stored per environment.
 
+Environments come from the **Environments** app (`env`). Install it on the project from `/studio/p/<slug>/apps`; the environments page is `/studio/p/<slug>/env`. Without the app, environment and variable actions are denied with `app_not_installed`.
+
 ## Actions
 
 - `environment.create`, `environment.read`, `environment.update`, `environment.delete`
