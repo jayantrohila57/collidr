@@ -68,10 +68,10 @@ export function Landing() {
           </li>
         ))}
         <li className="flex flex-col gap-0.5 px-3 py-2">
-          <span className="font-medium text-sm">Roles and MCP</span>
+          <span className="font-medium text-sm">Roles and permissions</span>
           <span className="text-muted-foreground text-xs">
-            Owner, manager and member roles enforced on every call, including AI
-            agents connected over MCP with OAuth.
+            Owner, manager and member roles, with per-project grants, checked on
+            every request.
           </span>
         </li>
       </ul>

@@ -17,7 +17,6 @@ const included = [
   "Owner, manager and member roles with per-project grants",
   "Encryption at rest for every variable",
   "Audit timeline and in-app notifications",
-  "MCP server with OAuth for AI agents",
 ];
 
 const faq = [
@@ -27,7 +26,7 @@ const faq = [
   },
   {
     q: "Are there usage limits?",
-    a: "No plan limits are enforced today. The MCP server applies rate limits to protect the service.",
+    a: "No plan limits are enforced today.",
   },
   {
     q: "Can I self-host?",
