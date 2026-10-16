@@ -2,8 +2,6 @@
 
 import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
 
-("use client");
-
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { invitationsEmpty } from "@/components/data-table/data-table-empty-presets";

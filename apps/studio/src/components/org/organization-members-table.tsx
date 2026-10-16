@@ -2,8 +2,6 @@
 
 import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
 
-("use client");
-
 import {
   type LegacyColumnDef,
   legacyCreateColumnHelper,

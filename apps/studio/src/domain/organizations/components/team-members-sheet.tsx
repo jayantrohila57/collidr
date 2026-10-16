@@ -2,8 +2,6 @@
 
 import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
 
-("use client");
-
 import { useCallback, useEffect, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";

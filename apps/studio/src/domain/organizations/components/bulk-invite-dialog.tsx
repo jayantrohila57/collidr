@@ -2,8 +2,6 @@
 
 import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
 
-("use client");
-
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
