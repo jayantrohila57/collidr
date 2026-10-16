@@ -7,6 +7,8 @@ import { requireAction } from "./require-action";
 type GuardCtx = {
   session: { user: { id: string } };
   activeOrganizationId?: string | null;
+  ipAddress?: string | null;
+  userAgent?: string | null;
 };
 
 export function actionGuard(
@@ -15,6 +17,7 @@ export function actionGuard(
     input: unknown,
     ctx: GuardCtx,
   ) => Partial<RequireActionContext> | Promise<Partial<RequireActionContext>>,
+  options?: { payload?: Record<string, unknown> },
 ) {
   return t.middleware(async (opts) => {
     const { ctx, next } = opts;
@@ -33,6 +36,9 @@ export function actionGuard(
     await requireAction(action, {
       userId: guardCtx.session.user.id,
       organizationId: guardCtx.activeOrganizationId ?? null,
+      ipAddress: guardCtx.ipAddress ?? null,
+      userAgent: guardCtx.userAgent ?? null,
+      payload: options?.payload,
       ...partial,
       // Only mutations are audited; queries are read-only permission checks.
       audit: opts.type === "mutation",

@@ -28,6 +28,6 @@ describe("notifications router action guards", () => {
     assert.match(markRead, /actionGuard\("notification\.mark_read"\)/);
 
     const markAllRead = procedureBlock("markAllRead", "syncInvitationReceived");
-    assert.match(markAllRead, /actionGuard\("notification\.mark_read"\)/);
+    assert.match(markAllRead, /actionGuard\(\s*"notification\.mark_read"/);
   });
 });

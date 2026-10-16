@@ -48,7 +48,7 @@ export default function PricingPage() {
       <section className="not-prose flex flex-col gap-3 rounded-xl bg-card p-4 text-card-foreground ring-1 ring-border/60">
         <div className="flex items-baseline justify-between gap-1.5">
           <div className="flex flex-col gap-0.5">
-            <h2 className="font-medium text-sm">Early access</h2>
+            <h2 className="mt-0! font-medium text-sm">Early access</h2>
             <p className="text-muted-foreground text-xs">
               Everything Loftlancer does today.
             </p>
