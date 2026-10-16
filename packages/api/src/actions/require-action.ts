@@ -32,17 +32,42 @@ export type RequireActionContext = {
   audit?: boolean;
 };
 
+/** Read/query actions never write audit events; only mutations are audited. */
+const READ_ACTION_RE =
+  /\.(list|view|read|get|stats|search)(\.(self|org|user))?$/;
+export function isReadAction(action: string): boolean {
+  return READ_ACTION_RE.test(action);
+}
+
 export async function requireAction(
   action: ActionName,
   ctx: RequireActionContext,
 ): Promise<void> {
-  const auditEnabled = isActionsAuditEnabled() && ctx.audit !== false;
+  const auditEnabled =
+    isActionsAuditEnabled() && ctx.audit !== false && !isReadAction(action);
   const startedAt = Date.now();
   const def = getActionDefinition(action);
   let result: "success" | "denied" | "failure" = "denied";
   let denialReason: string | undefined;
 
   try {
+    // Block check and membership lookup are independent: run them together.
+    const membershipPromise =
+      def.scope !== "user" && ctx.organizationId && !isPlatformAdmin()
+        ? db
+            .select({ role: member.role })
+            .from(member)
+            .where(
+              activeMemberWhere(
+                and(
+                  eq(member.organizationId, ctx.organizationId),
+                  eq(member.userId, ctx.userId),
+                ),
+              ),
+            )
+            .limit(1)
+        : null;
+    membershipPromise?.catch(() => undefined);
     if (
       await isActionBlocked(action, {
         userId: ctx.userId,
@@ -76,18 +101,7 @@ export async function requireAction(
       });
     }
 
-    const [membership] = await db
-      .select({ role: member.role })
-      .from(member)
-      .where(
-        activeMemberWhere(
-          and(
-            eq(member.organizationId, ctx.organizationId),
-            eq(member.userId, ctx.userId),
-          ),
-        ),
-      )
-      .limit(1);
+    const [membership] = (await membershipPromise) ?? [];
 
     const orgRole = normalizeOrgRole(membership?.role);
 
@@ -139,9 +153,7 @@ export async function requireAction(
     throw e;
   } finally {
     const skipDeniedSelfProbe =
-      result === "denied" &&
-      def.scope === "user" &&
-      def.selfOnly === true;
+      result === "denied" && def.scope === "user" && def.selfOnly === true;
     if (auditEnabled && !skipDeniedSelfProbe) {
       try {
         await writeAuditEvent({

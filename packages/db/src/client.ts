@@ -27,9 +27,11 @@ function createPool(): Pool {
     connectionString,
     max: env.NODE_ENV === "production" ? 5 : 10,
     min: 0,
-    idleTimeoutMillis: 5_000,
+    // Keep warm connections between requests on the same instance: a fresh
+    // TCP+TLS handshake per query was a large share of org-page latency.
+    idleTimeoutMillis: 60_000,
     connectionTimeoutMillis: 8_000,
-    maxLifetimeSeconds: 60,
+    maxLifetimeSeconds: 300,
     allowExitOnIdle: true,
     ssl:
       env.NODE_ENV === "production"

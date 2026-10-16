@@ -124,8 +124,6 @@ export function OrganizationMembersTable({
       empty={empty}
       framed
       compactLayout
-      searchable
-      searchPlaceholder="Search members…"
       enablePagination
       pageSize={10}
     />

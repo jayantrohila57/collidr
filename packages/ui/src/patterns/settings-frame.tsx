@@ -135,19 +135,27 @@ export function SettingsFrame({
       <div className="flex flex-wrap items-center gap-3">
         {avatar ? <SettingsAvatar src={avatar.src} name={avatar.name} /> : null}
         <div className="min-w-0 flex-1">
-          <h1 className="truncate font-semibold text-lg leading-tight">{title}</h1>
+          <h1 className="truncate font-semibold text-lg leading-tight">
+            {title}
+          </h1>
           {subtitle ? (
             <p className="truncate text-muted-foreground text-sm">{subtitle}</p>
           ) : null}
         </div>
-        {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+        {actions ? (
+          <div className="flex items-center gap-2">{actions}</div>
+        ) : null}
       </div>
-      {tabs?.length ? <SettingsTabs tabs={tabs} LinkComponent={LinkComponent} /> : null}
+      {tabs?.length ? (
+        <SettingsTabs tabs={tabs} LinkComponent={LinkComponent} />
+      ) : null}
       {top}
       {aside ? (
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]">
           <div className="min-w-0 space-y-8">{children}</div>
-          <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">{aside}</aside>
+          <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
+            {aside}
+          </aside>
         </div>
       ) : (
         <div className="min-w-0 space-y-8">{children}</div>
@@ -179,7 +187,9 @@ export function SettingsSection({
             <p className="text-muted-foreground text-sm">{description}</p>
           ) : null}
         </div>
-        {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+        {actions ? (
+          <div className="flex items-center gap-2">{actions}</div>
+        ) : null}
       </div>
       {bare ? (
         children
@@ -205,7 +215,9 @@ export function SettingsRow({
     <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-6">
       <div className="min-w-0 sm:w-55 sm:shrink-0">
         <div className="font-medium text-sm">{label}</div>
-        {helper ? <div className="text-muted-foreground text-xs">{helper}</div> : null}
+        {helper ? (
+          <div className="text-muted-foreground text-xs">{helper}</div>
+        ) : null}
       </div>
       <div className="min-w-0 flex-1">{children}</div>
     </div>
@@ -316,18 +328,33 @@ export function ActivityHeatmap({
     const date = new Date(t).toISOString().slice(0, 10);
     cells.push({ date, count: counts.get(date) ?? 0 });
   }
+  while (cells.length % 7 !== 0) cells.push(null);
   const weeks: (typeof cells)[] = [];
   for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
-  const months = Array.from({ length: 12 }, (_, m) =>
-    new Date(Date.UTC(year, m, 1)).toLocaleString("en", { month: "short", timeZone: "UTC" }),
-  );
+  // Month label sits above the first week column that contains the 1st of that month.
+  const monthLabels = weeks.map((week) => {
+    const first = week.find((c) => c && c.date.endsWith("-01"));
+    return first
+      ? new Date(`${first.date}T00:00:00Z`).toLocaleString("en", {
+          month: "short",
+          timeZone: "UTC",
+        })
+      : "";
+  });
 
   return (
     <div className="overflow-x-auto" data-testid="activity-heatmap">
-      <div className="inline-flex min-w-full flex-col gap-1.5">
-        <div className="grid grid-cols-12 pl-0 text-muted-foreground text-[10px]">
-          {months.map((m) => (
-            <span key={m}>{m}</span>
+      <div className="inline-flex flex-col gap-1.5">
+        <div
+          className="flex gap-0.75 text-muted-foreground text-[10px]"
+          aria-hidden
+        >
+          {monthLabels.map((m, wi) => (
+            <span key={wi} className="relative h-3 w-2.5 shrink-0">
+              {m ? (
+                <span className="absolute left-0 whitespace-nowrap">{m}</span>
+              ) : null}
+            </span>
           ))}
         </div>
         <div className="flex gap-0.75">
@@ -338,7 +365,10 @@ export function ActivityHeatmap({
                   <span
                     key={cell.date}
                     title={`${cell.count} event${cell.count === 1 ? "" : "s"} on ${cell.date}`}
-                    className={cn("size-2.5 rounded-[2px]", levelClass[level(cell.count, max)])}
+                    className={cn(
+                      "size-2.5 rounded-[2px]",
+                      levelClass[level(cell.count, max)],
+                    )}
                   />
                 ) : (
                   <span key={`e${di}`} className="size-2.5" />
@@ -359,7 +389,13 @@ export function ActivityHeatmap({
   );
 }
 
-export function StatChip({ label, value }: { label: string; value: ReactNode }) {
+export function StatChip({
+  label,
+  value,
+}: {
+  label: string;
+  value: ReactNode;
+}) {
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs">
       <span className="font-semibold tabular-nums">{value}</span>
