@@ -1,5 +1,6 @@
 "use client";
 
+import { cn, headerIconButtonClassName } from "@loftlancer/ui/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import type { User } from "better-auth";
 import { useRouter } from "next/navigation";
@@ -51,7 +52,7 @@ export function UserMenu() {
   if (!mounted || isPending) {
     return (
       <div
-        className="flex size-8 items-center justify-center rounded-full border bg-muted"
+        className="flex size-8 items-center justify-center rounded-md border border-border/60 bg-muted"
         aria-hidden
       >
         <Spinner className="size-4" />
@@ -76,7 +77,7 @@ export function UserMenu() {
           />
         }
       >
-        <Avatar className="size-8 bg-background">
+        <Avatar className="size-full rounded-none bg-background">
           <AvatarImage src={user.image || undefined} alt={user.name} />
           <AvatarFallback>
             {user.name?.charAt(0) || user.email?.charAt(0)}

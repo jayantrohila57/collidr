@@ -1,6 +1,7 @@
 "use client";
 
 import { CountBadge } from "@loftlancer/ui/patterns/count-badge";
+import { headerIconButtonClassName } from "@loftlancer/ui/utils";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -51,7 +52,7 @@ export function NotificationBell() {
             type="button"
             variant="outline"
             size="icon-sm"
-            className="relative size-8"
+            className={cn("relative", headerIconButtonClassName)}
             aria-label={
               unread > 0 ? `Notifications, ${unread} unread` : "Notifications"
             }
