@@ -1,5 +1,7 @@
 "use client";
 
+import type { Route } from "next";
+import Link from "next/link";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -47,12 +49,15 @@ function resolveIcon(icon: string): AppIconName {
  */
 export function NotificationListItem({
   item,
+  href,
   onClick,
   onMarkRead,
   compact = false,
   disabled = false,
 }: {
   item: NotificationListItemData;
+  /** Entity page; renders a real link (cmd-click opens a new tab). */
+  href?: string | null;
   onClick?: () => void;
   onMarkRead?: () => void;
   compact?: boolean;
@@ -88,34 +93,68 @@ export function NotificationListItem({
         )}
       </span>
 
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={disabled}
-        className="flex min-w-0 flex-1 flex-col gap-0.5 text-start outline-none before:absolute before:inset-0 before:rounded-md focus-visible:before:ring-2 focus-visible:before:ring-ring disabled:cursor-default"
-      >
-        <span
-          className={cn(
-            "truncate text-sm leading-5",
-            unread ? "font-medium" : "text-foreground/90",
-          )}
+      {href ? (
+        <Link
+          href={href as Route}
+          onClick={onClick}
+          className={
+            "flex min-w-0 flex-1 flex-col gap-0.5 text-start outline-none before:absolute before:inset-0 before:rounded-md focus-visible:before:ring-2 focus-visible:before:ring-ring disabled:cursor-default"
+          }
         >
-          {item.title}
-        </span>
-        <span className="flex min-w-0 items-center gap-1 text-muted-foreground text-xs leading-4">
-          {actor ? (
-            <>
-              <span className="max-w-[40%] shrink-0 truncate text-foreground/70">
-                {actor.name}
-              </span>
-              <span aria-hidden>·</span>
-            </>
-          ) : null}
-          <span className="min-w-0 truncate" title={item.body}>
-            {item.body}
+          <span
+            className={cn(
+              "truncate text-sm leading-5",
+              unread ? "font-medium" : "text-foreground/90",
+            )}
+          >
+            {item.title}
           </span>
-        </span>
-      </button>
+          <span className="flex min-w-0 items-center gap-1 text-muted-foreground text-xs leading-4">
+            {actor ? (
+              <>
+                <span className="max-w-[40%] shrink-0 truncate text-foreground/70">
+                  {actor.name}
+                </span>
+                <span aria-hidden>·</span>
+              </>
+            ) : null}
+            <span className="min-w-0 truncate" title={item.body}>
+              {item.body}
+            </span>
+          </span>
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={onClick}
+          disabled={disabled}
+          className={
+            "flex min-w-0 flex-1 flex-col gap-0.5 text-start outline-none before:absolute before:inset-0 before:rounded-md focus-visible:before:ring-2 focus-visible:before:ring-ring disabled:cursor-default"
+          }
+        >
+          <span
+            className={cn(
+              "truncate text-sm leading-5",
+              unread ? "font-medium" : "text-foreground/90",
+            )}
+          >
+            {item.title}
+          </span>
+          <span className="flex min-w-0 items-center gap-1 text-muted-foreground text-xs leading-4">
+            {actor ? (
+              <>
+                <span className="max-w-[40%] shrink-0 truncate text-foreground/70">
+                  {actor.name}
+                </span>
+                <span aria-hidden>·</span>
+              </>
+            ) : null}
+            <span className="min-w-0 truncate" title={item.body}>
+              {item.body}
+            </span>
+          </span>
+        </button>
+      )}
 
       {/* Fixed-width trailing slot: time + dot, or the mark-read action. */}
       <span className="relative flex h-5 w-16 shrink-0 items-center justify-end gap-1.5">

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Home, MoreHorizontal } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import React from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import {
@@ -128,7 +128,6 @@ function breadcrumbLabel(
 
 export function Breadcrumbs({ className }: { className?: string }) {
   const pathname = usePathname();
-  const router = useRouter();
   const breadcrumbs = generateBreadcrumbs(pathname);
   const { orgs } = useActiveOrganization();
   const { projects, status: projectsStatus } = useProjects();
@@ -180,10 +179,6 @@ export function Breadcrumbs({ className }: { className?: string }) {
       ? "Ticket"
       : undefined;
 
-  const handleBreadcrumbClick = (href: string) => {
-    router.push(href as Route);
-  };
-
   const collapseMiddle = breadcrumbs.length > 4;
   const visibleIndices = collapseMiddle
     ? [0, breadcrumbs.length - 2, breadcrumbs.length - 1]
@@ -234,7 +229,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
                       {mobileMenuItems.map((crumb, index) => (
                         <MenuItem
                           key={crumb.href}
-                          onClick={() => handleBreadcrumbClick(crumb.href)}
+                          render={<Link href={crumb.href as Route} />}
                         >
                           {breadcrumbLabel(
                             crumb,

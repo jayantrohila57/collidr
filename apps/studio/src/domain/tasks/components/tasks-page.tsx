@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { Route } from "next";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDeferredValue, useMemo, useState } from "react";
 import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
@@ -254,7 +255,23 @@ export function TasksPage({ slug }: { slug: string }) {
                         </TableCell>
                         <TableCell className="max-w-0">
                           <div className="flex min-w-0 items-center gap-1.5">
-                            <span className="truncate">{t.title}</span>
+                            <Link
+                              href={
+                                `/p/${slug}/tasks?task=${t.number}` as Route
+                              }
+                              className="truncate hover:underline"
+                              onClick={(e) => {
+                                // Plain click opens the sheet in place; modifier
+                                // clicks fall through to the browser (new tab).
+                                if (e.metaKey || e.ctrlKey || e.shiftKey) {
+                                  e.stopPropagation();
+                                  return;
+                                }
+                                e.preventDefault();
+                              }}
+                            >
+                              {t.title}
+                            </Link>
                             {t.labels.slice(0, 2).map((l) => (
                               <Badge
                                 key={l}
