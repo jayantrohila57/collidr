@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
+import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { ErrorState } from "@/components/patterns/error-state";
 import {
   SettingsField,
@@ -177,7 +178,6 @@ export function AccountSettingsClient({
     }
   }, [forcedSection, activeTab, loadSessions]);
 
-  const [deleteConfirm, setDeleteConfirm] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const softDeleteMutation = useMutation(
@@ -697,7 +697,6 @@ export function AccountSettingsClient({
                         !canDeleteAccount || softDeleteMutation.isPending
                       }
                       onClick={() => {
-                        setDeleteConfirm("");
                         setDeleteOpen(true);
                       }}
                     >
@@ -799,54 +798,19 @@ export function AccountSettingsClient({
             </AlertDialogPopup>
           </AlertDialog>
 
-          <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-            <AlertDialogPopup>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete account</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Type <strong>{deletePhrase}</strong> to confirm. Your profile
-                  will be anonymized and all sessions revoked.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <Input
-                value={deleteConfirm}
-                onChange={(e) => setDeleteConfirm(e.target.value)}
-                placeholder={deletePhrase}
-                aria-label="Confirm email"
-                autoComplete="off"
-              />
-              <AlertDialogFooter>
-                <AlertDialogClose
-                  render={
-                    <Button
-                      variant="ghost"
-                      disabled={softDeleteMutation.isPending}
-                    />
-                  }
-                >
-                  Cancel
-                </AlertDialogClose>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  disabled={
-                    softDeleteMutation.isPending ||
-                    deleteConfirm !== deletePhrase
-                  }
-                  onClick={() => softDeleteMutation.mutate()}
-                >
-                  {softDeleteMutation.isPending ? (
-                    <>
-                      <Spinner className="me-2" />
-                      Deleting…
-                    </>
-                  ) : (
-                    "Delete account"
-                  )}
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogPopup>
-          </AlertDialog>
+          <ConfirmDialog
+            open={deleteOpen}
+            onOpenChange={setDeleteOpen}
+            title="Delete account"
+            description="Your profile will be anonymized and all sessions revoked."
+            confirmLabel="Delete account"
+            confirmText={deletePhrase}
+            variant="destructive"
+            onConfirm={async () => {
+              await softDeleteMutation.mutateAsync();
+            }}
+            isPending={softDeleteMutation.isPending}
+          />
         </>
       )}
     </UnsavedChangesPageGuard>
