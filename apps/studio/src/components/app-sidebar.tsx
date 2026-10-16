@@ -42,6 +42,7 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { useUserMenuProps } from "@/domain/auth/components/user-menu";
 import { performSignOut, useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationsUnreadCount } from "@/domain/notifications/hooks/use-notifications";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
@@ -73,6 +74,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: session } = useSession();
+  const { ready: _userMenuReady, ...userMenuProps } = useUserMenuProps();
   const settingsLinks = [
     { label: "Account settings", href: accountSettingsHref },
     { label: "Notifications", href: "/dashboard/notifications" },
@@ -291,19 +293,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter className="mt-auto shrink-0 border-sidebar-border border-t bg-sidebar">
-        <SidebarUserMenu
-          user={session?.user ?? null}
-          accountHref={accountSettingsHref}
-          organizationSettingsHref={
-            showOrgSwitcher && nav.organizationSlug
-              ? withBasePath(
-                  `/dashboard/organizations/${nav.organizationSlug}/settings`,
-                )
-              : null
-          }
-          docsHref={docsSiteUrl()}
-          onSignOut={() => performSignOut({ queryClient, router })}
-        />
+        <SidebarUserMenu {...userMenuProps} />
       </SidebarFooter>
 
       <SidebarRail />

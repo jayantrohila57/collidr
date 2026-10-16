@@ -42,6 +42,7 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { useUserMenuProps } from "@/domain/auth/components/user-menu";
 import { performSignOut, useSession } from "@/domain/auth/lib/auth-actions";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
@@ -117,6 +118,7 @@ export function AccountSettingsSidebar({
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: session } = useSession();
+  const { ready: _userMenuReady, ...userMenuProps } = useUserMenuProps();
   const nav = useSidebarNavigator({
     projectHref,
     envHref,
@@ -214,19 +216,7 @@ export function AccountSettingsSidebar({
       </SidebarContent>
 
       <SidebarFooter className="mt-auto shrink-0 border-sidebar-border border-t bg-sidebar">
-        <SidebarUserMenu
-          user={session?.user ?? null}
-          accountHref={withBasePath("/settings/profile")}
-          organizationSettingsHref={
-            isOrganizationsEnabledOnClient() && nav.organizationSlug
-              ? studioDashboardPath(
-                  `/dashboard/organizations/${nav.organizationSlug}/settings`,
-                )
-              : null
-          }
-          docsHref={docsSiteUrl()}
-          onSignOut={() => performSignOut({ queryClient, router })}
-        />
+        <SidebarUserMenu {...userMenuProps} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
