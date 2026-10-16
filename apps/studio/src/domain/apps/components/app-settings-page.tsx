@@ -10,6 +10,7 @@ import DashboardSection from "@/components/section-dashboard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useProjectTabs } from "@/domain/projects/hooks/use-project-tabs";
 import { FieldSelect } from "@/domain/tasks/components/field-select";
 import { actionToast } from "@/lib/action-toast";
 import { LayoutGrid } from "@/lib/icons";
@@ -38,6 +39,7 @@ export function AppSettingsPage({
     uninstall,
     isMutating,
   } = useProjectApps(slug);
+  const projectTabs = useProjectTabs(slug);
   const app = apps.find((a) => a.id === appId);
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [uninstallOpen, setUninstallOpen] = useState(false);
@@ -56,7 +58,7 @@ export function AppSettingsPage({
 
   if (isLoading) {
     return (
-      <DashboardSection title="App settings" back={back}>
+      <DashboardSection {...projectTabs} title="App settings" back={back}>
         <div className="flex flex-col gap-4" role="status" aria-busy="true">
           <Skeleton className="h-32 rounded-xl" />
           <Skeleton className="h-40 rounded-xl" />
@@ -66,7 +68,7 @@ export function AppSettingsPage({
   }
   if (!app || app.status !== "active") {
     return (
-      <DashboardSection title={app?.name ?? "App"} back={back}>
+      <DashboardSection {...projectTabs} title={app?.name ?? "App"} back={back}>
         <EmptyState
           icon={LayoutGrid}
           title={app ? `${app.name} isn't installed` : "Unknown app"}
@@ -95,6 +97,7 @@ export function AppSettingsPage({
 
   return (
     <DashboardSection
+      {...projectTabs}
       title={`${app.name} settings`}
       description={
         project ? `Configure ${app.name} for ${project.name}.` : undefined

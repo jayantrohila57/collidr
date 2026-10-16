@@ -7,7 +7,6 @@ import { LoadingButton } from "@/components/patterns/loading-button";
 import DashboardSection from "@/components/section-dashboard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import { accountSettingsUrl } from "@/lib/account-url";
 import { appIcons } from "@/lib/icons";
 import { cn } from "@/lib/utils";
@@ -102,6 +101,26 @@ export function NotificationsPageClient() {
       title="Notifications"
       description="Updates about invitations, your organization, and workspace activity."
       back="/dashboard"
+      activeTab={tab}
+      onTabChange={(value) => setTab(value as "all" | "unread")}
+      tabs={[
+        { value: "all", label: "All" },
+        {
+          value: "unread",
+          label: (
+            <>
+              Unread
+              <span className="min-w-[3ch] rounded-full border px-1.5 text-center text-[10px] tabular-nums">
+                {unreadQuery.data
+                  ? unreadCount > 99
+                    ? "99+"
+                    : unreadCount
+                  : "—"}
+              </span>
+            </>
+          ),
+        },
+      ]}
       action={
         // Always rendered (disabled at 0) so the header never reflows.
         <LoadingButton
@@ -120,28 +139,9 @@ export function NotificationsPageClient() {
         </LoadingButton>
       }
     >
-      <Tabs
-        value={tab}
-        onValueChange={(value) => setTab(value as "all" | "unread")}
-      >
-        <TabsList variant="underline" size="sm" className="h-auto w-fit">
-          <TabsTab value="all">All</TabsTab>
-          <TabsTab value="unread" className="gap-1.5">
-            Unread
-            <span className="min-w-[3ch] rounded-full border px-1.5 text-center text-[10px] tabular-nums">
-              {unreadQuery.data
-                ? unreadCount > 99
-                  ? "99+"
-                  : unreadCount
-                : "—"}
-            </span>
-          </TabsTab>
-        </TabsList>
-      </Tabs>
-
       <div
         className={cn(
-          "relative mt-4 rounded-xl border border-border/60",
+          "relative rounded-xl border border-border/60",
           LIST_MIN_H,
         )}
         aria-busy={firstLoad || refetching || undefined}

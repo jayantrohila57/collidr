@@ -2,19 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
+import { DataTable } from "@/components/data-table/data-table";
+import { DataTableActionsColumnHeader } from "@/components/data-table/data-table-actions-column";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { EmptyState } from "@/components/patterns/empty-state";
 import { FormField } from "@/components/patterns/form-field";
 import { GuardedDialog } from "@/components/patterns/guarded-dialog";
-import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardPanel,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   DialogContent,
   DialogFooter,
@@ -22,14 +16,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Can } from "@/domain/permissions/components/can";
 import { isTeamCreateFormDirty } from "@/lib/form-dirty";
 import { appIcons } from "@/lib/icons";
@@ -119,75 +105,77 @@ export function OrganizationTeamsPage({ slug }: { slug: string }) {
         ) : undefined
       }
     >
-      {orgStatus === "loading" || !organization ? (
-        <SettingsPanelSkeleton rows={3} />
-      ) : teamsQuery.isLoading ? (
-        <SettingsPanelSkeleton rows={2} />
-      ) : teams.length > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Teams</CardTitle>
-            <CardDescription>
-              Rename teams, manage members, and link teams to projects for
-              access.
-            </CardDescription>
-          </CardHeader>
-          <CardPanel className="px-0 pb-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {teams.map((team) => (
-                  <TableRow key={team.id}>
-                    <TableCell className="font-medium">{team.name}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setMembersTeam(team)}
-                        >
-                          Members
-                        </Button>
-                        <Can action="team.update">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setRenameTeam(team);
-                              setRenameValue(team.name);
-                            }}
-                          >
-                            Rename
-                          </Button>
-                        </Can>
-                        <Can action="team.delete">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            disabled={deleteMutation.isPending}
-                            onClick={() =>
-                              deleteMutation.mutate({ teamId: team.id })
-                            }
-                          >
-                            Delete
-                          </Button>
-                        </Can>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardPanel>
-        </Card>
+      {orgStatus === "loading" ||
+      !organization ||
+      teamsQuery.isLoading ||
+      teams.length > 0 ? (
+        <DataTable
+          framed
+          searchable
+          enablePagination
+          pageSize={20}
+          searchPlaceholder="Search teams…"
+          isLoading={
+            orgStatus === "loading" || !organization || teamsQuery.isLoading
+          }
+          isError={teamsQuery.isError}
+          skeletonRowCount={3}
+          data={teams}
+          columns={[
+            {
+              accessorKey: "name",
+              header: "Name",
+              cell: ({ row }) => (
+                <span className="font-medium">{row.original.name}</span>
+              ),
+            },
+            {
+              id: "actions",
+              header: () => <DataTableActionsColumnHeader />,
+              cell: ({ row }) => {
+                const team = row.original;
+                return (
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setMembersTeam(team)}
+                    >
+                      Members
+                    </Button>
+                    <Can action="team.update">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setRenameTeam(team);
+                          setRenameValue(team.name);
+                        }}
+                      >
+                        Rename
+                      </Button>
+                    </Can>
+                    <Can action="team.delete">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled={deleteMutation.isPending}
+                        onClick={() =>
+                          deleteMutation.mutate({ teamId: team.id })
+                        }
+                      >
+                        Delete
+                      </Button>
+                    </Can>
+                  </div>
+                );
+              },
+            },
+          ]}
+        />
       ) : (
         <EmptyState
           icon={appIcons.member}

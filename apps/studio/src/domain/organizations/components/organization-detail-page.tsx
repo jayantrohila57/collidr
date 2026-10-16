@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import { deSlug } from "@/lib/utils";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
+import { useOrganizationTabs } from "../hooks/use-organization-tabs";
 import { OrganizationDetailStats } from "./organization-detail-stats";
 import {
   OrganizationOverviewSections,
@@ -19,6 +20,7 @@ import {
 export default function OrganizationDetailPage({ slug }: { slug: string }) {
   const { organization, listItem, status, error, reload } =
     useOrganizationBySlug(slug);
+  const orgTabs = useOrganizationTabs(slug);
 
   if (status === "not-found") {
     notFound();
@@ -50,9 +52,10 @@ export default function OrganizationDetailPage({ slug }: { slug: string }) {
           : "Team workspace overview and administration."
       }
       back="/dashboard/organizations"
-      metadata={
+      {...orgTabs}
+      meta={
         status === "loading" ? (
-          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-3 w-40" />
         ) : (
           <p className="font-mono text-muted-foreground text-xs">
             {organization?.slug ?? slug}

@@ -5,7 +5,11 @@ import {
   pageHeaderMetadataFieldClassName,
 } from "./page-header-metadata-styles";
 
-export function PageHeaderMetadataSkeleton({ rows = 2 }: { rows?: number }) {
+export function PageHeaderMetadataSkeleton({
+  rows = 2,
+}: {
+  rows?: number;
+} = {}) {
   return (
     <dl
       data-slot="page-header-metadata"

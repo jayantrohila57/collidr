@@ -11,6 +11,7 @@ import {
   TooltipTrigger,
 } from "../components/ui/tooltip";
 import { cn } from "../lib/utils";
+import { SearchableCombobox } from "./searchable-combobox";
 import { SettingsAvatar } from "./settings-frame";
 
 /**
@@ -120,7 +121,9 @@ export function auditRowToActivityItem(
   }
 
   const result: ActivityResult =
-    row.result === "failure" || row.result === "denied" ? row.result : "success";
+    row.result === "failure" || row.result === "denied"
+      ? row.result
+      : "success";
   const detail =
     result === "failure"
       ? `Failed${row.errorCode ? `: ${row.errorCode}` : ""}`
@@ -153,7 +156,11 @@ export function formatRelative(date: Date, now = Date.now()) {
   if (abs < 3600) return rtf.format(Math.round(diff / 60), "minute");
   if (abs < 86_400) return rtf.format(Math.round(diff / 3600), "hour");
   if (abs < 86_400 * 30) return rtf.format(Math.round(diff / 86_400), "day");
-  return date.toLocaleDateString("en", { month: "short", day: "numeric", year: "numeric" });
+  return date.toLocaleDateString("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function dayKey(d: Date) {
@@ -192,10 +199,20 @@ const resultVariant = {
   denied: "warning",
 } as const;
 
-type LinkLike = ComponentType<{ href: string; className?: string; children: ReactNode }>;
+type LinkLike = ComponentType<{
+  href: string;
+  className?: string;
+  children: ReactNode;
+}>;
 
 /** Mirrors ActivityRow 1:1 (avatar, sentence line, meta line, connector). */
-function ActivityRowSkeleton({ isLast, width }: { isLast: boolean; width: string }) {
+function ActivityRowSkeleton({
+  isLast,
+  width,
+}: {
+  isLast: boolean;
+  width: string;
+}) {
   return (
     <li className="relative flex gap-3 pb-6 last:pb-0" aria-hidden>
       {!isLast ? (
@@ -225,11 +242,21 @@ function ActivityRow({
   const L = LinkComponent;
   const target = item.target;
   return (
-    <li className="relative flex gap-3 pb-6 last:pb-0" data-testid="activity-row">
+    <li
+      className="relative flex gap-3 pb-6 last:pb-0"
+      data-testid="activity-row"
+    >
       {!isLast ? (
-        <span aria-hidden className="absolute top-8 bottom-0 left-[0.9375rem] w-px bg-border" />
+        <span
+          aria-hidden
+          className="absolute top-8 bottom-0 left-[0.9375rem] w-px bg-border"
+        />
       ) : null}
-      <SettingsAvatar src={item.actor.image} name={item.actor.name} className="z-10 size-8 text-xs ring-4 ring-background" />
+      <SettingsAvatar
+        src={item.actor.image}
+        name={item.actor.name}
+        className="z-10 size-8 text-xs ring-4 ring-background"
+      />
       <div className="min-w-0 flex-1 space-y-1 pt-1">
         <p className="text-sm leading-snug">
           <span className="font-medium">{item.actor.name}</span>{" "}
@@ -239,11 +266,17 @@ function ActivityRow({
               {" "}
               {target.href ? (
                 L ? (
-                  <L href={target.href} className="font-medium underline underline-offset-4 hover:text-primary">
+                  <L
+                    href={target.href}
+                    className="font-medium underline underline-offset-4 hover:text-primary"
+                  >
                     {target.label}
                   </L>
                 ) : (
-                  <a href={target.href} className="font-medium underline underline-offset-4 hover:text-primary">
+                  <a
+                    href={target.href}
+                    className="font-medium underline underline-offset-4 hover:text-primary"
+                  >
                     {target.label}
                   </a>
                 )
@@ -254,24 +287,40 @@ function ActivityRow({
           ) : null}
         </p>
         {item.detail ? (
-          <p className="truncate text-muted-foreground text-xs">{item.detail}</p>
+          <p className="truncate text-muted-foreground text-xs">
+            {item.detail}
+          </p>
         ) : null}
         <div className="flex flex-wrap items-center gap-1.5 pt-0.5 text-muted-foreground text-xs">
           <Tooltip>
             <TooltipTrigger
-              render={<time dateTime={date.toISOString()} suppressHydrationWarning className="cursor-default" />}
+              render={
+                <time
+                  dateTime={date.toISOString()}
+                  suppressHydrationWarning
+                  className="cursor-default"
+                />
+              }
             >
               {formatRelative(date)}
             </TooltipTrigger>
             <TooltipContent>
-              {date.toLocaleString("en", { dateStyle: "medium", timeStyle: "medium" })}
+              {date.toLocaleString("en", {
+                dateStyle: "medium",
+                timeStyle: "medium",
+              })}
             </TooltipContent>
           </Tooltip>
           <Badge variant="outline" size="sm" className="gap-1 capitalize">
             <span aria-hidden className="size-1.5 rounded-full bg-primary/70" />
             {item.category}
           </Badge>
-          <Badge variant={resultVariant[item.result]} size="sm" className="capitalize" data-testid="activity-result">
+          <Badge
+            variant={resultVariant[item.result]}
+            size="sm"
+            className="capitalize"
+            data-testid="activity-result"
+          >
             {item.result}
           </Badge>
         </div>
@@ -282,8 +331,13 @@ function ActivityRow({
 
 export type ActivityFilterOption = { value: string; label: string };
 
-const selectClass =
-  "h-8 rounded-md border border-input bg-background px-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring";
+const ALL = "__all";
+const RESULT_OPTIONS = [
+  { value: ALL, label: "All results" },
+  { value: "success", label: "Success" },
+  { value: "failure", label: "Failure" },
+  { value: "denied", label: "Denied" },
+];
 
 export function ActivityTimeline({
   title,
@@ -323,41 +377,40 @@ export function ActivityTimeline({
   const groups = groupByDay(items);
   return (
     <TooltipProvider delay={150}>
-      <section className={cn("w-full min-w-0 space-y-4", className)} data-testid="activity-timeline">
+      <section
+        className={cn("w-full min-w-0 space-y-4", className)}
+        data-testid="activity-timeline"
+      >
         <div className="flex flex-wrap items-end justify-between gap-3">
           {title ? (
             <div className="space-y-0.5">
               <h2 className="font-semibold text-base">{title}</h2>
-              {description ? <p className="text-muted-foreground text-sm">{description}</p> : null}
+              {description ? (
+                <p className="text-muted-foreground text-sm">{description}</p>
+              ) : null}
             </div>
           ) : (
             <span />
           )}
           <div className="flex flex-wrap items-center gap-2">
-            <select
-              aria-label="Filter by action"
-              className={selectClass}
-              value={action}
-              onChange={(e) => onActionChange(e.target.value)}
-            >
-              <option value="">All actions</option>
-              {actionOptions.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-            <select
-              aria-label="Filter by result"
-              className={selectClass}
-              value={result}
-              onChange={(e) => onResultChange(e.target.value as ActivityResult | "")}
-            >
-              <option value="">All results</option>
-              <option value="success">Success</option>
-              <option value="failure">Failure</option>
-              <option value="denied">Denied</option>
-            </select>
+            <SearchableCombobox
+              ariaLabel="Filter by action"
+              className="w-44"
+              value={action || ALL}
+              onChange={(v) => onActionChange(v === ALL ? "" : v)}
+              searchPlaceholder="Search actions…"
+              options={[{ value: ALL, label: "All actions" }, ...actionOptions]}
+            />
+            <SearchableCombobox
+              ariaLabel="Filter by result"
+              className="w-36"
+              value={result || ALL}
+              onChange={(v) =>
+                onResultChange(v === ALL ? "" : (v as ActivityResult))
+              }
+              searchPlaceholder="Search results…"
+              options={RESULT_OPTIONS}
+            />
             {toolbar}
           </div>
         </div>
@@ -368,7 +421,11 @@ export function ActivityTimeline({
             <Skeleton className="h-3 w-20 motion-reduce:animate-none" />
             <ol className="relative">
               {SKELETON_WIDTHS.map((w, i) => (
-                <ActivityRowSkeleton key={w + String(i)} width={w} isLast={i === SKELETON_WIDTHS.length - 1} />
+                <ActivityRowSkeleton
+                  key={w + String(i)}
+                  width={w}
+                  isLast={i === SKELETON_WIDTHS.length - 1}
+                />
               ))}
             </ol>
           </div>
@@ -384,7 +441,10 @@ export function ActivityTimeline({
           >
             {groups.map((g) => (
               <div key={g.key} className="space-y-3">
-                <h3 className="font-medium text-muted-foreground text-xs uppercase tracking-wide" suppressHydrationWarning>
+                <h3
+                  className="font-medium text-muted-foreground text-xs uppercase tracking-wide"
+                  suppressHydrationWarning
+                >
                   {g.label}
                 </h3>
                 <ol className="relative">
@@ -401,7 +461,12 @@ export function ActivityTimeline({
             ))}
             {hasMore ? (
               <div className="flex justify-center">
-                <Button variant="outline" size="sm" onClick={onLoadMore} loading={loadingMore}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onLoadMore}
+                  loading={loadingMore}
+                >
                   Load more
                 </Button>
               </div>

@@ -5,12 +5,13 @@ import { PageStack } from "@/components/layout/app-layout";
 import {
   PageHeader,
   type PageHeaderBackProp,
+  type PageHeaderTabsProps,
 } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { layoutDashboardPageStackClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 
-interface SectionProps {
+interface SectionProps extends PageHeaderTabsProps {
   title?: string;
   description?: string;
   titleAccessory?: ReactNode;
@@ -20,8 +21,9 @@ interface SectionProps {
   /** @deprecated use actionLabel */
   actionUrl?: string;
   children: React.ReactNode;
-  /** Rendered directly under the page header (e.g. slug / updated row). */
+  /** Meta row under the title (badges, links, key/value). */
   metadata?: ReactNode;
+  meta?: ReactNode;
   /** Rendered under metadata (e.g. stat cards). */
   stats?: ReactNode;
   /** `auto` is route-aware (no back on dashboard list routes); `false` hides; string sets parent href */
@@ -38,8 +40,13 @@ export default function DashboardSection({
   actionUrl,
   children,
   metadata,
+  meta,
   stats,
   back = "auto",
+  tabs,
+  activeTab,
+  onTabChange,
+  tabsEnd,
 }: SectionProps) {
   const resolvedActionHref = actionHref ?? actionUrl;
   const trailingAction =
@@ -48,6 +55,7 @@ export default function DashboardSection({
       <Button
         variant="default"
         size="sm"
+        className="h-8"
         render={<Link href={resolvedActionHref as Route} />}
       >
         {actionLabel}
@@ -62,8 +70,12 @@ export default function DashboardSection({
           titleAccessory={titleAccessory}
           description={description}
           action={trailingAction}
-          metadata={metadata}
+          meta={meta ?? metadata}
           back={back}
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={onTabChange}
+          tabsEnd={tabsEnd}
         />
       ) : null}
       {stats ? <div className="min-w-0">{stats}</div> : null}
