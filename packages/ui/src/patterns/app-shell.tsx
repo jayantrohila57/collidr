@@ -44,3 +44,28 @@ export function AppShell({
     </SidebarProvider>
   );
 }
+
+/**
+ * Public (unguarded) mode of the same shell for static pages such as legal:
+ * no session on the server, no prefetch. Pass a `PublicSidebar`.
+ */
+export function PublicAppShell({
+  sidebar,
+  title,
+  children,
+}: {
+  sidebar: ReactNode;
+  title?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <AppShell
+      sidebar={sidebar}
+      breadcrumbs={
+        title ? <span className="truncate text-sm">{title}</span> : null
+      }
+    >
+      {children}
+    </AppShell>
+  );
+}

@@ -1,11 +1,9 @@
-import { buildSignInUrl } from "@loftlancer/ui/auth-links";
-import { marketingContainerClass } from "@loftlancer/ui/layout-spacing";
-import { MarketingPageShell } from "@loftlancer/ui/marketing";
-import { cn } from "@loftlancer/ui/utils";
 import type { ReactNode } from "react";
 
-import { ModeToggle } from "@/components/mode-toggle";
-
+/**
+ * Page title + prose body. The surrounding chrome comes from the route-group
+ * layout: auth-5 split for (split) pages, the public app-shell for (legal).
+ */
 export function MarketingPage({
   title,
   description,
@@ -15,23 +13,19 @@ export function MarketingPage({
   description?: string;
   children: ReactNode;
 }) {
-  const signInHref = buildSignInUrl();
-
   return (
-    <MarketingPageShell signInHref={signInHref} headerActions={<ModeToggle />}>
-      <div className={cn(marketingContainerClass, "py-12 md:py-16")}>
-        <header className="mx-auto max-w-3xl">
-          <h1 className="font-semibold text-3xl tracking-tight md:text-4xl">
-            {title}
-          </h1>
-          {description ? (
-            <p className="mt-4 text-lg text-muted-foreground">{description}</p>
-          ) : null}
-        </header>
-        <div className="mx-auto mt-10 max-w-3xl space-y-4 text-muted-foreground [&_a]:text-primary [&_a]:underline [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_h2]:mt-8 [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:text-xl [&_p]:leading-relaxed">
-          {children}
-        </div>
+    <div className="mx-auto w-full max-w-3xl px-4 py-8 md:px-6">
+      <header>
+        <h1 className="text-balance font-semibold text-2xl tracking-tight sm:text-3xl">
+          {title}
+        </h1>
+        {description ? (
+          <p className="mt-2 text-muted-foreground text-sm">{description}</p>
+        ) : null}
+      </header>
+      <div className="mt-8 space-y-4 text-foreground/90 text-sm leading-relaxed [&_a]:text-primary [&_a]:underline [&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_h2]:mt-10 [&_h2]:font-medium [&_h2]:text-foreground [&_h2]:text-xl [&_h2]:tracking-tight [&_p]:leading-relaxed">
+        {children}
       </div>
-    </MarketingPageShell>
+    </div>
   );
 }
