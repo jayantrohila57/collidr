@@ -36,7 +36,7 @@ export function CreateTaskSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
-  people: { value: string; label: string }[];
+  people: { value: string; label: string; hint?: string }[];
   onCreated: (number: number) => void;
   defaults?: { status: TaskStatus; priority: TaskPriority };
 }) {

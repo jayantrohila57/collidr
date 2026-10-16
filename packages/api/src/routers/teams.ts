@@ -7,6 +7,7 @@ import {
   mcpTeamRestore,
   mcpTeamsList,
   mcpTeamUpdate,
+  teamMembersList,
 } from "../mcp/organization-ops";
 
 export const teamsRouter = router({
@@ -17,6 +18,17 @@ export const teamsRouter = router({
     }
     return mcpTeamsList(ctx.session.user.id, organizationId);
   }),
+
+  members: orgProcedure
+    .input(z.object({ teamId: z.string().min(1) }))
+    .use(actionGuard("member.list"))
+    .query(async ({ ctx, input }) => {
+      const organizationId = ctx.activeOrganizationId;
+      if (!organizationId) {
+        return { items: [] };
+      }
+      return teamMembersList(ctx.session.user.id, organizationId, input.teamId);
+    }),
 
   create: orgProcedure
     .input(z.object({ name: z.string().min(1) }))

@@ -14,7 +14,7 @@ export function FieldSelect({
 }: {
   value: string;
   onChange: (v: string) => void;
-  options: readonly { value: string; label: string }[];
+  options: readonly { value: string; label: string; hint?: string }[];
   placeholder?: string;
   ariaLabel: string;
   className?: string;

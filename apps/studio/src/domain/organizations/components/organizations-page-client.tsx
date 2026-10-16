@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { PageHeaderActionButton } from "@/components/layout/app-layout";
@@ -22,10 +23,17 @@ export function OrganizationsPageClient() {
 
   const closeCreate = useCallback(() => {
     setCreateOpen(false);
-    if (searchParams.get("create") === "1") {
-      router.replace("/dashboard/organizations");
+    // Read the live URL (not a possibly stale searchParams snapshot) so
+    // Cancel, Esc and backdrop clicks always drop ?create=1.
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("create")) {
+      params.delete("create");
+      const qs = params.toString();
+      router.replace(`/dashboard/organizations${qs ? `?${qs}` : ""}` as Route, {
+        scroll: false,
+      });
     }
-  }, [router, searchParams]);
+  }, [router]);
 
   const openCreate = useCallback(() => {
     setCreateOpen(true);

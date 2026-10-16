@@ -121,6 +121,7 @@ export function TasksPage({ slug }: { slug: string }) {
   const peopleOptions = (people.data ?? []).map((p) => ({
     value: p.id,
     label: p.name || p.email,
+    hint: p.name ? p.email : undefined,
   }));
   const resetPage =
     <T,>(fn: (v: T) => void) =>

@@ -17,4 +17,4 @@ export function deSlug(value: string): string {
  * square with the same radius and soft border everywhere (ReUI dense rules).
  */
 export const headerIconButtonClassName =
-  "size-8 shrink-0 rounded-md border-border/60 shadow-none before:rounded-[calc(var(--radius-md)-1px)] [&_svg:not([class*='size-'])]:size-4";
+  "size-8 sm:size-8 shrink-0 rounded-md border-border/60 shadow-none before:rounded-[calc(var(--radius-md)-1px)] [&_svg:not([class*='size-'])]:size-4";
