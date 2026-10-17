@@ -16,11 +16,17 @@ import { DiscardChangesDialog } from "@loftlancer/ui/patterns/discard-changes-di
 import { PageHeaderActionsPortal } from "@loftlancer/ui/patterns/page-header";
 import { SettingsPanelSkeleton } from "@loftlancer/ui/patterns/settings-panel-skeleton";
 import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
-import { SheetClose, SheetDescription } from "@loftlancer/ui/sheet";
+import { SheetDescription } from "@loftlancer/ui/sheet";
 import { Spinner } from "@loftlancer/ui/spinner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   invitationsEmpty,
   membersTableEmpty,
@@ -40,6 +46,7 @@ import {
   FormSheetHeader,
   FormSheetPopup,
 } from "@/components/patterns/form-sheet";
+import { useFormSheetRequestClose } from "@/components/patterns/form-sheet-guard-context";
 import {
   SettingsPanel,
   SettingsRow,
@@ -90,6 +97,40 @@ const ROLE_SELECT_ITEMS = ROLES.map((role) => ({
   label: role,
 }));
 
+function EditOrganizationSheetCancelButton({
+  disabled,
+}: {
+  disabled: boolean;
+}) {
+  const requestClose = useFormSheetRequestClose();
+  return (
+    <Button
+      variant="ghost"
+      type="button"
+      disabled={disabled}
+      onClick={requestClose}
+    >
+      Cancel
+    </Button>
+  );
+}
+
+function EditOrganizationFormSheetPopup({ children }: { children: ReactNode }) {
+  const requestClose = useFormSheetRequestClose();
+  return (
+    <FormSheetPopup
+      closeProps={{
+        onClick: (event) => {
+          event.preventDefault();
+          requestClose();
+        },
+      }}
+    >
+      {children}
+    </FormSheetPopup>
+  );
+}
+
 const ORG_TABS = ["general", "members", "danger"] as const;
 type OrgTab = (typeof ORG_TABS)[number];
 
@@ -121,6 +162,7 @@ export function OrganizationSettingsForm({
   });
 
   const showSettingsHubTabs = mode === "settings-hub";
+  const settingsTabBar = showSettingsHubTabs ? "line" : "sidebar";
 
   useEffect(() => {
     if (mode !== "legacy-tabs") return;
@@ -177,14 +219,14 @@ export function OrganizationSettingsForm({
   const isPersonal = isPersonalOrganization({ metadata: orgMetadata });
   const pendingInvitations = pendingOrganizationInvitations(invitations);
 
-  const editProfileDirty =
-    editOrgOpen &&
-    isOrganizationProfileEditDirty(
-      editDraftName,
-      editDraftSlug,
-      editSnapshot.name,
-      editSnapshot.slug,
-    );
+  const editDraftDirty = isOrganizationProfileEditDirty(
+    editDraftName,
+    editDraftSlug,
+    editSnapshot.name,
+    editSnapshot.slug,
+  );
+
+  const editProfileDirty = editOrgOpen && editDraftDirty;
 
   const resetEditDraft = useCallback(() => {
     setEditDraftName(editSnapshot.name);
@@ -493,22 +535,35 @@ export function OrganizationSettingsForm({
         onDiscard={editTabNavigationGuard.confirmDiscard}
       />
       <SettingsTabs
+        tabBar={settingsTabBar}
         value={activeTab}
         onValueChange={(value) => {
           if (value) setActiveTab(value as OrgTab);
         }}
       >
         {mode === "legacy-tabs" || showSettingsHubTabs ? (
-          <SettingsTabsList>
-            <SettingsTabsTab value="general" icon="organization">
+          <SettingsTabsList tabBar={settingsTabBar}>
+            <SettingsTabsTab
+              value="general"
+              icon="organization"
+              tabBar={settingsTabBar}
+            >
               General
             </SettingsTabsTab>
             {mode === "legacy-tabs" ? (
-              <SettingsTabsTab value="members" icon="member">
+              <SettingsTabsTab
+                value="members"
+                icon="member"
+                tabBar={settingsTabBar}
+              >
                 Members
               </SettingsTabsTab>
             ) : null}
-            <SettingsTabsTab value="danger" icon="danger">
+            <SettingsTabsTab
+              value="danger"
+              icon="danger"
+              tabBar={settingsTabBar}
+            >
               Danger zone
             </SettingsTabsTab>
           </SettingsTabsList>
@@ -824,7 +879,7 @@ export function OrganizationSettingsForm({
       <FormSheet
         open={editOrgOpen}
         onOpenChange={setEditOrgOpen}
-        isDirty={editProfileDirty}
+        isDirty={editDraftDirty}
         onDiscard={resetEditDraft}
         onClosed={() => {
           setEditDraftName(orgName);
@@ -833,7 +888,7 @@ export function OrganizationSettingsForm({
         }}
         closeWithoutPromptRef={editOrgCloseWithoutPromptRef}
       >
-        <FormSheetPopup>
+        <EditOrganizationFormSheetPopup>
           <FormSheetHeader>
             <SheetTitleWithIcon icon="organization">
               Edit organization
@@ -869,23 +924,13 @@ export function OrganizationSettingsForm({
               </FormField>
             </FormSheetBody>
             <FormSheetFooter>
-              <SheetClose
-                render={
-                  <Button
-                    variant="ghost"
-                    type="button"
-                    disabled={savePending}
-                  />
-                }
-              >
-                Cancel
-              </SheetClose>
+              <EditOrganizationSheetCancelButton disabled={savePending} />
               <SubmitButton isLoading={savePending} loadingLabel="Saving…">
                 Save changes
               </SubmitButton>
             </FormSheetFooter>
           </FormSheetForm>
-        </FormSheetPopup>
+        </EditOrganizationFormSheetPopup>
       </FormSheet>
 
       <BulkInviteDialog

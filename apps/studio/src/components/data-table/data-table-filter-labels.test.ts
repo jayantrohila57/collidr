@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   dataTableFilterOptionLabel,
+  dataTableFilterSelectDisplayLabel,
   formatDataTableFilterLabel,
 } from "./data-table-filter-labels";
 
@@ -15,6 +16,13 @@ describe("formatDataTableFilterLabel", () => {
     assert.equal(
       dataTableFilterOptionLabel("active", "Active projects"),
       "Active projects",
+    );
+  });
+
+  it("appends suffix in dataTableFilterSelectDisplayLabel", () => {
+    assert.equal(
+      dataTableFilterSelectDisplayLabel("name-asc", undefined, " · default"),
+      "Name (A–Z) · default",
     );
   });
 });
