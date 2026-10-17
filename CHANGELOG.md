@@ -16,6 +16,8 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-10-17
+
 ### Added
 
 - Root `pnpm a11y` and CI run the Turbo `a11y` task in `apps/docs` (Playwright + axe on the docs landing; fails in CI when Playwright cannot run, optional local skip via `A11Y_SKIP`) (#91)
@@ -36,6 +38,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 - PWA manifests in auth, docs, and studio: screenshot assets are captured from the real studio dashboard (Playwright + E2E login), narrow `sizes` match 390×844 captures, icon and screenshot paths use `/favicon/`, maskable icons are full-bleed on `#262626` with a `#fafafa` Layers mark, command-palette environment groups use the canonical Layers icon (distinct from variables’ KeyRound), and studio `og-image.png` is served from public without a signed-out redirect (#404)
 - Invitation notification sync mutations: unit tests for allowed and denied authorization paths (#18)
 - Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
+- `audit.stats` documents and tests scoped SQL aggregates (user and optional `projectId` filter) for totals and per-action counts (#35)
 - README sign-in methods, pnpm/Node prerequisites, and Studio URL; SECURITY.md supported version; integrations inventory PostHog opt-out and centralized logs release status; align `scripts/README.md`, getting-started, `PRODUCTION_DEPLOY.md`, and `summary.md` with path routing on loftlancer.com (#400)
 
 ## [1.11.0] - 2026-10-17
@@ -467,7 +470,8 @@ The product is now Loftlancer.
 - Version management and commit workflow scripts
 - `SKIP_ENV_VALIDATION` option for builds
 
-[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.1...HEAD
+[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.1...v1.12.0
 [1.11.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.1...v1.10.0
