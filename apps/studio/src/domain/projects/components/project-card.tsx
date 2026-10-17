@@ -82,6 +82,8 @@ export function ProjectCard({ project }: { project: ProjectOutput }) {
                     variant="ghost"
                     size="icon-sm"
                     className="size-7"
+                    aria-label={`GitHub repository for ${project.name} (opens in a new tab)`}
+                    title="GitHub repository"
                     render={
                       <Link
                         href={project.repositoryUrl as Route}
@@ -94,7 +96,7 @@ export function ProjectCard({ project }: { project: ProjectOutput }) {
               >
                 <AppIcon name="github" className="size-3.5 text-current" />
               </TooltipTrigger>
-              <TooltipContent>Repository</TooltipContent>
+              <TooltipContent>GitHub repository</TooltipContent>
             </Tooltip>
           ) : null}
           {project.websiteUrl ? (
@@ -105,6 +107,8 @@ export function ProjectCard({ project }: { project: ProjectOutput }) {
                     variant="ghost"
                     size="icon-sm"
                     className="size-7"
+                    aria-label={`Website for ${project.name} (opens in a new tab)`}
+                    title="Website"
                     render={
                       <Link
                         href={project.websiteUrl as Route}

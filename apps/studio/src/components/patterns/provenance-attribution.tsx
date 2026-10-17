@@ -31,8 +31,26 @@ export function ProvenanceAttribution({
   compact?: boolean;
 }) {
   if (!user) {
+    // No recorded actor (seeded/imported rows, deleted users): still show
+    // when it happened instead of a bare dash (#318).
+    const valid = at && !Number.isNaN(new Date(at).getTime());
     return (
-      <span className={cn("text-muted-foreground text-xs", className)}>—</span>
+      <span
+        className={cn(
+          "text-muted-foreground",
+          compact ? "text-xs" : "text-sm",
+          className,
+        )}
+      >
+        {valid ? (
+          <>
+            {label ? `${label} ` : null}
+            <ClientRelativeTime value={at} />
+          </>
+        ) : (
+          "—"
+        )}
+      </span>
     );
   }
 

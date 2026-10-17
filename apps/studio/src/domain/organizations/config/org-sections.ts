@@ -4,6 +4,7 @@ import type { AppIconName } from "@/lib/icons";
 import { routes } from "@/utils/navigation";
 
 export type OrganizationSectionId =
+  | "projects"
   | "members"
   | "teams"
   | "invitations"
@@ -20,6 +21,13 @@ export type OrganizationSectionDefinition = {
 };
 
 export const ORGANIZATION_SECTIONS: readonly OrganizationSectionDefinition[] = [
+  {
+    id: "projects",
+    title: "Projects",
+    description: "Projects in this workspace, their apps and environments.",
+    icon: "project",
+    href: (slug) => routes.projects(slug),
+  },
   {
     id: "members",
     title: "Members",

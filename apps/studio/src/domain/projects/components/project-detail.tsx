@@ -2,6 +2,8 @@
 
 import type { ProjectOutput } from "@loftlancer/api/types";
 import { PageStack } from "@/components/layout/app-layout";
+import { routes } from "@/utils/navigation";
+import { useOrgSlug } from "@/utils/use-route-scope";
 import { EnvironmentPanel } from "../../environments/components/environment-panel";
 import { EnvironmentsTabsView } from "../../environments/components/environments-tabs-view";
 import { useEnvironments } from "../../environments/hooks/use-environments";
@@ -27,6 +29,7 @@ export default function ProjectDetail({
     isDeleting,
     projectId,
   } = useEnvironments(projectSlug);
+  const org = useOrgSlug();
 
   return (
     <PageStack className="w-full min-w-0 gap-4">
@@ -35,6 +38,7 @@ export default function ProjectDetail({
           environments={environments}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          tabHref={(env) => routes.env(org, projectSlug, env.slug ?? env.id)}
           onCreate={async (name) => {
             if (!projectId) return;
             await createEnvironment({ projectId, name });

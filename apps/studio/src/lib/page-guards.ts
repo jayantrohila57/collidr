@@ -17,6 +17,10 @@ import {
   getSessionActiveOrganizationId,
 } from "@loftlancer/auth/session-types";
 import { DEFAULT_STUDIO_URL } from "@loftlancer/env/platform";
+import {
+  isReservedOrgSlug,
+  isReservedProjectSlug,
+} from "@loftlancer/ui/studio-routes";
 import type { Route } from "next";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
@@ -192,4 +196,45 @@ export async function guardSupportTicketPage(
   );
   await runPageGuard(() => requireSupportTicketPage(session.user.id, ticketId));
   return session;
+}
+
+/** What a studio 404 is about, resolved from the request path (#317). */
+export type NotFoundScope = {
+  kind: "organization" | "project" | "page";
+  org?: { slug: string; name: string };
+  project?: { slug: string };
+  /** Leading URL segments that are real entities (kept in the breadcrumb). */
+  depth: number;
+};
+
+/**
+ * For the shell not-found page: never throws, never echoes an unknown slug.
+ * Only reports an org or project the user can actually access.
+ */
+export async function resolveNotFoundScope(): Promise<NotFoundScope> {
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const [orgSlug, projectSlug] = pathname.split("/").filter(Boolean);
+  if (!orgSlug || isReservedOrgSlug(orgSlug)) return { kind: "page", depth: 0 };
+  const session = await getServerSession().catch(() => null);
+  if (!session) return { kind: "page", depth: 0 };
+  const org = await resolveOrganizationForPage(session.user.id, orgSlug).catch(
+    () => null,
+  );
+  if (!org) return { kind: "organization", depth: 0 };
+  const orgRef = { slug: org.slug, name: org.name };
+  if (!projectSlug || isReservedProjectSlug(projectSlug)) {
+    return { kind: "page", org: orgRef, depth: 1 };
+  }
+  const project = await resolveProjectForPage(
+    session.user.id,
+    projectSlug,
+    org.id,
+  ).catch(() => null);
+  if (!project) return { kind: "project", org: orgRef, depth: 1 };
+  return {
+    kind: "page",
+    org: orgRef,
+    project: { slug: project.slug },
+    depth: 2,
+  };
 }

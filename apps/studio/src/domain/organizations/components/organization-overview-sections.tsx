@@ -32,6 +32,7 @@ export function OrganizationOverviewSectionsSkeleton() {
           "section-d",
           "section-e",
           "section-f",
+          "section-g",
         ] as const
       ).map((id) => (
         <Skeleton key={id} className="h-[7.5rem] rounded-2xl" />
@@ -73,7 +74,8 @@ export function OrganizationOverviewSections({ slug }: { slug: string }) {
     enabled: queryEnabled && status === "success" && Boolean(organization?.id),
   });
 
-  if (status === "loading" || (queryEnabled && stats.isPending)) {
+  // Same condition as OrganizationDetailStats so stats and cards resolve together.
+  if (status === "loading" || !queryEnabled || stats.isPending) {
     return <OrganizationOverviewSectionsSkeleton />;
   }
 
@@ -81,12 +83,16 @@ export function OrganizationOverviewSections({ slug }: { slug: string }) {
   // getFullOrganization caps members at 100, so its array length is wrong.
   const memberCount = stats.data?.memberCount;
   const invitationCount = stats.data?.pendingInvites;
+  const projectCount = stats.data?.projectCount;
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {ORGANIZATION_SECTIONS.map((section) => {
         let summary =
           section.id === "teams" || section.id === "timeline" ? "Open" : "View";
+        if (section.id === "projects" && projectCount !== undefined) {
+          summary = formatCountLabel(projectCount, "project", "projects");
+        }
         if (section.id === "members" && memberCount !== undefined) {
           summary = formatCountLabel(memberCount, "member", "members");
           if (invitationCount !== undefined && invitationCount > 0) {

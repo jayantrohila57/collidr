@@ -26,7 +26,7 @@ export function useProjectApps(slug: string) {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: listOptions.queryKey }),
       queryClient.invalidateQueries({
-        queryKey: trpc.sidebar.navigator.queryKey(),
+        queryKey: trpc.sidebar.navigator.pathKey(),
       }),
     ]);
   };

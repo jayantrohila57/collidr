@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import ProjectDetailPage from "@/domain/projects/components/project-detail-page";
 import { loadProjectPageDataOrNotFound } from "@/lib/page-guards";
+import { NOT_FOUND_DOCUMENT_TITLE } from "@/lib/siteConfig";
 import ProjectDetailLoading from "./loading";
 
 interface ProjectPageProps {
@@ -17,10 +18,7 @@ export async function generateMetadata({
   const data = await loadProjectPageData(slug);
 
   if (!data) {
-    return {
-      title: "Project",
-      description: "Manage project environments and variables.",
-    };
+    return { title: { absolute: NOT_FOUND_DOCUMENT_TITLE } };
   }
 
   return {

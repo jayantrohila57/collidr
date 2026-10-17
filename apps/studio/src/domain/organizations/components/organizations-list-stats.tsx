@@ -20,7 +20,7 @@ export function OrganizationsListStats() {
   }, [orgs]);
 
   if (!initialLoadDone || loading) {
-    return <StatCardRowSkeleton count={4} />;
+    return <StatCardRowSkeleton count={4} compact />;
   }
 
   const activeName =

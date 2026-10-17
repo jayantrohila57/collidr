@@ -1,4 +1,4 @@
-import { docsSiteUrl } from "@loftlancer/ui/platform-urls";
+import { docsUrl } from "@loftlancer/ui/platform-urls";
 
 import { MarketingPage } from "@/components/marketing-page";
 
@@ -8,7 +8,7 @@ export const metadata = {
 };
 
 export default function AboutPage() {
-  const docs = docsSiteUrl();
+  const docs = docsUrl();
 
   return (
     <MarketingPage

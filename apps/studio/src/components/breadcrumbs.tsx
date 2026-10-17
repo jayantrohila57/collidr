@@ -21,7 +21,9 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
+import { useRouteNotFoundDepth } from "@/lib/route-not-found-store";
 import { cn, deSlug } from "@/lib/utils";
 import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";
@@ -52,7 +54,14 @@ const STATIC_LABELS: Record<string, string> = {
 };
 
 type Crumb = { href: string; segment: string; kind: CrumbKind };
-type CrumbKind = "static" | "org" | "project" | "app" | "ticket" | "task";
+type CrumbKind =
+  | "static"
+  | "org"
+  | "project"
+  | "app"
+  | "ticket"
+  | "task"
+  | "notFound";
 
 /**
  * Crumbs follow the URL scope (#299): /[org]/[project]/[app]/…, with the
@@ -93,10 +102,20 @@ function formatSegmentLabel(segment: string, resolvedName?: string) {
 }
 
 export function Breadcrumbs({ className }: { className?: string }) {
-  const pathname = usePathname();
-  const breadcrumbs = generateBreadcrumbs(pathname ?? "/");
-  const { orgs } = useActiveOrganization();
-  const { projects } = useProjects();
+  const pathname = usePathname() ?? "/";
+  // On a 404 keep only the real ancestors (org / project) and end with
+  // "Not found"; never title-case an unknown slug as if it existed (#317).
+  const notFoundDepth = useRouteNotFoundDepth(pathname);
+  const trail = generateBreadcrumbs(pathname);
+  const breadcrumbs: Crumb[] =
+    notFoundDepth === null
+      ? trail
+      : [
+          ...trail.slice(0, notFoundDepth),
+          { href: pathname, segment: "", kind: "notFound" },
+        ];
+  const { orgs, initialLoadDone } = useActiveOrganization();
+  const { projects, status: projectsStatus } = useProjects();
 
   const orgSlug = breadcrumbs.find((c) => c.kind === "org")?.segment;
   const projectSlug = breadcrumbs.find((c) => c.kind === "project")?.segment;
@@ -117,8 +136,20 @@ export function Breadcrumbs({ className }: { className?: string }) {
       ? "Ticket"
       : undefined;
 
-  const breadcrumbLabel = (crumb: Crumb) =>
-    formatSegmentLabel(
+  const breadcrumbLabel = (crumb: Crumb): React.ReactNode => {
+    if (crumb.kind === "notFound") return "Not found";
+    // Unresolved org/project names: a placeholder while loading, not the slug.
+    if (crumb.kind === "org" && !orgName && !initialLoadDone) {
+      return <Skeleton className="inline-block h-3 w-20 align-middle" />;
+    }
+    if (
+      crumb.kind === "project" &&
+      !projectName &&
+      projectsStatus === "loading"
+    ) {
+      return <Skeleton className="inline-block h-3 w-20 align-middle" />;
+    }
+    return formatSegmentLabel(
       crumb.segment,
       crumb.kind === "org"
         ? orgName
@@ -130,6 +161,7 @@ export function Breadcrumbs({ className }: { className?: string }) {
               ? `Task #${crumb.segment}`
               : undefined,
     );
+  };
 
   const collapseMiddle = breadcrumbs.length > 4;
   const visibleIndices = collapseMiddle
