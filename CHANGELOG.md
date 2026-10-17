@@ -16,6 +16,18 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-10-17
+
+### Added
+
+- Health endpoints for uptime monitors: `/api/health` (docs), `/auth/api/health` and `/studio/api/health` return the app name, version and, for auth and studio, a database check. They are never cached or indexed (#356)
+- Server logs from every app go to Sentry Logs through a shared `@loftlancer/logger`, as one JSON line each in the Vercel runtime logs (#355)
+
+### Changed
+
+- Sentry events carry the product version as their release and, on signed-in server requests, the user id and active org id (ids only) (#354)
+- Favicons and social images on the public site are cached in the browser for a day (#363)
+
 ## [1.9.1] - 2026-10-17
 
 ### Fixed
@@ -412,7 +424,8 @@ The product is now Loftlancer.
 - Version management and commit workflow scripts
 - `SKIP_ENV_VALIDATION` option for builds
 
-[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.1...HEAD
+[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.1...v1.10.0
 [1.9.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.7.1...v1.8.0

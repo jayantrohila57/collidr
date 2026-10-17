@@ -40,6 +40,8 @@ const sentryBuildOptions = {
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.CI,
   telemetry: false,
+  // One release per product version, matching Sentry.init (#354).
+  release: { name: `loftlancer@${appVersion}` },
   buildTimeInstrumentation: false,
   sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
   errorHandler: (err: Error) => {

@@ -1,3 +1,5 @@
+import { logger } from "@loftlancer/logger";
+
 import { render } from "@react-email/components";
 import type { ReactElement } from "react";
 import { Resend } from "resend";
@@ -50,7 +52,7 @@ async function record(email: RecordedEmail): Promise<void> {
   try {
     await recorder(email);
   } catch (err) {
-    console.error("[email] recorder failed", err);
+    logger.exception("email recorder failed", err);
   }
 }
 
@@ -96,7 +98,9 @@ export async function sendEmail(
     };
   }
   if (result.status === "failed") {
-    console.error("[email] send failed", result.error);
+    logger.error("email send failed", undefined, {
+      "error.message": result.error,
+    });
   }
   await record({
     from,

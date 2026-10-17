@@ -1,3 +1,5 @@
+import { logger } from "@loftlancer/logger";
+
 import {
   type MonitorState,
   overallFromMonitors,
@@ -192,7 +194,7 @@ export async function getPlatformStatus(
       incidents,
     };
   } catch (err) {
-    console.error("[status] Better Stack request failed", err);
+    logger.error("Better Stack status request failed", err);
     return { available: false, reason: "upstream-error", generatedAt };
   }
 }

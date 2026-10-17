@@ -23,6 +23,7 @@
   "dependencies": {
     "@loftlancer/crypto": "workspace:*",
     "@loftlancer/env": "workspace:*",
+    "@loftlancer/logger": "workspace:*",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
     "pg": "^8.23.1",

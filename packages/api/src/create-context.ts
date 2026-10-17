@@ -1,6 +1,7 @@
 import type { AuthSession } from "@loftlancer/auth/session-types";
 import type { NextRequest } from "next/server";
 import { enrichSessionUserRole } from "./enrich-session-user";
+import { tagRequestIdentity } from "./request-identity";
 
 type SessionAuth = {
   api: {
@@ -17,6 +18,7 @@ export async function createContextWithAuth(
       headers: req.headers,
     }),
   );
+  tagRequestIdentity(session);
   const forwarded = req.headers.get("x-forwarded-for");
   return {
     session,

@@ -4,6 +4,7 @@ import {
   logSchemaOutOfDateOnce,
 } from "@loftlancer/db/postgres-errors";
 import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
+import { logger } from "@loftlancer/logger";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { assertConsoleOperator } from "./console-access";
 import { runWithConsoleAuditContext } from "./console-audit-context";
@@ -29,10 +30,9 @@ export const t = initTRPC.context<Context>().create({
     if (isPostgresMissingColumnError(root)) {
       logSchemaOutOfDateOnce(root, "tRPC errorFormatter");
     } else if (fromShape !== shape.message) {
-      console.error("[tRPC] Sanitized error for client:", {
-        code: shape.code,
+      logger.error("tRPC error sanitized for client", error.cause ?? error, {
+        "trpc.code": shape.data?.code ?? String(shape.code),
         clientMessage: fromShape,
-        cause: error.cause ?? error,
       });
     }
     return {
