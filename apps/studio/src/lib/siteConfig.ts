@@ -29,6 +29,9 @@ export const siteConfig = {
 
 export type SiteConfig = typeof siteConfig;
 
+/** One document title for every studio 404 (#317). */
+export const NOT_FOUND_DOCUMENT_TITLE = `Not found · ${siteConfig.name}`;
+
 export function generateMetadata(): Metadata {
   return {
     title: {

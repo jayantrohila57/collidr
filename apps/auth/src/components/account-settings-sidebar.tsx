@@ -29,6 +29,7 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { OrgSwitcher } from "@/components/org/org-switcher";
 import { useSidebarNavigator } from "@/components/sidebar/use-sidebar-navigator";
 import {
   Sidebar,
@@ -146,6 +147,9 @@ export function AccountSettingsSidebar({
     <Sidebar collapsible="icon" variant="inset" {...props}>
       <SidebarHeader className="shrink-0 gap-2">
         <SidebarBrand href={studioDashboardPath(routes.home())} />
+        {isOrganizationsEnabledOnClient() ? (
+          <OrgSwitcher activeSlug={nav.organizationSlug} />
+        ) : null}
         <SidebarSearch
           groups={nav.groups}
           loading={nav.loading}

@@ -19,53 +19,57 @@ export type StatCardItem = {
   value: ReactNode;
   hint?: string;
   icon: AppIconName;
+  /** Makes the whole card a real link (cmd-click opens a new tab). */
   href?: Route;
 };
+
+/* Shared by the card and its skeleton so loading never shifts layout. */
+const headerClass = (compact?: boolean) =>
+  cn(
+    "gap-0.5 pb-0",
+    compact ? "p-2 sm:gap-1 sm:p-4 sm:pb-1" : "gap-1 p-3 pb-1 sm:p-4 sm:pb-1",
+  );
+const iconClass = (compact?: boolean) =>
+  compact ? "size-3.5 sm:size-4" : "size-4";
+const titleClass = (compact?: boolean) =>
+  cn(
+    "truncate text-nowrap tabular-nums",
+    compact ? "text-base sm:text-2xl" : "text-xl sm:text-2xl",
+  );
+const hintClass = (compact?: boolean) =>
+  cn(
+    "truncate text-nowrap pt-0 text-muted-foreground text-xs",
+    compact
+      ? "hidden px-2 pb-2 sm:block sm:px-4 sm:pb-4"
+      : "px-3 pb-3 sm:px-4 sm:pb-4",
+  );
 
 function StatCardInner({
   item,
   compact,
+  interactive,
 }: {
   item: StatCardItem;
   compact?: boolean;
+  interactive?: boolean;
 }) {
   return (
-    <Card className="h-full">
-      <CardHeader
-        className={cn(
-          "gap-0.5 pb-0",
-          compact
-            ? "p-2 sm:gap-1 sm:p-4 sm:pb-1"
-            : "gap-1 p-3 pb-1 sm:p-4 sm:pb-1",
-        )}
-      >
+    <Card
+      className={cn(
+        "h-full",
+        interactive &&
+          "transition-colors group-hover:border-primary/30 group-hover:bg-muted/30",
+      )}
+    >
+      <CardHeader className={headerClass(compact)}>
         <div className="flex items-start justify-between gap-2">
           <CardDescription className="text-xs">{item.label}</CardDescription>
-          <AppIcon
-            name={item.icon}
-            className={cn(compact ? "size-3.5 sm:size-4" : "size-4")}
-          />
+          <AppIcon name={item.icon} className={iconClass(compact)} />
         </div>
-        <CardTitle
-          className={cn(
-            "truncate text-nowrap tabular-nums",
-            compact ? "text-base sm:text-2xl" : "text-xl sm:text-2xl",
-          )}
-        >
-          {item.value}
-        </CardTitle>
+        <CardTitle className={titleClass(compact)}>{item.value}</CardTitle>
       </CardHeader>
       {item.hint ? (
-        <CardPanel
-          className={cn(
-            "truncate text-nowrap pt-0 text-muted-foreground text-xs",
-            compact
-              ? "hidden px-2 pb-2 sm:block sm:px-4 sm:pb-4"
-              : "px-3 pb-3 sm:px-4 sm:pb-4",
-          )}
-        >
-          {item.hint}
-        </CardPanel>
+        <CardPanel className={hintClass(compact)}>{item.hint}</CardPanel>
       ) : null}
     </Card>
   );
@@ -80,41 +84,25 @@ export function StatCard({
   className?: string;
   compact?: boolean;
 }) {
-  const card = (
-    <div className={cn("min-w-0", className)}>
-      <StatCardInner item={item} compact={compact} />
-    </div>
-  );
-
   if (item.href) {
     return (
       <Link
         href={item.href}
-        className="block min-w-0 transition-opacity hover:opacity-90"
+        className={cn(
+          "group block min-w-0 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          className,
+        )}
       >
-        <Card className="h-full transition-colors hover:bg-muted/40">
-          <CardHeader className="gap-1 p-3 pb-1 sm:p-4 sm:pb-1">
-            <div className="flex items-start justify-between gap-2">
-              <CardDescription className="text-xs">
-                {item.label}
-              </CardDescription>
-              <AppIcon name={item.icon} className="size-4" />
-            </div>
-            <CardTitle className="truncate text-nowrap text-xl tabular-nums sm:text-2xl">
-              {item.value}
-            </CardTitle>
-          </CardHeader>
-          {item.hint ? (
-            <CardPanel className="truncate text-nowrap px-3 pt-0 pb-3 text-muted-foreground text-xs sm:px-4 sm:pb-4">
-              {item.hint}
-            </CardPanel>
-          ) : null}
-        </Card>
+        <StatCardInner item={item} compact={compact} interactive />
       </Link>
     );
   }
 
-  return card;
+  return (
+    <div className={cn("min-w-0", className)}>
+      <StatCardInner item={item} compact={compact} />
+    </div>
+  );
 }
 
 export function StatCardRow({
@@ -141,14 +129,17 @@ export function StatCardRow({
   );
 }
 
-const STAT_SKELETON_SLOTS = ["a", "b", "c", "d"] as const;
+const STAT_SKELETON_SLOTS = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;
 
+/** Same footprint as {@link StatCardRow}; pass the same `compact` flag. */
 export function StatCardRowSkeleton({
   count = 4,
   className,
+  compact,
 }: {
   count?: number;
   className?: string;
+  compact?: boolean;
 }) {
   return (
     <div
@@ -161,19 +152,31 @@ export function StatCardRowSkeleton({
       aria-live="polite"
       aria-busy="true"
     >
+      <span className="sr-only">Loading…</span>
       {STAT_SKELETON_SLOTS.slice(0, count).map((slot) => (
-        <Card key={slot} className="h-full">
-          <CardHeader className="gap-2 p-3 sm:p-4">
-            <div className="flex items-start justify-between gap-2">
-              <Skeleton className="h-3 w-16" />
-              <Skeleton className="size-4 rounded-sm" />
-            </div>
-            <Skeleton className="h-7 w-12" />
-          </CardHeader>
-          <CardPanel className="px-3 pt-0 pb-3 sm:px-4 sm:pb-4">
-            <Skeleton className="h-3 w-24" />
-          </CardPanel>
-        </Card>
+        <div key={slot} className="min-w-0" aria-hidden>
+          <Card className="h-full">
+            <CardHeader className={headerClass(compact)}>
+              <div className="flex items-start justify-between gap-2">
+                <CardDescription className="flex h-4 items-center text-xs">
+                  <Skeleton className="h-3 w-16" />
+                </CardDescription>
+                <Skeleton className={cn("rounded-sm", iconClass(compact))} />
+              </div>
+              <CardTitle
+                className={cn(titleClass(compact), "flex items-center")}
+              >
+                <span className="invisible w-0">0</span>
+                <Skeleton className="h-[0.75em] w-12" />
+              </CardTitle>
+            </CardHeader>
+            <CardPanel className={hintClass(compact)}>
+              <span className="flex h-4 items-center">
+                <Skeleton className="h-3 w-24" />
+              </span>
+            </CardPanel>
+          </Card>
+        </div>
       ))}
     </div>
   );

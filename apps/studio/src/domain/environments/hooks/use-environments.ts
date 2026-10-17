@@ -76,8 +76,11 @@ export function useEnvironments(projectSlug: string) {
       const href = routes.env(org, projectSlug, env?.slug ?? id);
       // Swap tabs without remounting the page. The raw History API does not
       // add the Next basePath (/studio), so prefix it or a reload 404s (#249).
+      // Pass `null`, not Next's own history state: Next only syncs its router
+      // (usePathname, canonical URL) for foreign state, and with its own state
+      // the next router update reverted the URL to /env (#318).
       window.history.replaceState(
-        window.history.state,
+        null,
         "",
         `${withBasePath(href)}${window.location.search}`,
       );

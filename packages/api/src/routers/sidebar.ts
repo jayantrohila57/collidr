@@ -1,6 +1,7 @@
 import {
   activeEnvironmentWhere,
   activeMemberWhere,
+  activeOrganizationWhere,
   activeProjectWhere,
   db,
 } from "@loftlancer/db";
@@ -20,7 +21,11 @@ import { z } from "zod/v3";
 import { listInstalledAppIds } from "../apps/installed";
 import { protectedProcedure, router } from "../index";
 import { getActiveOrganizationId, projectListFilter } from "../org-access";
-import { listAccessibleProjectIds, projectIdsFilter } from "../project-list";
+import {
+  listAccessibleProjectIds,
+  projectIdsFilter,
+  projectReadWhere,
+} from "../project-list";
 
 /** project_pin may not exist yet on a database that hasn't had 0014 applied. */
 function isMissingTable(err: unknown) {
@@ -46,115 +51,166 @@ async function accessibleProjects(
 }
 
 /**
+ * The URL org is the source of truth (#313): when the client passes the org
+ * slug from the URL (or its last active org on pre-org pages) and the user is
+ * a member, use it; otherwise fall back to the session's active org.
+ */
+async function resolveNavigatorOrganizationId(
+  userId: string,
+  sessionOrganizationId: string | null,
+  orgSlug: string | undefined,
+): Promise<string | null> {
+  if (!orgSlug) return sessionOrganizationId;
+  const rows = await db
+    .select({ id: organization.id })
+    .from(organization)
+    .innerJoin(member, eq(member.organizationId, organization.id))
+    .where(
+      activeOrganizationWhere(
+        activeMemberWhere(
+          and(eq(organization.slug, orgSlug), eq(member.userId, userId)),
+        ),
+      ),
+    )
+    .limit(1)
+    .catch(() => []);
+  return rows[0]?.id ?? sessionOrganizationId;
+}
+
+/** Same count as the org overview / projects list (getOrgSettingsStats, #314). */
+async function countOrgProjects(userId: string, organizationId: string | null) {
+  if (!organizationId) return 0;
+  const scope = await projectReadWhere(userId, organizationId);
+  const rows = await db.select({ n: count() }).from(project).where(scope);
+  return Number(rows[0]?.n ?? 0);
+}
+
+/**
  * One read for the shared sidebar: projects (+ environments) for ⌘K and
  * Favorites, the user's pins, nav counts and org members. Real data only.
  * Reads never write audit events.
  */
 export const sidebarRouter = router({
-  navigator: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id;
-    const email = ctx.session.user.email;
-    const organizationId = isOrganizationsEnabled()
-      ? getActiveOrganizationId(ctx.session)
-      : null;
+  navigator: protectedProcedure
+    .input(
+      z
+        .object({ orgSlug: z.string().trim().min(1).max(200).optional() })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const email = ctx.session.user.email;
+      const organizationId = isOrganizationsEnabled()
+        ? await resolveNavigatorOrganizationId(
+            userId,
+            getActiveOrganizationId(ctx.session),
+            input?.orgSlug,
+          )
+        : null;
 
-    const [projects, unread, invites, members, pins] = await Promise.all([
-      accessibleProjects(userId, organizationId).catch(() => []),
-      db
-        .select({ n: count() })
-        .from(notification)
-        .where(
-          and(
-            eq(notification.recipientUserId, userId),
-            isNull(notification.readAt),
-          ),
-        )
-        .then((r) => Number(r[0]?.n ?? 0))
-        .catch(() => 0),
-      email
-        ? db
+      const [projects, unread, invites, members, pins, projectCount] =
+        await Promise.all([
+          accessibleProjects(userId, organizationId).catch(() => []),
+          db
             .select({ n: count() })
-            .from(invitation)
+            .from(notification)
             .where(
               and(
-                eq(invitation.email, email),
-                eq(invitation.status, "pending"),
-                gt(invitation.expiresAt, new Date()),
+                eq(notification.recipientUserId, userId),
+                isNull(notification.readAt),
               ),
             )
             .then((r) => Number(r[0]?.n ?? 0))
-            .catch(() => 0)
-        : Promise.resolve(0),
-      organizationId
-        ? db
-            .select({ userId: user.id, name: user.name, email: user.email })
-            .from(member)
-            .innerJoin(user, eq(member.userId, user.id))
-            .where(activeMemberWhere(eq(member.organizationId, organizationId)))
-            .orderBy(asc(user.name))
-            .limit(200)
+            .catch(() => 0),
+          email
+            ? db
+                .select({ n: count() })
+                .from(invitation)
+                .where(
+                  and(
+                    eq(invitation.email, email),
+                    eq(invitation.status, "pending"),
+                    gt(invitation.expiresAt, new Date()),
+                  ),
+                )
+                .then((r) => Number(r[0]?.n ?? 0))
+                .catch(() => 0)
+            : Promise.resolve(0),
+          organizationId
+            ? db
+                .select({ userId: user.id, name: user.name, email: user.email })
+                .from(member)
+                .innerJoin(user, eq(member.userId, user.id))
+                .where(
+                  activeMemberWhere(eq(member.organizationId, organizationId)),
+                )
+                .orderBy(asc(user.name))
+                .limit(200)
+                .catch(() => [])
+            : Promise.resolve([]),
+          db
+            .select({ projectId: projectPin.projectId })
+            .from(projectPin)
+            .where(eq(projectPin.userId, userId))
+            .orderBy(asc(projectPin.createdAt))
+            .then((r) => r.map((x) => x.projectId))
+            .catch((err) => {
+              if (!isMissingTable(err)) console.error("[sidebar] pins", err);
+              return [] as string[];
+            }),
+          countOrgProjects(userId, organizationId).catch(() => 0),
+        ]);
+
+      const orgRow = organizationId
+        ? await db
+            .select({ slug: organization.slug })
+            .from(organization)
+            .where(eq(organization.id, organizationId))
+            .limit(1)
             .catch(() => [])
-        : Promise.resolve([]),
-      db
-        .select({ projectId: projectPin.projectId })
-        .from(projectPin)
-        .where(eq(projectPin.userId, userId))
-        .orderBy(asc(projectPin.createdAt))
-        .then((r) => r.map((x) => x.projectId))
-        .catch((err) => {
-          if (!isMissingTable(err)) console.error("[sidebar] pins", err);
-          return [] as string[];
-        }),
-    ]);
+        : [];
+      const projectIds = projects.map((p) => p.id);
+      const envs = projectIds.length
+        ? await db
+            .select({
+              projectId: environment.projectId,
+              name: environment.name,
+              slug: environment.slug,
+              isProduction: environment.isProduction,
+            })
+            .from(environment)
+            .where(
+              activeEnvironmentWhere(
+                inArray(environment.projectId, projectIds),
+              ),
+            )
+            .orderBy(asc(environment.name))
+            .catch(() => [])
+        : [];
 
-    const orgRow = organizationId
-      ? await db
-          .select({ slug: organization.slug })
-          .from(organization)
-          .where(eq(organization.id, organizationId))
-          .limit(1)
-          .catch(() => [])
-      : [];
-    const projectIds = projects.map((p) => p.id);
-    const envs = projectIds.length
-      ? await db
-          .select({
-            projectId: environment.projectId,
-            name: environment.name,
-            slug: environment.slug,
-            isProduction: environment.isProduction,
-          })
-          .from(environment)
-          .where(
-            activeEnvironmentWhere(inArray(environment.projectId, projectIds)),
-          )
-          .orderBy(asc(environment.name))
-          .catch(() => [])
-      : [];
+      const installed = await listInstalledAppIds(projectIds).catch(
+        () => new Map<string, string[]>(),
+      );
 
-    const installed = await listInstalledAppIds(projectIds).catch(
-      () => new Map<string, string[]>(),
-    );
-
-    return {
-      organizationId,
-      organizationSlug: orgRow[0]?.slug ?? null,
-      projects: projects.map((p) => ({
-        ...p,
-        apps: installed.get(p.id) ?? [],
-        environments: envs
-          .filter((e) => e.projectId === p.id)
-          .map(({ projectId: _p, ...e }) => e),
-      })),
-      pins: pins.filter((id) => projectIds.includes(id)),
-      members,
-      counts: {
-        unreadNotifications: unread,
-        pendingInvites: invites,
-        projects: projects.length,
-      },
-    };
-  }),
+      return {
+        organizationId,
+        organizationSlug: orgRow[0]?.slug ?? null,
+        projects: projects.map((p) => ({
+          ...p,
+          apps: installed.get(p.id) ?? [],
+          environments: envs
+            .filter((e) => e.projectId === p.id)
+            .map(({ projectId: _p, ...e }) => e),
+        })),
+        pins: pins.filter((id) => projectIds.includes(id)),
+        members,
+        counts: {
+          unreadNotifications: unread,
+          pendingInvites: invites,
+          projects: projectCount,
+        },
+      };
+    }),
 
   pin: protectedProcedure
     .input(z.object({ projectId: z.string().min(1), pinned: z.boolean() }))
