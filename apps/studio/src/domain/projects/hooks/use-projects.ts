@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { actionToast } from "@/lib/action-toast";
+import { captureEvent, STUDIO_EVENTS } from "@/lib/posthog";
 import { trpc } from "@/utils/trpc";
 
 type ApiProject = ProjectOutput;
@@ -115,6 +116,7 @@ export function useProjects() {
     trpc.projects.create.mutationOptions({
       meta: { skipGlobalErrorToast: true },
       onSuccess: (data) => {
+        captureEvent(STUDIO_EVENTS.projectCreated, { source: "projects" });
         queryClient.setQueryData(
           trpc.projects.list.queryKey(),
           (old: ProjectsQueryResponse | undefined) => {

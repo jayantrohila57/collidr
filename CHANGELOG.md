@@ -16,6 +16,10 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Added
+
+- Studio product analytics in PostHog, after consent only: the signed-in user is identified by id (no email or name) with the active organization as a group, PostHog is reset on sign-out, and core events are captured for organization, project and environment creation, onboarding completion, member invites and variable create/update/delete/import. Event properties carry counts and enums only, never variable keys or values (#353)
+
 ## [1.10.0] - 2026-10-17
 
 ### Added
