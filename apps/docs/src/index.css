@@ -4,3 +4,10 @@
 @import "fumadocs-ui/css/neutral.css";
 /* Workspace UI package lives outside this app; Tailwind v4 does not scan it by default. */
 @source "../../../packages/ui/src";
+
+/* Docs muted text uses the shared --muted-foreground token in light mode:
+   4.34:1 -> 5.13:1 on the docs background (#392). Dark keeps fumadocs' value
+   (~6:1), which already passes. */
+:root:not(.dark) {
+  --color-fd-muted-foreground: var(--muted-foreground);
+}

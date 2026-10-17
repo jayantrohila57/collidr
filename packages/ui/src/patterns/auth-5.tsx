@@ -61,7 +61,8 @@ export function Logo({
         aria-label="Loftlancer home"
         className={cn(
           classes,
-          "rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          // 24px hit area (WCAG 2.5.8, #390) without moving the 18px wordmark.
+          "-my-0.75 min-h-6 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         )}
       >
         {content}
