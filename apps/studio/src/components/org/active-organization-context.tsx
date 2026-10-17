@@ -105,7 +105,8 @@ export function ActiveOrganizationProvider({
     async (options?: { activeOrganizationId?: string | null }) => {
       if (!enabled) return;
       const list = await authClient.organization.list();
-      const data = (list.data ?? []) as OrgListItem[];
+      // A misrouted auth call can return a non-array body; never crash on it.
+      const data = (Array.isArray(list.data) ? list.data : []) as OrgListItem[];
       setOrgs(data);
       const urlOrgId = urlOrgSlugRef.current
         ? data.find((org) => org.slug === urlOrgSlugRef.current)?.id
