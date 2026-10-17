@@ -18,10 +18,14 @@ export type SentryLike = {
 };
 
 /** Sentry Logs + issues + request identity (ids only), for `configureLogger`. */
-export function createSentrySink(sentry: SentryLike): LogSink {
+export function createSentrySink(
+  sentry: SentryLike,
+  options?: { onAfterLog?: () => void },
+): LogSink {
   return {
     log(level: LogLevel, message: string, attributes: LogAttributes) {
       sentry.logger[level](message, attributes);
+      options?.onAfterLog?.();
     },
     captureException(error: unknown, attributes: LogAttributes) {
       sentry.captureException(error, { extra: attributes });
@@ -31,4 +35,26 @@ export function createSentrySink(sentry: SentryLike): LogSink {
       sentry.setTag("org_id", orgId ?? undefined);
     },
   };
+}
+
+/** Header that carries the Sentry test-error token (#354). */
+export const SENTRY_TEST_HEADER = "x-sentry-test-token";
+
+type EventWithRequest = {
+  request?: { headers?: Record<string, string> | undefined } | undefined;
+};
+
+/**
+ * `beforeSend` / `beforeSendTransaction` scrubber: drops the test-error token
+ * header (any casing) from captured request data, so the token never reaches
+ * Sentry (#354).
+ */
+export function scrubSentryTestToken<T extends EventWithRequest>(event: T): T {
+  const headers = event.request?.headers;
+  if (headers) {
+    for (const key of Object.keys(headers)) {
+      if (key.toLowerCase() === SENTRY_TEST_HEADER) delete headers[key];
+    }
+  }
+  return event;
 }
