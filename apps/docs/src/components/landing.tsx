@@ -10,41 +10,43 @@ import { SiteFooter } from "@/components/site-footer";
 
 export function Landing() {
   return (
-    <Auth5Panel
-      title="Get started with Loftlancer"
-      description="Organizations, projects, environments and encrypted variables for your team and your agents."
-      topLeft={
-        <a href="/docs" className={buttonVariants({ variant: "ghost" })}>
-          Docs
-        </a>
-      }
-      topRight={<ModeToggle />}
-      footer={<SiteFooter className="pt-2" />}
-    >
-      {/* Passwordless only (#373): GitHub, Google and an email magic link. */}
-      <SignInOptions />
-      <ul className="mt-4 flex flex-col divide-y divide-border/60 rounded-xl text-left ring-1 ring-border/60">
-        {appRegistry.map((app) => (
-          <li key={app.id} className="flex flex-col gap-0.5 px-3 py-2">
-            <span className="flex items-center gap-1.5 font-medium text-sm">
-              {app.name}
-              <span className="rounded-sm bg-muted px-1 text-muted-foreground text-xs">
-                App
+    <div className="contents" data-testid="docs-landing">
+      <Auth5Panel
+        title="Get started with Loftlancer"
+        description="Organizations, projects, environments and encrypted variables for your team and your agents."
+        topLeft={
+          <a href="/docs" className={buttonVariants({ variant: "ghost" })}>
+            Docs
+          </a>
+        }
+        topRight={<ModeToggle />}
+        footer={<SiteFooter className="pt-2" />}
+      >
+        {/* Passwordless only (#373): GitHub, Google and an email magic link. */}
+        <SignInOptions />
+        <ul className="mt-4 flex flex-col divide-y divide-border/60 rounded-xl text-left ring-1 ring-border/60">
+          {appRegistry.map((app) => (
+            <li key={app.id} className="flex flex-col gap-0.5 px-3 py-2">
+              <span className="flex items-center gap-1.5 font-medium text-sm">
+                {app.name}
+                <span className="rounded-sm bg-muted px-1 text-muted-foreground text-xs">
+                  App
+                </span>
               </span>
-            </span>
+              <span className="text-muted-foreground text-xs">
+                {app.description}
+              </span>
+            </li>
+          ))}
+          <li className="flex flex-col gap-0.5 px-3 py-2">
+            <span className="font-medium text-sm">Roles and permissions</span>
             <span className="text-muted-foreground text-xs">
-              {app.description}
+              Owner, manager and member roles, with per-project grants, checked
+              on every request.
             </span>
           </li>
-        ))}
-        <li className="flex flex-col gap-0.5 px-3 py-2">
-          <span className="font-medium text-sm">Roles and permissions</span>
-          <span className="text-muted-foreground text-xs">
-            Owner, manager and member roles, with per-project grants, checked on
-            every request.
-          </span>
-        </li>
-      </ul>
-    </Auth5Panel>
+        </ul>
+      </Auth5Panel>
+    </div>
   );
 }
