@@ -16,6 +16,10 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Fixed
+
+- Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
+
 ## [1.11.0] - 2026-10-17
 
 ### Added
