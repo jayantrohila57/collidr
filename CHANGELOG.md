@@ -25,6 +25,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 - PWA manifests: screenshots, paths, maskable icons, and OG image (#404)
 - Project list and detail RBAC scope aligned in the API (#26)
 - Page descriptions: xs type, two-line clamp, and more/less toggle (#78)
+- E2E routes require an explicit `E2E_TEST_SECRET` (#20)
 
 ## [1.12.2] - 2026-10-17
 
