@@ -20,6 +20,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ### Fixed
 
+- PWA manifests in auth, docs, and studio: screenshot assets no longer show Vercel 404 pages, narrow `sizes` match 390×844 captures, icon and screenshot paths use `/favicon/`, maskable icons are full-bleed on `#262626`, the command-palette environment group no longer reuses the Layers logo mark, and studio `og-image.png` is served from public without a signed-out redirect (#404)
 - Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
 - README sign-in methods, pnpm/Node prerequisites, and Studio URL; SECURITY.md supported version; integrations inventory PostHog opt-out and centralized logs release status; align `scripts/README.md`, getting-started, `PRODUCTION_DEPLOY.md`, and `summary.md` with path routing on loftlancer.com (#400)
 
