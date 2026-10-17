@@ -263,6 +263,9 @@ importers:
       '@loftlancer/env':
         specifier: workspace:*
         version: link:../../packages/env
+      '@loftlancer/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
       '@loftlancer/notifications':
         specifier: workspace:*
         version: link:../../packages/notifications
@@ -390,6 +393,9 @@ importers:
       '@loftlancer/api':
         specifier: workspace:*
         version: link:../../packages/api
+      '@loftlancer/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
       '@loftlancer/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -505,6 +511,9 @@ importers:
       '@loftlancer/env':
         specifier: workspace:*
         version: link:../../packages/env
+      '@loftlancer/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
       '@loftlancer/notifications':
         specifier: workspace:*
         version: link:../../packages/notifications
@@ -669,6 +678,9 @@ importers:
       '@loftlancer/env':
         specifier: workspace:*
         version: link:../env
+      '@loftlancer/logger':
+        specifier: workspace:*
+        version: link:../logger
       '@loftlancer/notifications':
         specifier: workspace:*
         version: link:../notifications
@@ -816,6 +828,9 @@ importers:
       '@loftlancer/env':
         specifier: workspace:*
         version: link:../env
+      '@loftlancer/logger':
+        specifier: workspace:*
+        version: link:../logger
       dotenv:
         specifier: 'catalog:'
         version: 17.4.2
@@ -862,6 +877,9 @@ importers:
 
   packages/email:
     dependencies:
+      '@loftlancer/logger':
+        specifier: workspace:*
+        version: link:../logger
       '@react-email/components':
         specifier: ^1.0.12
         version: 1.0.12(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -905,6 +923,21 @@ importers:
       zod:
         specifier: 'catalog:'
         version: 4.6.7
+    devDependencies:
+      '@loftlancer/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: ^26.6.5
+        version: 26.6.5
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+
+  packages/logger:
     devDependencies:
       '@loftlancer/config':
         specifier: workspace:*

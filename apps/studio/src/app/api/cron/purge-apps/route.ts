@@ -1,4 +1,5 @@
 import { dbPurgeDeps, purgeExpiredApps } from "@loftlancer/api/apps/purge";
+import { logger } from "@loftlancer/logger";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const result = await purgeExpiredApps(dbPurgeDeps);
-  console.log("[cron] purge-apps", JSON.stringify(result));
+  logger.info("cron purge-apps finished", { result: JSON.stringify(result) });
   return NextResponse.json(result);
 }

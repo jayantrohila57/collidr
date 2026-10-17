@@ -8,6 +8,7 @@ import {
   taskComment,
 } from "@loftlancer/db/schema/project-app";
 import { project } from "@loftlancer/db/schema/projects";
+import { logger } from "@loftlancer/logger";
 import { notify } from "@loftlancer/notifications/notify";
 import { TRPCError } from "@trpc/server";
 import { and, asc, desc, eq, ilike, isNull, type SQL, sql } from "drizzle-orm";
@@ -101,7 +102,7 @@ async function notifyTask(
       title: t.title,
     },
     idempotencyKey: key,
-  }).catch((e) => console.error("task notify failed", e));
+  }).catch((e) => logger.error("task notification failed", e));
 }
 
 async function projectIdForComment(

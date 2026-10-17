@@ -1,3 +1,5 @@
+import { logger } from "@loftlancer/logger";
+
 let loggedSchemaOutOfDate = false;
 
 function errorMessage(error: unknown): string {
@@ -58,10 +60,10 @@ export function logSchemaOutOfDateOnce(
     return true;
   }
   loggedSchemaOutOfDate = true;
-  const where = context ? ` (${context})` : "";
-  console.error(
-    `[database] schema out of date - run migrations${where}`,
+  logger.exception(
+    "database schema out of date, run migrations",
     unwrapDatabaseError(error),
+    { context },
   );
   return true;
 }

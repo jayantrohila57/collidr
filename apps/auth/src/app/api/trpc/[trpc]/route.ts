@@ -1,6 +1,7 @@
 import { createContextWithAuth } from "@loftlancer/api/create-context";
 import { accountAppRouter } from "@loftlancer/api/routers/account-app";
 import { logSchemaOutOfDateOnce } from "@loftlancer/db/postgres-errors";
+import { logger } from "@loftlancer/logger";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";
 import { BASE_PATH } from "@/lib/base-path";
@@ -19,7 +20,16 @@ function handler(req: NextRequest) {
       if (logSchemaOutOfDateOnce(root, `tRPC ${type} ${path ?? "unknown"}`)) {
         return;
       }
-      console.error(`[tRPC] ${type} ${path ?? "unknown"}:`, error);
+      const attributes = { "trpc.type": type, "trpc.path": path ?? "unknown" };
+      // Only server faults become Sentry issues; client errors are just logs.
+      if (error.code === "INTERNAL_SERVER_ERROR") {
+        logger.exception("tRPC request failed", root, attributes);
+      } else {
+        logger.info("tRPC request rejected", {
+          ...attributes,
+          "trpc.code": error.code,
+        });
+      }
     },
   });
 }

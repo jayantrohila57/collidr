@@ -8,6 +8,7 @@ import {
   environment,
   environmentVariable,
 } from "@loftlancer/db/schema/projects";
+import { logger } from "@loftlancer/logger";
 import { eq } from "drizzle-orm";
 
 export interface AuditLogData {
@@ -43,7 +44,7 @@ export async function createAuditLog(data: AuditLogData) {
       metadata: data.metadata || null,
     });
   } catch (error) {
-    console.error("Failed to create audit log:", error);
+    logger.exception("audit log write failed", error);
     // Don't throw error to avoid breaking main operations
   }
 }
@@ -64,7 +65,7 @@ export async function getProjectEnvironmentIds(
       ? { projectId: result.projectId, environmentId: result.id }
       : null;
   } catch (error) {
-    console.error("Failed to get environment details:", error);
+    logger.error("audit environment lookup failed", error);
     return null;
   }
 }
@@ -92,7 +93,7 @@ export async function getVariableDetails(variableId: string) {
 
     return result;
   } catch (error) {
-    console.error("Failed to get variable details:", error);
+    logger.error("audit variable lookup failed", error);
     return null;
   }
 }

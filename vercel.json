@@ -1,7 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
-    { "path": "/studio/api/cron/purge-apps", "schedule": "30 21 * * *" }
+    {
+      "path": "/studio/api/cron/purge-apps",
+      "schedule": "30 21 * * *"
+    }
   ],
   "regions": ["sin1"],
   "trailingSlash": false,
@@ -16,7 +19,44 @@
       "root": "apps/docs",
       "framework": "nextjs",
       "installCommand": "cd ../.. && pnpm install",
-      "buildCommand": "cd ../.. && VERCEL_SERVICES=1 pnpm turbo run build --filter=docs"
+      "buildCommand": "cd ../.. && VERCEL_SERVICES=1 pnpm turbo run build --filter=docs",
+      "headers": [
+        {
+          "source": "/favicon/(.*)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=86400, stale-while-revalidate=604800"
+            }
+          ]
+        },
+        {
+          "source": "/favicon.ico",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=86400, stale-while-revalidate=604800"
+            }
+          ]
+        },
+        {
+          "source": "/api/health",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-store, max-age=0"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "X-Robots-Tag",
+              "value": "noindex, nofollow"
+            }
+          ]
+        }
+      ]
     },
     "auth": {
       "root": "apps/auth",
