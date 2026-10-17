@@ -1,11 +1,17 @@
 "use client";
 
-import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@loftlancer/ui/select";
+import { useMemo } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import type { AppIconName } from "@/lib/icons";
 import { iconMutedClassName } from "@/lib/icons";
 import { cn } from "@/lib/utils";
-import { dataTableFilterOptionLabel } from "./data-table-filter-labels";
+import { dataTableFilterSelectDisplayLabel } from "./data-table-filter-labels";
 
 export type DataTableFilterOption = {
   value: string;
@@ -25,10 +31,6 @@ export type DataTableFilterSelectProps = {
   disabled?: boolean;
 };
 
-function optionDisplayLabel(option: DataTableFilterOption) {
-  return `${dataTableFilterOptionLabel(option.value, option.label)}${option.suffix ?? ""}`;
-}
-
 export function DataTableFilterSelect({
   value,
   onValueChange,
@@ -39,30 +41,83 @@ export function DataTableFilterSelect({
   className,
   disabled,
 }: DataTableFilterSelectProps) {
-  return (
-    <SearchableCombobox
-      value={value}
-      onChange={onValueChange}
-      disabled={disabled}
-      ariaLabel={ariaLabel}
-      placeholder={placeholder}
-      className={cn("w-auto min-w-[8.5rem] max-w-full", className)}
-      triggerIcon={
-        <AppIcon
-          name={triggerIcon}
-          className={cn(iconMutedClassName, "size-4 shrink-0")}
-        />
-      }
-      options={options.map((option) => ({
+  const items = useMemo(
+    () =>
+      options.map((option) => ({
         value: option.value,
-        label: optionDisplayLabel(option),
-        icon: option.icon ? (
+        label: dataTableFilterSelectDisplayLabel(
+          option.value,
+          option.label,
+          option.suffix,
+        ),
+      })),
+    [options],
+  );
+
+  const selected = useMemo(
+    () => options.find((option) => option.value === value),
+    [options, value],
+  );
+
+  const triggerLabel = selected
+    ? dataTableFilterSelectDisplayLabel(
+        selected.value,
+        selected.label,
+        selected.suffix,
+      )
+    : placeholder;
+
+  return (
+    <Select
+      value={value}
+      items={items}
+      disabled={disabled}
+      onValueChange={(next) => {
+        if (next) onValueChange(next);
+      }}
+    >
+      <SelectTrigger
+        size="sm"
+        aria-label={ariaLabel}
+        className={cn(
+          "h-8 w-auto min-w-[8.5rem] max-w-full justify-start gap-1.5 shadow-none",
+          className,
+        )}
+      >
+        <span className="flex min-w-0 flex-1 items-center gap-1.5 truncate">
           <AppIcon
-            name={option.icon}
+            name={triggerIcon}
             className={cn(iconMutedClassName, "size-4 shrink-0")}
           />
-        ) : undefined,
-      }))}
-    />
+          <span
+            className={cn("truncate", !selected && "text-muted-foreground")}
+          >
+            {triggerLabel}
+          </span>
+        </span>
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => {
+          const label = dataTableFilterSelectDisplayLabel(
+            option.value,
+            option.label,
+            option.suffix,
+          );
+          return (
+            <SelectItem key={option.value} value={option.value}>
+              <span className="flex min-w-0 items-center gap-1.5">
+                {option.icon ? (
+                  <AppIcon
+                    name={option.icon}
+                    className={cn(iconMutedClassName, "size-4 shrink-0")}
+                  />
+                ) : null}
+                <span className="min-w-0 truncate">{label}</span>
+              </span>
+            </SelectItem>
+          );
+        })}
+      </SelectContent>
+    </Select>
   );
 }
