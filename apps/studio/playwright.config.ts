@@ -50,6 +50,7 @@ export default defineConfig({
           BETTER_AUTH_SECRET:
             process.env.BETTER_AUTH_SECRET ??
             "playwright-local-auth-secret-32chars",
+          NEXT_PUBLIC_DISABLE_REACT_QUERY_DEVTOOLS: "1",
         },
       },
 });

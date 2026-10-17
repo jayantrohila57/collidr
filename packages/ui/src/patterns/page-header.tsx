@@ -5,6 +5,7 @@ import type React from "react";
 import { type ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Separator } from "../components/ui/separator";
+import { Skeleton } from "../components/ui/skeleton";
 import { layoutGapClass } from "../lib/layout-spacing";
 import {
   pageHeaderActionsClass,
@@ -22,13 +23,21 @@ import {
   pageHeaderTitleRowClass,
   pageHeaderTopRowClass,
 } from "../lib/page-header-classes";
+import {
+  pageHeaderDescriptionGridActionWrapClass,
+  pageHeaderDescriptionGridDescClass,
+  pageHeaderDescriptionGridTitleClass,
+  pageHeaderMetadataGridActionWrapClass,
+  pageHeaderTopDescriptionGridShellClass,
+  pageHeaderWithMetadataGridShellClass,
+} from "../lib/page-header-grid-classes";
 import { cn } from "../lib/utils";
 
 /**
  * The one in-app page header (studio dashboard, org, project, app pages and
  * auth account settings). Rows, top to bottom:
  *   1. back · title + description · actions (h-8)
- *   2. meta (fixed h-6, even when empty)
+ *   2. meta (min-h-6, even when empty)
  *   3. tabs (always; a single "All" tab by default) · tabs end slot
  */
 export type PageHeaderTabItem = {
@@ -207,49 +216,13 @@ function PageHeaderWithMetadataGrid({
   const hasBack = Boolean(back);
   const hasAction = Boolean(actions);
   const hasDescription = Boolean(description);
-
-  const mobileCols = hasBack
-    ? hasAction
-      ? "grid-cols-[auto_minmax(0,1fr)_auto]"
-      : "grid-cols-[auto_minmax(0,1fr)]"
-    : hasAction
-      ? "grid-cols-[minmax(0,1fr)_auto]"
-      : "grid-cols-1";
-
-  const mobileAreas = hasBack
-    ? hasAction
-      ? "[grid-template-areas:'leading_title_action'_'div_div_div'_'meta_meta_meta']"
-      : "[grid-template-areas:'leading_title'_'div_div'_'meta_meta']"
-    : hasAction
-      ? "[grid-template-areas:'title_action'_'div_div'_'meta_meta']"
-      : "[grid-template-areas:'title'_'div'_'meta']";
-
-  const desktopCols = hasBack
-    ? hasAction
-      ? "md:grid-cols-[auto_auto_minmax(0,1fr)_auto_auto_auto]"
-      : "md:grid-cols-[auto_auto_minmax(0,1fr)_auto_auto]"
-    : hasAction
-      ? "md:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
-      : "md:grid-cols-[minmax(0,1fr)_auto_auto]";
-
-  const desktopAreas = hasBack
-    ? hasAction
-      ? "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta_action']"
-      : "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta']"
-    : hasAction
-      ? "md:[grid-template-areas:'title_meta-sep_meta_action']"
-      : "md:[grid-template-areas:'title_meta-sep_meta']";
+  const slots = { hasBack, hasAction };
 
   return (
     <div
       className={cn(
-        "grid w-full min-w-0 gap-2 py-0.5",
         layoutGapClass,
-        mobileCols,
-        mobileAreas,
-        desktopCols,
-        desktopAreas,
-        hasDescription ? "md:items-start" : "md:items-center",
+        pageHeaderWithMetadataGridShellClass(slots, hasDescription),
       )}
     >
       {hasBack ? (
@@ -299,16 +272,9 @@ function PageHeaderWithMetadataGrid({
         )}
       />
 
-      {hasAction ? (
-        <div
-          className={cn(
-            "shrink-0 self-start [grid-area:action]",
-            hasDescription ? "md:mt-1 md:self-start" : "md:self-center",
-          )}
-        >
-          <PageHeaderActionsSlot actions={actions} />
-        </div>
-      ) : null}
+      <div className={pageHeaderMetadataGridActionWrapClass(hasDescription)}>
+        <PageHeaderActionsSlot actions={actions} />
+      </div>
     </div>
   );
 }
@@ -328,40 +294,13 @@ function PageHeaderTopWithDescriptionGrid({
 }) {
   const hasBack = Boolean(back);
   const hasAction = Boolean(actions);
-
-  const mobileCols = hasBack
-    ? hasAction
-      ? "grid-cols-[auto_minmax(0,1fr)_auto]"
-      : "grid-cols-[auto_minmax(0,1fr)]"
-    : hasAction
-      ? "grid-cols-[minmax(0,1fr)_auto]"
-      : "grid-cols-1";
-
-  const mobileAreas = hasBack
-    ? hasAction
-      ? "[grid-template-areas:'leading_title_action'_'desc_desc_desc']"
-      : "[grid-template-areas:'leading_title_title'_'desc_desc_desc']"
-    : hasAction
-      ? "[grid-template-areas:'title_action'_'desc_desc']"
-      : "[grid-template-areas:'title'_'desc']";
-
-  const desktopAreas = hasBack
-    ? hasAction
-      ? "md:[grid-template-areas:'leading_title_action'_'leading_desc_desc']"
-      : "md:[grid-template-areas:'leading_title_title'_'leading_desc_desc']"
-    : hasAction
-      ? "md:[grid-template-areas:'title_action'_'desc_desc']"
-      : "md:[grid-template-areas:'title'_'desc']";
+  const slots = { hasBack, hasAction };
 
   return (
     <div
       className={cn(
-        "grid w-full min-w-0 gap-2 py-0.5",
         layoutGapClass,
-        mobileCols,
-        mobileAreas,
-        desktopAreas,
-        "min-h-12",
+        pageHeaderTopDescriptionGridShellClass(slots),
       )}
     >
       {hasBack ? (
@@ -370,14 +309,16 @@ function PageHeaderTopWithDescriptionGrid({
       <PageHeaderTitleBlock
         title={title}
         titleAccessory={titleAccessory}
-        className="[grid-area:title]"
+        className={pageHeaderDescriptionGridTitleClass(hasBack)}
       />
-      {hasAction ? (
-        <div className="shrink-0 self-center [grid-area:action]">
-          <PageHeaderActionsSlot actions={actions} />
-        </div>
-      ) : null}
-      <div className="min-w-0 [grid-area:desc]">{description}</div>
+      <div className={pageHeaderDescriptionGridActionWrapClass(slots)}>
+        <PageHeaderActionsSlot actions={actions} />
+      </div>
+      <div
+        className={cn("min-w-0", pageHeaderDescriptionGridDescClass(hasBack))}
+      >
+        {description}
+      </div>
     </div>
   );
 }
@@ -482,4 +423,57 @@ export function PageHeaderActionsPortal({ children }: { children: ReactNode }) {
     setTarget(document.querySelector('[data-slot="page-header-actions"]'));
   }, []);
   return target ? createPortal(children, target) : null;
+}
+
+/** Same footprint as {@link PageHeaderLayout} while data loads. */
+export function PageHeaderLayoutSkeleton({
+  withDescription = true,
+  withAction = true,
+  withMeta = false,
+  tabCount = 1,
+}: {
+  withDescription?: boolean;
+  withAction?: boolean;
+  withMeta?: boolean;
+  tabCount?: number;
+}) {
+  const description = withDescription ? (
+    <div className="flex h-4 items-center">
+      <Skeleton className="h-3 w-64 max-w-full" />
+    </div>
+  ) : null;
+
+  const meta = withMeta ? (
+    <div className="flex min-h-6 flex-wrap items-center gap-x-4 gap-y-1">
+      <Skeleton className="h-3 w-32" />
+    </div>
+  ) : undefined;
+
+  return (
+    <PageHeaderLayout
+      back={<Skeleton className="size-8 shrink-0 rounded-md" aria-hidden />}
+      title={<Skeleton className="h-5 w-40 max-w-full" aria-hidden />}
+      description={description}
+      actions={
+        withAction ? (
+          <Skeleton className="h-8 w-28 rounded-md" aria-hidden />
+        ) : undefined
+      }
+      meta={meta}
+      tabs={
+        <div className={pageHeaderTabsRowClass} aria-hidden>
+          <div className={pageHeaderTabsListClass}>
+            {Array.from({ length: tabCount }, (_, i) => (
+              <div
+                key={`tab-skeleton-${String(i)}`}
+                className="flex h-9 items-center px-2.5"
+              >
+                <Skeleton className="h-3 w-12" />
+              </div>
+            ))}
+          </div>
+        </div>
+      }
+    />
+  );
 }

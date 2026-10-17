@@ -59,7 +59,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               {/* PostHog stays off without a key (#353); skip the session hook too. */}
               {posthogKey ? <PostHogUser /> : null}
               {children}
-              <ReactQueryDevtools />
+              {process.env.NODE_ENV === "development" &&
+              process.env.NEXT_PUBLIC_DISABLE_REACT_QUERY_DEVTOOLS !== "1" ? (
+                <ReactQueryDevtools />
+              ) : null}
             </ToastProvider>
           </ThemeProvider>
         </DirectionProvider>

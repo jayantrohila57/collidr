@@ -4,6 +4,7 @@ import {
   pageHeaderDescriptionGridActionClass,
   pageHeaderDescriptionGridDescClass,
   pageHeaderDescriptionGridTitleClass,
+  pageHeaderTopDescriptionGridShellClass,
 } from "./page-header-grid-classes";
 
 describe("pageHeaderDescriptionGridTitleClass", () => {
@@ -31,5 +32,16 @@ describe("pageHeaderDescriptionGridActionClass", () => {
       pageHeaderDescriptionGridActionClass(false),
       /col-start-3/,
     );
+  });
+});
+
+describe("pageHeaderTopDescriptionGridShellClass", () => {
+  it("uses two title columns on mobile when back is shown without action", () => {
+    const shell = pageHeaderTopDescriptionGridShellClass({
+      hasBack: true,
+      hasAction: false,
+    });
+    assert.match(shell, /leading_title/);
+    assert.doesNotMatch(shell, /leading_title_title/);
   });
 });

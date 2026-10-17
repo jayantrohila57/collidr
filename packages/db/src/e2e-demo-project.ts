@@ -1,9 +1,12 @@
 import { and, eq } from "drizzle-orm";
 
 import { db } from "./client";
+import { assertE2eDemoVariableSeedAllowed } from "./e2e-demo-seed-guard";
 import { seedE2eDemoVariables } from "./e2e-demo-variables";
+import { slugifyPersonal } from "./personal-org-slug";
 import { user } from "./schema/auth";
 import { member, organization } from "./schema/organization";
+import { projectApp } from "./schema/project-app";
 import { environment, project } from "./schema/projects";
 import {
   activeEnvironmentWhere,
@@ -17,25 +20,11 @@ export const E2E_DEMO_PROJECT_SLUG = "e2e-demo-project";
 const E2E_ENV_NAME = "Development";
 const E2E_ENV_SLUG = "development";
 
-/** Stable slug for the Playwright user's personal workspace. */
-export function e2ePersonalOrganizationSlug(
-  userId: string,
-  name: string,
-): string {
-  const base = name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 40);
-  const suffix = userId.replace(/-/g, "").slice(0, 8);
-  return `${base || "workspace"}-personal-${suffix}`.slice(0, 255);
-}
-
 async function ensureE2ePersonalOrganization(
   userId: string,
   name: string,
 ): Promise<{ id: string; slug: string }> {
-  const slug = e2ePersonalOrganizationSlug(userId, name);
+  const slug = slugifyPersonal(userId, name);
 
   const [existing] = await db
     .select({ id: organization.id, slug: organization.slug })
@@ -86,6 +75,8 @@ async function ensureE2ePersonalOrganization(
 }
 
 export async function ensureE2eDemoProject() {
+  assertE2eDemoVariableSeedAllowed();
+
   const [userRow] = await db
     .select({ id: user.id, name: user.name })
     .from(user)
@@ -160,6 +151,24 @@ export async function ensureE2eDemoProject() {
       projectId: projectRow.id,
     });
     envRow = { id: envId };
+  }
+
+  const [envAppRow] = await db
+    .select({ id: projectApp.id })
+    .from(projectApp)
+    .where(
+      and(eq(projectApp.projectId, projectRow.id), eq(projectApp.appId, "env")),
+    )
+    .limit(1);
+
+  if (!envAppRow) {
+    await db.insert(projectApp).values({
+      id: crypto.randomUUID(),
+      organizationId: personalOrg.id,
+      projectId: projectRow.id,
+      appId: "env",
+      installedBy: userRow.id,
+    });
   }
 
   await seedE2eDemoVariables(envRow.id, userRow.id);

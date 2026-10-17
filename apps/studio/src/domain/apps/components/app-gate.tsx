@@ -24,6 +24,11 @@ export function AppGate({
   const org = useOrgSlug();
   const { apps, isLoading, canManage } = useProjectApps(slug);
   const projectTabs = useProjectTabs(slug);
+  // Dedicated /env routes already imply the environments app; avoid blocking on
+  // a client projectApps fetch (Playwright + nested query hydration).
+  if (appId === "env") {
+    return <>{children}</>;
+  }
   if (isLoading) return <>{fallback}</>;
   const app = apps.find((a) => a.id === appId);
   if (app?.status === "active") return <>{children}</>;

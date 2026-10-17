@@ -4,20 +4,11 @@
  *   DATABASE_URL=... pnpm exec tsx packages/db/scripts/backfill-personal-orgs.ts
  */
 import { db } from "@loftlancer/db";
+import { slugifyPersonal } from "@loftlancer/db/personal-org-slug";
 import { user } from "@loftlancer/db/schema/auth";
 import { member, organization } from "@loftlancer/db/schema/organization";
 import { project } from "@loftlancer/db/schema/projects";
 import { eq, sql } from "drizzle-orm";
-
-function slugifyPersonal(userId: string, name: string): string {
-  const base = name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 40);
-  const suffix = userId.replace(/-/g, "").slice(0, 8);
-  return `${base || "workspace"}-personal-${suffix}`.slice(0, 255);
-}
 
 async function main() {
   const users = await db.select({ id: user.id, name: user.name }).from(user);

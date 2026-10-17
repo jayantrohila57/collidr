@@ -1,16 +1,10 @@
 "use client";
 
 import {
-  pageHeaderMetaRowClass,
-  pageHeaderRootClass,
-  pageHeaderTabsRowClass,
-  pageHeaderTopRowClass,
-} from "@loftlancer/ui/page-header-classes";
-import {
   PageHeaderLayout,
+  PageHeaderLayoutSkeleton,
   PageHeaderTabsRow,
 } from "@loftlancer/ui/patterns/page-header";
-import { Skeleton } from "@loftlancer/ui/skeleton";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -78,11 +72,6 @@ function resolveBack(
   };
 }
 
-const rootClass = pageHeaderRootClass;
-const topRowClass = pageHeaderTopRowClass;
-const metaRowClass = pageHeaderMetaRowClass;
-const tabsRowClass = pageHeaderTabsRowClass;
-
 export function PageHeaderTabs({
   tabs,
   activeTab,
@@ -119,7 +108,7 @@ export function PageHeader({
   action?: ReactNode;
   /** @deprecated use `meta` */
   metadata?: ReactNode;
-  /** Badges, links, key/value data under the title row. Height is fixed. */
+  /** Badges, links, key/value data under the title row (min-h-6, may wrap). */
   meta?: ReactNode;
   back?: PageHeaderBackProp;
 } & PageHeaderTabsProps) {
@@ -157,40 +146,22 @@ export function PageHeader({
 export function PageHeaderSkeleton({
   withDescription = true,
   withAction = true,
+  withMeta = false,
   tabCount = 1,
 }: {
   withDescription?: boolean;
   withAction?: boolean;
+  withMeta?: boolean;
   tabCount?: number;
 }) {
   return (
-    <div className={rootClass} aria-hidden data-slot="page-header-skeleton">
-      <div className={topRowClass}>
-        <Skeleton className="size-8 shrink-0 rounded-md" />
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <div className="flex h-8 items-center">
-            <Skeleton className="h-5 w-40" />
-          </div>
-          {withDescription ? (
-            <div className="flex h-4 items-center">
-              <Skeleton className="h-3 w-64 max-w-full" />
-            </div>
-          ) : null}
-        </div>
-        {withAction ? (
-          <Skeleton className="h-8 w-28 shrink-0 rounded-md" />
-        ) : null}
-      </div>
-      <div className={metaRowClass}>
-        <Skeleton className="h-3 w-32" />
-      </div>
-      <div className={tabsRowClass}>
-        <div className="flex h-9 items-center gap-3 px-2.5">
-          {Array.from({ length: tabCount }, (_, i) => (
-            <Skeleton key={`tab-${String(i)}`} className="h-3 w-12" />
-          ))}
-        </div>
-      </div>
+    <div aria-hidden data-slot="page-header-skeleton">
+      <PageHeaderLayoutSkeleton
+        withDescription={withDescription}
+        withAction={withAction}
+        withMeta={withMeta}
+        tabCount={tabCount}
+      />
     </div>
   );
 }

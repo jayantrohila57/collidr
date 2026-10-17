@@ -5,6 +5,17 @@ import { isE2eAuthRouteAllowed } from "@/lib/e2e-auth-allowed";
 import { isValidE2eSecret } from "@/lib/e2e-secret";
 import { type E2ePersona, e2ePersonaCredentials } from "@/lib/e2e-users";
 
+function sessionCookieHeader(setCookies: string[]): Headers {
+  const headers = new Headers();
+  const pairs = setCookies
+    .map((line) => line.split(";")[0]?.trim())
+    .filter((pair): pair is string => Boolean(pair));
+  if (pairs.length > 0) {
+    headers.set("cookie", pairs.join("; "));
+  }
+  return headers;
+}
+
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
@@ -40,6 +51,21 @@ export async function POST(request: Request) {
       const next = new Response(response.body, response);
       next.headers.set("X-E2E-Demo-Org", demo.organizationSlug);
       next.headers.set("X-E2E-Demo-Project", demo.projectSlug);
+
+      const signInCookies = response.headers.getSetCookie();
+      const active = await auth.api
+        .setActiveOrganization({
+          headers: sessionCookieHeader(signInCookies),
+          body: { organizationSlug: demo.organizationSlug },
+          asResponse: true,
+        })
+        .catch(() => null);
+      if (active?.ok) {
+        for (const cookie of active.headers.getSetCookie()) {
+          next.headers.append("set-cookie", cookie);
+        }
+      }
+
       return next;
     }
   }

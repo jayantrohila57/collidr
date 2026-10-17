@@ -43,6 +43,22 @@ export async function hydrateProjectDetailQueries(
     return projectPayload;
   });
 
+  const projectId = projectRes.data.project?.id;
+  if (!projectId) {
+    return projectRes;
+  }
+  try {
+    await measure("project-apps", () =>
+      prefetchWithCaller(
+        queryClient,
+        trpcQueryOptions.projectApps.list.queryOptions({ projectId }),
+        () => caller.projectApps.list({ projectId }),
+      ),
+    );
+  } catch {
+    // Client will refetch if prefetch fails (e.g. missing grant).
+  }
+
   const firstEnvironmentId = projectRes.data.environments[0]?.id;
   if (firstEnvironmentId) {
     try {
