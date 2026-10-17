@@ -100,6 +100,77 @@ export function captureEvent(
   );
 }
 
+/** Analytics consent as read by `useAnalyticsConsent` (`null` before hydration). */
+export type PostHogConsent = "granted" | "denied" | "unset" | null;
+
+/** Latest consent seen on this page; read when array.js finishes loading. */
+let consentGranted = false;
+
+type PostHogInstance = {
+  has_opted_out_capturing?: () => boolean;
+  opt_in_capturing?: (options?: { captureEventName?: false }) => void;
+  opt_out_capturing?: () => void;
+};
+
+/** Opt in without the default `$opt_in` event: consent is already on record. */
+const OPT_IN_OPTIONS = { captureEventName: false } as const;
+
+/**
+ * Brings a loaded PostHog instance in line with consent. PostHog persists an
+ * opt-out across reloads, so a later re-grant has to opt back in.
+ */
+export function syncInstanceConsent(
+  instance: PostHogInstance,
+  granted: boolean,
+): void {
+  try {
+    if (!granted) {
+      instance.opt_out_capturing?.();
+    } else if (instance.has_opted_out_capturing?.()) {
+      instance.opt_in_capturing?.(OPT_IN_OPTIONS);
+    }
+  } catch {
+    // Analytics must never break the app.
+  }
+}
+
+/** True when the last consent call queued on the stub is an opt-out. */
+function stubOptedOut(stub: unknown[]): boolean {
+  for (let i = stub.length - 1; i >= 0; i--) {
+    const item = stub[i];
+    if (!Array.isArray(item)) continue;
+    if (item[0] === "opt_out_capturing") return true;
+    if (item[0] === "opt_in_capturing") return false;
+  }
+  return false;
+}
+
+/**
+ * Applies a consent change on the current page (#353). Withdrawing (denied,
+ * or the choice cleared) opts PostHog out at once, so capture and replay stop
+ * without a reload. Granting loads PostHog, or opts an already-loaded,
+ * opted-out instance back in.
+ */
+export function applyPostHogConsent(
+  consent: PostHogConsent,
+  host: PostHogHost | undefined = defaultHost(),
+): void {
+  if (consent === null) return;
+  consentGranted = consent === "granted";
+  const instance = host?.posthog;
+  if (!instance) {
+    if (consentGranted) loadPostHog();
+    return;
+  }
+  if (Array.isArray(instance)) {
+    if (!consentGranted) instance.push(["opt_out_capturing"]);
+    else if (stubOptedOut(instance))
+      instance.push(["opt_in_capturing", OPT_IN_OPTIONS]);
+    return;
+  }
+  syncInstanceConsent(instance as PostHogInstance, consentGranted);
+}
+
 /**
  * Loads PostHog from its CDN the way the official snippet does (a queued
  * stub that array.js picks up), so Studio carries no extra npm dependency.
@@ -110,6 +181,8 @@ export function loadPostHog(): void {
   if (!posthogKey || typeof window === "undefined") return;
   const w = window as unknown as { posthog?: PostHogStub };
   if (w.posthog) return;
+  // Only ever called with consent granted.
+  consentGranted = true;
   const stub: PostHogStub = [];
   stub.people = [];
   stub._i = [
@@ -120,6 +193,9 @@ export function loadPostHog(): void {
         person_profiles: "identified_only",
         capture_pageview: "history_change",
         session_recording: { maskAllInputs: true },
+        // Undo an opt-out persisted by an earlier withdrawal once consent is back.
+        loaded: (instance: PostHogInstance) =>
+          syncInstanceConsent(instance, consentGranted),
       },
     ],
   ];
