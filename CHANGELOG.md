@@ -16,6 +16,10 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Fixed
+
+- Studio projects grid: equal-width cards and New project in the list toolbar (grid and list views) (#55)
+
 ## [1.11.1] - 2026-10-17
 
 ### Fixed
