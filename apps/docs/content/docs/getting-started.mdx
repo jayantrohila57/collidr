@@ -5,8 +5,8 @@ description: Run Loftlancer locally and learn core concepts.
 
 ## Prerequisites
 
-- Node.js 20+
-- pnpm 10.13.1 (Corepack)
+- Node.js 22.14+ (root `package.json` `engines`)
+- pnpm 12.11.2 (Corepack; root `packageManager`)
 - PostgreSQL (`DATABASE_URL`)
 - GitHub OAuth credentials
 
@@ -15,19 +15,23 @@ description: Run Loftlancer locally and learn core concepts.
 From the repository root:
 
 ```bash
+corepack enable
+corepack prepare pnpm@12.11.2 --activate
 pnpm install
 # configure env per app — see README.md and docs/PRODUCTION_DEPLOY.md
-pnpm --filter studio dev
+pnpm dev:studio
 ```
 
-Studio runs at `http://localhost:3000` (or the port shown in the terminal).
+Studio runs at `http://localhost:3001` (see `apps/studio/package.json`).
 
 ## Run docs and other apps
 
 ```bash
-pnpm --filter docs dev   # http://localhost:3001 → /docs
-pnpm --filter auth dev   # auth app (OAuth callbacks)
+pnpm dev:docs   # http://localhost:3001 — Fumadocs routes under /docs
+pnpm dev:auth   # http://localhost:3000 — OAuth callbacks at /api/auth/*
 ```
+
+Production serves the same apps on one origin: `https://loftlancer.com` with paths `/auth`, `/studio`, and docs (including `/docs/*`) via root `vercel.json`.
 
 ## Core concepts
 
