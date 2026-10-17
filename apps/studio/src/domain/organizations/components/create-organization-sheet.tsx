@@ -24,6 +24,7 @@ import {
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { authClient } from "@/lib/auth-client";
 import { slugifyOrganizationName } from "@/lib/org-slug";
+import { captureEvent, STUDIO_EVENTS } from "@/lib/posthog";
 import { toast } from "@/lib/toast";
 import { routes } from "@/utils/navigation";
 
@@ -91,6 +92,7 @@ export function CreateOrganizationSheet({
       );
       const orgId = result.data?.id;
       if (orgId) {
+        captureEvent(STUDIO_EVENTS.organizationCreated, { source: "sheet" });
         await afterOrganizationCreated(orgId);
         const slug = result.data?.slug ?? values.slug;
         closeWithoutPromptRef.current?.();

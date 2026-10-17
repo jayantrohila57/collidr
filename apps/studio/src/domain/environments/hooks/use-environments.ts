@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCurrentOrgSlug } from "@/components/org/use-current-org-slug";
 import { actionToast } from "@/lib/action-toast";
 import { withBasePath } from "@/lib/base-path";
+import { captureEvent, STUDIO_EVENTS } from "@/lib/posthog";
 import { projectDetailQueryStaleTime } from "@/lib/prefetch-project-detail";
 import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";
@@ -158,6 +159,7 @@ export function useEnvironments(projectSlug: string) {
         });
       },
       onSuccess: (response) => {
+        captureEvent(STUDIO_EVENTS.environmentCreated);
         const newId = response.data?.id;
         if (newId) {
           setActiveTab(newId);

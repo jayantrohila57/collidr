@@ -5,6 +5,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { accountSettingsUrl } from "@/lib/account-url";
 import { authClient } from "@/lib/auth-client";
+import { resetPostHog } from "@/lib/posthog";
 
 /**
  * Get current session with loading state
@@ -23,7 +24,11 @@ export async function performSignOut(options: {
   const { queryClient } = options;
 
   await performPlatformSignOut({
-    onClearClient: () => queryClient.clear(),
+    onClearClient: () => {
+      // Unlink this browser from the signed-out user in PostHog (#353).
+      resetPostHog();
+      queryClient.clear();
+    },
     signOutLocal: () => authClient.signOut(),
   });
 }
