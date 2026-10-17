@@ -4,6 +4,6 @@ export {
   createLoftlancerAuthClient,
 } from "./create-auth-client";
 export {
-  LoftlancerImpersonationBanner,
   getImpersonatedByUserId,
+  LoftlancerImpersonationBanner,
 } from "./impersonation-banner";

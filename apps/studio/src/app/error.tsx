@@ -1,8 +1,7 @@
 "use client";
 
-import { Auth5Content, Auth5Frame } from "@loftlancer/ui/patterns/auth-5";
-
 import { AppRouteErrorPage } from "@loftlancer/ui/patterns/app-route-states";
+import { Auth5Content, Auth5Frame } from "@loftlancer/ui/patterns/auth-5";
 
 export default function RouteError({
   error,

@@ -146,7 +146,9 @@ export function publicServicePath(
   pathname: string,
 ): string {
   const base =
-    service === "auth" ? resolveAuthPublicUrl() : resolvePublicServiceUrl(service);
+    service === "auth"
+      ? resolveAuthPublicUrl()
+      : resolvePublicServiceUrl(service);
   const path = pathname.startsWith("/") ? pathname : `/${pathname}`;
   return `${base}${path}`;
 }

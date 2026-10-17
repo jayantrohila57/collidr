@@ -29,6 +29,7 @@ export function PageHeaderDescription({
   const [isTruncated, setIsTruncated] = useState(false);
   const measureRef = useRef<HTMLParagraphElement>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `text` is a deliberate trigger; a new description must be re-measured even when the element size stays the same.
   useLayoutEffect(() => {
     if (expanded) {
       return;

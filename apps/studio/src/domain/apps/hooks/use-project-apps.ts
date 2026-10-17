@@ -40,6 +40,12 @@ export function useProjectApps(slug: string) {
     onSuccess: invalidate,
   });
 
+  /** Runs a mutation for the current project; rejects (and toasts) if none is resolved yet. */
+  const withProject = <T>(run: (id: string) => Promise<T>): Promise<T> =>
+    projectId
+      ? run(projectId)
+      : Promise.reject(new Error("No project selected"));
+
   const apps = list.data ?? [];
   return {
     project,
@@ -50,17 +56,23 @@ export function useProjectApps(slug: string) {
     isError: list.isError,
     canManage: canInstall.allowed,
     install: (appId: string, name: string) =>
-      actionToast(install.mutateAsync({ projectId: projectId!, appId }), {
-        loading: `Installing ${name}…`,
-        success: `${name} installed`,
-        error: `Couldn't install ${name}`,
-      }),
+      actionToast(
+        withProject((id) => install.mutateAsync({ projectId: id, appId })),
+        {
+          loading: `Installing ${name}…`,
+          success: `${name} installed`,
+          error: `Couldn't install ${name}`,
+        },
+      ),
     uninstall: (appId: string, name: string) =>
-      actionToast(uninstall.mutateAsync({ projectId: projectId!, appId }), {
-        loading: `Uninstalling ${name}…`,
-        success: `${name} uninstalled. Data is kept for 30 days.`,
-        error: `Couldn't uninstall ${name}`,
-      }),
+      actionToast(
+        withProject((id) => uninstall.mutateAsync({ projectId: id, appId })),
+        {
+          loading: `Uninstalling ${name}…`,
+          success: `${name} uninstalled. Data is kept for 30 days.`,
+          error: `Couldn't uninstall ${name}`,
+        },
+      ),
     isMutating: install.isPending || uninstall.isPending,
   };
 }

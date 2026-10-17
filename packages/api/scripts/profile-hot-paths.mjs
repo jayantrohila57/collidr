@@ -11,9 +11,7 @@ let originalQuery;
 
 async function main() {
   const { db } = await import("@loftlancer/db");
-  const { fetchUserAccountStats } = await import(
-    "../src/routers/dashboard.ts"
-  );
+  const { fetchUserAccountStats } = await import("../src/routers/dashboard.ts");
   const { buildPermissionsSnapshot } = await import(
     "../src/actions/permissions-snapshot.ts"
   );

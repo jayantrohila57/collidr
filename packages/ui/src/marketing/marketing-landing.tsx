@@ -96,7 +96,7 @@ function FeaturesSection() {
         </p>
       </div>
       <ul
-        className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-6 [&>li:nth-last-child(2)]:lg:col-start-2 [&>li:last-child:nth-child(5)]:lg:col-start-4"
+        className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-6 [&>li:last-child:nth-child(5)]:lg:col-start-4 [&>li:nth-last-child(2)]:lg:col-start-2"
         data-testid="marketing-features"
       >
         {marketingFeatures.map((feature) => {

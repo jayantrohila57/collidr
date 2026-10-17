@@ -20,7 +20,7 @@ function fakeStore(rows: PurgeCandidate[]) {
     },
     markPurged: async (id) => {
       const row = rows.find((r) => r.id === id);
-      if (!row || row.status !== "uninstalled") return false;
+      if (row?.status !== "uninstalled") return false;
       row.status = "purged";
       return true;
     },

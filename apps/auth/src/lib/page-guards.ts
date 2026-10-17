@@ -18,8 +18,8 @@ import { getServerSession } from "@/lib/server-auth";
 
 const appOrigin = (
   process.env.NEXT_PUBLIC_AUTH_URL ??
-    process.env.NEXT_PUBLIC_ACCOUNT_URL ??
-    DEFAULT_AUTH_URL
+  process.env.NEXT_PUBLIC_ACCOUNT_URL ??
+  DEFAULT_AUTH_URL
 ).replace(/\/$/, "");
 
 async function currentReturnPath(): Promise<string> {

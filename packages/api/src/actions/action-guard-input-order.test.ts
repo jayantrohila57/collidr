@@ -1,13 +1,10 @@
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
-const routersDir = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../routers",
-);
+const routersDir = join(dirname(fileURLToPath(import.meta.url)), "../routers");
 
 function listRouterSources(dir: string): string[] {
   const paths: string[] = [];

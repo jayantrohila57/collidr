@@ -18,9 +18,5 @@ export function useOrgQueryEnabled() {
   const orgReady =
     Boolean(activeOrganizationId) || Boolean(sessionOrgId?.trim());
 
-  return (
-    !isSwitching &&
-    !sessionPending &&
-    (!orgsEnabled || orgReady)
-  );
+  return !isSwitching && !sessionPending && (!orgsEnabled || orgReady);
 }

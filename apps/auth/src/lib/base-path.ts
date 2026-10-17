@@ -1,7 +1,10 @@
 import type { NextRequest } from "next/server";
 
 /** Next.js basePath of this app (e.g. `/studio`), empty in local multi-port dev. */
-export const BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/$/, "");
+export const BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(
+  /\/$/,
+  "",
+);
 
 /** Prefix a root-relative path with the app basePath (for fetch / window.location). */
 export function withBasePath(path: string): string {

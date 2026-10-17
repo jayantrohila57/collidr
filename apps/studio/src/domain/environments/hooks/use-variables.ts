@@ -227,16 +227,14 @@ export function useVariables(environmentId: string) {
           const existing = new Set(previousVariables.data.map((v) => v.key));
           const newVariables: VariableOutput[] = variables.variables
             .filter((variable) => !existing.has(variable.key))
-            .map(
-            (variable, index) => ({
+            .map((variable, index) => ({
               id: `temp-bulk-${Date.now()}-${index}`,
               key: variable.key,
               value: variable.value,
               environmentId,
               createdAt: new Date(),
               updatedAt: new Date(),
-            }),
-          );
+            }));
 
           queryClient.setQueryData(
             trpc.environmentVariables.list.queryKey({ environmentId }),
