@@ -2,11 +2,11 @@
 
 ## Supported versions
 
-Security fixes are applied on the **`main`** branch and released via Vercel deploys from `main`. Use the latest production deployment at [studio.loftlancer.com](https://loftlancer.com/studio).
+Security fixes are applied on the **`main`** branch and released via Vercel deploys from `main`. Use the latest production deployment at [loftlancer.com/studio](https://loftlancer.com/studio).
 
 | Version (package.json) | Supported |
 | ---------------------- | --------- |
-| 1.8.x (current)        | Yes       |
+| 1.11.x (current)       | Yes       |
 | Older tagged releases  | No        |
 
 ## Reporting a vulnerability
