@@ -6,6 +6,7 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${port}`;
 /** PWA screenshot capture — starts studio with E2E login for real dashboard UI. */
 export default defineConfig({
   testDir: "./e2e",
+  timeout: 120_000,
   fullyParallel: false,
   workers: 1,
   reporter: "list",
