@@ -2,12 +2,18 @@
 
 Loftlancer ships from **`main` only**. Day-to-day work merges **feature branch → `dev` → `main`**; only pushes to **`main`** trigger Vercel production builds.
 
-Production is **five separate Vercel Hobby projects** (no monorepo Services router): `auth`, `studio`, `console`, `mcp`, and `docs`. Each project uses **Root Directory** `apps/<app>` and `apps/<app>/vercel.json`:
+Production is **one Vercel project** on **loftlancer.com**. Root [`vercel.json`](../vercel.json) defines three **Services** (`docs`, `auth`, `studio`) and path **rewrites**:
+
+| Path | App | Public URL |
+|------|-----|------------|
+| `/` and most site routes | `apps/docs` | `https://loftlancer.com` (docs content under `/docs/*`) |
+| `/auth` | `apps/auth` | `https://loftlancer.com/auth` |
+| `/studio` | `apps/studio` | `https://loftlancer.com/studio` |
 
 - `git.deploymentEnabled`: `{ "*": false, "main": true }` — no deploys from `dev` or feature branches.
-- `ignoreCommand`: exit `0` (skip build) when `VERCEL_GIT_COMMIT_REF` is not `main`; on `main`, run `turbo-ignore` for unchanged apps.
+- Production builds set `VERCEL_SERVICES=1` and per-app `NEXT_BASE_PATH` (`/auth`, `/studio`) in each service `buildCommand`.
 
-Cross-app URLs use explicit `NEXT_PUBLIC_*` env vars; session SSO uses auth **cross-app finish** + sibling **establish-session** (not shared cookies on `*.vercel.app`).
+Session cookies are **same-origin** on `loftlancer.com`. Cross-app URLs use `NEXT_PUBLIC_*` env vars (defaults in `packages/env/src/platform.ts`). Legacy subdomain hostnames (`auth.loftlancer.com`, `studio.loftlancer.com`, …) are not used.
 
 This runbook addresses **Hobby / Pro deploy limits**, **feature-flag reliability** (`NEXT_PUBLIC_*` + Turbo cache), and the **approved production schema path** (`drizzle-kit push`).
 
@@ -53,11 +59,11 @@ Paired flags must match on Vercel **Production** before deploy:
 
 ```bash
 pnpm install
-pnpm turbo run build --filter=web
+SKIP_ENV_VALIDATION=1 DATABASE_URL=postgresql://localhost:5432/test pnpm build
 pnpm check-types
 ```
 
-- [ ] `build --filter=web` succeeds with production-like env (or CI secrets).
+- [ ] `pnpm build` succeeds with production-like env (or CI secrets).
 
 ### 5. Push and confirm Vercel
 
@@ -89,7 +95,7 @@ Vercel accounts limit **how many deployments** you can create per day (Hobby is 
 |------------|--------|
 | **Batch work** | Land multiple fixes in a single push instead of many small pushes. |
 | **No preview spam** | Do not open feature branches for routine delivery; previews are disabled by policy ([AGENTS.md](../AGENTS.md)). |
-| **Validate before push** | Run `pnpm turbo run build --filter=web` locally to avoid failed deploys that still consume quota. |
+| **Validate before push** | Run `pnpm build` locally to avoid failed deploys that still consume quota. |
 | **Env-first, then code** | Apply DB changes and set Vercel env vars **before** the code that depends on them; combine flag + code in one redeploy when possible. |
 | **Use Vercel UI for hotfix redeploy** | Re-running an existing deployment does not require a new commit; prefer that for “rebuild after `NEXT_PUBLIC_*` only” changes. |
 
@@ -126,112 +132,76 @@ When adding a new paired flag, update `packages/env/src/web.ts`, `packages/env/s
 
 ## Loftlancer production URLs (loftlancer.com)
 
-| App | Vercel root | Public URL |
-|-----|-------------|------------|
-| **auth** | `apps/auth` | `https://auth.loftlancer.com` |
-| **studio** (product) | `apps/studio` | `https://studio.loftlancer.com` |
-| **console** | `apps/console` | `https://console.loftlancer.com` |
-| **mcp** | `apps/mcp` | `https://mcp.loftlancer.com` |
-| **docs** | `apps/docs` | `https://loftlancer.com` (apex) |
-| **www** | `apps/www` | Redirect `https://www.loftlancer.com` → apex |
+See also [Self-hosting](https://loftlancer.com/docs/deploy/self-hosting) on the public docs site.
 
-Session SSO on the custom apex uses Better Auth **`crossSubDomainCookies`** with `AUTH_COOKIE_DOMAIN=.loftlancer.com` on the auth app. Cross-app **establish-session** + OTT finish remains the fallback when cookies cannot be shared (e.g. `*.vercel.app` preview hosts).
+| App | Service root | Public URL |
+|-----|--------------|------------|
+| **docs** | `apps/docs` | `https://loftlancer.com` (Fumadocs under `/docs/*`) |
+| **auth** | `apps/auth` | `https://loftlancer.com/auth` |
+| **studio** (product) | `apps/studio` | `https://loftlancer.com/studio` |
 
 Repository: `https://github.com/jayantrohila57/loftlancer`
 
-### Shared secrets (all apps that hit the API / DB)
+### Shared secrets (auth + studio)
 
-Set on **auth**, **studio**, **console**, **mcp**, and any app running tRPC against Postgres:
+Both **auth** and **studio** hit Postgres and tRPC. **docs** is a static export and only needs public URL env vars for nav CTAs.
 
-| Variable | Example / notes |
-|----------|-----------------|
+| Variable | Production example / notes |
+|----------|---------------------------|
 | `DATABASE_URL` | Neon direct connection string |
 | `DATABASE_URL_POOLED` | Neon pooler URL (preferred on Vercel) |
-| `BETTER_AUTH_SECRET` | ≥32 chars, same on every app |
-| `BETTER_AUTH_URL` | `https://auth.loftlancer.com` |
-| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | OAuth app callback `https://auth.loftlancer.com/api/auth/callback/github` |
+| `BETTER_AUTH_SECRET` | ≥32 chars, same on auth and studio |
+| `BETTER_AUTH_URL` | `https://loftlancer.com/auth` |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | OAuth callback `https://loftlancer.com/auth/api/auth/callback/github` |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional; Google sign-in when both are set (#359) |
 | `ENCRYPTION_KEY` | Variables encryption (see `docs/DESIGN_SYSTEM.md`) |
-| `CORS_ORIGIN` | Comma-separated browser origins (see below) |
+| `CORS_ORIGIN` | `https://loftlancer.com` (comma-separated origins allowed; see `packages/auth/src/platform-urls.ts`) |
 
-`CORS_ORIGIN` production example:
-
-```text
-https://auth.loftlancer.com,https://studio.loftlancer.com,https://console.loftlancer.com,https://mcp.loftlancer.com,https://loftlancer.com
-```
+Optional auth cookie policy (only when using a shared parent domain across hostnames): `AUTH_COOKIE_DOMAIN=.loftlancer.com` and `AUTH_CROSS_SUBDOMAIN_COOKIES=true`. Path routing on a single apex does not require this.
 
 ### Per-app environment variables
 
-#### `apps/auth` (auth.loftlancer.com)
+Defaults when unset are in `packages/env/src/platform.ts`.
+
+#### `apps/auth` (`/auth`)
 
 | Variable | Value |
 |----------|--------|
-| `BETTER_AUTH_URL` | `https://auth.loftlancer.com` |
-| `AUTH_COOKIE_DOMAIN` | `.loftlancer.com` |
-| `AUTH_CROSS_SUBDOMAIN_COOKIES` | `true` |
-| `CORS_ORIGIN` | *(shared list above)* |
-| `PLATFORM_AUTH_ENABLE_MCP` | `1` |
-| `NEXT_PUBLIC_AUTH_URL` | `https://auth.loftlancer.com` |
-| `NEXT_PUBLIC_STUDIO_URL` | `https://studio.loftlancer.com` |
-| `NEXT_PUBLIC_CONSOLE_URL` | `https://console.loftlancer.com` |
-| `NEXT_PUBLIC_MCP_URL` | `https://mcp.loftlancer.com` |
+| `BETTER_AUTH_URL` | `https://loftlancer.com/auth` |
+| `CORS_ORIGIN` | `https://loftlancer.com` |
+| `PLATFORM_AUTH_ENABLE_MCP` | `1` when MCP OAuth tables/plugins are enabled (see [MCP_DEPLOY.md](./MCP_DEPLOY.md)) |
+| `NEXT_PUBLIC_AUTH_URL` | `https://loftlancer.com/auth` |
+| `NEXT_PUBLIC_STUDIO_URL` | `https://loftlancer.com/studio` |
+| `NEXT_PUBLIC_ACCOUNT_URL` | `https://loftlancer.com/auth` |
 | `NEXT_PUBLIC_DOCS_URL` | `https://loftlancer.com` |
 | `NEXT_PUBLIC_WWW_URL` | `https://loftlancer.com` |
-| `NEXT_PUBLIC_SUPPORT_URL` | `https://studio.loftlancer.com/dashboard/support/tickets` |
-| `NEXT_PUBLIC_ACCOUNT_URL` | `https://auth.loftlancer.com` |
+| `NEXT_PUBLIC_SUPPORT_URL` | `https://loftlancer.com/studio/support/tickets` |
+| `NEXT_PUBLIC_CONSOLE_URL` | `https://loftlancer.com/studio` (console app not deployed; default alias) |
+| `NEXT_PUBLIC_MCP_URL` | `https://loftlancer.com` |
 | Paired feature flags | See table in §2 above |
 
-#### `apps/studio` (studio.loftlancer.com)
+#### `apps/studio` (`/studio`)
 
 | Variable | Value |
 |----------|--------|
-| `BETTER_AUTH_URL` | `https://auth.loftlancer.com` |
-| `CORS_ORIGIN` | *(shared list)* |
-| `NEXT_PUBLIC_AUTH_URL` | `https://auth.loftlancer.com` |
-| `NEXT_PUBLIC_STUDIO_URL` | `https://studio.loftlancer.com` |
-| `NEXT_PUBLIC_CONSOLE_URL` | `https://console.loftlancer.com` |
-| `NEXT_PUBLIC_MCP_URL` | `https://mcp.loftlancer.com` |
+| `BETTER_AUTH_URL` | `https://loftlancer.com/auth` |
+| `CORS_ORIGIN` | `https://loftlancer.com` |
+| `NEXT_PUBLIC_AUTH_URL` | `https://loftlancer.com/auth` |
+| `NEXT_PUBLIC_STUDIO_URL` | `https://loftlancer.com/studio` |
+| `NEXT_PUBLIC_ACCOUNT_URL` | `https://loftlancer.com/auth` |
 | `NEXT_PUBLIC_DOCS_URL` | `https://loftlancer.com` |
-| `NEXT_PUBLIC_SUPPORT_URL` | `https://studio.loftlancer.com/dashboard/support/tickets` |
-| `NEXT_PUBLIC_ACCOUNT_URL` | `https://auth.loftlancer.com` |
+| `NEXT_PUBLIC_SUPPORT_URL` | `https://loftlancer.com/studio/support/tickets` |
+| `NEXT_PUBLIC_CONSOLE_URL` | `https://loftlancer.com/studio` |
+| `NEXT_PUBLIC_MCP_URL` | `https://loftlancer.com` |
 | Paired feature flags | Same as auth |
 
-#### `apps/console` (console.loftlancer.com)
+#### `apps/docs` (apex + `/docs/*`)
 
 | Variable | Value |
 |----------|--------|
-| `BETTER_AUTH_URL` | `https://auth.loftlancer.com` |
-| `CORS_ORIGIN` | *(shared list)* |
-| `CONSOLE_ALLOWED_EMAILS` | Operator allowlist (comma-separated) |
-| `NEXT_PUBLIC_AUTH_URL` | `https://auth.loftlancer.com` |
-| `NEXT_PUBLIC_CONSOLE_URL` | `https://console.loftlancer.com` |
-| `NEXT_PUBLIC_STUDIO_URL` | `https://studio.loftlancer.com` |
-| `NEXT_PUBLIC_DOCS_URL` | `https://loftlancer.com` |
-
-#### `apps/mcp` (mcp.loftlancer.com)
-
-| Variable | Value |
-|----------|--------|
-| `BETTER_AUTH_URL` | `https://auth.loftlancer.com` |
-| `CORS_ORIGIN` | *(shared list)* |
-| `MCP_RESOURCE_URL` | `https://mcp.loftlancer.com/api/mcp` |
-| `NEXT_PUBLIC_MCP_URL` | `https://mcp.loftlancer.com` |
-| `NEXT_PUBLIC_AUTH_URL` | `https://auth.loftlancer.com` |
-
-#### `apps/docs` (loftlancer.com)
-
-| Variable | Value |
-|----------|--------|
-| `NEXT_PUBLIC_AUTH_URL` | `https://auth.loftlancer.com` |
-| `NEXT_PUBLIC_STUDIO_URL` | `https://studio.loftlancer.com` |
+| `NEXT_PUBLIC_AUTH_URL` | `https://loftlancer.com/auth` |
+| `NEXT_PUBLIC_STUDIO_URL` | `https://loftlancer.com/studio` |
 | `NEXT_PUBLIC_DOCS_URL` | `https://loftlancer.com` |
 | `NEXT_PUBLIC_WWW_URL` | `https://loftlancer.com` |
 
-#### `apps/www` (www → apex redirect)
-
-| Variable | Value |
-|----------|--------|
-| `NEXT_PUBLIC_WWW_URL` | `https://loftlancer.com` |
-| `NEXT_PUBLIC_DOCS_URL` | `https://loftlancer.com` |
-| `NEXT_PUBLIC_STUDIO_URL` | `https://studio.loftlancer.com` |
-
-Do **not** hardcode `collidr-*.vercel.app` in application code; defaults in `@loftlancer/env` point at `*.loftlancer.com` and are overridden per environment via the variables above.
+Do **not** hardcode old `*-collidr.vercel.app` hosts in application code; use `@loftlancer/env` defaults and override with the `NEXT_PUBLIC_*` variables above when needed.
