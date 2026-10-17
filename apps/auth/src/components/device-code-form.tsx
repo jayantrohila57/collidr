@@ -8,6 +8,7 @@ import {
   CardPanel,
   CardTitle,
 } from "@loftlancer/ui/card";
+import { Field, FieldDescription, FieldLabel } from "@loftlancer/ui/field";
 import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
 import type { Route } from "next";
 import Link from "next/link";
@@ -15,7 +16,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { GitHubSignInButton } from "@/components/github-sign-in-button";
 import { SegmentedCodeInput } from "@/components/segmented-code-input";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { authClient } from "@/lib/auth-client";
 import { authAppReturnTo } from "@/lib/auth-return-to";
 import { withBasePath } from "@/lib/base-path";

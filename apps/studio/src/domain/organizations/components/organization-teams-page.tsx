@@ -1,21 +1,21 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
-import { DataTable } from "@/components/data-table/data-table";
-import { DataTableActionsColumnHeader } from "@/components/data-table/data-table-actions-column";
-import { AppIcon } from "@/components/patterns/app-icon";
-import { EmptyState } from "@/components/patterns/empty-state";
-import { FormField } from "@/components/patterns/form-field";
-import { GuardedDialog } from "@/components/patterns/guarded-dialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@loftlancer/ui/button";
+import { DataTable } from "@loftlancer/ui/data-table/data-table";
+import { DataTableActionsColumnHeader } from "@loftlancer/ui/data-table/data-table-actions-column";
 import {
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+} from "@loftlancer/ui/dialog";
+import { Input } from "@loftlancer/ui/input";
+import { EmptyState } from "@loftlancer/ui/patterns/empty-state";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRef, useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
+import { FormField } from "@/components/patterns/form-field";
+import { GuardedDialog } from "@/components/patterns/guarded-dialog";
 import { Can } from "@/domain/permissions/components/can";
 import { useConfirm } from "@/hooks/use-confirm";
 import { isTeamCreateFormDirty } from "@/lib/form-dirty";

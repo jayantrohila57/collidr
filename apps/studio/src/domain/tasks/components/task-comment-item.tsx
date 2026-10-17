@@ -1,12 +1,12 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@loftlancer/ui/avatar";
+import { Button } from "@loftlancer/ui/button";
+import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
+import { Textarea } from "@loftlancer/ui/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
-import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { actionToast } from "@/lib/action-toast";
 import { initialsFromLabel } from "@/lib/initials";
 import { trpc } from "@/utils/trpc";

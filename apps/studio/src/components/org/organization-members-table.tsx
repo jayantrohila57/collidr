@@ -1,17 +1,16 @@
 "use client";
 
+import { Avatar, AvatarFallback } from "@loftlancer/ui/avatar";
+import { DataTable } from "@loftlancer/ui/data-table/data-table";
+import type { DataTableEmptyConfig } from "@loftlancer/ui/data-table/data-table-empty-types";
 import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
-
 import {
   type LegacyColumnDef,
   legacyCreateColumnHelper,
 } from "@tanstack/react-table/legacy";
-import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import type { DataTableEmptyConfig } from "@/components/data-table/data-table-empty-types";
 import { RoleBadge } from "@/components/patterns/status-badge";
 import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { initialsFromLabel } from "@/lib/initials";
 
 export type OrganizationMemberRow = {

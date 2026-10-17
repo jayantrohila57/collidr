@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@/components/ui/card";
+} from "@loftlancer/ui/card";
 import {
   Table,
   TableBody,
@@ -15,7 +15,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@loftlancer/ui/table";
 
 function cellLabel(cell: MatrixCell): string {
   if (cell === "Y") return "Yes";

@@ -2,9 +2,9 @@
 
 import { describeMcpOAuthScopes } from "@loftlancer/actions";
 import { Button } from "@loftlancer/ui/button";
+import { Spinner } from "@loftlancer/ui/spinner";
 import { ArrowLeftRightIcon, CheckIcon, KeyRoundIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { Spinner } from "@/components/ui/spinner";
 
 type OAuthScopeCardProps = {
   /** Client display name (or id when no name is registered). */

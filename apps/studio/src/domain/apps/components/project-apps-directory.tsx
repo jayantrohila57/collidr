@@ -1,8 +1,8 @@
 "use client";
 
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { ErrorState } from "@/components/patterns/error-state";
 import DashboardSection from "@/components/section-dashboard";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useProjectTabs } from "@/domain/projects/hooks/use-project-tabs";
 import { routes } from "@/utils/navigation";
 import { useOrgSlug } from "@/utils/use-route-scope";

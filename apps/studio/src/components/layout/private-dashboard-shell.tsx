@@ -1,9 +1,9 @@
 "use client";
 
 import { AppShell } from "@loftlancer/ui/patterns/app-shell";
+import { ModeToggle } from "@loftlancer/ui/patterns/mode-toggle";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { ModeToggle } from "@/components/mode-toggle";
 import { ActiveOrganizationProvider } from "@/components/org/active-organization-context";
 import { OrgOnboardingGate } from "@/components/org/org-onboarding-gate";
 import { UserMenu } from "@/domain/auth/components/user-menu";

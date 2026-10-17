@@ -1,18 +1,18 @@
 "use client";
 
+import { Badge } from "@loftlancer/ui/badge";
+import { Button } from "@loftlancer/ui/button";
+import { DataTable } from "@loftlancer/ui/data-table/data-table";
+import { DataTableActionsColumnHeader } from "@loftlancer/ui/data-table/data-table-actions-column";
+import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DataTable } from "@/components/data-table/data-table";
-import { DataTableActionsColumnHeader } from "@/components/data-table/data-table-actions-column";
 import { variablesTableEmpty } from "@/components/data-table/data-table-empty-presets";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { ProvenanceAttribution } from "@/components/patterns/provenance-attribution";
 import { SecretValue } from "@/components/patterns/secret-value";
 import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { looksLikeDotenv } from "@/lib/dotenv";
 import { CheckIcon } from "@/lib/icons";
 import { toast } from "@/lib/toast";
@@ -50,8 +50,7 @@ interface VariablesTableViewProps {
   onReveal: (id: string) => void;
   onEdit: (variable: Variable) => void;
   onDelete: (id: string) => void;
-  onAddVariable: (data: { key: string; value: string }) => Promise<void>;
-  onAddVariablesBatch?: (data: {
+  onAddVariablesBatch: (data: {
     environmentIds: string[];
     variables: Array<{
       key: string;
@@ -61,7 +60,7 @@ interface VariablesTableViewProps {
     }>;
   }) => Promise<void>;
   projectEnvironments?: { id: string; name: string }[];
-  activeEnvironmentId?: string;
+  activeEnvironmentId: string;
   onFetchValue: (id: string, options?: { force?: boolean }) => Promise<string>;
   isAddingVariable: boolean;
   isUpdating?: boolean;
@@ -81,7 +80,6 @@ export function VariablesTableView({
   onReveal,
   onEdit,
   onDelete,
-  onAddVariable,
   onAddVariablesBatch,
   projectEnvironments = [],
   activeEnvironmentId,
@@ -486,8 +484,7 @@ export function VariablesTableView({
         compactLayout
         empty={variablesTableEmpty(
           <AddVariableSheet
-            onConfirm={onAddVariable}
-            onConfirmBatch={onAddVariablesBatch}
+            onConfirm={onAddVariablesBatch}
             environments={projectEnvironments}
             defaultEnvironmentId={activeEnvironmentId}
             isPending={isAddingVariable}
@@ -497,8 +494,7 @@ export function VariablesTableView({
         primaryAction={
           variables.length > 0 ? (
             <AddVariableSheet
-              onConfirm={onAddVariable}
-              onConfirmBatch={onAddVariablesBatch}
+              onConfirm={onAddVariablesBatch}
               environments={projectEnvironments}
               defaultEnvironmentId={activeEnvironmentId}
               isPending={isAddingVariable}

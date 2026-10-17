@@ -4,11 +4,11 @@ import {
   SettingsFrame,
   SettingsRailCard,
 } from "@loftlancer/ui/patterns/settings-frame";
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { notFound, usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import {
   Activity,

@@ -1,7 +1,7 @@
 "use client";
 
+import { Input } from "@loftlancer/ui/input";
 import { type ComponentProps, forwardRef } from "react";
-import { Input } from "@/components/ui/input";
 import { normalizeOrgSlugInput, slugifyOrganizationName } from "@/lib/org-slug";
 
 type OrgSlugInputProps = Omit<ComponentProps<typeof Input>, "onChange"> & {

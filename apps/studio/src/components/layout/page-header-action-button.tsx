@@ -1,8 +1,8 @@
 "use client";
 
+import { Button, type ButtonProps } from "@loftlancer/ui/button";
 import type { ReactNode } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { Button, type ButtonProps } from "@/components/ui/button";
 import type { AppIconName } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 

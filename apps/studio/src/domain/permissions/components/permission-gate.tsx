@@ -1,8 +1,8 @@
 "use client";
 
 import type { ActionName } from "@loftlancer/actions";
+import { Spinner } from "@loftlancer/ui/spinner";
 import { ErrorState } from "@/components/patterns/error-state";
-import { Spinner } from "@/components/ui/spinner";
 import { useCan } from "../hooks/use-permissions";
 
 type PermissionGateProps = {

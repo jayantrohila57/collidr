@@ -1,21 +1,20 @@
 "use client";
 
+import { DirectionProvider } from "@loftlancer/ui/direction";
 import { ImpersonationBanner } from "@loftlancer/ui/patterns/impersonation-banner";
+import { OfflineBanner } from "@loftlancer/ui/patterns/offline-banner";
+import { SkipLink } from "@loftlancer/ui/patterns/skip-link";
+import { ThemeProvider } from "@loftlancer/ui/theme-provider";
+import { ToastProvider } from "@loftlancer/ui/toast";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState } from "react";
-import { OfflineBanner } from "@/components/patterns/offline-banner";
-import { SkipLink } from "@/components/patterns/skip-link";
-import { DirectionProvider } from "@/components/ui/direction";
-import { ToastProvider } from "@/components/ui/toast";
 import {
   getClientErrorMessage,
   isBenignClientError,
 } from "@/lib/errors/client-errors";
 import { toast } from "@/lib/toast";
 import { createTrpcClient, getQueryClient, TRPCProvider } from "@/utils/trpc";
-
-import { ThemeProvider } from "./theme-provider";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => getQueryClient());

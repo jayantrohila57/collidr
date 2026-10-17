@@ -1,10 +1,10 @@
 "use client";
 
+import { Avatar, AvatarFallback } from "@loftlancer/ui/avatar";
+import { Card, CardHeader, CardPanel } from "@loftlancer/ui/card";
 import Link from "next/link";
 import type { OrgListItem } from "@/components/org/active-organization-context";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardHeader, CardPanel } from "@/components/ui/card";
 import { initialsFromLabel } from "@/lib/initials";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import { cn } from "@/lib/utils";

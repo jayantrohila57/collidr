@@ -1,6 +1,6 @@
 # Design system (coss ui)
 
-Loftlancer uses [coss ui](https://coss.com/ui) on [Base UI](https://base-ui.com/) via the shadcn registry (`@coss/*`). Components live under `apps/web/src/components/ui/` as copied source (not Radix).
+Loftlancer uses [coss ui](https://coss.com/ui) on [Base UI](https://base-ui.com/) via the shadcn registry (`@coss/*`). Components live under `packages/ui/src/components/ui/` as copied source (not Radix) and are imported as `@loftlancer/ui/<name>`; apps keep no local copies.
 
 ## Stack
 
@@ -42,7 +42,7 @@ See `docs/COSS_MIGRATION.md` for the full migration map.
 
 ## Spacing (sidebar scale)
 
-All app layout spacing is derived from the coss **Sidebar** source (`apps/web/src/components/ui/sidebar.tsx`). Do not invent parallel gutters (`p-4`, `gap-6`, `md:p-6`, etc.) in feature code—import tokens or layout primitives instead.
+All app layout spacing is derived from the coss **Sidebar** source (`packages/ui/src/components/ui/sidebar.tsx`). Do not invent parallel gutters (`p-4`, `gap-6`, `md:p-6`, etc.) in feature code—import tokens or layout primitives instead.
 
 | Sidebar source | Token | Tailwind |
 |----------------|-------|----------|
@@ -99,8 +99,8 @@ Card, Frame, Table, and Dialog **internals** keep coss defaults (`p-6` on `CardH
 
 | Component | Path |
 |-----------|------|
-| `Frame` (page/section layout) | `apps/web/src/components/ui/frame.tsx` |
-| `Sidebar*` | `apps/web/src/components/ui/sidebar.tsx` |
+| `Frame` (page/section layout) | `packages/ui/src/components/ui/frame.tsx` |
+| `Sidebar*` | `packages/ui/src/components/ui/sidebar.tsx` |
 
 Use coss defaults for control density and visuals—avoid custom overrides on generated `ui/*` primitives except where `layout-spacing` documents app-level composition.
 
@@ -136,7 +136,7 @@ Avoid `form className="contents"` on sheets — it breaks the flex column layout
 
 ## Charts
 
-Dashboard charts use `apps/web/src/components/ui/chart.tsx` (Recharts wrapper). This is not part of coss ui; keep it free of Radix.
+No chart primitive is shipped today; if charts return, add the Recharts wrapper to `packages/ui/src/components/ui/chart.tsx` (not part of coss ui; keep it free of Radix).
 
 ## Verification
 

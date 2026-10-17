@@ -1,6 +1,6 @@
 "use client";
 
-import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
+import { SettingsPanelSkeleton } from "@loftlancer/ui/patterns/settings-panel-skeleton";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";
 import { OrganizationSectionPage } from "./organization-section-page";
 import { OrganizationSettingsForm } from "./organization-settings-form";

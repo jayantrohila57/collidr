@@ -1,7 +1,7 @@
 "use client";
 
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
 import { InstalledAppsOverview } from "@/domain/apps/components/installed-apps-overview";
 import { useOrgQueryEnabled } from "@/hooks/use-org-query-enabled";
 import { useOrgScopedQueryPlaceholder } from "@/hooks/use-org-scoped-query-placeholder";

@@ -1,5 +1,8 @@
 import type { LucideIcon } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
 import type { ReactNode } from "react";
+import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
 
 /**
@@ -12,8 +15,12 @@ export interface EmptyStateProps {
   icon: LucideIcon;
   title: string;
   description: ReactNode;
-  /** Primary CTA (a real button/link). */
+  /** Primary CTA (a real button/link). Overrides `actionLabel`. */
   action?: ReactNode;
+  /** Shorthand primary CTA label; rendered as a small link (`actionHref`) or button (`onAction`). */
+  actionLabel?: string;
+  actionHref?: string;
+  onAction?: () => void;
   /** Optional secondary CTA rendered next to the primary one. */
   secondaryAction?: ReactNode;
   /** Render without the dashed frame (e.g. inside an existing card). */
@@ -27,11 +34,25 @@ export function EmptyState({
   title,
   description,
   action,
+  actionLabel,
+  actionHref,
+  onAction,
   secondaryAction,
   bare = false,
   className,
   "data-testid": testId,
 }: EmptyStateProps) {
+  const primary =
+    action ??
+    (actionLabel && actionHref ? (
+      <Button size="sm" render={<Link href={actionHref as Route} />}>
+        {actionLabel}
+      </Button>
+    ) : actionLabel && onAction ? (
+      <Button type="button" size="sm" onClick={onAction}>
+        {actionLabel}
+      </Button>
+    ) : null);
   return (
     <div
       data-slot="empty-state"
@@ -51,9 +72,9 @@ export function EmptyState({
           {description}
         </p>
       </div>
-      {action || secondaryAction ? (
+      {primary || secondaryAction ? (
         <div className="flex flex-wrap items-center justify-center gap-1.5">
-          {action}
+          {primary}
           {secondaryAction}
         </div>
       ) : null}

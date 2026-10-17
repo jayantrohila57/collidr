@@ -6,7 +6,7 @@ import {
   segmentedControlItemSizeClassNames,
   segmentedControlItemVariants,
   segmentedControlRootClassName,
-} from "@/lib/segmented-control";
+} from "@loftlancer/ui/segmented-control";
 import { cn } from "@/lib/utils";
 
 export type VariableType = "secret" | "config";

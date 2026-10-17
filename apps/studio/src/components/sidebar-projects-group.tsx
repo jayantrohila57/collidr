@@ -1,20 +1,13 @@
 "use client";
 
 import type { ProjectOutput } from "@loftlancer/api/types";
-import { ProjectPinMenu } from "@loftlancer/ui/patterns/sidebar-kit";
-import { ChevronRight, ChevronUp, MoreHorizontal } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Fragment, useEffect, useMemo, useState } from "react";
-import { useCurrentOrgSlug } from "@/components/org/use-current-org-slug";
-import { AppIcon } from "@/components/patterns/app-icon";
-import { SidebarProjectApps } from "@/components/sidebar-project-apps";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@loftlancer/ui/avatar";
 import {
   Collapsible,
   CollapsiblePanel,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from "@loftlancer/ui/collapsible";
+import { ProjectPinMenu } from "@loftlancer/ui/patterns/sidebar-kit";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -23,7 +16,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSkeleton,
-} from "@/components/ui/sidebar";
+} from "@loftlancer/ui/sidebar";
+import { ChevronRight, ChevronUp, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Fragment, useEffect, useMemo, useState } from "react";
+import { useCurrentOrgSlug } from "@/components/org/use-current-org-slug";
+import { AppIcon } from "@/components/patterns/app-icon";
+import { SidebarProjectApps } from "@/components/sidebar-project-apps";
 import { initialsFromLabel } from "@/lib/initials";
 import { prefetchProjectDetail } from "@/lib/prefetch-project-detail";
 import { selectSidebarProjects } from "@/lib/sidebar-project-nav";

@@ -2,20 +2,12 @@
 
 import { PROJECT_MEMBER_GRANT_KEYS } from "@loftlancer/actions";
 import type { ProjectOutput } from "@loftlancer/api/types";
+import { Button } from "@loftlancer/ui/button";
+import { Checkbox } from "@loftlancer/ui/checkbox";
+import { Label } from "@loftlancer/ui/label";
+import { LoadingButton } from "@loftlancer/ui/patterns/loading-button";
 import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { useActiveOrganization } from "@/components/org/active-organization-context";
-import { LoadingButton } from "@/components/patterns/loading-button";
-import {
-  SettingsPanel,
-  SettingsRow,
-  SettingsSectionHeader,
-} from "@/components/patterns/settings-layout";
-import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { SettingsPanelSkeleton } from "@loftlancer/ui/patterns/settings-panel-skeleton";
 import {
   Table,
   TableBody,
@@ -23,7 +15,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@loftlancer/ui/table";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useActiveOrganization } from "@/components/org/active-organization-context";
+import {
+  SettingsPanel,
+  SettingsRow,
+  SettingsSectionHeader,
+} from "@/components/patterns/settings-layout";
 import { Can } from "@/domain/permissions/components/can";
 import { formatActionLabel } from "@/lib/format-action-label";
 import { toast } from "@/lib/toast";

@@ -1,5 +1,6 @@
 "use client";
 
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { PageHeaderMetadataSkeleton } from "@/components/layout/page-header-metadata-skeleton";
@@ -9,7 +10,6 @@ import {
   VisibilityBadge,
 } from "@/components/patterns/status-badge";
 import DashboardSection from "@/components/section-dashboard";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useProjectApps } from "@/domain/apps/hooks/use-project-apps";
 import { CreateEnvironmentSheet } from "@/domain/environments/components/create-environment-sheet";
 import { useEnvironments } from "@/domain/environments/hooks/use-environments";

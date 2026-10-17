@@ -1,12 +1,12 @@
 "use client";
 
+import { layoutGapClass } from "@loftlancer/ui/layout-spacing";
 import type { ReactNode } from "react";
 import { DataTableClearFiltersButton } from "@/components/data-table/data-table-clear-filters-button";
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
 import { DataTableFilterSelect } from "@/components/data-table/data-table-filter-select";
 import type { OrgListItem } from "@/components/org/active-organization-context";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { layoutGapClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 import {
   countOrganizationsByType,

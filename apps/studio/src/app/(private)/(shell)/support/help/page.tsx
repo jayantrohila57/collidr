@@ -1,10 +1,10 @@
 "use client";
 
+import { Input } from "@loftlancer/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import DashboardSection from "@/components/section-dashboard";
-import { Input } from "@/components/ui/input";
 import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";
 

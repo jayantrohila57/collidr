@@ -1,21 +1,21 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import DashboardSection from "@/components/section-dashboard";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@loftlancer/ui/button";
+import { Input } from "@loftlancer/ui/input";
+import { Label } from "@loftlancer/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+} from "@loftlancer/ui/select";
+import { Textarea } from "@loftlancer/ui/textarea";
+import { useMutation } from "@tanstack/react-query";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import DashboardSection from "@/components/section-dashboard";
 import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";
 

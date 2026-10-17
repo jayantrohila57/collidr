@@ -1,8 +1,8 @@
 "use client";
 
+import { Spinner } from "@loftlancer/ui/spinner";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Spinner } from "@/components/ui/spinner";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { authClient } from "@/lib/auth-client";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";

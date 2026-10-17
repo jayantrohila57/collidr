@@ -1,11 +1,11 @@
 "use client";
 
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeaderActionButton } from "@/components/layout/app-layout";
 import { ErrorState } from "@/components/patterns/error-state";
 import DashboardSection from "@/components/section-dashboard";
-import { Skeleton } from "@/components/ui/skeleton";
 import { isPersonalOrganization } from "@/lib/org-personal";
 import { deSlug } from "@/lib/utils";
 import { routes } from "@/utils/navigation";

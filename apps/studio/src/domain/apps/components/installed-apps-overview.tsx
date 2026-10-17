@@ -1,8 +1,8 @@
 "use client";
 
+import { Button } from "@loftlancer/ui/button";
+import { EmptyState } from "@loftlancer/ui/patterns/empty-state";
 import Link from "next/link";
-import { EmptyState } from "@/components/patterns/empty-state";
-import { Button } from "@/components/ui/button";
 import { LayoutGrid } from "@/lib/icons";
 import { routes } from "@/utils/navigation";
 import { useOrgSlug } from "@/utils/use-route-scope";

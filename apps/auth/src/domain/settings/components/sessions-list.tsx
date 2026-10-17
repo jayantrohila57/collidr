@@ -1,14 +1,14 @@
 "use client";
 
+import { Badge } from "@loftlancer/ui/badge";
+import { Button } from "@loftlancer/ui/button";
 import {
   DataTable,
   type DataTableColumnDef,
 } from "@loftlancer/ui/data-table/data-table";
 import { DataTableActionsColumnHeader } from "@loftlancer/ui/data-table/data-table-actions-column";
+import { Spinner } from "@loftlancer/ui/spinner";
 import { Monitor, MonitorSmartphone, Smartphone, Tablet } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { formatDateTime } from "@/lib/format";
 import { formatRelativeShort } from "@/lib/format-relative-short";
 import {
