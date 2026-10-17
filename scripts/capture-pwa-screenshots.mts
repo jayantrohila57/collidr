@@ -38,6 +38,6 @@ function run(cwd: string, args: string[]) {
 
 run(path.join(root, "apps/studio"), [
   "e2e/pwa-screenshots.spec.ts",
+  "--config=playwright.capture.config.ts",
   "--project=chromium",
 ]);
-run(path.join(root, "apps/www"), ["e2e/pwa-screenshots.spec.ts"]);
