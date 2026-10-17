@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@loftlancer/ui/avatar";
 import { Button } from "@loftlancer/ui/button";
 import type { DataTableColumnDef } from "@loftlancer/ui/data-table/data-table";
 import { DataTableActionsColumnHeader } from "@loftlancer/ui/data-table/data-table-actions-column";
+import { LocalDateTime } from "@loftlancer/ui/patterns/local-date-time";
 import {
   Tooltip,
   TooltipContent,
@@ -18,7 +19,6 @@ import { AppIcon } from "@/components/patterns/app-icon";
 import { StatusBadge } from "@/components/patterns/status-badge";
 import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
 import { VisibilityBadge } from "@/components/patterns/visibility-badge";
-import { formatDate } from "@/lib/format";
 import { initialsFromLabel } from "@/lib/initials";
 import { prefetchProjectDetail } from "@/lib/prefetch-project-detail";
 import { routes } from "@/utils/navigation";
@@ -118,7 +118,7 @@ export function createProjectsTableColumns(
       cell: ({ getValue }) => (
         <span className="flex items-center gap-2 text-muted-foreground text-xs">
           <AppIcon name="calendar" />
-          <span className="truncate">{formatDate(String(getValue()))}</span>
+          <LocalDateTime value={getValue()} className="truncate" />
         </span>
       ),
     }),

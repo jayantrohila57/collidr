@@ -1,5 +1,6 @@
 "use client";
 
+import { LocalDateTime } from "@loftlancer/ui/patterns/local-date-time";
 import {
   SettingsFrame,
   SettingsRailCard,
@@ -64,14 +65,6 @@ function OrgHealthCard() {
       </dl>
     </SettingsRailCard>
   );
-}
-
-function formatDay(value: Date | string) {
-  return new Date(value).toLocaleDateString("en", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
 }
 
 export function OrganizationSectionPage({
@@ -140,7 +133,7 @@ export function OrganizationSectionPage({
                   ? [
                       {
                         label: "Created",
-                        value: formatDay(organization.createdAt),
+                        value: <LocalDateTime value={organization.createdAt} />,
                       },
                     ]
                   : []),

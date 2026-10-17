@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
 import {
   type StatCardItem,
   StatCardRow,
@@ -8,7 +9,6 @@ import {
 } from "@/components/patterns/stat-card";
 import { useOrgQueryEnabled } from "@/hooks/use-org-query-enabled";
 import { useOrgScopedQueryPlaceholder } from "@/hooks/use-org-scoped-query-placeholder";
-import { formatRelativeShort } from "@/lib/format-relative-short";
 import { projectDetailQueryStaleTime } from "@/lib/prefetch-project-detail";
 import { trpc } from "@/utils/trpc";
 
@@ -59,7 +59,8 @@ export function ProjectDetailStats({ slug }: { slug: string }) {
   if (data.lastVariableUpdatedAt) {
     items.push({
       label: "Last variable change",
-      value: formatRelativeShort(data.lastVariableUpdatedAt),
+      // Viewer-local, rendered after hydration (no UTC→local swap, #327).
+      value: <ClientRelativeTime value={data.lastVariableUpdatedAt} />,
       hint: "Across environments",
       icon: "variable",
     });

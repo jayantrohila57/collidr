@@ -3,6 +3,10 @@
 import { Button } from "@loftlancer/ui/button";
 import { DataTable } from "@loftlancer/ui/data-table/data-table";
 import type { DataTableEmptyConfig } from "@loftlancer/ui/data-table/data-table-empty-types";
+import {
+  LOCAL_DATE_TIME_FORMAT,
+  LocalDateTime,
+} from "@loftlancer/ui/patterns/local-date-time";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import type { ReactNode } from "react";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
@@ -11,7 +15,6 @@ import {
   AuditActionBadge,
   AuditEntityBadge,
 } from "@/components/patterns/status-badge";
-import { formatDateTime } from "@/lib/format";
 
 interface AuditLog {
   id: string;
@@ -66,7 +69,10 @@ export function AuditLogTableView({
         ),
         cell: ({ getValue }) => (
           <span className="font-mono text-xs">
-            {formatDateTime(getValue())}
+            <LocalDateTime
+              value={getValue()}
+              options={LOCAL_DATE_TIME_FORMAT}
+            />
           </span>
         ),
       }),

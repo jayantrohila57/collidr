@@ -3,6 +3,10 @@
 import type { ProjectOutput } from "@loftlancer/api/types";
 import { Button } from "@loftlancer/ui/button";
 import {
+  LOCAL_DATE_TIME_FORMAT,
+  LocalDateTime,
+} from "@loftlancer/ui/patterns/local-date-time";
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -17,7 +21,6 @@ import {
   pageHeaderMetadataValueClassName,
 } from "@/components/layout/page-header-metadata-styles";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const ghostLinkClassName =
@@ -111,9 +114,10 @@ export function ProjectMetadataRow({
       <MetadataField
         label="Updated"
         value={
-          <span className="tabular-nums">
-            {formatDateTime(project.updatedAt)}
-          </span>
+          <LocalDateTime
+            value={project.updatedAt}
+            options={LOCAL_DATE_TIME_FORMAT}
+          />
         }
       />
       {project.repositoryUrl ? (
