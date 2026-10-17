@@ -30,6 +30,14 @@ async function syncActiveOrganization(
     .activeOrganizationId;
   const synced = request.cookies.get("ll_org")?.value;
   if (activeId && synced === `${orgSlug}:${activeId}`) return undefined;
+  // Already redirected once for this org and the session still disagrees
+  // (stale cookie cache): don't loop; page guards resolve by slug anyway.
+  if (request.cookies.get("ll_org_sync")?.value === orgSlug) {
+    const response = NextResponse.next();
+    response.cookies.delete("ll_org_sync");
+    response.headers.set("x-pathname", request.nextUrl.pathname);
+    return response;
+  }
 
   const result = await siblingAuth.api
     .setActiveOrganization({
@@ -61,6 +69,13 @@ async function syncActiveOrganization(
   for (const cookie of result.headers.getSetCookie()) {
     response.headers.append("set-cookie", cookie);
   }
+  response.cookies.set("ll_org_sync", orgSlug, {
+    path: "/",
+    sameSite: "lax",
+    httpOnly: true,
+    maxAge: 30,
+    secure: request.nextUrl.protocol === "https:",
+  });
   if (body?.id) {
     response.cookies.set("ll_org", `${orgSlug}:${body.id}`, {
       path: "/",
