@@ -1,5 +1,6 @@
 "use client";
 
+import { LayersIcon } from "lucide-react";
 import type React from "react";
 import { createContext, type ReactNode, useContext } from "react";
 
@@ -44,9 +45,7 @@ export function Logo({
 }) {
   const content = (
     <>
-      <svg viewBox="0 0 24 24" aria-hidden className="size-4.5 fill-current">
-        <path d="M3 21V9l9-6 9 6v12h-6v-7H9v7H3z" />
-      </svg>
+      <LayersIcon aria-hidden className="size-4.5" />
       Loftlancer
     </>
   );
