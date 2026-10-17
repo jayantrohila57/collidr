@@ -17,7 +17,7 @@
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "test": "node --import tsx --test src/index.test.ts src/sentry.test.ts src/sentry-server-flush.test.ts"
+    "test": "node --import tsx --test src/index.test.ts src/sentry.test.ts src/sentry-env.static.test.ts src/sentry-server-flush.test.ts"
   },
   "peerDependencies": {
     "@sentry/core": ">=10.71.0"

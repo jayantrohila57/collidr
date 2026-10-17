@@ -6,6 +6,7 @@ import { resolveSentryDsn, resolveSentryEnvironment } from "./sentry-env";
 afterEach(() => {
   delete process.env.NEXT_PUBLIC_SENTRY_DSN;
   delete process.env.SENTRY_DSN;
+  delete process.env.NEXT_PUBLIC_VERCEL_ENV;
   delete process.env.VERCEL_ENV;
   delete process.env.NODE_ENV;
 });
@@ -25,6 +26,13 @@ test("resolveSentryEnvironment uses VERCEL_ENV on the server", () => {
   process.env.VERCEL_ENV = "production";
   process.env.NODE_ENV = "development";
   assert.equal(resolveSentryEnvironment(false), "production");
+});
+
+test("resolveSentryEnvironment uses NEXT_PUBLIC_VERCEL_ENV in the browser", () => {
+  process.env.NEXT_PUBLIC_VERCEL_ENV = "preview";
+  process.env.VERCEL_ENV = "production";
+  process.env.NODE_ENV = "development";
+  assert.equal(resolveSentryEnvironment(true), "preview");
 });
 
 test("createSentrySink calls onAfterLog after forwarding", () => {
