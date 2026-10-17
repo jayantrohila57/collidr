@@ -1,10 +1,15 @@
 import { activeInvitationWhere, activeUserWhere, db } from "@loftlancer/db";
 import { user } from "@loftlancer/db/schema/auth";
 import { invitation } from "@loftlancer/db/schema/organization";
-import { TRPCError } from "@trpc/server";
 import { and, eq, sql } from "drizzle-orm";
+import {
+  assertSyncInvitationAcceptedAllowed as assertSyncInvitationAcceptedAllowedWithDeps,
+  assertSyncInvitationReceivedAllowed as assertSyncInvitationReceivedAllowedWithDeps,
+  type InvitationSyncAuthDeps,
+} from "./invitation-sync-auth-checks";
 import { normalizeInviteEmail } from "./invitation-sync-input";
 
+export type { InvitationSyncAuthDeps } from "./invitation-sync-auth-checks";
 export {
   normalizeInviteEmail,
   organizationIdFromInviteSyncInput,
@@ -22,58 +27,78 @@ async function getUserEmailNormalized(userId: string): Promise<string | null> {
   return normalizeInviteEmail(row.email);
 }
 
-export async function assertSyncInvitationReceivedAllowed(
-  userId: string,
-  organizationId: string,
-  email: string,
-): Promise<void> {
-  const normalized = normalizeInviteEmail(email);
+async function findPendingInviteAsInviter(args: {
+  organizationId: string;
+  inviterId: string;
+  emailNormalized: string;
+}): Promise<{ id: string } | undefined> {
   const [invite] = await db
     .select({ id: invitation.id })
     .from(invitation)
     .where(
       activeInvitationWhere(
         and(
-          eq(invitation.organizationId, organizationId),
-          eq(invitation.inviterId, userId),
+          eq(invitation.organizationId, args.organizationId),
+          eq(invitation.inviterId, args.inviterId),
           eq(invitation.status, "pending"),
-          eq(sql`lower(${invitation.email})`, normalized),
+          eq(sql`lower(${invitation.email})`, args.emailNormalized),
         ),
       ),
     )
     .limit(1);
+  return invite;
+}
 
-  if (!invite) {
-    throw new TRPCError({ code: "FORBIDDEN", message: "Not allowed" });
-  }
+async function findAcceptedInviteForEmail(args: {
+  organizationId: string;
+  emailNormalized: string;
+}): Promise<{ id: string } | undefined> {
+  const [invite] = await db
+    .select({ id: invitation.id })
+    .from(invitation)
+    .where(
+      activeInvitationWhere(
+        and(
+          eq(invitation.organizationId, args.organizationId),
+          eq(invitation.status, "accepted"),
+          eq(sql`lower(${invitation.email})`, args.emailNormalized),
+        ),
+      ),
+    )
+    .limit(1);
+  return invite;
+}
+
+export const defaultInvitationSyncAuthDeps: InvitationSyncAuthDeps = {
+  getUserEmailNormalized,
+  findPendingInviteAsInviter,
+  findAcceptedInviteForEmail,
+};
+
+export async function assertSyncInvitationReceivedAllowed(
+  userId: string,
+  organizationId: string,
+  email: string,
+  deps: InvitationSyncAuthDeps = defaultInvitationSyncAuthDeps,
+): Promise<void> {
+  return assertSyncInvitationReceivedAllowedWithDeps(
+    userId,
+    organizationId,
+    email,
+    deps,
+  );
 }
 
 export async function assertSyncInvitationAcceptedAllowed(
   userId: string,
   organizationId: string,
   email: string,
+  deps: InvitationSyncAuthDeps = defaultInvitationSyncAuthDeps,
 ): Promise<void> {
-  const normalized = normalizeInviteEmail(email);
-  const userEmail = await getUserEmailNormalized(userId);
-  if (!userEmail || userEmail !== normalized) {
-    throw new TRPCError({ code: "FORBIDDEN", message: "Not allowed" });
-  }
-
-  const [invite] = await db
-    .select({ id: invitation.id })
-    .from(invitation)
-    .where(
-      activeInvitationWhere(
-        and(
-          eq(invitation.organizationId, organizationId),
-          eq(invitation.status, "accepted"),
-          eq(sql`lower(${invitation.email})`, normalized),
-        ),
-      ),
-    )
-    .limit(1);
-
-  if (!invite) {
-    throw new TRPCError({ code: "FORBIDDEN", message: "Not allowed" });
-  }
+  return assertSyncInvitationAcceptedAllowedWithDeps(
+    userId,
+    organizationId,
+    email,
+    deps,
+  );
 }
