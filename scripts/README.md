@@ -22,7 +22,8 @@ Interactive conventional commits for local work (still requires issue linkage an
 
 | Script | Purpose |
 |--------|---------|
-| `pnpm dev:web` | Next.js dev server |
+| `pnpm dev:auth` / `pnpm dev:studio` / `pnpm dev:docs` | Per-app Next.js dev servers (see root README) |
+| `pnpm dev` | All apps via Turbo |
 | `pnpm build` | Turbo build |
 | `pnpm check-types` | Typecheck all packages |
 | `pnpm db:push` / `db:studio` / `db:reset-seed` | Database ([packages/db/DATABASE.md](../packages/db/DATABASE.md)) |
@@ -36,7 +37,7 @@ Interactive conventional commits for local work (still requires issue linkage an
 
 ## Requirements
 
-- Git, Node.js 20+, pnpm 10.13.1
+- Git, Node.js 22.14+, pnpm 12.11.2 (root `package.json` `engines` / `packageManager`)
 - Bash for `*.sh` (Git Bash on Windows)
 
 ## Notes
