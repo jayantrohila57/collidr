@@ -18,7 +18,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ### Fixed
 
-- Studio projects grid: equal-width cards and New project in the list toolbar (grid and list views) (#55)
+- Studio projects grid: equal-width cards; grid view New project stays on the page header (`Can` `project.create`), not duplicated in the list toolbar (#55)
 
 ## [1.11.1] - 2026-10-17
 
