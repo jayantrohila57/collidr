@@ -28,7 +28,8 @@
       "!**/wrangler.jsonc",
       "!**/.source",
       "!**/convex/_generated",
-      "!apps/docs/src/generated"
+      "!apps/docs/src/generated",
+      "!apps/docs/content/docs/mcp/tools/meta.json"
     ]
   },
   "formatter": {
