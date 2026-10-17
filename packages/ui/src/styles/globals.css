@@ -215,9 +215,10 @@
   --secondary: --alpha(var(--color-white) / 4%);
   --secondary-foreground: var(--color-neutral-100);
   --muted: --alpha(var(--color-white) / 4%);
+  /* 82%, not 90%: #818181 -> #8c8c8c, 4.43:1 -> 5.15:1 on cards (#396). */
   --muted-foreground: color-mix(
     in srgb,
-    var(--color-neutral-500) 90%,
+    var(--color-neutral-500) 82%,
     var(--color-white)
   );
   --accent: --alpha(var(--color-white) / 4%);
