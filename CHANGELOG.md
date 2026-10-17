@@ -18,6 +18,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ### Fixed
 
+- E2E auth routes (`/api/e2e/login`, notifications prepare/accept) no longer accept a predictable default secret: they return 404 when `E2E_TEST_SECRET` is unset, compare secrets in constant time, and Playwright requires an explicit `E2E_TEST_SECRET` (#20)
 - Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
 
 ## [1.11.0] - 2026-10-17
