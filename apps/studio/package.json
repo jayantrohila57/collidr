@@ -52,7 +52,6 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.13.0",
     "@loftlancer/config": "workspace:*",
     "@playwright/test": "^1.64.0",
     "@tailwindcss/postcss": "^4.3.3",
