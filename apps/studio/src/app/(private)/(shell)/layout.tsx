@@ -1,8 +1,12 @@
 import { getSessionActiveOrganizationId } from "@loftlancer/auth/session-types";
 import { HydrationBoundary } from "@tanstack/react-query";
+import { headers } from "next/headers";
 import { PrivateDashboardShell } from "@/components/layout/private-dashboard-shell";
 import { guardAuthenticatedPage } from "@/lib/page-guards";
-import { dehydrateStudioShellQueries } from "@/lib/shell-prefetch";
+import {
+  dehydrateStudioShellQueries,
+  orgSlugFromRequestPath,
+} from "@/lib/shell-prefetch";
 
 export default async function DashboardLayout({
   children,
@@ -10,7 +14,11 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await guardAuthenticatedPage();
-  const dehydratedState = await dehydrateStudioShellQueries(session);
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const urlOrgSlug = orgSlugFromRequestPath(pathname);
+  const dehydratedState = await dehydrateStudioShellQueries(session, {
+    urlOrgSlug,
+  });
 
   return (
     <HydrationBoundary state={dehydratedState}>
