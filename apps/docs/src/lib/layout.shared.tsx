@@ -1,4 +1,4 @@
-import { buildSignInUrl, studioHomeUrl } from "@loftlancer/ui/auth-links";
+import { studioHomeUrl } from "@loftlancer/ui/auth-links";
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import { BookOpenIcon } from "lucide-react";
 
@@ -31,8 +31,8 @@ export function baseOptions(): BaseLayoutProps {
       {
         type: "button",
         text: "Sign in",
-        url: buildSignInUrl(),
-        external: true,
+        // The landing page holds the GitHub, Google and email options (#373).
+        url: "/",
       },
     ],
     githubUrl: GITHUB_REPO,

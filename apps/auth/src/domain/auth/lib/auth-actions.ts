@@ -77,7 +77,10 @@ export async function revokeOtherAuthSessions() {
   return result.data;
 }
 
-export async function linkGithubAccount() {
+export type LinkableProvider = "github" | "google";
+
+/** Link another sign-in provider to the signed-in account (redirects). */
+export async function linkSocialAccount(provider: LinkableProvider) {
   const callbackURL =
     typeof window !== "undefined"
       ? `${window.location.origin}/settings/accounts`
@@ -85,12 +88,12 @@ export async function linkGithubAccount() {
   const result = await authClient.$fetch("/link-social", {
     method: "POST",
     body: {
-      provider: "github",
+      provider,
       callbackURL,
     },
   });
   if (result.error) {
-    throw new Error(result.error.message ?? "Could not link GitHub");
+    throw new Error(result.error.message ?? `Could not link ${provider}`);
   }
   return result.data;
 }

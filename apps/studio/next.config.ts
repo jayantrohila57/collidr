@@ -1,10 +1,31 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import "@loftlancer/env/server";
 import "@loftlancer/env/studio";
 import { withServiceBasePath } from "@loftlancer/env/next-service-base-path";
 import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
 
+/** Root package.json version, shown as the product version badge (#368). */
+const appVersion = (
+  JSON.parse(
+    readFileSync(join(process.cwd(), "../../package.json"), "utf8"),
+  ) as {
+    version: string;
+  }
+).version;
+
+/** Google sign-in shows only when both OAuth credentials exist (#359). */
+const googleSignIn =
+  process.env.GOOGLE_CLIENT_ID?.trim() &&
+  process.env.GOOGLE_CLIENT_SECRET?.trim()
+    ? "1"
+    : "";
 const nextConfig: NextConfig = withServiceBasePath("studio", {
+  env: {
+    NEXT_PUBLIC_APP_VERSION: appVersion,
+    NEXT_PUBLIC_GOOGLE_SIGN_IN: googleSignIn,
+  },
   typedRoutes: true,
   reactCompiler: true,
 });

@@ -9,9 +9,9 @@ import {
   CardTitle,
 } from "@loftlancer/ui/card";
 import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
+import { SignInOptions } from "@loftlancer/ui/patterns/sign-in-options";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { GitHubSignInButton } from "@/components/github-sign-in-button";
 import {
   OAuthDecisionButtons,
   OAuthScopeCard,
@@ -108,7 +108,7 @@ export function ConsentScreen({
               <p className="text-muted-foreground text-sm">
                 Sign in to approve access for this application.
               </p>
-              <GitHubSignInButton returnTo={consentReturnTo} />
+              <SignInOptions returnTo={consentReturnTo} />
             </div>
           ) : (
             <>

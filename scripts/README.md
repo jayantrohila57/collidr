@@ -1,20 +1,18 @@
 # Scripts directory
 
-Automation helpers for collidr. **Delivery is issue → commit on `main` → push** ([AGENTS.md](../AGENTS.md), [commit-workflow.md](./commit-workflow.md)).
+Automation helpers for Loftlancer. **Delivery is issue → feature branch → `dev` → release PR to `main`** ([AGENTS.md](../AGENTS.md), [commit-workflow.md](./commit-workflow.md)).
 
 ## Release scripts
 
-### `release.sh`
+One product version for the whole platform lives in the root `package.json`.
+See [docs/RELEASING.md](../docs/RELEASING.md) for the full procedure.
 
-Version bump, CHANGELOG update, commit, and annotated tag.
-
-```bash
-pnpm run release:patch
-pnpm run release:minor
-pnpm run release:major
-```
-
-Tags are pushed with the release commit on **`main`**.
+| Script | Purpose |
+|--------|---------|
+| `pnpm release:prepare <major\|minor\|patch>` | Bump the version and date the `[Unreleased]` changelog section |
+| `pnpm release:check` | CI guard: version above `origin/main` and a dated changelog section |
+| `pnpm release:notes [version]` | Print one version's changelog section |
+| `pnpm release:publish` | After the release merge: tag `main` and create the GitHub Release |
 
 ### `quick-commit.sh`
 
@@ -28,7 +26,7 @@ Interactive conventional commits for local work (still requires issue linkage an
 | `pnpm build` | Turbo build |
 | `pnpm check-types` | Typecheck all packages |
 | `pnpm db:push` / `db:studio` / `db:reset-seed` | Database ([packages/db/DATABASE.md](../packages/db/DATABASE.md)) |
-| `pnpm release:*` | Semantic version release |
+| `pnpm release:*` | Semantic versioning ([docs/RELEASING.md](../docs/RELEASING.md)) |
 
 ## Deploy
 

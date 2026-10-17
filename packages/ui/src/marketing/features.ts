@@ -37,6 +37,6 @@ export const marketingFeatures: MarketingFeature[] = [
     icon: GithubIcon,
     title: "GitHub sign-in",
     description:
-      "Authenticate with GitHub—no extra passwords to rotate or forget.",
+      "Sign in with GitHub, Google or an email link. No passwords to rotate or forget.",
   },
 ];

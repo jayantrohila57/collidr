@@ -51,7 +51,7 @@ No. OAuth scopes are necessary but not sufficient. `requireAction` enforces org 
 
 ### Can I use MCP without GitHub?
 
-Production sign-in uses **GitHub OAuth** on the auth app. E2E email/password may exist in development only (`sharedE2eEmailPassword`); production users should use GitHub.
+Sign-in is passwordless: **GitHub**, **Google** or an email **magic link** on the auth app. Email and password sign-in is disabled everywhere, including local E2E runs.
 
 ### Where is the MCP server hosted?
 

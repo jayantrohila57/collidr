@@ -1,11 +1,32 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { withSentryConfig } from "@sentry/nextjs/config";
 import { createMDX } from "fumadocs-mdx/next";
 import type { NextConfig } from "next";
 
+/** Root package.json version, shown as the product version badge (#368). */
+const appVersion = (
+  JSON.parse(
+    readFileSync(join(process.cwd(), "../../package.json"), "utf8"),
+  ) as {
+    version: string;
+  }
+).version;
+
+/** Google sign-in shows only when both OAuth credentials exist (#359). */
+const googleSignIn =
+  process.env.GOOGLE_CLIENT_ID?.trim() &&
+  process.env.GOOGLE_CLIENT_SECRET?.trim()
+    ? "1"
+    : "";
 const docsBasePath = process.env.NEXT_BASE_PATH ?? "";
 
 const config: NextConfig = {
   output: "export" as const,
+  env: {
+    NEXT_PUBLIC_APP_VERSION: appVersion,
+    NEXT_PUBLIC_GOOGLE_SIGN_IN: googleSignIn,
+  },
   images: { unoptimized: true },
   reactStrictMode: true,
   typedRoutes: true,

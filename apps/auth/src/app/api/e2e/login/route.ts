@@ -1,4 +1,5 @@
 import { auth } from "@loftlancer/auth";
+import { e2ePasswordlessSignIn } from "@loftlancer/auth/passwordless";
 import { NextResponse } from "next/server";
 import { isE2eAuthRouteAllowed } from "@/lib/e2e-auth-allowed";
 import { isValidE2eSecret } from "@/lib/e2e-secret";
@@ -26,20 +27,10 @@ export async function POST(request: Request) {
 
   const credentials = e2ePersonaCredentials(persona);
 
-  try {
-    await auth.api.signUpEmail({
-      body: credentials,
-    });
-  } catch {
-    // User may already exist from a prior run.
-  }
-
-  const response = await auth.api.signInEmail({
-    body: {
-      email: credentials.email,
-      password: credentials.password,
-    },
-    asResponse: true,
+  // Passwordless (#373): a captured magic link creates or signs in the user.
+  const response = await e2ePasswordlessSignIn(auth, {
+    email: credentials.email,
+    name: credentials.name,
   });
 
   return response;

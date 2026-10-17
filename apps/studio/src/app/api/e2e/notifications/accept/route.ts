@@ -1,4 +1,5 @@
 import { auth } from "@loftlancer/auth";
+import { e2ePasswordlessSignIn } from "@loftlancer/auth/passwordless";
 import { env } from "@loftlancer/env/server";
 import { resolveAuthServiceUrl } from "@loftlancer/env/vercel-services";
 import { NextResponse } from "next/server";
@@ -31,9 +32,9 @@ export async function POST(request: Request) {
   }
 
   const invitee = e2ePersonaCredentials("invitee");
-  const signIn = await auth.api.signInEmail({
-    body: { email: invitee.email, password: invitee.password },
-    asResponse: true,
+  const signIn = await e2ePasswordlessSignIn(auth, {
+    email: invitee.email,
+    name: invitee.name,
   });
 
   if (!signIn.ok) {
@@ -43,7 +44,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const cookie = signIn.headers.get("set-cookie");
+  const cookie = signIn.headers
+    .getSetCookie()
+    .map((c) => c.split(";")[0])
+    .join("; ");
   const baseUrl = (env.BETTER_AUTH_URL || resolveAuthServiceUrl()).replace(
     /\/$/,
     "",
@@ -69,7 +73,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const { notifyInvitationAccepted } = await import("@loftlancer/notifications");
+  const { notifyInvitationAccepted } = await import(
+    "@loftlancer/notifications"
+  );
   await notifyInvitationAccepted(body.invitationId);
 
   return NextResponse.json({ ok: true });

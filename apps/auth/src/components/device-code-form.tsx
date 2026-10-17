@@ -10,11 +10,11 @@ import {
 } from "@loftlancer/ui/card";
 import { Field, FieldDescription, FieldLabel } from "@loftlancer/ui/field";
 import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
+import { SignInOptions } from "@loftlancer/ui/patterns/sign-in-options";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useState } from "react";
-import { GitHubSignInButton } from "@/components/github-sign-in-button";
 import { SegmentedCodeInput } from "@/components/segmented-code-input";
 import { authClient } from "@/lib/auth-client";
 import { authAppReturnTo } from "@/lib/auth-return-to";
@@ -116,7 +116,7 @@ export function DeviceCodeForm() {
                 <p className="text-muted-foreground text-sm">
                   Sign in first, then verify your device code.
                 </p>
-                <GitHubSignInButton
+                <SignInOptions
                   returnTo={authAppReturnTo(
                     `/device?user_code=${encodeURIComponent(formatDeviceUserCode(userCode))}`,
                   )}

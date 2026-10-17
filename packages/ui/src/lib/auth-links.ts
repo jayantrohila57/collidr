@@ -72,18 +72,32 @@ export function defaultConsoleReturnTo(env: PlatformUrlEnv = {}): string {
   return consoleOrigin;
 }
 
+export type SignInProvider = "github" | "google";
+
 /**
- * Start GitHub sign-in directly (no sign-in screen, #302). A plain link: the
- * auth app route starts the OAuth flow and GitHub returns to /studio.
+ * Start GitHub or Google sign-in directly (no sign-in screen, #302). A plain
+ * link: the auth app route starts the OAuth flow and returns to /studio.
  * `returnTo` is ignored (no deep-link return by design).
  */
 export function buildSignInUrl(
-  options: PlatformUrlEnv & { returnTo?: string } = {},
+  options: PlatformUrlEnv & {
+    returnTo?: string;
+    provider?: SignInProvider;
+  } = {},
 ): string {
   const auth = trimTrailingSlash(
     options.authUrl ?? process.env.NEXT_PUBLIC_AUTH_URL ?? authUrlDefault(),
   );
-  return `${auth}/api/sign-in/github`;
+  return `${auth}/api/sign-in/${options.provider ?? "github"}`;
+}
+
+/**
+ * Google sign-in is offered only when GOOGLE_CLIENT_ID and
+ * GOOGLE_CLIENT_SECRET exist at build time (#359); each app's next.config
+ * inlines that as NEXT_PUBLIC_GOOGLE_SIGN_IN.
+ */
+export function isGoogleSignInEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_GOOGLE_SIGN_IN === "1";
 }
 
 export function resolveAuthAppOrigin(env: PlatformUrlEnv = {}): string {
