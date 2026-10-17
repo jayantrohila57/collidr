@@ -16,16 +16,17 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
-### Fixed
+## [1.12.0] - 2026-10-17
 
-- Studio projects and organizations list sort controls are single-select dropdowns without a search field (#57)
 ### Added
 
+- Root `pnpm a11y` and CI run the Turbo `a11y` task in `apps/docs` (Playwright + axe on the docs landing; fails in CI when Playwright cannot run, optional local skip via `A11Y_SKIP`) (#91)
 - E2E demo environment variable seeding: encrypted fake placeholders for the Playwright demo project, production guards (`VERCEL_ENV` / `NODE_ENV` + opt-in), and `fake-dev-only` markers on reset-seed sample variables (#85)
 
 ### Fixed
 
 - Page header descriptions use shared `PageHeaderDescription` with `text-xs`, two-line clamp, and more/less toggle when text overflows (#78)
+- Studio projects and organizations list sort controls are single-select dropdowns without a search field (#57)
 - `purge.test.ts` no longer loads the database client at import time; DB purge deps moved to `purge-db` (#414)
 - Sentry Logs from auth, studio and docs flush on the server via a coalesced `Sentry.flush` + Vercel `waitUntil` after `@loftlancer/logger` entries, so buffered SDK logs are not dropped when serverless handlers exit before the default 5s timer; browser logs keep SDK batching (#355)
 - Auth settings redirect routes (`/settings`, `/settings/export`, `/settings/delete`) use async Server Component page wrappers again after the account→auth app split (#37)
@@ -468,7 +469,8 @@ The product is now Loftlancer.
 - Version management and commit workflow scripts
 - `SKIP_ENV_VALIDATION` option for builds
 
-[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.1...HEAD
+[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.1...v1.12.0
 [1.11.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.1...v1.10.0
