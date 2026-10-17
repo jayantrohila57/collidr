@@ -104,7 +104,8 @@
     "./patterns/activity-overview": "./src/patterns/activity-overview.tsx",
     "./patterns/version-badge": "./src/patterns/version-badge.tsx",
     "./platform-status": "./src/lib/platform-status.ts",
-    "./patterns/sign-in-options": "./src/patterns/sign-in-options.tsx"
+    "./patterns/sign-in-options": "./src/patterns/sign-in-options.tsx",
+    "./patterns/sentry-test-panel": "./src/patterns/sentry-test-panel.tsx"
   },
   "scripts": {
     "check-types": "tsc --noEmit",

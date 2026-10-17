@@ -20,6 +20,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ### Added
 
+- Sentry test-error triggers to confirm readable stack traces in production: `POST /api/sentry-test` and a `/sentry-test` page in auth and studio, guarded by the new server-only `SENTRY_TEST_TOKEN` (404 while unset; the token is scrubbed from Sentry events), and a hidden button page at `/sentry-test` on docs. Events are tagged `app` and `test: true` and carry no user data (#354)
 - Root `pnpm a11y` and CI run the Turbo `a11y` task in `apps/docs` (Playwright + axe on the docs landing; fails in CI when Playwright cannot run, optional local skip via `A11Y_SKIP`) (#91)
 - E2E demo environment variable seeding: encrypted fake placeholders for the Playwright demo project, production guards (`VERCEL_ENV` / `NODE_ENV` + opt-in), and `fake-dev-only` markers on reset-seed sample variables (#85)
 
