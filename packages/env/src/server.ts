@@ -19,6 +19,15 @@ export const env = createEnv({
     GITHUB_CLIENT_SECRET: z.string().min(1),
     /** Comma-separated allowed browser origins (studio, console, docs, mcp, …). */
     CORS_ORIGIN: z.string().min(1),
+    /** Google sign-in (#359). Google is offered only when both are set. */
+    GOOGLE_CLIENT_ID: z.string().min(1).optional(),
+    GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
+    /** Resend API key; email (incl. magic links) is skipped when unset. */
+    RESEND_API_KEY: z.string().min(1).optional(),
+    /** Sender, e.g. `Loftlancer <noreply@mail.loftlancer.com>`. */
+    EMAIL_FROM: z.string().min(1).optional(),
+    /** Better Stack Uptime API token for /status (#369); never sent to browsers. */
+    BETTERSTACK_API_TOKEN: z.string().min(1).optional(),
     ENCRYPTION_KEY: encryptionKeySchema,
     NODE_ENV: z
       .enum(["development", "production", "test"])
