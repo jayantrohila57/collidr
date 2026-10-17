@@ -16,6 +16,10 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Fixed
+
+- Auth settings redirect routes (`/settings`, `/settings/export`, `/settings/delete`) use async Server Component page wrappers again after the account→auth app split (#37)
+
 ## [1.11.1] - 2026-10-17
 
 ### Fixed
