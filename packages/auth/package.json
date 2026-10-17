@@ -36,6 +36,7 @@
     "@better-auth/mcp": "^1.7.7",
     "@loftlancer/actions": "workspace:*",
     "@loftlancer/db": "workspace:*",
+    "@loftlancer/email": "workspace:*",
     "@loftlancer/env": "workspace:*",
     "@loftlancer/notifications": "workspace:*",
     "@loftlancer/ui": "workspace:*",
