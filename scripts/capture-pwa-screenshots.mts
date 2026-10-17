@@ -35,4 +35,3 @@ run(path.join(root, "apps/studio"), [
   "--config=playwright.capture.config.ts",
   "--project=chromium",
 ]);
-
