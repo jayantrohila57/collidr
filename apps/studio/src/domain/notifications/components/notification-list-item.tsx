@@ -42,10 +42,10 @@ function resolveIcon(icon: string): AppIconName {
 const notificationRowContentClass =
   "flex min-w-0 flex-1 flex-col gap-0.5 text-start outline-none before:absolute before:inset-0 before:rounded-md focus-visible:before:ring-2 focus-visible:before:ring-ring disabled:cursor-default";
 
-/** Ghost Button with `h-auto` so multi-line rows are not clipped (#253, #38). */
-const notificationRowButtonClass = cn(
+/** Ghost Button overrides so multi-line rows are not clipped (#253, #38). */
+export const notificationRowButtonClass = cn(
   notificationRowContentClass,
-  "h-auto min-h-0 shrink whitespace-normal border-transparent bg-transparent px-0 py-0 font-normal shadow-none hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-100 data-pressed:bg-transparent",
+  "static h-auto min-h-0 shrink items-stretch justify-start whitespace-normal border-0 border-transparent bg-transparent px-0 py-0 font-normal shadow-none before:pointer-events-auto hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-100 data-pressed:bg-transparent sm:h-auto",
 );
 
 /**
@@ -188,7 +188,7 @@ export function NotificationListItem({
             onClick={onMarkRead}
             disabled={disabled}
             aria-label={`Mark "${item.title}" as read`}
-            className="pointer-events-none absolute inset-y-0 end-0 z-10 h-auto gap-1 border-transparent px-1.5 font-normal text-muted-foreground opacity-0 shadow-none transition-opacity hover:bg-background hover:text-foreground focus-visible:pointer-events-auto focus-visible:opacity-100 group-hover/notif:pointer-events-auto group-hover/notif:opacity-100"
+            className="pointer-events-none absolute inset-y-0 end-0 z-10 h-auto gap-1 border-transparent px-1.5 font-normal text-muted-foreground text-xs opacity-0 shadow-none transition-opacity hover:bg-background hover:text-foreground focus-visible:pointer-events-auto focus-visible:opacity-100 group-hover/notif:pointer-events-auto group-hover/notif:opacity-100 sm:h-auto"
           >
             <AppIcon name="markAllRead" className="size-3.5" />
             Read
