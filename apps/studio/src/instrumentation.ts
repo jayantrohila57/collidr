@@ -1,5 +1,8 @@
 import { configureLogger } from "@loftlancer/logger";
-import { createSentrySink } from "@loftlancer/logger/sentry";
+import {
+  createSentrySink,
+  scrubSentryTestToken,
+} from "@loftlancer/logger/sentry";
 import * as Sentry from "@sentry/nextjs";
 
 // Sentry stays off until SENTRY_DSN exists (#339).
@@ -14,6 +17,9 @@ export async function register() {
     environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV,
     initialScope: { tags: { app: "studio" } },
     tracesSampleRate: 0.1,
+    // Never send the Sentry test-error token header (#354).
+    beforeSend: scrubSentryTestToken,
+    beforeSendTransaction: scrubSentryTestToken,
   });
   // Server logs from @loftlancer/logger land in Sentry Logs via Sentry.logger
   // (#355). SDK v11 removed `enableLogs`; using the logger API is the opt-in.

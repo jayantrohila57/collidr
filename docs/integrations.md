@@ -70,3 +70,34 @@ Notes from setup:
 GA4, PostHog and the search-console verification tags are read at **build
 time**. Add the variable in Vercel (Production), then let it ride the next
 batch push to `main`; do not trigger a separate deploy (Hobby: 100/day).
+
+## Sentry test errors (#354)
+
+Each app has a test-error trigger to confirm that events reach Sentry with a
+readable, source-mapped stack trace. Every event is tagged `app`
+(`auth` / `studio` / `docs`), `runtime` (`server` / `browser`) and
+`test: true`, and carries no user data. Filter in Sentry with `test:true`.
+
+**Auth and studio** are guarded by the server-only `SENTRY_TEST_TOKEN`
+(Vercel Production, auth + studio; 32+ random characters, e.g.
+`openssl rand -hex 32`). It is read at **runtime**. While it is unset (or
+shorter than 32 characters) every trigger answers 404. The token travels only
+in the `x-sentry-test-token` header, is compared timing-safely, is scrubbed
+from Sentry events (`beforeSend`) and is never logged. All trigger responses,
+including the 404s, send `Cache-Control: private, no-store`.
+
+- Server: `curl -i -X POST -H "x-sentry-test-token: $SENTRY_TEST_TOKEN" https://loftlancer.com/auth/api/sentry-test`
+  (and `/studio/api/sentry-test`; studio needs no session for this route).
+  Answers `500` with `{"ok":true,"eventId":"…"}` once the event is sent.
+- Browser: open `https://loftlancer.com/auth/sentry-test` or
+  `https://loftlancer.com/studio/sentry-test` (signed in), paste the token and
+  click **Throw browser test error**. The page shows the event id.
+
+**Docs** is a static export with no server, so nothing secret can guard it:
+`https://loftlancer.com/sentry-test` is a hidden, noindex page that sends one
+event per button click. Anyone who finds it can send test events (the public
+DSN already allows that), so watch the error quota and remove the page if it
+is abused.
+
+Remove `SENTRY_TEST_TOKEN` when testing is done to switch the auth and studio
+triggers back to 404.

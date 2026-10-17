@@ -7,11 +7,14 @@
     },
     "./sentry": {
       "default": "./src/sentry.ts"
+    },
+    "./sentry-test": {
+      "default": "./src/sentry-test.ts"
     }
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "test": "node --import tsx --test src/index.test.ts"
+    "test": "node --import tsx --test src/index.test.ts src/sentry-test.test.ts"
   },
   "devDependencies": {
     "@loftlancer/config": "workspace:*",
