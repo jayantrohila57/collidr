@@ -18,7 +18,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ### Fixed
 
-- Account settings use the shared `formatDate` helper for linked-provider and audit-rail dates, including the Activity timeline (#73)
+- Account settings use `LocalDateTime` (shared `formatDate`) for linked-provider and audit-rail dates; activity heatmap cell tooltips use the same date style (#73)
 
 ## [1.11.1] - 2026-10-17
 

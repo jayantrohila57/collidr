@@ -22,6 +22,7 @@ import {
 import { Input } from "@loftlancer/ui/input";
 import { GoogleMark } from "@loftlancer/ui/patterns/auth-5";
 import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
+import { LocalDateTime } from "@loftlancer/ui/patterns/local-date-time";
 import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
 import { UnsavedChangesPageGuard } from "@loftlancer/ui/patterns/unsaved-changes-page-guard";
 import { Skeleton } from "@loftlancer/ui/skeleton";
@@ -32,7 +33,6 @@ import { KeyRoundIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { ClientFormattedDate } from "@/components/patterns/client-formatted-date";
 import { ErrorState } from "@/components/patterns/error-state";
 import {
   SettingsField,
@@ -599,7 +599,7 @@ export function AccountSettingsClient({
                                 ) : row.account ? (
                                   <>
                                     Linked{" "}
-                                    <ClientFormattedDate
+                                    <LocalDateTime
                                       value={row.account.createdAt}
                                     />
                                     {row.account.scope?.trim()

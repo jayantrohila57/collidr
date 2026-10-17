@@ -1,6 +1,7 @@
 "use client";
 
 import { GithubIcon } from "@loftlancer/ui/github-icon";
+import { LocalDateTime } from "@loftlancer/ui/patterns/local-date-time";
 import {
   SettingsFrame,
   SettingsRailCard,
@@ -20,7 +21,6 @@ import { usePathname } from "next/navigation";
 import { type ReactNode, useSyncExternalStore } from "react";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
-import { formatDate } from "@/lib/format";
 import { formatRelativeShort } from "@/lib/format-relative-short";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { trpc } from "@/utils/trpc";
@@ -123,7 +123,7 @@ export function AccountSettingsFrame({
                   ? [
                       {
                         label: "Joined",
-                        value: formatDate(String(user.createdAt)),
+                        value: <LocalDateTime value={String(user.createdAt)} />,
                       },
                     ]
                   : []),
@@ -131,7 +131,7 @@ export function AccountSettingsFrame({
                   ? [
                       {
                         label: "Last updated",
-                        value: formatDate(String(user.updatedAt)),
+                        value: <LocalDateTime value={String(user.updatedAt)} />,
                       },
                     ]
                   : []),
