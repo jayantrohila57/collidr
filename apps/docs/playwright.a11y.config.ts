@@ -1,7 +1,5 @@
-import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 
-const repoRoot = path.resolve(process.cwd(), "../..");
 const docsPort = Number(process.env.A11Y_DOCS_PORT ?? 3010);
 const baseURL = `http://127.0.0.1:${docsPort}`;
 
@@ -20,7 +18,7 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: "pnpm exec next dev",
-    cwd: path.join(repoRoot, "apps/docs"),
+    cwd: process.cwd(),
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

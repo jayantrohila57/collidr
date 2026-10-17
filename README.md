@@ -145,10 +145,10 @@ pnpm dev          # all apps via Turbo
 pnpm build
 pnpm check-types
 pnpm test
-pnpm a11y             # Playwright + axe on docs landing (Turbo task `a11y` → studio)
+pnpm a11y             # Playwright + axe on docs landing (Turbo task `a11y` → docs)
 ```
 
-**Turbo / remote cache (`a11y`):** Root `pnpm a11y` runs the `a11y` pipeline in `turbo.json` (scoped to `studio`). Turbo restores a cached run when inputs (`e2e/**`, `playwright.config.ts`, `playwright.a11y.config.ts`, and default package files) and env are unchanged. Cache keys include `globalEnv` feature flags plus `tasks.a11y.env` (CI, Playwright/E2E URLs and secrets, auth/DB URLs). Change those env vars or e2e sources to invalidate the cache — same pattern as `build` and CI `pnpm a11y`.
+**Turbo / remote cache (`a11y`):** Root `pnpm a11y` runs the `a11y` pipeline in `turbo.json` (scoped to `docs`). Turbo restores a cached run when inputs (`e2e/**`, `playwright.a11y.config.ts`, `src/**`, and default package files) and env are unchanged. Cache keys include `globalEnv` feature flags plus `tasks.a11y.env` (`CI`, `A11Y_SKIP`, `A11Y_DOCS_PORT`, Playwright/E2E URLs and secrets, auth/DB URLs). Change those env vars or docs/e2e sources to invalidate the cache — same pattern as `build` and CI `pnpm a11y`.
 
 ## Tech stack
 

@@ -106,6 +106,8 @@
       "env": [
         "CI",
         "SKIP_ENV_VALIDATION",
+        "A11Y_SKIP",
+        "A11Y_DOCS_PORT",
         "PLAYWRIGHT_BASE_URL",
         "PORT",
         "E2E_USE_PROD_SERVER",

@@ -18,7 +18,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ### Added
 
-- Root `pnpm a11y` and CI run the Turbo `a11y` task against `apps/studio` (Playwright + axe on the docs landing; skips when the spec or Playwright is unavailable) (#91)
+- Root `pnpm a11y` and CI run the Turbo `a11y` task in `apps/docs` (Playwright + axe on the docs landing; fails in CI when Playwright cannot run, optional local skip via `A11Y_SKIP`) (#91)
 - E2E demo environment variable seeding: encrypted fake placeholders for the Playwright demo project, production guards (`VERCEL_ENV` / `NODE_ENV` + opt-in), and `fake-dev-only` markers on reset-seed sample variables (#85)
 
 ### Fixed

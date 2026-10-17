@@ -10,7 +10,7 @@ import { SiteFooter } from "@/components/site-footer";
 
 export function Landing() {
   return (
-    <div data-testid="docs-landing">
+    <div className="contents" data-testid="docs-landing">
       <Auth5Panel
         title="Get started with Loftlancer"
         description="Organizations, projects, environments and encrypted variables for your team and your agents."
