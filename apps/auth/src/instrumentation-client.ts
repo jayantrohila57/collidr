@@ -1,21 +1,12 @@
 import {
-  resolveSentryDsn,
-  resolveSentryEnvironment,
-  resolveSentryRelease,
+  buildSentryInitOptions,
   wireSentryLogger,
 } from "@loftlancer/logger/sentry-instrument";
 import * as Sentry from "@sentry/nextjs";
 
-const dsn = resolveSentryDsn();
-
-if (dsn) {
-  Sentry.init({
-    dsn,
-    release: resolveSentryRelease(),
-    environment: resolveSentryEnvironment(true),
-    initialScope: { tags: { app: "auth" } },
-    tracesSampleRate: 0.1,
-  });
+const options = buildSentryInitOptions("auth", true);
+if (options.dsn) {
+  Sentry.init(options);
   wireSentryLogger(Sentry, "auth", { runtime: "browser" });
 }
 

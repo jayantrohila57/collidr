@@ -36,3 +36,25 @@ export function createSentrySink(
     },
   };
 }
+
+/** Header that carries the Sentry test-error token (#354). */
+export const SENTRY_TEST_HEADER = "x-sentry-test-token";
+
+type EventWithRequest = {
+  request?: { headers?: Record<string, string> | undefined } | undefined;
+};
+
+/**
+ * `beforeSend` / `beforeSendTransaction` scrubber: drops the test-error token
+ * header (any casing) from captured request data, so the token never reaches
+ * Sentry (#354).
+ */
+export function scrubSentryTestToken<T extends EventWithRequest>(event: T): T {
+  const headers = event.request?.headers;
+  if (headers) {
+    for (const key of Object.keys(headers)) {
+      if (key.toLowerCase() === SENTRY_TEST_HEADER) delete headers[key];
+    }
+  }
+  return event;
+}

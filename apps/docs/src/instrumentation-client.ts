@@ -1,21 +1,12 @@
 import {
-  resolveSentryDsn,
-  resolveSentryEnvironment,
-  resolveSentryRelease,
+  buildSentryInitOptions,
   wireSentryLogger,
 } from "@loftlancer/logger/sentry-instrument";
 import * as Sentry from "@sentry/nextjs";
 
-const dsn = resolveSentryDsn();
-
-if (dsn) {
-  Sentry.init({
-    dsn,
-    release: resolveSentryRelease(),
-    environment: resolveSentryEnvironment(true),
-    initialScope: { tags: { app: "docs" } },
-    tracesSampleRate: 0.1,
-  });
+const options = buildSentryInitOptions("docs", true);
+if (options.dsn) {
+  Sentry.init(options);
   wireSentryLogger(Sentry, "docs", { runtime: "browser" });
 }
 

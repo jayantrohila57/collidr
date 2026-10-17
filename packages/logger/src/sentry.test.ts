@@ -7,6 +7,7 @@ afterEach(() => {
   delete process.env.NEXT_PUBLIC_SENTRY_DSN;
   delete process.env.SENTRY_DSN;
   delete process.env.VERCEL_ENV;
+  delete process.env.NODE_ENV;
 });
 
 test("resolveSentryDsn prefers NEXT_PUBLIC_SENTRY_DSN", () => {

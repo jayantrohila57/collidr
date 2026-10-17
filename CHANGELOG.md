@@ -18,7 +18,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ### Fixed
 
-- Sentry Logs from auth, studio and docs now flush after each `@loftlancer/logger` entry (via `Sentry.flush` and Vercel `waitUntil` on the server), so buffered SDK logs are not dropped when serverless handlers exit before the default 5s timer (#355)
+- Sentry Logs from auth, studio and docs flush on the server via a coalesced `Sentry.flush` + Vercel `waitUntil` after `@loftlancer/logger` entries, so buffered SDK logs are not dropped when serverless handlers exit before the default 5s timer; browser logs keep SDK batching (#355)
 - Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
 
 ## [1.11.0] - 2026-10-17

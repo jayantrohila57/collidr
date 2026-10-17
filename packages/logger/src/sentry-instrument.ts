@@ -1,17 +1,21 @@
 import { configureLogger } from "./index";
 import {
+  createSentrySink,
+  type SentryLike,
+  scrubSentryTestToken,
+} from "./sentry";
+import {
   resolveSentryDsn,
   resolveSentryEnvironment,
   resolveSentryRelease,
 } from "./sentry-env";
 
+export { scrubSentryTestToken } from "./sentry";
 export {
   resolveSentryDsn,
   resolveSentryEnvironment,
   resolveSentryRelease,
 } from "./sentry-env";
-
-import { createSentrySink, type SentryLike } from "./sentry";
 
 export type LoftlancerApp = "auth" | "studio" | "docs";
 
@@ -20,28 +24,33 @@ export type SentryInitLike = SentryLike & {
   flush?: (timeout?: number) => Promise<boolean>;
 };
 
-/** Flush buffered Sentry Logs before the serverless function exits (#355). */
-function scheduleSentryFlush(sentry: SentryInitLike): void {
-  if (!sentry.flush) return;
-  const flushPromise = sentry.flush(2000);
-  if (typeof globalThis !== "undefined" && "window" in globalThis) {
-    void flushPromise;
-    return;
-  }
-  void import("@sentry/core/server")
-    .then(({ vercelWaitUntil }) => {
-      vercelWaitUntil(flushPromise);
-    })
-    .catch(() => {
-      void flushPromise;
-    });
+export type SentryInitExtras = Record<string, unknown>;
+
+/** Shared Sentry.init fields for all runtimes (includes #354 scrubbing). */
+export function buildSentryInitOptions(
+  app: LoftlancerApp,
+  forBrowser: boolean,
+  extras?: SentryInitExtras,
+): Record<string, unknown> {
+  const dsn = resolveSentryDsn();
+  if (!dsn) return {};
+  return {
+    dsn,
+    release: resolveSentryRelease(),
+    environment: resolveSentryEnvironment(forBrowser),
+    initialScope: { tags: { app } },
+    tracesSampleRate: 0.1,
+    beforeSend: scrubSentryTestToken,
+    beforeSendTransaction: scrubSentryTestToken,
+    ...extras,
+  };
 }
 
 /** Wire @loftlancer/logger to Sentry Logs after Sentry.init. */
 export function wireSentryLogger(
   sentry: SentryInitLike,
   app: LoftlancerApp,
-  options: { runtime: "browser" | "server" },
+  options: { runtime: "browser" | "server"; onAfterLog?: () => void },
 ): void {
   const release = resolveSentryRelease();
   configureLogger({
@@ -50,26 +59,18 @@ export function wireSentryLogger(
       ...(options.runtime === "server" ? { release } : { runtime: "browser" }),
     },
     sink: createSentrySink(sentry, {
-      onAfterLog: () => scheduleSentryFlush(sentry),
+      onAfterLog: options.onAfterLog,
     }),
   });
 }
 
-/** Node server runtime: init Sentry and wire the shared logger sink. */
-export function initAndWireSentryServer(
+/** Edge runtime: errors only (no server logger sink) (#355). */
+export function initSentryEdge(
   sentry: SentryInitLike,
   app: LoftlancerApp,
+  extras?: SentryInitExtras,
 ): void {
-  const dsn = resolveSentryDsn();
-  if (!dsn) return;
-  const release = resolveSentryRelease();
-  configureLogger({ context: { app, release } });
-  sentry.init({
-    dsn,
-    release,
-    environment: resolveSentryEnvironment(false),
-    initialScope: { tags: { app } },
-    tracesSampleRate: 0.1,
-  });
-  wireSentryLogger(sentry, app, { runtime: "server" });
+  const options = buildSentryInitOptions(app, false, extras);
+  if (!options.dsn) return;
+  sentry.init(options);
 }
