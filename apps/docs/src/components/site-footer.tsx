@@ -20,12 +20,13 @@ export function SiteFooter({ className }: { className?: string }) {
         className,
       )}
     >
-      <nav aria-label="Site" className="flex flex-wrap gap-x-3 gap-y-1.5">
+      <nav aria-label="Site" className="flex flex-wrap gap-x-3 gap-y-2">
         {LINKS.map((link) => (
           <a
             key={link.href}
             href={link.href}
-            className="transition-colors hover:text-foreground"
+            // 24px hit area (WCAG 2.5.8, #390); -my-1 keeps the 16px line box.
+            className="-my-1 inline-flex min-h-6 items-center transition-colors hover:text-foreground"
           >
             {link.label}
           </a>
