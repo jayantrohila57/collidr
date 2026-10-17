@@ -9,6 +9,7 @@ import { ToastProvider } from "@loftlancer/ui/toast";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState } from "react";
+import { SentryUser } from "@/components/sentry-user";
 import {
   getClientErrorMessage,
   isBenignClientError,
@@ -51,6 +52,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               <SkipLink />
               <ImpersonationBanner />
               <OfflineBanner />
+              {/* Sentry stays off without a DSN (#339); skip the session hook too. */}
+              {process.env.NEXT_PUBLIC_SENTRY_DSN ? <SentryUser /> : null}
               {children}
               <ReactQueryDevtools />
             </ToastProvider>
