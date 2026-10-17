@@ -91,7 +91,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const notificationsEnabled = isNotificationsEnabledOnClient();
   const unreadNotifications = useNotificationsUnreadCount();
   const notificationCount = notificationsEnabled
-    ? (unreadNotifications.data?.data ?? 0)
+    ? unreadNotifications.isPending
+      ? null
+      : (unreadNotifications.data?.data ?? 0)
     : 0;
 
   const actionsAudit = isActionsAuditEnabledOnClient();
