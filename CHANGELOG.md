@@ -16,16 +16,20 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Fixed
+
+- Account settings use `LocalDateTime` (shared `formatDate`) for linked-provider and audit-rail dates; activity heatmap cell tooltips use the same date style (#73)
 ## [1.12.0] - 2026-10-17
 
 ### Added
 
+- Sentry test-error triggers to confirm readable stack traces in production: `POST /api/sentry-test` and a `/sentry-test` page in auth and studio, guarded by the new server-only `SENTRY_TEST_TOKEN` (404 while unset; the token is scrubbed from Sentry events), and a hidden button page at `/sentry-test` on docs. Events are tagged `app` and `test: true` and carry no user data (#354)
 - Root `pnpm a11y` and CI run the Turbo `a11y` task in `apps/docs` (Playwright + axe on the docs landing; fails in CI when Playwright cannot run, optional local skip via `A11Y_SKIP`) (#91)
 - E2E demo environment variable seeding: encrypted fake placeholders for the Playwright demo project, production guards (`VERCEL_ENV` / `NODE_ENV` + opt-in), and `fake-dev-only` markers on reset-seed sample variables (#85)
 
 ### Fixed
 
-- Page header spacing and primary action alignment: shared `PageHeaderLayout` uses `layout-spacing` tokens (`gap-2`, `min-h-12`, `h-8` actions), description grids keep actions on the title row, loading skeletons match the description grid footprint, and inset chrome matches `h-12` sidebar scale (#77)
+- Studio sidebar platform nav and org-scoped pages resolve loading from SSR-hydrated data without waiting for a second client bootstrap or user interaction; nav count badges reserve space while counts load (#63)
 - Studio projects and organizations list sort controls are single-select dropdowns without a search field (#57)
 - `purge.test.ts` no longer loads the database client at import time; DB purge deps moved to `purge-db` (#414)
 - Sentry Logs from auth, studio and docs flush on the server via a coalesced `Sentry.flush` + Vercel `waitUntil` after `@loftlancer/logger` entries, so buffered SDK logs are not dropped when serverless handlers exit before the default 5s timer; browser logs keep SDK batching (#355)
