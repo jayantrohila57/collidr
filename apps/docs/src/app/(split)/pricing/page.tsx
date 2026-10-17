@@ -1,5 +1,4 @@
 import { appRegistry } from "@loftlancer/actions/apps";
-import { buildSignInUrl } from "@loftlancer/ui/auth-links";
 import { MarketingPage } from "@/components/marketing-page";
 import { pageMetadata } from "@/lib/seo";
 
@@ -34,12 +33,11 @@ const faq = [
   },
   {
     q: "How do I sign in?",
-    a: "With GitHub. Your account and organizations are created on first sign-in.",
+    a: "With GitHub, Google or a one-time email link. There are no passwords. Your account is created on first sign-in.",
   },
 ];
 
 export default function PricingPage() {
-  const signInHref = buildSignInUrl();
   return (
     <MarketingPage
       title="Pricing"
@@ -76,7 +74,7 @@ export default function PricingPage() {
           ))}
         </ul>
         <a
-          href={signInHref}
+          href="/"
           className="no-underline! inline-flex h-8 w-full items-center justify-center rounded-lg bg-primary px-3 font-medium text-primary-foreground! text-sm transition-colors hover:bg-primary/90"
         >
           Get started free

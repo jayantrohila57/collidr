@@ -27,6 +27,7 @@ export const publicRoutes = [
   "/pricing",
   "/about",
   "/changelog",
+  "/status",
   "/privacy",
   "/terms",
   "/legal/acceptable-use",

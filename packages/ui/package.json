@@ -101,7 +101,10 @@
     "./local-day": "./src/lib/local-day.ts",
     "./patterns/local-date-time": "./src/patterns/local-date-time.tsx",
     "./patterns/breadcrumb-trail": "./src/patterns/breadcrumb-trail.tsx",
-    "./patterns/activity-overview": "./src/patterns/activity-overview.tsx"
+    "./patterns/activity-overview": "./src/patterns/activity-overview.tsx",
+    "./patterns/version-badge": "./src/patterns/version-badge.tsx",
+    "./platform-status": "./src/lib/platform-status.ts",
+    "./patterns/sign-in-options": "./src/patterns/sign-in-options.tsx"
   },
   "scripts": {
     "check-types": "tsc --noEmit",

@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  buildSignInUrl,
-  resolveAuthAppOrigin,
-} from "@loftlancer/ui/auth-links";
+import { resolveAuthAppOrigin } from "@loftlancer/ui/auth-links";
 import { PublicAppShell } from "@loftlancer/ui/patterns/app-shell";
 import {
   type PublicNavGroup,
@@ -11,9 +8,11 @@ import {
 } from "@loftlancer/ui/patterns/sidebar-kit";
 import { performPlatformSignOut } from "@loftlancer/ui/platform-sign-out";
 import {
+  ActivityIcon,
   BookOpenIcon,
   CookieIcon,
   FileTextIcon,
+  HistoryIcon,
   LifeBuoyIcon,
   LockIcon,
   ScaleIcon,
@@ -43,7 +42,11 @@ const groups: PublicNavGroup[] = [
   },
   {
     label: "Docs",
-    items: [{ label: "Documentation", href: "/docs", icon: BookOpenIcon }],
+    items: [
+      { label: "Documentation", href: "/docs", icon: BookOpenIcon },
+      { label: "Changelog", href: "/changelog", icon: HistoryIcon },
+      { label: "Status", href: "/status", icon: ActivityIcon },
+    ],
   },
 ];
 
@@ -64,7 +67,7 @@ export function PublicLegalShell({ children }: { children: React.ReactNode }) {
           groups={groups}
           currentPath={pathname}
           sessionUrl={`${auth}/api/auth/get-session`}
-          signInHref={buildSignInUrl()}
+          signInHref="/"
           onSignOut={() =>
             performPlatformSignOut({
               signOutLocal: () =>

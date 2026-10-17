@@ -36,8 +36,8 @@ export function OrgInviteEmail({
         View invitation
       </Button>
       <Text style={{ color: brand.muted, fontSize: 12, margin: "16px 0 0" }}>
-        Sign in with GitHub using this email address to accept. If you weren't
-        expecting this, you can ignore it.
+        Sign in with GitHub, Google or an email link using this address to
+        accept. If you weren't expecting this, you can ignore it.
       </Text>
     </EmailLayout>
   );

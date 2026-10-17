@@ -8,6 +8,10 @@ export {
   setEmailRecorder,
 } from "./send";
 export {
+  MagicLinkEmail,
+  type MagicLinkEmailProps,
+} from "./templates/magic-link";
+export {
   OrgInviteEmail,
   type OrgInviteEmailProps,
 } from "./templates/org-invite";

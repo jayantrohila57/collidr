@@ -1,4 +1,5 @@
 import { auth } from "@loftlancer/auth";
+import { e2ePasswordlessSignIn } from "@loftlancer/auth/passwordless";
 import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
 import { env } from "@loftlancer/env/server";
 import { prepareE2eInvitationNotifications } from "@loftlancer/notifications/e2e/prepare-invitation";
@@ -10,11 +11,11 @@ import { e2ePersonaCredentials } from "@/lib/e2e-users";
 async function ensureE2eUsers() {
   for (const persona of ["primary", "invitee"] as const) {
     const credentials = e2ePersonaCredentials(persona);
-    try {
-      await auth.api.signUpEmail({ body: credentials });
-    } catch {
-      // already exists
-    }
+    // Passwordless (#373): verifying a captured magic link creates the user.
+    await e2ePasswordlessSignIn(auth, {
+      email: credentials.email,
+      name: credentials.name,
+    });
   }
 }
 

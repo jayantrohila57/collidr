@@ -4,34 +4,25 @@ import {
   AnalyticsConsentBanner,
   useAnalyticsConsent,
 } from "@loftlancer/ui/patterns/analytics-consent";
-import Script from "next/script";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
-/** GA4 measurement id, public site only (#351). Unset = no banner, no script. */
-const rawGaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() ?? "";
-const gaId = /^G-[A-Z0-9]+$/.test(rawGaId) ? rawGaId : "";
+import { gaMeasurementId } from "@/lib/analytics";
 
 /**
- * Google Analytics 4, gated twice: it does nothing until
- * NEXT_PUBLIC_GA_MEASUREMENT_ID is set at build time, and then loads only
- * after the visitor accepts the consent banner.
+ * Google Analytics 4 via the official `@next/third-parties/google` component,
+ * gated twice (#351): nothing renders until NEXT_PUBLIC_GA_MEASUREMENT_ID is
+ * set at build time, and the GA script loads only after the visitor accepts
+ * the consent banner. Vercel Analytics and Speed Insights are separate.
  */
 export function ConsentAnalytics() {
   const [consent] = useAnalyticsConsent();
-  if (!gaId) return null;
+  if (!gaMeasurementId) return null;
 
   return (
     <>
       <AnalyticsConsentBanner />
       {consent === "granted" ? (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-            strategy="afterInteractive"
-          />
-          <Script id="ga4-init" strategy="afterInteractive">
-            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","${gaId}");`}
-          </Script>
-        </>
+        <GoogleAnalytics gaId={gaMeasurementId} />
       ) : null}
     </>
   );

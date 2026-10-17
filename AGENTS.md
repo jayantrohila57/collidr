@@ -20,6 +20,12 @@ This repository uses **`dev`** for integration and **`main`** for production. Al
 | Forbidden | Force-push, `git commit --amend` on shared history |
 | PRs | Optional; merges may be direct on GitHub or locally |
 
+## Versioning & releases
+
+- One product version in the root `package.json` (semver). Every `dev` → `main` release bumps it (minor for features, patch for fix batches), adds a dated `CHANGELOG.md` entry, and after the merge gets a `vX.Y.Z` tag and a GitHub Release (`pnpm release:publish`).
+- Add a line under `## [Unreleased]` in `CHANGELOG.md` with every change you merge into `dev`.
+- Full procedure: [docs/RELEASING.md](./docs/RELEASING.md).
+
 ## What to read before coding
 
 | Topic | Document |

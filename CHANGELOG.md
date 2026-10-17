@@ -1,275 +1,427 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to Loftlancer are documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and the platform follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+with one product version for the whole monorepo (root `package.json`).
 
-## [Unreleased]
+- `0.x` covers the env-manager and Collidr eras, from the first commit.
+- `1.0.0` is the Loftlancer rebrand on `main`.
+- After that, every `dev` → `main` release bumps the minor version for
+  feature releases and the patch version for fix batches.
 
-### Added
-
-- **Production deploy**: [docs/PRODUCTION_DEPLOY.md](./docs/PRODUCTION_DEPLOY.md) (Vercel rate-limit mitigations, flag/redeploy checklist, schema sign-off); Settings → Deploy runbook UI; Turbo `globalEnv` guard test in `@loftlancer/env`
-- **Documentation**: README, AGENTS.md, platform plan (PLAN_PLATFORM_APPS §14 SSO), and doc index aligned with orgs, actions, flags, main-only deploy, and db:reset-seed policy
-
-- **Project Management**: Complete project editing functionality
-  - Added project edit dialog with form validation
-  - Implemented project edit page with client-side state management
-  - Added project actions component for edit/delete operations
-- **Environment Management**: Enhanced environment editing capabilities
-  - Added edit environment dialog with real-time validation
-  - Improved environment panel UI with better layout
-  - Enhanced environments tabs view with improved navigation
-- **Variable Management**: Full CRUD operations for environment variables
-  - Added edit variable dialog with encryption support
-  - Enhanced variables table view with sorting and filtering
-  - Improved variable hooks with better error handling
-- **Dashboard**: Updated dashboard stats component with improved metrics
-
-### Changed
-
-- Refactored project components to use consistent UI patterns
-- Improved error handling across all environment and variable components
-- Updated API router for variables with better security and validation
-- Enhanced TypeScript types for better type safety
-
-### Fixed
-
-- Resolved variable table CRUD functionality issues
-- Fixed TypeScript build errors in environment hooks
-- Improved form validation in edit dialogs
-
-## [1.1.0] - 2025-01-19
-
-### Added
-
-- Environment management core infrastructure
-- Projects, environments, and variables database schema
-- New API routers for environment management
-- Database migrations for environment management features
-- Comprehensive project plan and development roadmap
-
-### Changed
-
-- Refactored from todo-based to environment management system
-- Updated authentication flow for new use case
-- Removed placeholder todo functionality
-- Updated database schema to support environment variables
-- Modified API structure for environment management endpoints
-
-### Fixed
-
-- Updated imports and dependencies after schema changes
-- Fixed authentication integration with new project structure
-
----
-
-## [1.4.0] - 2026-01-19
-
-### Added
-
-- **Environment Templates**: Reusable templates for environment variables.
-  - Create and manage templates with default variables.
-  - Apply templates to project environments with conflict detection (skips existing keys).
-  - Bulk management UI for template variables.
-- **Audit Logs Enhancement**:
-  - Implemented server-side search by action and entity type.
-  - Added frontend search bar and project-based filtering for audit logs.
-  - Improved data security by removing `any` types in audit log tables.
-
-### Changed
-
-- Landing page UI with modern hero section and better messaging.
-- Sign-in form styling and layout for better user experience.
-- Refactored `environment-panel.tsx` to integrate with templates and audit logs.
-- Centralized `trpc` utils for better type safety and TanStack Query integration.
-
-## [1.5.0] - 2026-01-20
-
-### Added
-
-- **Domain-Driven Architecture**: Refactored `apps/web/src` into a domain-centric structure (`auth`, `projects`, `environments`, `templates`, `audit`).
-- **Server Components Migration**: Converted all main pages (`login`, `dashboard`, `audit`, `templates`) to React Server Components (RSC).
-- **Dynamic Loading**: Implemented `next/dynamic` with dedicated skeleton loading states for all major feature views.
-- **Strict tRPC Invalidation**: Standardized on object-based `.queryKey()` invalidation for TanStack Query v5 compatibility.
-
-### Changed
-
-- Migrated 700+ line components into modular, hook-driven domain components.
-- Standardized interactive elements with explicit `type="button"` for linting compliance.
-- Improved error handling and loading states across all feature domains.
-
-### Removed
-
-- Redundant legacy components in `src/components/projects`, `src/components/templates`, etc.
-
-## [1.6.0] - 2026-02-02
-
-### Added
-
-- **Complete UI Component Library**: Added comprehensive shadcn/ui components including accordion, alert-dialog, aspect-ratio, avatar, breadcrumb, button-group, calendar, collapsible, command, context-menu, drawer, field, form, hover-card, input-group, input-otp, item, kbd, menubar, navigation-menu, pagination, progress, radio-group, sheet, sidebar, slider, spinner, switch, toggle-group, and toggle
-- **Enhanced Layout Components**: New shell component, app-sidebar with navigation, breadcrumbs, go-back functionality, and section-dashboard components
-- **Mobile Responsiveness**: Added use-mobile hooks for better mobile experience
-- **Navigation System**: Complete nav-header and nav-main components with improved navigation structure
-- **Enhanced Authentication**: GitHub login component and dropdown sign-out component
-- **Domain Architecture**: Auth domain components with better separation of concerns
-
-### Changed
-
-- **UI Modernization**: Updated existing UI components (badge, button, card, checkbox, dialog, dropdown-menu, empty, input, label, scroll-area, select, separator, skeleton, sonner, table, tabs, textarea, tooltip) with latest shadcn/ui patterns
-- **Component Structure**: Refactored header, mode-toggle, and user-menu components for better consistency
-- **Styling Updates**: Enhanced index.css and lib/utils.ts with improved utility functions
-- **Workspace Configuration**: Updated pnpm-workspace.yaml and pnpm-lock.yaml for new dependencies
-
-### Removed
-
-- **Legacy Page Components**: Removed old page.tsx and replaced with modern server component architecture
-- **Deprecated Auth Components**: Replaced sign-in-form, sign-in-view, and use-auth hook with new domain-driven architecture
-
-## [1.7.0] - 2026-02-04
-
-### Added
-
-- **New Footer Component**: Created modern footer with brand section and copyright information
-- **Enhanced Project Creation**: Added dedicated project creation page with improved UX
-- **Public Layout**: Added public layout for better page organization
-- **New UI Components**: Added carousel, combobox, direction, native-select, and resizable components
-- **Cookie Management**: Added cookie utilities for better state management
-
-### Changed
-
-- **Navigation Cleanup**: Removed template and audit navigation links from sidebar
-- **User Menu Refactor**: Simplified user menu component and removed settings option
-- **Avatar Styling**: Updated avatar components with consistent styling across the app
-- **Dashboard Layout**: Improved dashboard section padding and layout consistency
-- **Breadcrumbs**: Enhanced breadcrumbs with responsive design (hidden on mobile, shown in dedicated section on desktop)
-- **Component Cleanup**: Removed deprecated components including input-group, input-otp, slider, and user-menu
-- **Project Management**: Refactored project components for better modularity
-- **Environment Variables**: Updated environment panel and project detail components
-
-## [1.7.1] - 2026-02-04
-
-### Fixed
-
-- **Build Issues**: Resolved TypeScript compilation errors for Next.js 16 compatibility
-- **Redirect Function**: Fixed redirect calls in dashboard pages with proper type handling
-- **SignOut Function**: Fixed authentication sign-out callback parameters
-- **Component Dependencies**: Removed unused components causing build failures
-- **Import Issues**: Cleaned up unused imports in navigation components
-
-### Changed
-
-- **Dependencies**: Added @base-ui/react for combobox component support
-- **Type Safety**: Improved Promise handling in environment creation flow
-
-## [1.7.3] - 2026-02-04
-
-### Fixed
-
-- Fixed sidebar active state logic to properly handle nested routes
-- Improved menu item rendering with centralized configuration array
-
-## [1.7.4] - 2026-02-04
-
-### Added
-
-- **Enhanced Project Creation Form**: Added new fields to project creation
-  - Repository URL field for linking to project source code
-  - Website URL field for project deployment links  
-  - Public/Private toggle for project visibility settings
-  - Auto-generated slugs from project names for URL-friendly identifiers
-
-### Changed
-
-- **API Schema Updates**: Extended project and environment schemas with new fields
-- **Database Integration**: Updated create mutations to handle new project fields
-- **Code Cleanup**: Removed deprecated templates domain and components
-- **Build Fixes**: Resolved TypeScript compilation errors and lint issues
-
-### Fixed
-
-- Database schema regeneration after dropping all tables
-- Generated new migration (0002_neat_ender_wiggin.sql) with updated schema
-- Applied database migrations successfully with proper indexes and constraints
-- Fixed environment creation missing required slug field
-- Removed broken template references and components
+Dates are in IST (UTC+5:30). Numbers like #123 are GitHub issues or pull
+requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure.
 
 ## [Unreleased]
 
-## [1.2.0] - 2026-01-19
+## [1.9.0] - 2026-10-17
 
 ### Added
 
-- Comprehensive Environment Management Dashboard
-- Project Management: Create, edit, and delete projects with Card-based UI
-- Environment Management: Multi-environment support with Tab-based navigation
-- Advanced Variable Editor: Masked/Reveal values, Copy to Clipboard functionality
-- Bulk Variable Management: Import multiple variables from .env paste; Export to clipboard
-- Real-time Variable Search and Filtering by key
-- Core API: Added `bulkImport` and `export` endpoints for environment variables
-- UI: Refactored Header with centralized `siteConfig` and glassmorphism styling
-- UI: Interactive micro-animations and loading states with Skeleton components
-
-### Fixed
-
-- Critical bug in `variables.update` mutation preventing unintentional data overwrites
+- Semantic versioning for the whole platform: one root version, a backfilled changelog for every release since the first commit, git tags and GitHub Releases per version, a release procedure and a CI check on release PRs (#368)
+- `/changelog` renders from this file as a timeline, and a version badge links to it from the docs footer and studio (#368)
+- Status page at `/status`, built from Better Stack monitors, uptime and incidents (#369)
+- Sign in with Google next to GitHub, shown only when Google is configured (#359)
+- Magic-link sign-in by email, sent through the shared Resend sender with a React Email template (#373)
+- Sign-in errors from GitHub, Google or an expired email link show on the landing page (#373)
+- Google can be connected in account settings next to GitHub (#359)
 
 ### Changed
 
-- Centralized Branding: Integrated `siteConfig` across the application header
-- Migrated Dashboard to a project-centric view
+- Sign-in is passwordless only: GitHub, Google and magic link. Email and password sign-in is disabled on every auth instance, and the local e2e login no longer uses a password (#373)
+- GA4 loads through the official `@next/third-parties` Google Analytics component, still only after consent and only when the measurement ID is set (#351)
+- New service env vars are declared in turbo's build env list, and env validation accepts the optional Google, Resend and Better Stack keys (#370)
+- The docs site gets a footer with Changelog and Status links (#368, #369)
+- GA4 (public site) and PostHog (studio) are switched on in production now that their keys are configured; both still load only after consent (#351, #353)
+- `docs/integrations.md` covers Better Stack, the Google Cloud project (OAuth, GA4, Search Console), PostHog and passwordless auth (#371)
 
-## [1.0.2] - 2025-01-19
+### Removed
+
+- Email and password sign-in. Production had no password accounts, so nobody loses access (#373)
+
+## [1.8.0] - 2026-10-17
 
 ### Added
 
+- SEO groundwork: `metadataBase`, canonical URLs, a unique title and description per public page, a public-only sitemap, robots rules that block `/studio` and `/auth`, and JSON-LD on the home page (#352, PR #366)
+- Cookie consent banner with env-gated GA4 (public site) and PostHog (studio) wrappers that load only after consent (#365)
+- Sentry source-map upload via `withSentryConfig` for studio, auth and docs (#364)
+- Services and integrations inventory in `docs/integrations.md` (#361)
+
+## [1.7.1] - 2026-10-17
+
+### Fixed
+
+- Sentry and Vercel env vars are passed through turbo builds so production picks them up (#347, PR #348)
+
+## [1.7.0] - 2026-10-17
+
+### Added
+
+- Vercel Web Analytics and Speed Insights (#342)
+- Sentry error monitoring for studio, auth and docs, off until a DSN is set (#339)
+- `@loftlancer/email` package with React Email templates and Resend; organization invite emails (#335, #336, PR #343)
+- One shared email sender with a recorder hook for the Mail app (#344, PR #345)
+
+### Fixed
+
+- Notifications: the first date group no longer says "Yesterday" for rows stamped "Today" (#325)
+- Variables page and projects list skeletons match the loaded layout, with no layout shift (#326)
+- Project overview "Updated" time no longer changes after hydration (#327)
+- Page titles for Support and account Profile (#328)
+- Account settings header matches studio: breadcrumbs, navigation and Activity naming (#329)
+- The landing page logo links home (#330)
+
+## [1.6.4] - 2026-10-17
+
+### Fixed
+
+- Proxy guard against org-sync redirect loops when switching organizations (#299, PR #331)
+
+## [1.6.3] - 2026-10-17
+
+### Changed
+
+- Duplicated UI merged into `@loftlancer/ui`: primitives, app shell, empty and page states; unused primitives removed (#220, PR #323)
+
+## [1.6.2] - 2026-10-17
+
+### Fixed
+
+- Production QA batch (PR #321): user menu Docs link (#312), active org in the sidebar switcher (#313), sidebar Projects count (#314), org overview Projects stat link (#315), accessible names on icon-only project links (#316), not-found breadcrumb and title (#317), env variables Updated column and env tabs in the URL (#318), auth settings shell matches studio (#319), `pnpm lint` ignores `apps/docs/out` (#320)
+
+## [1.6.1] - 2026-10-17
+
+### Fixed
+
+- Trailing-slash URLs such as `/studio/` and `/docs/` redirect instead of returning 404 (#305)
+- Studio navigation links to Support, and not-found pages return HTTP 404 (#306)
+- Unknown routes under a real organization or project return a real 404 (#309)
+
+## [1.6.0] - 2026-10-17
+
+### Added
+
+- Route builder in `utils/navigation.ts` with a CI check against old `/dashboard` and `/p/` literals (#300)
+
+### Changed
+
+- Hierarchical studio routes: `/studio` (org list), `/studio/[org]`, `/[org]/[project]` and app routes under the project (#299)
+- Project slugs are unique per organization, with a migration (#301)
+- Auth simplified: no sign-in, sign-up or sign-out screens; sign-in starts GitHub directly (#302)
+
+## [1.5.0] - 2026-10-17
+
+### Added
+
+- Shared searchable combobox in `@loftlancer/ui`, with pickers converted to it (#278)
+- Entity references render as real links (#279)
+
+### Changed
+
+- Header icon buttons and avatar use one dense size (#276)
+- One shared user menu for the header avatar and the sidebar footer (#277)
+- One PageHeader across dashboard, settings, org, project and app pages (#287, #294)
+- One shared data table for every listing, including tasks and account sessions (#288, #290)
+- Assignee picker shows name and email stacked in a wider popup (#297)
+
+### Fixed
+
+- Browser QA fixes: team members retry loop, header bell size, org create cancel, assignee emails (#286, PR #289)
+
+## [1.4.0] - 2026-10-17
+
+### Added
+
+- Apps system: `project_app` foundation, environments as an installable app, project routes (#245, PR #247)
+- Tasks app MVP: task tables, list view, detail sheet, comments, assign and mention notifications (#246)
+- Apps leftovers: daily purge of uninstalled app data after 30 days, app settings screen, edit and delete own comments, paged invitations, shared count badge (#257, #258, #260, #261, #262, #266, PR #268)
+- Docs: apps system, URLs, tasks guide and the current deploy layout (#263)
+
+### Changed
+
+- Notifications page and bell redesigned after ReUI (#253, PR #255)
+- Landing app list and honest free pricing and FAQ (#219)
+
+### Fixed
+
+- Signed-in QA: seed IDs, studio basePath links, `projects.get` N+1, org member counts, onboarding 500 (#248, #249, #250, #251, #252, PR #254)
+- Pricing CTA text and features card spacing (#269, #270)
+- App settings reset to defaults with confirm, mark-all-read audit tracing, pricing title gap (#273, #274, #275, PR #280)
+
+## [1.3.0] - 2026-10-16
+
+### Added
+
+- Layouts: public sidebar for legal pages, auth-5 split groups, studio onboarding group (#203)
+- Shared zero-layout-shift loading, empty, error and saving states (#206)
+- Variables table: reveal and copy, Copy as .env, paste .env import (#209)
+- Three-step onboarding: organization, project, CLI (#210)
+- Bulk email invite dialog and invite-first-member empty state (#211)
+- Sessions and security: device, IP, current badge, revoke one or all others (#212)
+- OAuth consent and device approval cards with a segmented code input (#213)
+- Real empty states for projects, environments, notifications and teams (#214)
+- Org role capability cards and denser org settings (#215)
+- Notifications page: mark all read, day groups, all-caught-up state (#216)
+- Connected accounts with status badges and connect or disconnect (#217)
+- One confirm dialog with type-to-confirm for deletes (#218)
+- Stress-test seed and cleanup scripts (#235)
+
+### Changed
+
+- Pre-commit lints only staged files; existing Biome errors fixed (#229)
+
+### Fixed
+
+- Empty variable values decrypt safely in the variables list and .env export (#237)
+- Disconnecting an account uses the provider account ID (#217)
+
+## [1.2.0] - 2026-10-16
+
+### Added
+
+- Sign-in with the auth-5 block and a full-page auth layout (#179, #182)
+- Account and organization settings redesign (#185)
+- One shared app shell (sidebar, inset, header, breadcrumb) and full-width settings (#191)
+- Shared activity timeline for account and organization (#197)
+- Sidebar: brand, ⌘K search, count badges, favorites, footer user menu (#200)
+
+### Changed
+
+- Consolidated to three apps (docs at `/`, auth at `/auth`, studio at `/studio`) on one Vercel project; console and MCP apps removed (#163, PR #164, #166)
+- README: product summary and the three-app architecture (#169)
+
+### Fixed
+
+- Better Auth served at `/auth/api/auth` on the single-project deploy (#168)
+- basePath-safe redirects, tRPC URLs and sign-out; docs branding (#172)
+- Users with no organization reach onboarding instead of a forbidden page (#175)
+- Organization create 500, slow DB connects, profile stats stuck on skeleton (#178)
+- Signed-in QA: direct org loads, org list race, slow loads, audit labels (#188)
+- Live QA: heatmap dates, read audit flood, duplicate member search, slow org pages (#194)
+
+## [1.1.0] - 2026-10-15
+
+### Added
+
+- Shared dashboard app shell for auth settings, studio and console (#149)
+- Console support access for platform admins, global sign-out across apps, studio home redirect (#150)
+- Open-source and sponsor readiness: license, community files, FUNDING.yml, templates (#162)
+
+### Changed
+
+- Production cutover to loftlancer.com: env vars, GitHub OAuth callback, repo rename (#151, PR #161)
+
+## [1.0.1] - 2026-10-14
+
+### Fixed
+
+- QA batch: studio variables delete and edit sheet (#138), notifications layout (#139), project row menu skeleton (#140), org members and cross-org isolation (#141), org settings, roles and timeline (#142), auth settings and return_to (#143, #144), console forbidden loop (#145), docs typography, sitemap and robots (#146), MCP CORS (#147)
+- Platform performance: batched permission lookups and fewer refetches (#148)
+
+## [1.0.0] - 2026-10-14
+
+The product is now Loftlancer.
+
+### Changed
+
+- Rebrand Collidr to Loftlancer (loftlancer.com): npm scope `@loftlancer/*`, production URLs on loftlancer.com, `loftlancer` cookie prefix with migration from `collidr` cookies, docs and repository references (#137)
+
+## [0.10.0] - 2026-10-14
+
+### Changed
+
+- Fewer serverless functions: the web service dropped, www and docs exported statically (#128)
+- Support split into studio, console and www; account merged into auth; per-app Vercel deploys (#129)
+- Vercel deploys only from `main`, with a `dev` branch workflow (#131)
+
+### Fixed
+
+- Live QA: cross-app auth, CORS, console session, MCP well-known, support route (#130)
+- Post-QA: studio project crash, console forbidden, auth return_to, performance (#132)
+- Variables SSR guard, pooled DB URL, console allowlist, performance (#133)
+- actionGuard input order, console sign-in, notification layout (#134, PR #135)
+
+## [0.9.0] - 2026-10-14
+
+### Changed
+
+- Rebrand env-manager to Collidr (#126)
+- All dependencies upgraded to their latest stable versions, with modern stack patterns adopted (#127)
+- Middleware migrated to a Node proxy for Vercel Services
+
+### Fixed
+
+- Invalid service env removed from `vercel.json`
+- Rebrand leftovers: cookies, PWA screenshots, OAuth SQL
+
+## [0.8.0] - 2026-10-13
+
+### Added
+
+- Platform split into apps: auth, account, studio, console, MCP and docs (#89, #94–#102)
+- Marketing landing app `apps/www` and shared `@env-manager/ui` and `auth-client` packages (#95, #103)
+- Docs app on Fumadocs with public search and full documentation, including an MCP usage guide (#99, #121, #125)
+- Console admin app with an email allowlist, impersonation banner, admin tables and CRUD (#88, #120, #123)
+- MCP server with Better Auth OAuth, scopes, Postgres rate limits and tool handlers (#87, #100, #102, #117)
+- Auth consent, device code, sign-up and sign-out screens (#119)
+- Support app with ticketing, FAQ and legal pages (#124)
+- Page-level security guards and consistent loading, not-found, forbidden, empty and error screens in every app (#122)
+- Production deploy runbook and a Turbo flag guard (#90)
+- Vercel Services `vercel.json` with path-based routing
+
+### Changed
+
+- Better Auth upgraded to 1.7.7 (#93)
+- Turbo `test` task and unit tests in CI; stable parallel Next.js builds (#110, #111)
+
+### Fixed
+
+- Better Auth 1.7 Drizzle schema and team columns (#108, #116)
+- E2E session isolation, sign-out landing and timeline redirect (#113, #114, #115)
+- Lockfile sync after the new apps were added (#112)
+
+## [0.7.1] - 2026-10-13
+
+### Added
+
+- `project.unarchive` canonical action (#92)
+- `a11y` task registered in turbo.json for CI (#91)
+
+### Fixed
+
+- Security: invitation notification sync authorized (#18), explicit E2E secret required (#20), soft-deleted memberships filtered (#22), `assignManager` guard scoped by project (#25), fail-closed permissions snapshot (#40), `ENCRYPTION_KEY` validated at startup (#33), GitHub OAuth credentials validated at boot (#23), `privateData` endpoint removed (#17)
+- Account soft delete sets `deleted_at` (#29); sole-owner lookup without N+1 (#30); `TRPCError` for missing projects (#31); batched bulk import writes (#34); SQL aggregates for audit stats (#27, #35)
+- UI QA: org switcher label (#47), stale project URLs after org switch (#46), organization roles page (#53), org edit sheet guard (#72), unsaved-changes prompts on every form (#76), sidebar footer (#79), sign-out to home (#82), layout-spacing tokens documented (#86)
+- Build: `apps/web` type errors (#106) and the E2E seed import cycle (#107)
+
+## [0.7.0] - 2026-10-13
+
+### Added
+
+- Notification system with polling, badges, a page and invite events, plus combined migration 0005 (#61, PR #8)
+- Actions registry, audit timeline and org permissions (#49, #51)
+- Soft-delete schema, helpers and gated query filters (#58)
+- Owner, manager and member roles with Better Auth action guards (#42)
+- Organizations module: list, hub, members, teams, invitations, roles, settings, timeline (#64)
+- Account settings with six Better Auth tabs (#65)
+- Variables v2 add and edit sheets with provenance (#71)
+- Faceted table filters, unsaved-changes guard on forms, shared confirm and toast helpers (#75, #76)
+- `db:reset-seed` script and production reset docs (#84)
+- Platform plan for auth, account, studio, docs, console and MCP apps with recorded decisions (#94)
+
+### Fixed
+
+- Security: authorization no longer depends on the audit flag, project access follows org RBAC, environment, variable and project mutations are guarded, and secret values are left out of audit logs (#11–#16, #26)
+- Org invites use the manager role, the active org is set on session create, auth redirects are faster, and the notification unread count matches the list
+
+## [0.6.0] - 2026-10-13
+
+### Added
+
+- coss ui on Base UI with TanStack DataTable, Frame layouts and inset sheets
+- FormSheet wrapper, shared PageHeader with back button, StatCard rows with real counts (PR #6)
+- Canonical Lucide icon map (PR #6)
+- Unified 404 and error states, consistent empty states
+- Projects grid and list views with filters; split project overview and environments routes (#69, #74)
+- Local E2E auth and a Playwright requirements audit suite with axe checks
+
+### Changed
+
+- shadcn preset adopted, then the UI migrated from Radix to coss ui on Base UI
+- Dashboard, project detail, sidebar and landing redesigned on the coss layout; environment tabs and tables unified (PR #5)
+
+### Fixed
+
+- Layout, spacing, mobile header and table action fixes from production design reviews
+
+## [0.5.0] - 2026-10-12
+
+### Added
+
+- Organization foundation behind a feature flag (migration-safe), org settings, switcher, delete and leave
+- Shared patterns, error boundaries, loading states and accessibility improvements
+
+### Fixed
+
+- Dashboard QA: project slugs and errors, env vars security and validation, edit dialogs, responsive overflow, touch targets
+
+### Changed
+
+- README covers the monorepo setup and env configuration
+
+## [0.4.0] - 2026-02-05
+
+### Added
+
+- Full create, edit and delete for projects, environments and variables
+- Dashboard with a personalized welcome and charts
+- Footer component and navigation updates
+
+### Fixed
+
+- Next.js 16 build and lint compatibility
+- Sidebar active state for nested routes
+- TypeScript build errors in hooks; variable table CRUD
+
+## [0.3.0] - 2026-02-02
+
+### Added
+
+- shadcn/ui component library and a modern layout system
+
+### Changed
+
+- Web app refactored into a domain-driven structure
+
+## [0.2.0] - 2026-01-19
+
+### Added
+
+- Environment management core: projects, environments and variables schema, API routers and migrations
+- Environment management dashboard with bulk import and export, search and filters
+- Audit search with strict typing
+- Landing page and authentication UI improvements
+
+### Changed
+
+- Replaced the starter todo demo with the environment manager
+
+## [0.1.0] - 2026-01-19
+
+### Added
+
+- Initial env-manager monorepo from Better-T-Stack: Next.js, tRPC, Drizzle with PostgreSQL, Better Auth, TailwindCSS and shadcn/ui, Biome, Husky, PWA support and Turborepo
 - Version management and commit workflow scripts
-- Automated release scripts with semantic versioning
-- Comprehensive documentation for development workflow
-- CHANGELOG.md with proper formatting
-- Environment validation skip option via SKIP_ENV_VALIDATION flag
+- `SKIP_ENV_VALIDATION` option for builds
 
-### Fixed
-
-- Fixed turbo.json configuration with duplicate build tasks
-- Updated environment validation logic to use string comparison
-- Resolved Vercel build environment variable issues
-
-### Changed
-
----
-
-## [1.0.0] - 2025-01-19
-
-### Added
-
-- Initial project structure with Better-T-Stack
-- TypeScript configuration
-- Next.js full-stack application
-- TailwindCSS and shadcn/ui components
-- tRPC for type-safe APIs
-- Drizzle ORM with PostgreSQL
-- Better-Auth authentication
-- Biome for linting and formatting
-- Husky git hooks
-- PWA support
-- Turborepo monorepo setup
-
----
-
-## How to Update This Changelog
-
-1. Add new entries under the `[Unreleased]` section
-2. When releasing a new version:
-   - Move changes from `[Unreleased]` to the new version section
-   - Add the release date
-   - Update the version number following semantic versioning
-   - Remove the empty `[Unreleased]` header if no changes remain
-
-## Version Format
-
-- **MAJOR**: Breaking changes
-- **MINOR**: New features (backwards compatible)
-- **PATCH**: Bug fixes (backwards compatible)
-
-Example: `1.2.3` means MAJOR=1, MINOR=2, PATCH=3
+[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.8.0...v1.9.0
+[1.8.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.7.1...v1.8.0
+[1.7.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.7.0...v1.7.1
+[1.7.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.6.4...v1.7.0
+[1.6.4]: https://github.com/jayantrohila57/loftlancer/compare/v1.6.3...v1.6.4
+[1.6.3]: https://github.com/jayantrohila57/loftlancer/compare/v1.6.2...v1.6.3
+[1.6.2]: https://github.com/jayantrohila57/loftlancer/compare/v1.6.1...v1.6.2
+[1.6.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.6.0...v1.6.1
+[1.6.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.5.0...v1.6.0
+[1.5.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.4.0...v1.5.0
+[1.4.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.0.1...v1.1.0
+[1.0.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/jayantrohila57/loftlancer/compare/v0.10.0...v1.0.0
+[0.10.0]: https://github.com/jayantrohila57/loftlancer/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/jayantrohila57/loftlancer/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/jayantrohila57/loftlancer/compare/v0.7.1...v0.8.0
+[0.7.1]: https://github.com/jayantrohila57/loftlancer/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/jayantrohila57/loftlancer/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/jayantrohila57/loftlancer/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/jayantrohila57/loftlancer/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/jayantrohila57/loftlancer/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/jayantrohila57/loftlancer/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/jayantrohila57/loftlancer/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/jayantrohila57/loftlancer/releases/tag/v0.1.0

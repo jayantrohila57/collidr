@@ -28,8 +28,6 @@ import { resolveDefaultActiveOrganizationId } from "./bootstrap-active-organizat
 import { sessionCookieMigrationPlugin } from "./session-cookie-migration-plugin";
 import { LOFTLANCER_COOKIE_PREFIX } from "./session-cookies";
 
-const e2eTestMode = process.env.E2E_TEST_MODE === "1";
-
 export function sharedDatabaseHooks(): BetterAuthOptions["databaseHooks"] {
   return {
     session: {
@@ -311,19 +309,6 @@ export function organizationPlugin() {
       },
     }),
   ];
-}
-
-export function sharedE2eEmailPassword(): Pick<
-  BetterAuthOptions,
-  "emailAndPassword"
-> {
-  return e2eTestMode
-    ? {
-        emailAndPassword: {
-          enabled: true,
-        },
-      }
-    : {};
 }
 
 /** Auth plugins excluding Next.js cookie forwarding — append `withNextCookies()` last. */

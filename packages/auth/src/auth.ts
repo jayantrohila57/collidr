@@ -3,26 +3,25 @@ import { betterAuth } from "better-auth";
 import {
   coreAuthPlugins,
   sharedAuthAdvanced,
-  withNextCookies,
   sharedDatabaseConfig,
   sharedDatabaseHooks,
-  sharedE2eEmailPassword,
   sharedSessionConfig,
+  withNextCookies,
 } from "./auth-shared";
+import {
+  e2eMagicLinkPlugins,
+  passwordDisabled,
+  socialProviders,
+} from "./passwordless";
 
 /** Legacy `apps/web` auth — unchanged behavior until P3 cutover (#97). */
 export const auth = betterAuth({
   advanced: sharedAuthAdvanced(),
   databaseHooks: sharedDatabaseHooks(),
   session: sharedSessionConfig(),
-  ...sharedE2eEmailPassword(),
+  ...passwordDisabled,
   database: sharedDatabaseConfig(),
   trustedOrigins: [env.CORS_ORIGIN],
-  socialProviders: {
-    github: {
-      clientId: env.GITHUB_CLIENT_ID,
-      clientSecret: env.GITHUB_CLIENT_SECRET,
-    },
-  },
-  plugins: withNextCookies(coreAuthPlugins()),
+  socialProviders: socialProviders(),
+  plugins: withNextCookies([...coreAuthPlugins(), ...e2eMagicLinkPlugins()]),
 });
