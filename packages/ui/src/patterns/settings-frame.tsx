@@ -3,7 +3,7 @@
 import { Check, Copy } from "lucide-react";
 import type React from "react";
 import { type ReactNode, useState } from "react";
-
+import { formatDate } from "../lib/format-date";
 import {
   pageHeaderTabActiveClass,
   pageHeaderTabClass,
@@ -425,7 +425,7 @@ export function ActivityHeatmap({
                 cell ? (
                   <span
                     key={id}
-                    title={`${cell.count} event${cell.count === 1 ? "" : "s"} on ${cell.date}`}
+                    title={`${cell.count} event${cell.count === 1 ? "" : "s"} on ${formatDate(`${cell.date}T12:00:00.000Z`)}`}
                     className={cn(
                       "size-2.5 rounded-[2px]",
                       levelClass[level(cell.count, max)],
