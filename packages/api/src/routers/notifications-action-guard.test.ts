@@ -17,6 +17,14 @@ function procedureBlock(name: string, nextName: string): string {
   return match;
 }
 
+function lastProcedureBlock(name: string): string {
+  const match = routerSource.match(
+    new RegExp(`${name}:\\s*protectedProcedure[\\s\\S]*?\\n    \\}\\),`),
+  )?.[0];
+  assert.ok(match, `expected ${name} procedure in notifications router`);
+  return match;
+}
+
 describe("notifications router action guards", () => {
   it("guards markUnread with notification.mark_unread", () => {
     const block = procedureBlock("markUnread", "markAllRead");
@@ -29,5 +37,26 @@ describe("notifications router action guards", () => {
 
     const markAllRead = procedureBlock("markAllRead", "syncInvitationReceived");
     assert.match(markAllRead, /actionGuard\(\s*"notification\.mark_read"/);
+  });
+
+  it("guards syncInvitationReceived with member.invite and invitation row check", () => {
+    const block = procedureBlock(
+      "syncInvitationReceived",
+      "syncInvitationAccepted",
+    );
+    assert.match(
+      block,
+      /actionGuard\("member\.invite", organizationIdFromInviteSyncInput\)/,
+    );
+    assert.match(block, /assertSyncInvitationReceivedAllowed/);
+  });
+
+  it("guards syncInvitationAccepted with invitation.accept and email ownership check", () => {
+    const block = lastProcedureBlock("syncInvitationAccepted");
+    assert.match(
+      block,
+      /actionGuard\("invitation\.accept", organizationIdFromInviteSyncInput\)/,
+    );
+    assert.match(block, /assertSyncInvitationAcceptedAllowed/);
   });
 });
