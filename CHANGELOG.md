@@ -16,6 +16,10 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Fixed
+
+- Organization Members pending invitations use the same server query as the Invitations page (#50)
+
 ## [1.11.1] - 2026-10-17
 
 ### Fixed
