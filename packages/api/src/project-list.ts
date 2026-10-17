@@ -45,7 +45,7 @@ export async function listAccessibleProjectIds(
   }
 
   if (orgRole === "manager") {
-    const rows = await db
+    const managedRows = await db
       .select({ id: project.id })
       .from(project)
       .innerJoin(
@@ -62,7 +62,24 @@ export async function listAccessibleProjectIds(
           isNull(project.deletedAt),
         ),
       );
-    return rows.map((r) => r.id);
+
+    const createdRows = await db
+      .select({ id: project.id })
+      .from(project)
+      .where(
+        and(
+          eq(project.organizationId, organizationId),
+          eq(project.userId, userId),
+          isNull(project.deletedAt),
+        ),
+      );
+
+    return [
+      ...new Set([
+        ...managedRows.map((r) => r.id),
+        ...createdRows.map((r) => r.id),
+      ]),
+    ];
   }
 
   const teamProjects = await db
@@ -75,6 +92,7 @@ export async function listAccessibleProjectIds(
         eq(projectMemberGrant.projectId, projectTeam.projectId),
         eq(projectMemberGrant.userId, userId),
         isNull(projectMemberGrant.deletedAt),
+        sql`'project.read' = ANY(${projectMemberGrant.grants})`,
       ),
     )
     .where(

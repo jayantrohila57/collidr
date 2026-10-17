@@ -1,4 +1,4 @@
-import { evaluatePermission, normalizeOrgRole } from "@loftlancer/actions";
+import { canReadProject, normalizeOrgRole } from "@loftlancer/actions";
 import type { AuthSession } from "@loftlancer/auth";
 import { getSessionActiveOrganizationId } from "@loftlancer/auth";
 import { activeMemberWhere, activeProjectWhere, db } from "@loftlancer/db";
@@ -133,13 +133,8 @@ export async function assertProjectAccess(
 
     const orgRole = normalizeOrgRole(membership?.role);
     const projectCtx = await loadProjectAccessContext(userId, projectId);
-    const decision = evaluatePermission({
-      action: "project.read",
-      orgRole,
-      project: projectCtx,
-    });
 
-    if (!decision.allowed) {
+    if (!canReadProject(orgRole, projectCtx)) {
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Project not found",
