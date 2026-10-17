@@ -94,7 +94,13 @@
     },
     "test": {
       "dependsOn": ["^test"],
-      "env": ["SKIP_ENV_VALIDATION", "DATABASE_URL", "DATABASE_URL_POOLED"]
+      "env": [
+        "SKIP_ENV_VALIDATION",
+        "DATABASE_URL",
+        "DATABASE_URL_POOLED",
+        "TEST_DATABASE_URL",
+        "RUN_DB_INTEGRATION_TESTS"
+      ]
     },
     "a11y": {
       "dependsOn": ["^a11y"],
