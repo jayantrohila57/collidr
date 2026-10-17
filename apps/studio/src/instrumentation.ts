@@ -1,29 +1,15 @@
-import { configureLogger } from "@loftlancer/logger";
-import {
-  createSentrySink,
-  scrubSentryTestToken,
-} from "@loftlancer/logger/sentry";
+import { initSentryEdge } from "@loftlancer/logger/sentry-instrument";
+import { initAndWireSentryServer } from "@loftlancer/logger/sentry-instrument-server";
 import * as Sentry from "@sentry/nextjs";
 
-// Sentry stays off until SENTRY_DSN exists (#339).
 export async function register() {
-  const release = `loftlancer@${process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0"}`;
-  configureLogger({ context: { app: "studio", release } });
-  const dsn = process.env.SENTRY_DSN ?? process.env.NEXT_PUBLIC_SENTRY_DSN;
-  if (!dsn) return;
-  Sentry.init({
-    dsn,
-    release,
-    environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV,
-    initialScope: { tags: { app: "studio" } },
-    tracesSampleRate: 0.1,
-    // Never send the Sentry test-error token header (#354).
-    beforeSend: scrubSentryTestToken,
-    beforeSendTransaction: scrubSentryTestToken,
-  });
-  // Server logs from @loftlancer/logger land in Sentry Logs via Sentry.logger
-  // (#355). SDK v11 removed `enableLogs`; using the logger API is the opt-in.
-  configureLogger({ sink: createSentrySink(Sentry) });
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    await initAndWireSentryServer(Sentry, "studio");
+    return;
+  }
+  if (process.env.NEXT_RUNTIME === "edge") {
+    initSentryEdge(Sentry, "studio");
+  }
 }
 
 export const onRequestError = Sentry.captureRequestError;
