@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Generate full-bleed PWA maskable icons (theme #262626, Layers mark #f5f5f5).
+ * Generate full-bleed PWA maskable icons (theme #262626, Layers mark #fafafa).
  *
  *   pnpm exec tsx scripts/generate-pwa-maskable-icons.mts
  */
@@ -18,7 +18,7 @@ const sharp = require(
 const maskableSvg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <rect width="512" height="512" fill="#262626"/>
-  <g transform="translate(97.28 97.28) scale(13.2267)" fill="none" stroke="#f5f5f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <g transform="translate(97.28 97.28) scale(13.2267)" fill="none" stroke="#fafafa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/>
     <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/>
     <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/>

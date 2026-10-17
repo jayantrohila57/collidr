@@ -4,8 +4,8 @@
  *
  *   CAPTURE_PWA_SCREENSHOTS=1 pnpm capture:pwa-screenshots
  *
- * Screenshots the static `apps/studio/public/pwa-install-preview.html` shell (no
- * database or dev server). Install Chromium once: `pnpm --filter studio exec playwright install chromium`.
+ * Requires a running `next start` (or set PLAYWRIGHT_BASE_URL) with E2E_TEST_MODE=1
+ * and DATABASE_URL for studio dashboard capture.
  */
 import { spawnSync } from "node:child_process";
 import path from "node:path";
@@ -15,6 +15,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const env = {
   ...process.env,
   CAPTURE_PWA_SCREENSHOTS: "1",
+  E2E_TEST_MODE: process.env.E2E_TEST_MODE ?? "1",
+  E2E_TEST_SECRET: process.env.E2E_TEST_SECRET ?? "local-e2e-secret",
 };
 
 function run(cwd: string, args: string[]) {
@@ -33,3 +35,4 @@ run(path.join(root, "apps/studio"), [
   "--config=playwright.capture.config.ts",
   "--project=chromium",
 ]);
+

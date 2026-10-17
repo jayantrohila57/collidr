@@ -5,7 +5,6 @@ import {
   Building2Icon,
   ChevronsUpDownIcon,
   FolderClosedIcon,
-  KeyRoundIcon,
   LayersIcon,
   LifeBuoyIcon,
   LogInIcon,
@@ -141,7 +140,7 @@ export type CommandGroup = {
 
 const groupIcons = {
   project: FolderClosedIcon,
-  env: KeyRoundIcon,
+  env: LayersIcon,
   settings: SettingsIcon,
   member: UserIcon,
 } as const;

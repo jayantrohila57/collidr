@@ -10,26 +10,31 @@ const faviconDirs = [
 ].map((p) => path.join(root, p));
 
 const outDir = path.join(root, ".tmp/pwa-screenshots");
-const previewFile = path.join(
-  root,
-  "apps/studio/public/pwa-install-preview.html",
-);
 
 test.describe.configure({ mode: "serial" });
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
-test("capture Loftlancer PWA screenshots", async ({ page }) => {
+test("capture Loftlancer PWA screenshots", async ({ page, baseURL }) => {
   test.skip(
     !process.env.CAPTURE_PWA_SCREENSHOTS,
     "Set CAPTURE_PWA_SCREENSHOTS=1",
   );
 
+  const login = await page.request.post("/api/e2e/login", {
+    headers: {
+      "content-type": "application/json",
+      "x-e2e-secret": process.env.E2E_TEST_SECRET ?? "local-e2e-secret",
+    },
+    data: {},
+  });
+  test.expect(login.ok()).toBeTruthy();
+
   await mkdir(outDir, { recursive: true });
   const studioWide = path.join(outDir, "studio-wide.png");
   const studioNarrow = path.join(outDir, "studio-narrow.png");
 
-  await page.goto(`file://${previewFile}`, { waitUntil: "load" });
+  await page.goto(`${baseURL}/`, { waitUntil: "networkidle" });
   await page.setViewportSize({ width: 1200, height: 630 });
   await page.screenshot({ path: studioWide, type: "png" });
   await page.setViewportSize({ width: 390, height: 844 });
