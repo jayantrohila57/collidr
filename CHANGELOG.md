@@ -40,7 +40,6 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ### Fixed
 
-- PWA manifests in auth, docs, and studio: screenshot assets are captured from the real studio dashboard (Playwright + E2E login), narrow `sizes` match 390×844 captures, icon and screenshot paths use `/favicon/`, maskable icons are full-bleed on `#262626` with a `#fafafa` Layers mark, command-palette environment groups use the canonical Layers icon (distinct from variables’ KeyRound), and studio `og-image.png` is served from public without a signed-out redirect (#404)
 - Invitation notification sync mutations: unit tests for allowed and denied authorization paths (#18)
 - Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
 - `audit.stats` documents and tests scoped SQL aggregates (user and optional `projectId` filter) for totals and per-action counts (#35)
