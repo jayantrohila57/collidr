@@ -1,7 +1,9 @@
 "use client";
 
+import { logger } from "@loftlancer/logger";
 import { AppRouteErrorPage } from "@loftlancer/ui/patterns/app-route-states";
 import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
+import { useEffect } from "react";
 
 export default function RouteError({
   error,
@@ -10,6 +12,11 @@ export default function RouteError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  // Route errors reach Sentry Logs (#355). Name, message and digest only.
+  useEffect(() => {
+    logger.error("Route error boundary", error, { digest: error.digest });
+  }, [error]);
+
   return (
     <Auth5Panel showTerms={false}>
       <AppRouteErrorPage error={error} reset={reset} />
