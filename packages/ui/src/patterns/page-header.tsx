@@ -199,7 +199,7 @@ function PageHeaderTopRow({
   description?: ReactNode;
   actions?: ReactNode;
 }) {
-  const hasBack = back != null && back !== false;
+  const hasBack = back != null;
   const hasAction = Boolean(actions);
   const hasDescription = description != null && description !== false;
 
@@ -310,7 +310,7 @@ export function PageHeaderLayout({
   /** A rendered {@link PageHeaderTabsRow}. */
   tabs: ReactNode;
 }) {
-  const hasBack = back != null && back !== false;
+  const hasBack = back != null;
   return (
     <header className={pageHeaderRootClass} data-slot="page-header">
       <PageHeaderTopRow
