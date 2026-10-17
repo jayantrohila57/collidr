@@ -2,6 +2,7 @@
 
 import { Button } from "@loftlancer/ui/button";
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@loftlancer/ui/menu";
+import { EmptyState } from "@loftlancer/ui/patterns/empty-state";
 import { Tabs, TabsList, TabsTab } from "@loftlancer/ui/tabs";
 import {
   Tooltip,
@@ -12,7 +13,6 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { EmptyState } from "@/components/patterns/empty-state";
 import { HorizontalScrollRail } from "@/components/patterns/horizontal-scroll-rail";
 import { appIcons, iconMutedClassName } from "@/lib/icons";
 import { layoutGapClass } from "@/lib/layout-spacing";

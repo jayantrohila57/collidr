@@ -8,12 +8,12 @@ import {
   DialogTitle,
 } from "@loftlancer/ui/dialog";
 import { Input } from "@loftlancer/ui/input";
+import { EmptyState } from "@loftlancer/ui/patterns/empty-state";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableActionsColumnHeader } from "@/components/data-table/data-table-actions-column";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { EmptyState } from "@/components/patterns/empty-state";
 import { FormField } from "@/components/patterns/form-field";
 import { GuardedDialog } from "@/components/patterns/guarded-dialog";
 import { Can } from "@/domain/permissions/components/can";

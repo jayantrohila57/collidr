@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyState } from "@/components/patterns/empty-state";
+import { EmptyState } from "@loftlancer/ui/patterns/empty-state";
 import { appIcons } from "@/lib/icons";
 
 type FilteredListNoResultsEmptyProps = {

@@ -1,7 +1,7 @@
 "use client";
 
+import { EmptyState } from "@loftlancer/ui/patterns/empty-state";
 import type { ReactNode } from "react";
-import { EmptyState } from "@/components/patterns/empty-state";
 import DashboardSection from "@/components/section-dashboard";
 import { useProjectTabs } from "@/domain/projects/hooks/use-project-tabs";
 import { LayoutGrid } from "@/lib/icons";
