@@ -4,10 +4,10 @@ import { Skeleton } from "@loftlancer/ui/skeleton";
 import { ErrorState } from "@/components/patterns/error-state";
 import DashboardSection from "@/components/section-dashboard";
 import { CreateEnvironmentSheet } from "@/domain/environments/components/create-environment-sheet";
-import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
+import { ProjectEnvironmentsSkeleton } from "@/domain/environments/components/skeletons";
 import { useEnvironments } from "@/domain/environments/hooks/use-environments";
 import { routes } from "@/utils/navigation";
-import { useOrgSlug } from "@/utils/use-route-scope";
+import { useOrgSlug, useRouteScope } from "@/utils/use-route-scope";
 import { useProjectTabs } from "../hooks/use-project-tabs";
 import ProjectDetail from "./project-detail";
 
@@ -29,6 +29,35 @@ function AddEnvironmentHeaderAction({
       triggerText="Add environment"
       compactOnMobile
     />
+  );
+}
+
+const ENVIRONMENTS_TITLE = "Environments";
+const ENVIRONMENTS_DESCRIPTION = "Variables and secrets per deployment target.";
+
+/**
+ * Loading state for the environments page, used by the route `loading.tsx`,
+ * the Suspense/app-gate fallbacks and the first client load. Same header as
+ * the loaded page (project tabs, back to the project, action slot) and a body
+ * that mirrors the env tab rail + variables table (#326).
+ */
+export function ProjectEnvironmentsLoadingSection({ slug }: { slug?: string }) {
+  const { project: routeProject } = useRouteScope();
+  const projectSlug = slug ?? routeProject ?? "";
+  const org = useOrgSlug();
+  const projectTabs = useProjectTabs(projectSlug);
+  return (
+    <DashboardSection
+      {...projectTabs}
+      title={ENVIRONMENTS_TITLE}
+      description={ENVIRONMENTS_DESCRIPTION}
+      back={routes.project(org, projectSlug)}
+      action={
+        <Skeleton className="size-8 rounded-md sm:h-8 sm:w-auto sm:min-w-[8.5rem]" />
+      }
+    >
+      <ProjectEnvironmentsSkeleton />
+    </DashboardSection>
   );
 }
 
@@ -61,24 +90,16 @@ export default function ProjectEnvironmentsPage({
     ) : null;
 
   if (isLoading && !project) {
-    return (
-      <DashboardSection
-        {...projectTabs}
-        title="Environments"
-        description="Variables and secrets per deployment target."
-        back={backHref}
-        action={
-          <Skeleton className="size-8 rounded-md sm:h-8 sm:w-auto sm:min-w-[8.5rem]" />
-        }
-      >
-        <ProjectDetailSkeleton />
-      </DashboardSection>
-    );
+    return <ProjectEnvironmentsLoadingSection slug={slug} />;
   }
 
   if (status === "error" || !project) {
     return (
-      <DashboardSection title="Environments" back={backHref} {...projectTabs}>
+      <DashboardSection
+        title={ENVIRONMENTS_TITLE}
+        back={backHref}
+        {...projectTabs}
+      >
         <ErrorState
           title="Project unavailable"
           description="This project could not be loaded. It may have been deleted."
@@ -91,8 +112,8 @@ export default function ProjectEnvironmentsPage({
   return (
     <DashboardSection
       {...projectTabs}
-      title="Environments"
-      description="Variables and secrets per deployment target."
+      title={ENVIRONMENTS_TITLE}
+      description={ENVIRONMENTS_DESCRIPTION}
       back={backHref}
       action={headerAction}
     >

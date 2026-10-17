@@ -1,46 +1,72 @@
 "use client";
 
-import type { ProjectOutput } from "@loftlancer/api/types";
-import { DataTable } from "@loftlancer/ui/data-table/data-table";
-import { Separator } from "@loftlancer/ui/separator";
-import { Skeleton } from "@loftlancer/ui/skeleton";
-import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
+import { DataTableToolbar } from "@loftlancer/ui/data-table/data-table-toolbar";
+import { layoutSectionStackClass } from "@loftlancer/ui/layout-spacing";
+import { PageHeaderActionButton } from "@/components/layout/app-layout";
+import { StatCardRowSkeleton } from "@/components/patterns/stat-card";
+import DashboardSection from "@/components/section-dashboard";
+import { ProjectsListFiltersBar } from "./projects-list-filters";
+import { ProjectsTableView } from "./projects-table-view";
+import { ProjectsViewToggle } from "./projects-view-toggle";
 
-const columnHelper = legacyCreateColumnHelper<ProjectOutput>();
-const skeletonColumns = [
-  columnHelper.display({ id: "a", header: "Project", cell: () => null }),
-  columnHelper.display({ id: "b", header: "Status", cell: () => null }),
-  columnHelper.display({ id: "c", header: "Visibility", cell: () => null }),
-  columnHelper.display({ id: "d", header: "Updated", cell: () => null }),
-  columnHelper.display({ id: "e", header: "Links", cell: () => null }),
-  columnHelper.display({ id: "f", header: "Actions", cell: () => null }),
-];
+const noop = () => {};
 
+/**
+ * Projects list body while loading. Mirrors ProjectsListContent 1:1 (#326):
+ * the same toolbar (search, filters, view toggle; disabled) and the real
+ * projects table columns, with skeleton rows only in the body. No extra
+ * "Actions" header, no group heading.
+ */
 export function ProjectsSkeleton() {
   return (
     <div
-      className="flex flex-col gap-2"
+      className={layoutSectionStackClass}
       role="status"
       aria-live="polite"
       aria-busy="true"
     >
-      <div>
-        <div className="flex items-center gap-2 py-2">
-          <Skeleton className="size-2 rounded-full" />
-          <Skeleton className="h-4 w-32" />
-          <Skeleton className="h-4 w-8" />
-        </div>
-        <Separator />
-        <div className="pt-4">
-          <DataTable
-            columns={skeletonColumns}
-            data={[]}
-            isLoading
-            skeletonRowCount={4}
-            framed
+      <DataTableToolbar
+        searchPlaceholder="Search projects…"
+        searchValue=""
+        onSearchChange={noop}
+        filter={
+          <ProjectsListFiltersBar
+            projects={[]}
+            status={[]}
+            visibility={[]}
+            sort="updated-desc"
+            onStatusChange={noop}
+            onVisibilityChange={noop}
+            onSortChange={noop}
+            onClear={noop}
+            filtersActive={false}
+            tableLoading
           />
-        </div>
-      </div>
+        }
+        trailing={<ProjectsViewToggle view="list" onViewChange={noop} />}
+      />
+      <ProjectsTableView
+        projects={[]}
+        isLoading
+        caption="All projects"
+        captionSrOnly
+        searchable={false}
+      />
     </div>
+  );
+}
+
+/** Whole projects page while the route loads: same header, stats and body. */
+export function ProjectsPageSkeleton() {
+  return (
+    <DashboardSection
+      title="Projects"
+      description="All workspace projects in one searchable list."
+      back={false}
+      action={<PageHeaderActionButton label="New project" disabled />}
+      stats={<StatCardRowSkeleton count={8} compact />}
+    >
+      <ProjectsSkeleton />
+    </DashboardSection>
   );
 }

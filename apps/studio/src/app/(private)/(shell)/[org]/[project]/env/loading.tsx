@@ -1,18 +1,5 @@
-import { Skeleton } from "@loftlancer/ui/skeleton";
-import DashboardSection from "@/components/section-dashboard";
-import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
+import { ProjectEnvironmentsLoadingSection } from "@/domain/projects/components/project-environments-page";
 
 export default function ProjectEnvironmentsLoading() {
-  return (
-    <DashboardSection
-      title="Environments"
-      description="Variables and secrets per deployment target."
-      back="auto"
-      action={
-        <Skeleton className="size-8 rounded-md sm:h-8 sm:w-auto sm:min-w-[8.5rem]" />
-      }
-    >
-      <ProjectDetailSkeleton />
-    </DashboardSection>
-  );
+  return <ProjectEnvironmentsLoadingSection />;
 }
