@@ -19,6 +19,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 ### Fixed
 
 - Activity timeline: human-readable action labels, actor and project filters, and passive read/view events hidden by default with an opt-in toggle (#68)
+- Activity timeline: filter dropdowns retain previously seen options after a selection; passive-events toggle matches combobox height and styling (#68)
 
 ## [1.11.1] - 2026-10-17
 

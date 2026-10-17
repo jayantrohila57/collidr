@@ -7,6 +7,7 @@ import {
   EmptyTitle,
 } from "@loftlancer/ui/empty";
 import {
+  type ActivityFilterOption,
   type ActivityResult,
   ActivityTimeline,
   auditActionFilterOptions,
@@ -72,9 +73,9 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
     [rows, org],
   );
 
-  const [seenActions, setSeenActions] = useState<string[]>([]);
-  const [seenActors, setSeenActors] = useState<string[]>([]);
-  const [seenProjects, setSeenProjects] = useState<string[]>([]);
+  const [seenActions, setSeenActions] = useState<ActivityFilterOption[]>([]);
+  const [seenActors, setSeenActors] = useState<ActivityFilterOption[]>([]);
+  const [seenProjects, setSeenProjects] = useState<ActivityFilterOption[]>([]);
 
   const actionOptions = useMemo(
     () => auditActionFilterOptions(rows, seenActions, action),
@@ -114,7 +115,7 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
       actionOptions={actionOptions}
       action={action}
       onActionChange={(v) => {
-        setSeenActions(actionOptions.map((o) => o.value));
+        setSeenActions(actionOptions);
         setAction(v);
       }}
       actorOptions={scope === "org" ? actorOptions : undefined}
@@ -122,7 +123,7 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
       onActorChange={
         scope === "org"
           ? (v) => {
-              setSeenActors(actorOptions.map((o) => o.value));
+              setSeenActors(actorOptions);
               setActorUserId(v);
             }
           : undefined
@@ -130,7 +131,7 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
       projectOptions={projectOptions}
       project={projectId}
       onProjectChange={(v) => {
-        setSeenProjects(projectOptions.map((o) => o.value));
+        setSeenProjects(projectOptions);
         setProjectId(v);
       }}
       includePassive={includePassive}
@@ -157,7 +158,9 @@ export function TimelinePageClient({ scope }: TimelinePageClientProps) {
               {scope === "org" && !unassignedLoading && unassigned
                 ? CONTACT_MANAGER_DESCRIPTION
                 : filtersActive
-                  ? "No events match these filters. Try enabling views & reads."
+                  ? includePassive
+                    ? "No events match these filters."
+                    : "No events match these filters. Try enabling views & reads."
                   : "Changes in this organization will appear here."}
             </EmptyDescription>
           </EmptyHeader>

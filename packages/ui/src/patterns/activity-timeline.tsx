@@ -1,7 +1,7 @@
 "use client";
 
 import { formatActionLabel } from "@loftlancer/actions";
-import type { ComponentType, ReactNode } from "react";
+import { type ComponentType, type ReactNode, useId } from "react";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Label } from "../components/ui/label";
@@ -341,20 +341,19 @@ export type ActivityFilterOption = { value: string; label: string };
 
 function mergeFilterOptions(
   rows: AuditEventRow[],
-  seen: string[],
+  seen: ActivityFilterOption[],
   selected: string,
   pick: (row: AuditEventRow) => string | null | undefined,
   label: (value: string, row: AuditEventRow) => string,
 ): ActivityFilterOption[] {
   const byValue = new Map<string, string>();
-  for (const value of seen) {
-    const row = rows.find((r) => pick(r) === value);
-    if (row) byValue.set(value, label(value, row));
+  for (const { value, label: seenLabel } of seen) {
+    byValue.set(value, seenLabel);
   }
   for (const row of rows) {
     const value = pick(row);
     if (!value) continue;
-    if (!byValue.has(value)) byValue.set(value, label(value, row));
+    byValue.set(value, label(value, row));
   }
   if (selected && !byValue.has(selected)) {
     const row = rows.find((r) => pick(r) === selected);
@@ -367,7 +366,7 @@ function mergeFilterOptions(
 
 export function auditActionFilterOptions(
   rows: AuditEventRow[],
-  seen: string[],
+  seen: ActivityFilterOption[],
   selected: string,
 ): ActivityFilterOption[] {
   const codes = mergeFilterOptions(
@@ -382,7 +381,7 @@ export function auditActionFilterOptions(
 
 export function auditActorFilterOptions(
   rows: AuditEventRow[],
-  seen: string[],
+  seen: ActivityFilterOption[],
   selected: string,
 ): ActivityFilterOption[] {
   return mergeFilterOptions(
@@ -397,7 +396,7 @@ export function auditActorFilterOptions(
 
 export function auditProjectFilterOptions(
   rows: AuditEventRow[],
-  seen: string[],
+  seen: ActivityFilterOption[],
   selected: string,
 ): ActivityFilterOption[] {
   return mergeFilterOptions(
@@ -474,6 +473,7 @@ export function ActivityTimeline({
   className?: string;
 }) {
   const hydrated = useHydrated();
+  const includePassiveToggleId = useId();
   const groups = groupByDay(items, !hydrated);
   const filters = (
     <div className="flex flex-wrap items-center gap-2">
@@ -514,15 +514,15 @@ export function ActivityTimeline({
         options={RESULT_OPTIONS}
       />
       {onIncludePassiveChange ? (
-        <div className="flex items-center gap-2 rounded-md border px-3 py-1.5">
+        <div className="inline-flex h-8 items-center gap-2 rounded-md border border-border/60 px-2.5 text-sm">
           <Switch
-            id="activity-include-passive"
+            id={includePassiveToggleId}
             checked={includePassive ?? false}
             onCheckedChange={onIncludePassiveChange}
           />
           <Label
-            htmlFor="activity-include-passive"
-            className="text-muted-foreground text-xs"
+            htmlFor={includePassiveToggleId}
+            className="text-muted-foreground text-sm"
           >
             Show views & reads
           </Label>
