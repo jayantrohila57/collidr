@@ -44,7 +44,7 @@
       "label": "Loftlancer dashboard mobile"
     }
   ],
-  "theme_color": "#B79AFF",
+  "theme_color": "#262626",
   "background_color": "#ffffff",
   "display": "standalone",
   "start_url": "/",

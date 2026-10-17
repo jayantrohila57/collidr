@@ -64,16 +64,9 @@ import { SettingsAvatar } from "./settings-frame";
 
 /* ---------------- Brand ---------------- */
 
+/** The Loftlancer mark is the Lucide `Layers` icon (#394). */
 export function LoftlancerMark({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden
-      className={cn("size-4 fill-current", className)}
-    >
-      <path d="M3 21V9l9-6 9 6v12h-6v-7H9v7H3z" />
-    </svg>
-  );
+  return <LayersIcon aria-hidden className={cn("size-4", className)} />;
 }
 
 /** Logo + wordmark; collapsed sidebar shows the mark only. */
