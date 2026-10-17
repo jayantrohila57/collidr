@@ -26,12 +26,11 @@
     "check-routes": "bash scripts/check-route-literals.sh",
     "fix": "biome check --write --unsafe .",
     "prepare": "husky",
-    "release": "./scripts/release.sh",
-    "release:patch": "./scripts/release.sh patch",
-    "release:minor": "./scripts/release.sh minor",
-    "release:major": "./scripts/release.sh major",
     "version-check": "node -p \"require('./package.json').version\"",
-    "changelog-check": "type CHANGELOG.md | more"
+    "release:prepare": "node scripts/release/prepare.mjs",
+    "release:check": "node scripts/release/check.mjs origin/main",
+    "release:notes": "node scripts/release/notes.mjs",
+    "release:publish": "bash scripts/release/publish.sh"
   },
   "dependencies": {
     "@loftlancer/env": "workspace:*",

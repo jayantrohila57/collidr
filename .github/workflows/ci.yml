@@ -36,3 +36,16 @@ jobs:
           CORS_ORIGIN: http://localhost:3000
           # TEST-ONLY placeholder for CI; never use this value in any real environment.
           ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+
+  release-version:
+    # Release PRs into main must bump the root version and add a changelog entry.
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/release/check.mjs origin/main
