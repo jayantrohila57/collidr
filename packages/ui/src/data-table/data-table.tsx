@@ -217,6 +217,7 @@ export function DataTable<TData extends RowData>({
   const rowModel = table.getRowModel();
   const hasRows = rowModel.rows.length > 0;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the listed values are re-measure triggers; the table element can be replaced when columns, rows or the skeleton change, so the observer must re-attach.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;

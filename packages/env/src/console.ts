@@ -40,8 +40,8 @@ export const consoleEnv = createEnv({
 });
 
 export function parseConsoleAllowedEmails(
-  raw: string | undefined =
-    process.env.CONSOLE_ALLOWED_EMAILS ?? consoleEnv.CONSOLE_ALLOWED_EMAILS,
+  raw: string | undefined = process.env.CONSOLE_ALLOWED_EMAILS ??
+    consoleEnv.CONSOLE_ALLOWED_EMAILS,
 ): string[] {
   if (!raw?.trim()) {
     return [];
@@ -68,6 +68,8 @@ export function isEmailAllowedForConsole(
   if (!normalized) {
     return false;
   }
-  const normalizedAllowlist = allowed.map(normalizeAllowlistEmail).filter(Boolean);
+  const normalizedAllowlist = allowed
+    .map(normalizeAllowlistEmail)
+    .filter(Boolean);
   return normalizedAllowlist.includes(normalized);
 }

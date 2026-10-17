@@ -14,13 +14,7 @@ import { OrganizationsGridView } from "./organizations-grid-view";
 import { OrganizationsListFiltersBar } from "./organizations-list-filters";
 import { OrganizationsTableView } from "./organizations-table-view";
 
-type OrganizationsListContentProps = {
-  onCreateOrganization?: () => void;
-};
-
-export function OrganizationsListContent({
-  onCreateOrganization,
-}: OrganizationsListContentProps) {
+export function OrganizationsListContent() {
   const { orgs, activeOrganizationId } = useActiveOrganization();
   const params = useOrganizationsListParams();
   const [filterTableLoading, setFilterTableLoading] = useState(false);

@@ -152,7 +152,7 @@ export const projectAppsRouter = router({
       const manifest = requireManifest(input.appId);
       for (const [key, value] of Object.entries(input.settings)) {
         const def = manifest.settings.find((d) => d.key === key);
-        if (!def || !def.options.some((o) => o.value === value)) {
+        if (!def?.options.some((o) => o.value === value)) {
           throw new TRPCError({
             code: "BAD_REQUEST",
             message: `Invalid setting ${key}`,

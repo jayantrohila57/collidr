@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
-  evaluateConsoleOperatorAccess,
   type ConsoleAccessEvaluation,
+  evaluateConsoleOperatorAccess,
 } from "./console-operator-access";
 
 describe("evaluateConsoleOperatorAccess", () => {
@@ -13,8 +13,7 @@ describe("evaluateConsoleOperatorAccess", () => {
   });
 
   it("distinguishes unauthenticated from operator denial", () => {
-    const unauth: ConsoleAccessEvaluation =
-      evaluateConsoleOperatorAccess(null);
+    const unauth: ConsoleAccessEvaluation = evaluateConsoleOperatorAccess(null);
     const denied: ConsoleAccessEvaluation = evaluateConsoleOperatorAccess({
       user: {
         id: "u1",

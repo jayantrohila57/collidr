@@ -31,7 +31,5 @@ export function OrganizationsList({
     );
   }
 
-  return (
-    <OrganizationsListContent onCreateOrganization={onCreateOrganization} />
-  );
+  return <OrganizationsListContent />;
 }

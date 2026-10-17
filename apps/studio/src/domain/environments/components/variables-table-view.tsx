@@ -93,9 +93,11 @@ export function VariablesTableView({
 }: VariablesTableViewProps) {
   const variablesV2 = isVariablesV2EnabledOnClient();
 
-  const isValueRevealed = (variable: Variable) =>
-    variable.type === "config" || revealedIds.has(variable.id);
-  const isValueRevealedFn = isValueRevealed;
+  const isValueRevealed = useCallback(
+    (variable: Variable) =>
+      variable.type === "config" || revealedIds.has(variable.id),
+    [revealedIds],
+  );
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     key: string;
@@ -120,7 +122,7 @@ export function VariablesTableView({
     async (variable: Variable) => {
       try {
         const value =
-          variable.value !== undefined && isValueRevealedFn(variable)
+          variable.value !== undefined && isValueRevealed(variable)
             ? variable.value
             : await onFetchValue(variable.id);
         await navigator.clipboard.writeText(value);
@@ -130,8 +132,7 @@ export function VariablesTableView({
         toast.error("Could not copy value");
       }
     },
-    // biome-ignore lint/correctness/useExhaustiveDependencies: isValueRevealedFn reads revealedIds
-    [onFetchValue, flashCopied, revealedIds],
+    [onFetchValue, flashCopied, isValueRevealed],
   );
 
   const copyAsEnv = async () => {
@@ -432,7 +433,7 @@ export function VariablesTableView({
       handleDelete,
       handleEdit,
       onReveal,
-      revealedIds,
+      isValueRevealed,
       revealingIds,
       toggleValueExpanded,
       variablesV2,

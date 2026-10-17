@@ -90,9 +90,9 @@ export const projectsRouter = router({
         .select()
         .from(project)
         .where(
-          idFilter
+          idFilter && ctx.activeOrganizationId
             ? and(
-                eq(project.organizationId, ctx.activeOrganizationId!),
+                eq(project.organizationId, ctx.activeOrganizationId),
                 idFilter,
               )
             : projectListFilter(ctx.session.user.id, ctx.activeOrganizationId),

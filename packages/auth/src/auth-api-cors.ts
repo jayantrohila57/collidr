@@ -17,7 +17,9 @@ function corsHeadersForRequest(request: Request): Headers | null {
 }
 
 /** OPTIONS preflight for cross-origin Better Auth fetches (fallback when sibling proxy is unused). */
-export function authApiCorsPreflightResponse(request: Request): Response | null {
+export function authApiCorsPreflightResponse(
+  request: Request,
+): Response | null {
   if (request.method !== "OPTIONS") {
     return null;
   }

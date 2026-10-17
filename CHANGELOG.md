@@ -16,6 +16,19 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Fixed
+
+- `biome ci` now passes cleanly: the whole repo is formatted with sorted imports, and the remaining lint is fixed without changing behaviour (#377)
+  - Non-null assertions are gone from the soft-delete helpers and app install flows
+  - Optional-chain cleanups, unused imports and an unused prop removed
+  - The variables table's reveal callback is memoized so its deps are complete
+  - Re-measure and reset effects that depend on trigger values carry a documented `biome-ignore`
+  - `biome.json` moves to `preset: "recommended"`, and the generated MCP catalog is excluded
+
+### Changed
+
+- CI's quality job runs `pnpm lint:ci` (`biome ci --error-on-warnings`), so formatting and lint stay green (#377)
+
 ## [1.9.0] - 2026-10-17
 
 ### Added

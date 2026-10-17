@@ -5,8 +5,8 @@ import {
   getLoftlancerSessionToken,
   hasSessionCookieFromAnyPrefix,
   isLegacySessionCookieName,
-  legacySessionCookieNamesToExpire,
   LOFTLANCER_COOKIE_PREFIX,
+  legacySessionCookieNamesToExpire,
 } from "./session-cookies";
 
 describe("session-cookies", () => {

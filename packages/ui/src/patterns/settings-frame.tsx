@@ -381,7 +381,7 @@ export function ActivityHeatmap({
   for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
   // Month label sits above the first week column that contains the 1st of that month.
   const monthLabels = weeks.map((week) => {
-    const first = week.find((c) => c && c.date.endsWith("-01"));
+    const first = week.find((c) => c?.date.endsWith("-01"));
     return first
       ? new Date(`${first.date}T00:00:00Z`).toLocaleString("en", {
           month: "short",

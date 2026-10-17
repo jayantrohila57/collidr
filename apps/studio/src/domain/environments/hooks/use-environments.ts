@@ -63,6 +63,7 @@ export function useEnvironments(projectSlug: string) {
 
   const [clientActiveTab, setClientActiveTab] = useState<string | undefined>();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: envParam and projectSlug are reset triggers; a URL change drops the optimistic client tab.
   useEffect(() => {
     setClientActiveTab(undefined);
   }, [envParam, projectSlug]);

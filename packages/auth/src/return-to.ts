@@ -64,7 +64,7 @@ export function absoluteReturnToFromRelativePath(
   path: string | null | undefined,
   studioOrigin: string,
 ): string | null {
-  if (!path || !path.startsWith("/") || path.startsWith("//")) {
+  if (!path?.startsWith("/") || path.startsWith("//")) {
     return null;
   }
   return `${trimTrailingSlash(studioOrigin)}${path}`;

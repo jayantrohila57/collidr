@@ -330,9 +330,9 @@ async function insertBatched(
   let done = 0;
   for (let i = 0; i < rows.length; i += cfg.batchSize) {
     const chunk = rows.slice(i, i + cfg.batchSize);
-    // biome-ignore lint/suspicious/noExplicitAny: generic batched insert across tables
     await db
       .insert(table)
+      // biome-ignore lint/suspicious/noExplicitAny: generic batched insert across tables; row shape varies per table
       .values(chunk as any)
       .onConflictDoNothing();
     done += chunk.length;
@@ -618,9 +618,9 @@ async function main() {
       buffer = [];
       return;
     }
-    // biome-ignore lint/suspicious/noExplicitAny: batched insert
     await db
       .insert(environmentVariable)
+      // biome-ignore lint/suspicious/noExplicitAny: buffered seed rows are built loosely; drizzle validates columns at insert
       .values(buffer as any)
       .onConflictDoNothing();
     varCount += buffer.length;
