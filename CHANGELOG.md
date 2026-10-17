@@ -22,6 +22,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ### Fixed
 
+- Mobile page headers with metadata use the responsive grid again (compact actions, wrapped metadata, description row on narrow viewports); E2E demo project seeds into the Playwright user's personal org; restored Studio Playwright project overview/env mobile specs (#81)
 - Sentry Logs from auth, studio and docs flush on the server via a coalesced `Sentry.flush` + Vercel `waitUntil` after `@loftlancer/logger` entries, so buffered SDK logs are not dropped when serverless handlers exit before the default 5s timer; browser logs keep SDK batching (#355)
 - Auth settings redirect routes (`/settings`, `/settings/export`, `/settings/delete`) use async Server Component page wrappers again after the account→auth app split (#37)
 

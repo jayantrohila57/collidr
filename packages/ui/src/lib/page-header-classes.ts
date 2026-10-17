@@ -15,9 +15,9 @@ export const pageHeaderDescriptionClass =
   "min-w-0 max-w-[65ch] text-muted-foreground text-xs leading-4";
 export const pageHeaderActionsClass =
   "flex h-8 shrink-0 items-center justify-end gap-2";
-/** Fixed height even when empty; indented to line up with the title. */
+/** Min height even when empty; indented to line up with the title. */
 export const pageHeaderMetaRowClass =
-  "flex h-6 min-w-0 items-center gap-2 overflow-hidden ps-11 text-muted-foreground text-xs";
+  "flex min-h-6 min-w-0 flex-wrap items-center gap-x-4 gap-y-1 ps-11 text-muted-foreground text-xs";
 export const pageHeaderTabsRowClass =
   "flex h-9 w-full min-w-0 items-end justify-between gap-2 border-b";
 export const pageHeaderTabsListClass =

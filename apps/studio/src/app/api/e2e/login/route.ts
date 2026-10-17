@@ -35,7 +35,13 @@ export async function POST(request: Request) {
 
   if (persona === "primary") {
     const { ensureE2eDemoProject } = await import("@loftlancer/db");
-    await ensureE2eDemoProject();
+    const demo = await ensureE2eDemoProject();
+    if (demo) {
+      const next = new Response(response.body, response);
+      next.headers.set("X-E2E-Demo-Org", demo.organizationSlug);
+      next.headers.set("X-E2E-Demo-Project", demo.projectSlug);
+      return next;
+    }
   }
 
   return response;

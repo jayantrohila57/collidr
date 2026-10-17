@@ -4,6 +4,8 @@ import { ChevronLeft } from "lucide-react";
 import type React from "react";
 import { type ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { Separator } from "../components/ui/separator";
+import { layoutGapClass } from "../lib/layout-spacing";
 import {
   pageHeaderActionsClass,
   pageHeaderBackClass,
@@ -148,6 +150,276 @@ export function PageHeaderTabsRow({
   );
 }
 
+function PageHeaderTitleBlock({
+  title,
+  titleAccessory,
+  description,
+  className,
+}: {
+  title: ReactNode;
+  titleAccessory?: ReactNode;
+  description?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex min-w-0 flex-col gap-0.5", className)}>
+      <div className={pageHeaderTitleRowClass}>
+        <h1 className={pageHeaderTitleClass}>{title}</h1>
+        {titleAccessory}
+      </div>
+      {typeof description === "string" ? (
+        <p className={cn(pageHeaderDescriptionClass, "line-clamp-2")}>
+          {description}
+        </p>
+      ) : (
+        description
+      )}
+    </div>
+  );
+}
+
+function PageHeaderActionsSlot({ actions }: { actions?: ReactNode }) {
+  return (
+    <div
+      className={cn(pageHeaderActionsClass, "*:data-[slot=button]:h-8")}
+      data-slot="page-header-actions"
+    >
+      {actions}
+    </div>
+  );
+}
+
+function PageHeaderWithMetadataGrid({
+  back,
+  title,
+  titleAccessory,
+  description,
+  actions,
+  metadata,
+}: {
+  back: ReactNode;
+  title: ReactNode;
+  titleAccessory?: ReactNode;
+  description?: ReactNode;
+  actions?: ReactNode;
+  metadata: ReactNode;
+}) {
+  const hasBack = Boolean(back);
+  const hasAction = Boolean(actions);
+  const hasDescription = Boolean(description);
+
+  const mobileCols = hasBack
+    ? hasAction
+      ? "grid-cols-[auto_minmax(0,1fr)_auto]"
+      : "grid-cols-[auto_minmax(0,1fr)]"
+    : hasAction
+      ? "grid-cols-[minmax(0,1fr)_auto]"
+      : "grid-cols-1";
+
+  const mobileAreas = hasBack
+    ? hasAction
+      ? "[grid-template-areas:'leading_title_action'_'div_div_div'_'meta_meta_meta']"
+      : "[grid-template-areas:'leading_title'_'div_div'_'meta_meta']"
+    : hasAction
+      ? "[grid-template-areas:'title_action'_'div_div'_'meta_meta']"
+      : "[grid-template-areas:'title'_'div'_'meta']";
+
+  const desktopCols = hasBack
+    ? hasAction
+      ? "md:grid-cols-[auto_auto_minmax(0,1fr)_auto_auto_auto]"
+      : "md:grid-cols-[auto_auto_minmax(0,1fr)_auto_auto]"
+    : hasAction
+      ? "md:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
+      : "md:grid-cols-[minmax(0,1fr)_auto_auto]";
+
+  const desktopAreas = hasBack
+    ? hasAction
+      ? "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta_action']"
+      : "md:[grid-template-areas:'leading_leading-sep_title_meta-sep_meta']"
+    : hasAction
+      ? "md:[grid-template-areas:'title_meta-sep_meta_action']"
+      : "md:[grid-template-areas:'title_meta-sep_meta']";
+
+  return (
+    <div
+      className={cn(
+        "grid w-full min-w-0 gap-2 py-0.5",
+        layoutGapClass,
+        mobileCols,
+        mobileAreas,
+        desktopCols,
+        desktopAreas,
+        hasDescription ? "md:items-start" : "md:items-center",
+      )}
+    >
+      {hasBack ? (
+        <div
+          className={cn(
+            "self-center [grid-area:leading]",
+            hasDescription && "md:mt-1 md:self-start",
+          )}
+        >
+          {back}
+        </div>
+      ) : null}
+      {hasBack ? (
+        <Separator
+          orientation="vertical"
+          className={cn(
+            "hidden h-8 shrink-0 self-center [grid-area:leading-sep] md:block",
+            hasDescription && "md:mt-1 md:self-start",
+          )}
+        />
+      ) : null}
+
+      <PageHeaderTitleBlock
+        title={title}
+        titleAccessory={titleAccessory}
+        description={description}
+        className="[grid-area:title]"
+      />
+
+      <Separator className="[grid-area:div] md:hidden" />
+
+      <div
+        className={cn(
+          "min-w-0 [grid-area:meta]",
+          hasDescription ? "md:mt-1 md:self-start" : "md:self-center",
+        )}
+        data-slot="page-header-meta"
+      >
+        {metadata}
+      </div>
+
+      <Separator
+        orientation="vertical"
+        className={cn(
+          "hidden h-8 shrink-0 [grid-area:meta-sep] md:block",
+          hasDescription ? "md:mt-1 md:self-start" : "md:self-center",
+        )}
+      />
+
+      {hasAction ? (
+        <div
+          className={cn(
+            "shrink-0 self-start [grid-area:action]",
+            hasDescription ? "md:mt-1 md:self-start" : "md:self-center",
+          )}
+        >
+          <PageHeaderActionsSlot actions={actions} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function PageHeaderTopWithDescriptionGrid({
+  back,
+  title,
+  titleAccessory,
+  description,
+  actions,
+}: {
+  back: ReactNode;
+  title: ReactNode;
+  titleAccessory?: ReactNode;
+  description: ReactNode;
+  actions?: ReactNode;
+}) {
+  const hasBack = Boolean(back);
+  const hasAction = Boolean(actions);
+
+  const mobileCols = hasBack
+    ? hasAction
+      ? "grid-cols-[auto_minmax(0,1fr)_auto]"
+      : "grid-cols-[auto_minmax(0,1fr)]"
+    : hasAction
+      ? "grid-cols-[minmax(0,1fr)_auto]"
+      : "grid-cols-1";
+
+  const mobileAreas = hasBack
+    ? hasAction
+      ? "[grid-template-areas:'leading_title_action'_'desc_desc_desc']"
+      : "[grid-template-areas:'leading_title_title'_'desc_desc_desc']"
+    : hasAction
+      ? "[grid-template-areas:'title_action'_'desc_desc']"
+      : "[grid-template-areas:'title'_'desc']";
+
+  const desktopAreas = hasBack
+    ? hasAction
+      ? "md:[grid-template-areas:'leading_title_action'_'leading_desc_desc']"
+      : "md:[grid-template-areas:'leading_title_title'_'leading_desc_desc']"
+    : hasAction
+      ? "md:[grid-template-areas:'title_action'_'desc_desc']"
+      : "md:[grid-template-areas:'title'_'desc']";
+
+  return (
+    <div
+      className={cn(
+        "grid w-full min-w-0 gap-2 py-0.5",
+        layoutGapClass,
+        mobileCols,
+        mobileAreas,
+        desktopAreas,
+        "min-h-12",
+      )}
+    >
+      {hasBack ? (
+        <div className="self-center [grid-area:leading]">{back}</div>
+      ) : null}
+      <PageHeaderTitleBlock
+        title={title}
+        titleAccessory={titleAccessory}
+        className="[grid-area:title]"
+      />
+      {hasAction ? (
+        <div className="shrink-0 self-center [grid-area:action]">
+          <PageHeaderActionsSlot actions={actions} />
+        </div>
+      ) : null}
+      <div className="min-w-0 [grid-area:desc]">{description}</div>
+    </div>
+  );
+}
+
+function PageHeaderTopRow({
+  back,
+  title,
+  titleAccessory,
+  description,
+  actions,
+}: {
+  back: ReactNode;
+  title: ReactNode;
+  titleAccessory?: ReactNode;
+  description?: ReactNode;
+  actions?: ReactNode;
+}) {
+  if (description) {
+    return (
+      <PageHeaderTopWithDescriptionGrid
+        back={back}
+        title={title}
+        titleAccessory={titleAccessory}
+        description={description}
+        actions={actions}
+      />
+    );
+  }
+
+  return (
+    <div className={pageHeaderTopRowClass}>
+      {back}
+      <PageHeaderTitleBlock
+        title={title}
+        titleAccessory={titleAccessory}
+        className="min-w-0 flex-1"
+      />
+      <PageHeaderActionsSlot actions={actions} />
+    </div>
+  );
+}
+
 export function PageHeaderLayout({
   back,
   title,
@@ -166,34 +438,34 @@ export function PageHeaderLayout({
   /** A rendered {@link PageHeaderTabsRow}. */
   tabs: ReactNode;
 }) {
+  const hasMetadata = meta != null && meta !== false;
+
   return (
     <header className={pageHeaderRootClass} data-slot="page-header">
-      <div className={pageHeaderTopRowClass}>
-        {back}
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <div className={pageHeaderTitleRowClass}>
-            <h1 className={pageHeaderTitleClass}>{title}</h1>
-            {titleAccessory}
-          </div>
-          {typeof description === "string" ? (
-            <p className={cn(pageHeaderDescriptionClass, "line-clamp-2")}>
-              {description}
-            </p>
-          ) : (
-            description
-          )}
-        </div>
-        {/* Always rendered so pages with and without actions line up. */}
-        <div
-          className={cn(pageHeaderActionsClass, "*:data-[slot=button]:h-8")}
-          data-slot="page-header-actions"
-        >
-          {actions}
-        </div>
-      </div>
-      <div className={pageHeaderMetaRowClass} data-slot="page-header-meta">
-        {meta}
-      </div>
+      {hasMetadata ? (
+        <PageHeaderWithMetadataGrid
+          back={back}
+          title={title}
+          titleAccessory={titleAccessory}
+          description={description}
+          actions={actions}
+          metadata={meta}
+        />
+      ) : (
+        <>
+          <PageHeaderTopRow
+            back={back}
+            title={title}
+            titleAccessory={titleAccessory}
+            description={description}
+            actions={actions}
+          />
+          <div
+            className={pageHeaderMetaRowClass}
+            data-slot="page-header-meta"
+          />
+        </>
+      )}
       {tabs}
     </header>
   );
