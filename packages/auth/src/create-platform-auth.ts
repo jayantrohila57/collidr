@@ -12,10 +12,14 @@ import {
   platformDatabaseConfig,
   sharedAuthAdvanced,
   sharedDatabaseHooks,
-  sharedE2eEmailPassword,
   sharedSessionConfig,
   withNextCookies,
 } from "./auth-shared";
+import {
+  magicLinkPlugin,
+  passwordDisabled,
+  socialProviders,
+} from "./passwordless";
 import {
   DEFAULT_AUTH_URL,
   DEFAULT_MCP_URL,
@@ -84,17 +88,13 @@ export function createPlatformAuth() {
     advanced: sharedAuthAdvanced(),
     databaseHooks: sharedDatabaseHooks(),
     session: sharedSessionConfig(),
-    ...sharedE2eEmailPassword(),
+    ...passwordDisabled,
     database: platformDatabaseConfig(),
     trustedOrigins,
-    socialProviders: {
-      github: {
-        clientId: env.GITHUB_CLIENT_ID ?? "build-placeholder",
-        clientSecret: env.GITHUB_CLIENT_SECRET ?? "build-placeholder",
-      },
-    },
+    socialProviders: socialProviders(),
     plugins: withNextCookies([
       ...coreAuthPlugins(),
+      magicLinkPlugin(),
       jwt(),
       oneTimeToken({
         expiresIn: 5,

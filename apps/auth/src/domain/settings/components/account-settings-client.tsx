@@ -9,6 +9,7 @@ import {
   AlertDialogPopup,
   AlertDialogTitle,
 } from "@loftlancer/ui/alert-dialog";
+import { isGoogleSignInEnabled } from "@loftlancer/ui/auth-links";
 import { Avatar, AvatarFallback, AvatarImage } from "@loftlancer/ui/avatar";
 import { Badge } from "@loftlancer/ui/badge";
 import { Button } from "@loftlancer/ui/button";
@@ -19,6 +20,7 @@ import {
   EmptyTitle,
 } from "@loftlancer/ui/empty";
 import { Input } from "@loftlancer/ui/input";
+import { GoogleMark } from "@loftlancer/ui/patterns/auth-5";
 import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
 import { LocalDateTime } from "@loftlancer/ui/patterns/local-date-time";
 import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
@@ -46,7 +48,7 @@ import {
   SettingsTabsTab,
 } from "@/components/patterns/settings-tabs";
 import {
-  linkGithubAccount,
+  linkSocialAccount,
   listAuthSessions,
   performSignOut,
   revokeAuthSession,
@@ -224,22 +226,33 @@ export function AccountSettingsClient({
 
   const connectedAccounts = connectedQuery.data?.data ?? [];
   const canUnlinkAny = connectedAccounts.length > 1;
-  /** Only providers Better Auth is configured for are connectable (GitHub). */
+  /**
+   * Providers Better Auth is configured for are connectable: GitHub always,
+   * Google when configured (#359). Email + password is disabled (#373), so a
+   * legacy credential row can only be disconnected.
+   */
+  const linkable = [
+    { key: "github" as const, label: "GitHub" },
+    ...(isGoogleSignInEnabled()
+      ? [{ key: "google" as const, label: "Google" }]
+      : []),
+  ];
+  const linkableKeys = new Set<string>(linkable.map((p) => p.key));
   const providerRows = [
-    {
-      key: "github",
-      label: "GitHub",
-      icon: "github" as const,
+    ...linkable.map((p) => ({
+      key: p.key,
+      label: p.label,
+      icon: p.key,
       connectable: true,
-      account: connectedAccounts.find((a) => a.providerId === "github"),
-    },
+      account: connectedAccounts.find((a) => a.providerId === p.key),
+    })),
     ...connectedAccounts
-      .filter((a) => a.providerId !== "github")
+      .filter((a) => !linkableKeys.has(a.providerId))
       .map((a) => ({
         key: a.id,
         label:
           a.providerId === "credential"
-            ? "Email & password"
+            ? "Password (sign-in disabled)"
             : a.providerId.charAt(0).toUpperCase() + a.providerId.slice(1),
         icon: "key" as const,
         connectable: false,
@@ -309,14 +322,16 @@ export function AccountSettingsClient({
     }
   };
 
-  const handleLinkGithub = async () => {
-    setProviderPending("github");
+  const handleLinkProvider = async (provider: "github" | "google") => {
+    setProviderPending(provider);
     try {
-      // Redirects to GitHub on success; keep the spinner until navigation.
-      await linkGithubAccount();
+      // Redirects to the provider on success; keep the spinner until navigation.
+      await linkSocialAccount(provider);
     } catch (err) {
       setProviderPending(null);
-      toast.error(err instanceof Error ? err.message : "Could not link GitHub");
+      toast.error(
+        err instanceof Error ? err.message : `Could not link ${provider}`,
+      );
     }
   };
 
@@ -556,6 +571,8 @@ export function AccountSettingsClient({
                             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted">
                               {row.icon === "github" ? (
                                 <AppIcon name="github" className="size-4" />
+                              ) : row.icon === "google" ? (
+                                <GoogleMark aria-hidden className="size-4" />
                               ) : (
                                 <KeyRoundIcon
                                   aria-hidden
@@ -631,7 +648,11 @@ export function AccountSettingsClient({
                                 size="sm"
                                 className="relative w-24 shrink-0"
                                 disabled={connectedQuery.isLoading || busy}
-                                onClick={() => void handleLinkGithub()}
+                                onClick={() =>
+                                  void handleLinkProvider(
+                                    row.key as "github" | "google",
+                                  )
+                                }
                               >
                                 <span
                                   className={busy ? "invisible" : undefined}

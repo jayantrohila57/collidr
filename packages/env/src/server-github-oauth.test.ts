@@ -16,14 +16,16 @@ describe("GitHub OAuth env validation", () => {
     );
   });
 
-  it("auth reads GitHub credentials from validated server env", () => {
+  it("auth reads OAuth credentials from validated server env (passwordless.ts)", () => {
     const authSource = readFileSync(
-      join(envDir, "../../auth/src/auth.ts"),
+      join(envDir, "../../auth/src/passwordless.ts"),
       "utf8",
     ).replace(/\r\n/g, "\n");
     assert.match(authSource, /clientId:\s*env\.GITHUB_CLIENT_ID/);
     assert.match(authSource, /clientSecret:\s*env\.GITHUB_CLIENT_SECRET/);
     assert.doesNotMatch(authSource, /process\.env\.GITHUB_CLIENT_ID/);
     assert.doesNotMatch(authSource, /process\.env\.GITHUB_CLIENT_SECRET/);
+    assert.match(authSource, /clientId:\s*env\.GOOGLE_CLIENT_ID/);
+    assert.doesNotMatch(authSource, /process\.env\.GOOGLE_CLIENT_/);
   });
 });

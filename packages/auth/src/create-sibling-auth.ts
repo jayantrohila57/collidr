@@ -4,12 +4,12 @@ import { oneTimeToken } from "better-auth/plugins";
 import {
   coreAuthPlugins,
   sharedAuthAdvanced,
-  withNextCookies,
   sharedDatabaseConfig,
   sharedDatabaseHooks,
-  sharedE2eEmailPassword,
   sharedSessionConfig,
+  withNextCookies,
 } from "./auth-shared";
+import { e2eMagicLinkPlugins, passwordDisabled } from "./passwordless";
 import {
   DEFAULT_AUTH_URL,
   getPlatformProductionOrigins,
@@ -47,11 +47,12 @@ export function createSiblingAuth(options: CreateSiblingAuthOptions) {
     advanced: sharedAuthAdvanced(),
     databaseHooks: sharedDatabaseHooks(),
     session: sharedSessionConfig(),
-    ...sharedE2eEmailPassword(),
+    ...passwordDisabled,
     database: sharedDatabaseConfig(),
     trustedOrigins,
     plugins: withNextCookies([
       ...coreAuthPlugins(),
+      ...e2eMagicLinkPlugins(),
       oneTimeToken({
         expiresIn: 5,
       }),

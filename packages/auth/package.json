@@ -25,6 +25,9 @@
     },
     "./*": {
       "default": "./src/*.ts"
+    },
+    "./passwordless": {
+      "default": "./src/passwordless.ts"
     }
   },
   "scripts": {

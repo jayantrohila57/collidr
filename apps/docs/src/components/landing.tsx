@@ -1,21 +1,14 @@
 "use client";
 
 import { appRegistry } from "@loftlancer/actions/apps";
-import { buildSignInUrl } from "@loftlancer/ui/auth-links";
 import { buttonVariants } from "@loftlancer/ui/button";
-import {
-  Auth5Panel,
-  AuthDivider,
-  GithubMark as GithubIcon,
-} from "@loftlancer/ui/patterns/auth-5";
-import { cn } from "@loftlancer/ui/utils";
+import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
+import { SignInOptions } from "@loftlancer/ui/patterns/sign-in-options";
 
 import { ModeToggle } from "@/components/mode-toggle";
+import { SiteFooter } from "@/components/site-footer";
 
 export function Landing() {
-  // Static export: plain link into the auth app, which starts the GitHub flow.
-  const signInHref = buildSignInUrl();
-
   return (
     <Auth5Panel
       title="Get started with Loftlancer"
@@ -26,31 +19,10 @@ export function Landing() {
         </a>
       }
       topRight={<ModeToggle />}
-      footer={
-        <>
-          <AuthDivider>OR</AuthDivider>
-          <div className="grid grid-cols-2 gap-2">
-            <a href="/docs" className={buttonVariants({ variant: "outline" })}>
-              Read the docs
-            </a>
-            <a
-              href="/pricing"
-              className={buttonVariants({ variant: "outline" })}
-            >
-              Pricing
-            </a>
-          </div>
-        </>
-      }
+      footer={<SiteFooter className="pt-2" />}
     >
-      <a
-        href={signInHref}
-        data-testid="marketing-cta-bottom"
-        className={cn(buttonVariants(), "w-full")}
-      >
-        <GithubIcon aria-hidden />
-        Sign in with GitHub
-      </a>
+      {/* Passwordless only (#373): GitHub, Google and an email magic link. */}
+      <SignInOptions />
       <ul className="mt-4 flex flex-col divide-y divide-border/60 rounded-xl text-left ring-1 ring-border/60">
         {appRegistry.map((app) => (
           <li key={app.id} className="flex flex-col gap-0.5 px-3 py-2">

@@ -31,4 +31,14 @@ describe("buildSignInUrl", () => {
       "https://example.com/auth/api/sign-in/github",
     );
   });
+
+  it("starts Google sign-in when asked", () => {
+    assert.equal(
+      buildSignInUrl({
+        authUrl: "https://example.com/auth",
+        provider: "google",
+      }),
+      "https://example.com/auth/api/sign-in/google",
+    );
+  });
 });
