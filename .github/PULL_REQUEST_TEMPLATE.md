@@ -1,11 +1,12 @@
-## Summary
-
-<!-- What does this PR change and why? -->
-
 Fixes #
 
-## Checklist
+## What changed
 
-- [ ] Lint, type-check and tests pass locally
-- [ ] No secrets or real `.env` files committed
-- [ ] Docs/README updated if needed
+## Checklist
+- [ ] Every commit says `Fixes #N` (or `Refs #N` for partial work)
+- [ ] Targets `dev`, not `main`; no `--no-verify`
+- [ ] `pnpm check-types`, `pnpm test`, `pnpm lint:ci` and turbo build pass
+- [ ] No secret values; env var names only (`docs/integrations.md` updated if services changed)
+- [ ] Prod DB migration: Neon backup branch taken (or N/A)
+- [ ] UI: reui-first, dense layout, zero layout shift, Jayant's tokens; before/after screenshots attached (or N/A)
+- [ ] CHANGELOG.md updated if user-facing
