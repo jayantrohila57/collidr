@@ -19,6 +19,11 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 ### Added
 
 - E2E demo environment variable seeding: encrypted fake placeholders for the Playwright demo project, production guards (`VERCEL_ENV` / `NODE_ENV` + opt-in), and `fake-dev-only` markers on reset-seed sample variables (#85)
+- Playwright `unsaved-changes-guard` suite for project, organization, and org settings edit sheets; E2E login seeds a primary org workspace for org-scoped routes (#76)
+
+### Changed
+
+- Import `.env` and team member sheets warn before closing when there are unsaved edits (#76)
 
 ### Fixed
 
