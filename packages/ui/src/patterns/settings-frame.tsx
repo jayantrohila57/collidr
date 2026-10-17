@@ -171,7 +171,12 @@ export function SettingsFrame({
     <div data-testid="settings-frame" className="w-full min-w-0 space-y-6">
       <PageHeaderLayout
         back={
-          <PageHeaderBackLink href={back?.href} LinkComponent={LinkComponent} />
+          back?.href ? (
+            <PageHeaderBackLink
+              href={back.href}
+              LinkComponent={LinkComponent}
+            />
+          ) : null
         }
         title={title}
         description={description}

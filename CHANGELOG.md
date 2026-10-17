@@ -18,6 +18,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ### Fixed
 
+- Page header spacing and primary action alignment: shared `PageHeaderLayout` uses `layout-spacing` tokens (`gap-2`, `min-h-12`, `h-8` actions), description grids keep actions on the title row, list pages honor `back={false}` without meta indent, and inset chrome matches `h-12` sidebar scale (#77)
 - Auth settings redirect routes (`/settings`, `/settings/export`, `/settings/delete`) use async Server Component page wrappers again after the account→auth app split (#37)
 
 ## [1.11.1] - 2026-10-17

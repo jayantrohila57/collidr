@@ -17,21 +17,16 @@ import type { ReactNode } from "react";
 import { PageBackButton } from "@/components/layout/page-back-button";
 import { PageHeaderDescription } from "@/components/layout/page-header-description";
 import {
-  getPageBackFallback,
-  getPageBackHref,
-  type PageBackHref,
-} from "@/lib/page-back";
+  type PageHeaderBackProp,
+  resolvePageHeaderBack,
+} from "@/lib/page-header-back";
+
+export type { PageHeaderBackProp };
 
 /**
- * Back is always rendered. `false` and `"auto"` both resolve to the logical
- * parent route (or history back with a parent fallback); a string or object
- * pins the target.
+ * `false` hides the back control; `"auto"` resolves from the URL (or history);
+ * a string or object pins the target.
  */
-export type PageHeaderBackProp =
-  | false
-  | "auto"
-  | PageBackHref
-  | { href?: PageBackHref | null; useHistory?: boolean };
 
 export type PageHeaderTab = {
   value: string;
@@ -50,37 +45,10 @@ export type PageHeaderTabsProps = {
   tabsEnd?: ReactNode;
 };
 
-type ResolvedBack = {
-  href?: PageBackHref | null;
-  fallbackHref: PageBackHref;
-  useHistory: boolean;
-};
-
 const DEFAULT_TABS: PageHeaderTab[] = [{ value: "all", label: "All" }];
-
-function resolveBack(
-  back: PageHeaderBackProp | undefined,
-  pathname: string,
-): ResolvedBack {
-  if (back === false || back === "auto" || back === undefined) {
-    const href = getPageBackHref(pathname);
-    if (href) return { href, fallbackHref: href, useHistory: false };
-    return { fallbackHref: getPageBackFallback(pathname), useHistory: true };
-  }
-  if (typeof back === "string") {
-    return { href: back, fallbackHref: back, useHistory: false };
-  }
-  const fallback = back.href ?? getPageBackFallback(pathname);
-  return {
-    href: back.href ?? null,
-    fallbackHref: fallback,
-    useHistory: Boolean(back.useHistory) || !back.href,
-  };
-}
 
 const rootClass = pageHeaderRootClass;
 const topRowClass = pageHeaderTopRowClass;
-const metaRowClass = pageHeaderMetaRowClass;
 const tabsRowClass = pageHeaderTabsRowClass;
 
 export function PageHeaderTabs({
@@ -124,15 +92,17 @@ export function PageHeader({
   back?: PageHeaderBackProp;
 } & PageHeaderTabsProps) {
   const pathname = usePathname() ?? "";
-  const resolved = resolveBack(back, pathname);
+  const resolved = resolvePageHeaderBack(back, pathname);
   return (
     <PageHeaderLayout
       back={
-        <PageBackButton
-          href={resolved.href}
-          fallbackHref={resolved.fallbackHref}
-          useHistory={resolved.useHistory}
-        />
+        resolved ? (
+          <PageBackButton
+            href={resolved.href}
+            fallbackHref={resolved.fallbackHref}
+            useHistory={resolved.useHistory}
+          />
+        ) : null
       }
       title={title}
       titleAccessory={titleAccessory}
@@ -157,16 +127,18 @@ export function PageHeader({
 export function PageHeaderSkeleton({
   withDescription = true,
   withAction = true,
+  withBack = true,
   tabCount = 1,
 }: {
   withDescription?: boolean;
   withAction?: boolean;
+  withBack?: boolean;
   tabCount?: number;
 }) {
   return (
     <div className={rootClass} aria-hidden data-slot="page-header-skeleton">
       <div className={topRowClass}>
-        <Skeleton className="size-8 shrink-0 rounded-md" />
+        {withBack ? <Skeleton className="size-8 shrink-0 rounded-md" /> : null}
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <div className="flex h-8 items-center">
             <Skeleton className="h-5 w-40" />
@@ -181,7 +153,7 @@ export function PageHeaderSkeleton({
           <Skeleton className="h-8 w-28 shrink-0 rounded-md" />
         ) : null}
       </div>
-      <div className={metaRowClass}>
+      <div className={pageHeaderMetaRowClass(withBack)}>
         <Skeleton className="h-3 w-32" />
       </div>
       <div className={tabsRowClass}>

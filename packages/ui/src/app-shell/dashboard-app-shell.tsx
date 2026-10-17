@@ -50,7 +50,7 @@ export function DashboardAppShell({
     <>
       {sidebar}
       <SidebarInset id={mainId} className={dashboardSidebarInsetClassName}>
-        <DashboardPageHeaderBar className="h-14 justify-center border-border/60 py-0">
+        <DashboardPageHeaderBar className="justify-center border-border/60">
           <DashboardInsetContainer>
             <DashboardPageHeaderRow>
               <div className="flex min-w-0 flex-1 items-center gap-1.5">
