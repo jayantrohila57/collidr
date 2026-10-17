@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { cn } from "@/lib/utils";
 import {
   pageHeaderMetadataClassName,

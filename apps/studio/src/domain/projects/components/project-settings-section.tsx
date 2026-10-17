@@ -1,6 +1,7 @@
 "use client";
 
 import type { ProjectOutput } from "@loftlancer/api/types";
+import { Tabs, TabsList, TabsTab } from "@loftlancer/ui/tabs";
 import { useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
@@ -14,7 +15,6 @@ import {
   StatusBadge,
   VisibilityBadge,
 } from "@/components/patterns/status-badge";
-import { Tabs, TabsList, TabsTab } from "@/components/ui/tabs";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { ProjectAccessSection } from "./project-access-section";
 import { ProjectDangerZone } from "./project-danger-zone";

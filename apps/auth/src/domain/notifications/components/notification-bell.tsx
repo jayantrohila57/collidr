@@ -1,19 +1,19 @@
 "use client";
 
-import { CountBadge } from "@loftlancer/ui/patterns/count-badge";
-import { routes } from "@loftlancer/ui/studio-routes";
-import { headerIconButtonClassName } from "@loftlancer/ui/utils";
-import { AppIcon } from "@/components/patterns/app-icon";
-import { LoadingButton } from "@/components/patterns/loading-button";
-import { Button } from "@/components/ui/button";
+import { Button } from "@loftlancer/ui/button";
 import {
   Menu,
   MenuItem,
   MenuPopup,
   MenuSeparator,
   MenuTrigger,
-} from "@/components/ui/menu";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@loftlancer/ui/menu";
+import { CountBadge } from "@loftlancer/ui/patterns/count-badge";
+import { Skeleton } from "@loftlancer/ui/skeleton";
+import { routes } from "@loftlancer/ui/studio-routes";
+import { headerIconButtonClassName } from "@loftlancer/ui/utils";
+import { AppIcon } from "@/components/patterns/app-icon";
+import { LoadingButton } from "@/components/patterns/loading-button";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { studioDashboardPath } from "@/lib/studio-url";
 import { cn } from "@/lib/utils";

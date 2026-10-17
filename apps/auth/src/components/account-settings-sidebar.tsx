@@ -13,6 +13,20 @@ import {
   SidebarSearch,
   SidebarUserMenu,
 } from "@loftlancer/ui/patterns/sidebar-kit";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+  SidebarSeparator,
+} from "@loftlancer/ui/sidebar";
 import { platformNavHref, routes } from "@loftlancer/ui/studio-routes";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -31,20 +45,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { OrgSwitcher } from "@/components/org/org-switcher";
 import { useSidebarNavigator } from "@/components/sidebar/use-sidebar-navigator";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarRail,
-  SidebarSeparator,
-} from "@/components/ui/sidebar";
 import { useUserMenuProps } from "@/domain/auth/components/user-menu";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";

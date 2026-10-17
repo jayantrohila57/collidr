@@ -1,10 +1,10 @@
 "use client";
 
+import { SidebarMenuButton, SidebarMenuItem } from "@loftlancer/ui/sidebar";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCurrentOrgSlug } from "@/components/org/use-current-org-slug";
-import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { AppGlyph } from "@/domain/apps/components/app-glyph";
 import { useProjectApps } from "@/domain/apps/hooks/use-project-apps";
 import { routes } from "@/utils/navigation";

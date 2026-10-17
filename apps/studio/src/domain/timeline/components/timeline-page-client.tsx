@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@loftlancer/ui/empty";
+import {
   type ActivityResult,
   ActivityTimeline,
   auditRowToActivityItem,
@@ -10,12 +16,6 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useCurrentOrgSlug } from "@/components/org/use-current-org-slug";
 import { ErrorState } from "@/components/patterns/error-state";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from "@/components/ui/empty";
 import {
   CONTACT_MANAGER_DESCRIPTION,
   CONTACT_MANAGER_TITLE,

@@ -1,5 +1,5 @@
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import DashboardSection from "@/components/section-dashboard";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectDetailSkeleton } from "@/domain/environments/components/skeletons";
 
 export default function ProjectEnvironmentsLoading() {

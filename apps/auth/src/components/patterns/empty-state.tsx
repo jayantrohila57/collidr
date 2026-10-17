@@ -1,7 +1,4 @@
-import type { LucideIcon } from "lucide-react";
-import type { Route } from "next";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@loftlancer/ui/button";
 import {
   Empty,
   EmptyContent,
@@ -9,7 +6,10 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty";
+} from "@loftlancer/ui/empty";
+import type { LucideIcon } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
 
 interface EmptyStateProps {
   icon: LucideIcon;

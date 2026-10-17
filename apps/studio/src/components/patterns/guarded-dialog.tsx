@@ -1,10 +1,10 @@
 "use client";
 
+import { Dialog } from "@loftlancer/ui/dialog";
 import type { ComponentProps, ReactNode, RefObject } from "react";
 import { useEffect } from "react";
 import { DiscardChangesDialog } from "@/components/patterns/discard-changes-dialog";
 import { FormSheetGuardProvider } from "@/components/patterns/form-sheet-guard-context";
-import { Dialog } from "@/components/ui/dialog";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 
 export type GuardedDialogProps = ComponentProps<typeof Dialog> & {

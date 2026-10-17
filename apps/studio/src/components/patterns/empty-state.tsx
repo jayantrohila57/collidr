@@ -1,9 +1,9 @@
+import { Button } from "@loftlancer/ui/button";
 import { EmptyState as SharedEmptyState } from "@loftlancer/ui/patterns/empty-state";
 import type { LucideIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
 
 interface EmptyStateProps {
   icon: LucideIcon;

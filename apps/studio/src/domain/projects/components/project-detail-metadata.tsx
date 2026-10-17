@@ -1,18 +1,18 @@
 "use client";
 
 import type { ProjectOutput } from "@loftlancer/api/types";
-import type { ReactNode } from "react";
-import {
-  StatusBadge,
-  VisibilityBadge,
-} from "@/components/patterns/status-badge";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@/components/ui/card";
+} from "@loftlancer/ui/card";
+import type { ReactNode } from "react";
+import {
+  StatusBadge,
+  VisibilityBadge,
+} from "@/components/patterns/status-badge";
 import { formatDateTime } from "@/lib/format";
 
 interface ProjectDetailMetadataProps {

@@ -1,7 +1,6 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@loftlancer/ui/button";
 import {
   Empty,
   EmptyContent,
@@ -9,7 +8,8 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty";
+} from "@loftlancer/ui/empty";
+import { AlertTriangle } from "lucide-react";
 import { getClientErrorMessage } from "@/lib/errors/client-errors";
 
 interface ErrorStateProps {

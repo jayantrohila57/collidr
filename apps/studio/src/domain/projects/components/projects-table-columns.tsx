@@ -1,6 +1,13 @@
 "use client";
 
 import type { ProjectOutput } from "@loftlancer/api/types";
+import { Avatar, AvatarFallback } from "@loftlancer/ui/avatar";
+import { Button } from "@loftlancer/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@loftlancer/ui/tooltip";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import type { Route } from "next";
 import Link from "next/link";
@@ -11,13 +18,6 @@ import { AppIcon } from "@/components/patterns/app-icon";
 import { StatusBadge } from "@/components/patterns/status-badge";
 import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
 import { VisibilityBadge } from "@/components/patterns/visibility-badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { formatDate } from "@/lib/format";
 import { initialsFromLabel } from "@/lib/initials";
 import { prefetchProjectDetail } from "@/lib/prefetch-project-detail";

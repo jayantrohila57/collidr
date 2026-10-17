@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "./utils";
 
 /** Grid placement for description headers — avoid md:col-start-2 without a back column. */
 export function pageHeaderDescriptionGridTitleClass(hasBack: boolean) {

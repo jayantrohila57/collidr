@@ -1,5 +1,7 @@
 "use client";
 
+import { Badge } from "@loftlancer/ui/badge";
+import { Button } from "@loftlancer/ui/button";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DataTable } from "@/components/data-table/data-table";
@@ -11,8 +13,6 @@ import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { ProvenanceAttribution } from "@/components/patterns/provenance-attribution";
 import { SecretValue } from "@/components/patterns/secret-value";
 import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { looksLikeDotenv } from "@/lib/dotenv";
 import { CheckIcon } from "@/lib/icons";
 import { toast } from "@/lib/toast";

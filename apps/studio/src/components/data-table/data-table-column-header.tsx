@@ -1,9 +1,9 @@
 "use client";
 
+import { Button } from "@loftlancer/ui/button";
 import type { RowData } from "@tanstack/react-table";
 import type { LegacyColumn } from "@tanstack/react-table/legacy";
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface DataTableColumnHeaderProps<TData extends RowData, TValue = unknown> {
   column: LegacyColumn<TData, TValue>;

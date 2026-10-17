@@ -1,6 +1,14 @@
 "use client";
 
 import type { ProjectOutput } from "@loftlancer/api/types";
+import { Avatar, AvatarFallback } from "@loftlancer/ui/avatar";
+import { Button } from "@loftlancer/ui/button";
+import { Card, CardHeader, CardPanel } from "@loftlancer/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@loftlancer/ui/tooltip";
 import type { Route } from "next";
 import Link from "next/link";
 import { AppIcon } from "@/components/patterns/app-icon";
@@ -8,14 +16,6 @@ import {
   StatusBadge,
   VisibilityBadge,
 } from "@/components/patterns/status-badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardPanel } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { formatDate } from "@/lib/format";
 import { initialsFromLabel } from "@/lib/initials";
 import { prefetchProjectDetail } from "@/lib/prefetch-project-detail";

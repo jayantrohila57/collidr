@@ -1,7 +1,7 @@
 "use client";
 
+import { Button } from "@loftlancer/ui/button";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { Button } from "@/components/ui/button";
 
 type DataTableClearFiltersButtonProps = {
   onClick: () => void;

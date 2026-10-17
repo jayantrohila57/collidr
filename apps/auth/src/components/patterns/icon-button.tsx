@@ -1,14 +1,14 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@loftlancer/ui/button";
+import { Spinner } from "@loftlancer/ui/spinner";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@loftlancer/ui/tooltip";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface IconButtonProps

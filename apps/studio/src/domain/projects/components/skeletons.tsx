@@ -1,10 +1,10 @@
 "use client";
 
 import type { ProjectOutput } from "@loftlancer/api/types";
+import { Separator } from "@loftlancer/ui/separator";
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import { DataTable } from "@/components/data-table/data-table";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const columnHelper = legacyCreateColumnHelper<ProjectOutput>();
 const skeletonColumns = [

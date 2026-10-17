@@ -1,5 +1,5 @@
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { SettingsPanel } from "@/components/patterns/settings-layout";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export function SettingsPageSkeleton() {
   return (

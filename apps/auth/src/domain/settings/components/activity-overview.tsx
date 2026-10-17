@@ -5,9 +5,9 @@ import {
   computeStreaks,
   StatChip,
 } from "@loftlancer/ui/patterns/settings-frame";
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
 import { trpc } from "@/utils/trpc";
 

@@ -1,24 +1,24 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
-import { ListFilter } from "lucide-react";
-import type { ReactNode } from "react";
-import { useMemo, useState } from "react";
-import { AppIcon } from "@/components/patterns/app-icon";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@loftlancer/ui/badge";
+import { Button } from "@loftlancer/ui/button";
+import { Checkbox } from "@loftlancer/ui/checkbox";
 import {
   Combobox,
   ComboboxInput,
   ComboboxPopup,
   ComboboxTrigger,
-} from "@/components/ui/combobox";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { selectTriggerVariants } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
+} from "@loftlancer/ui/combobox";
+import { ScrollArea } from "@loftlancer/ui/scroll-area";
+import { selectTriggerVariants } from "@loftlancer/ui/select";
+import { Separator } from "@loftlancer/ui/separator";
+import { Skeleton } from "@loftlancer/ui/skeleton";
+import { Spinner } from "@loftlancer/ui/spinner";
+import type { LucideIcon } from "lucide-react";
+import { ListFilter } from "lucide-react";
+import type { ReactNode } from "react";
+import { useMemo, useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import type { AppIconName } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import { formatDataTableFilterLabel } from "./data-table-filter-labels";

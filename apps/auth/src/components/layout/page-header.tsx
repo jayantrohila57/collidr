@@ -4,10 +4,11 @@ import type { Route } from "next";
 import { usePathname } from "next/navigation";
 
 const SETTINGS_ROUTE = "/settings" as Route;
+
+import { Separator } from "@loftlancer/ui/separator";
 import type { ReactNode } from "react";
 import { PageBackButton } from "@/components/layout/page-back-button";
 import { PageHeaderDescription } from "@/components/layout/page-header-description";
-import { Separator } from "@/components/ui/separator";
 import {
   layoutGapClass,
   layoutPageHeaderRowClass,

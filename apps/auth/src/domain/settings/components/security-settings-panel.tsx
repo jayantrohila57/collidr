@@ -1,12 +1,12 @@
 "use client";
 
+import { Button } from "@loftlancer/ui/button";
 import type { Route } from "next";
 import Link from "next/link";
 import {
   SettingsPanel,
   SettingsRow,
 } from "@/components/patterns/settings-layout";
-import { Button } from "@/components/ui/button";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { sessionDeviceLabel } from "@/lib/session-device";
 

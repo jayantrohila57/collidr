@@ -1,9 +1,9 @@
 "use client";
 
+import { Card, CardPanel } from "@loftlancer/ui/card";
 import type { Route } from "next";
 import Link from "next/link";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { Card, CardPanel } from "@/components/ui/card";
 import type { AppIconName } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 

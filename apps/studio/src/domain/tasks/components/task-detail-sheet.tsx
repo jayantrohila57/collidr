@@ -1,13 +1,9 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
-import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@loftlancer/ui/avatar";
+import { Button } from "@loftlancer/ui/button";
+import { Input } from "@loftlancer/ui/input";
+import { Label } from "@loftlancer/ui/label";
 import {
   Sheet,
   SheetDescription,
@@ -15,9 +11,13 @@ import {
   SheetPanel,
   SheetPopup,
   SheetTitle,
-} from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
+} from "@loftlancer/ui/sheet";
+import { Skeleton } from "@loftlancer/ui/skeleton";
+import { Textarea } from "@loftlancer/ui/textarea";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
+import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { actionToast } from "@/lib/action-toast";
 import { initialsFromLabel } from "@/lib/initials";

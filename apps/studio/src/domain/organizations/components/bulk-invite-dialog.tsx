@@ -1,14 +1,7 @@
 "use client";
 
-import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
-
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AppIcon } from "@/components/patterns/app-icon";
-import { GuardedDialog } from "@/components/patterns/guarded-dialog";
-import { SubmitButton } from "@/components/patterns/submit-button";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@loftlancer/ui/badge";
+import { Button } from "@loftlancer/ui/button";
 import {
   DialogClose,
   DialogDescription,
@@ -17,9 +10,15 @@ import {
   DialogPanel,
   DialogPopup,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+} from "@loftlancer/ui/dialog";
+import { Label } from "@loftlancer/ui/label";
+import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
+import { Textarea } from "@loftlancer/ui/textarea";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
+import { GuardedDialog } from "@/components/patterns/guarded-dialog";
+import { SubmitButton } from "@/components/patterns/submit-button";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
 import { authClient } from "@/lib/auth-client";

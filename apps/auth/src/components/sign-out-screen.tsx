@@ -1,7 +1,7 @@
 "use client";
 
-import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
 import { validateReturnTo } from "@loftlancer/auth/return-to";
+import { Alert, AlertDescription } from "@loftlancer/ui/alert";
 import { Button } from "@loftlancer/ui/button";
 import {
   Card,
@@ -10,9 +10,9 @@ import {
   CardPanel,
   CardTitle,
 } from "@loftlancer/ui/card";
+import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { authClient } from "@/lib/auth-client";
 
 export function SignOutScreen() {

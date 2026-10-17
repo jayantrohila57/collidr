@@ -1,4 +1,4 @@
-import { toastManager } from "@/components/ui/toast";
+import { toastManager } from "@loftlancer/ui/toast";
 import { isBenignClientError } from "@/lib/errors/client-errors";
 
 type ToastType = "error" | "info" | "loading" | "success" | "warning";

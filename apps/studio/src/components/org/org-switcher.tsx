@@ -1,19 +1,18 @@
 "use client";
 
+import { Avatar, AvatarFallback } from "@loftlancer/ui/avatar";
 import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
-
-import { Building2, ChevronsUpDown, Plus, Settings } from "lucide-react";
-import Link from "next/link";
-import type { OrgListItem } from "@/components/org/active-organization-context";
-import { useActiveOrganization } from "@/components/org/active-organization-context";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@loftlancer/ui/sidebar";
+import { Skeleton } from "@loftlancer/ui/skeleton";
+import { Building2, ChevronsUpDown, Plus, Settings } from "lucide-react";
+import Link from "next/link";
+import type { OrgListItem } from "@/components/org/active-organization-context";
+import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { actionToast } from "@/lib/action-toast";
 import { initialsFromLabel } from "@/lib/initials";
 import { isPersonalOrganization } from "@/lib/org-personal";

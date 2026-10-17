@@ -1,15 +1,15 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { AppIcon } from "@/components/patterns/app-icon";
-import { HorizontalScrollRail } from "@/components/patterns/horizontal-scroll-rail";
 import {
   Tabs,
   TabsList,
   TabsPanel,
   type TabsPrimitive,
   TabsTab,
-} from "@/components/ui/tabs";
+} from "@loftlancer/ui/tabs";
+import type { ReactNode } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
+import { HorizontalScrollRail } from "@/components/patterns/horizontal-scroll-rail";
 import { useIsMobile } from "@/hooks/use-media-query";
 import type { AppIconName } from "@/lib/icons";
 import { iconMutedClassName } from "@/lib/icons";

@@ -1,14 +1,14 @@
 "use client";
 
+import { Badge } from "@loftlancer/ui/badge";
+import { Button } from "@loftlancer/ui/button";
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { EmptyState } from "@/components/patterns/empty-state";
 import DashboardSection from "@/components/section-dashboard";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useProjectTabs } from "@/domain/projects/hooks/use-project-tabs";
 import { FieldSelect } from "@/domain/tasks/components/field-select";
 import { actionToast } from "@/lib/action-toast";

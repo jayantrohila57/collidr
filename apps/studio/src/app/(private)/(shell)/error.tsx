@@ -1,9 +1,9 @@
 "use client";
 
+import { Button } from "@loftlancer/ui/button";
 import { AlertTriangle } from "lucide-react";
 import { useEffect } from "react";
 import { PageStatusEmpty } from "@/components/layout/page-state";
-import { Button } from "@/components/ui/button";
 import { getClientErrorMessage } from "@/lib/errors/client-errors";
 
 export default function DashboardError({

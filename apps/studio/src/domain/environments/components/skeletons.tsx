@@ -1,16 +1,16 @@
 "use client";
 
-import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
-import type { ReactNode } from "react";
-import { DataTable } from "@/components/data-table/data-table";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@loftlancer/ui/card";
+import { Skeleton } from "@loftlancer/ui/skeleton";
+import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
+import type { ReactNode } from "react";
+import { DataTable } from "@/components/data-table/data-table";
 
 type VariableSkeletonRow = { id: string };
 

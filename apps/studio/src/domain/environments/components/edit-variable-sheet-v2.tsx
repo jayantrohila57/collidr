@@ -1,6 +1,11 @@
 "use client";
 
 import { variableKeySchema } from "@loftlancer/api/validation";
+import { Button } from "@loftlancer/ui/button";
+import { Input } from "@loftlancer/ui/input";
+import { SheetClose, SheetDescription } from "@loftlancer/ui/sheet";
+import { Skeleton } from "@loftlancer/ui/skeleton";
+import { Textarea } from "@loftlancer/ui/textarea";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FormField } from "@/components/patterns/form-field";
 import {
@@ -15,11 +20,6 @@ import type { ProvenanceUser } from "@/components/patterns/provenance-attributio
 import { ProvenanceDetail } from "@/components/patterns/provenance-attribution";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { SubmitButton } from "@/components/patterns/submit-button";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { SheetClose, SheetDescription } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
 import {
   type VariableType,
   VariableTypeSegmented,

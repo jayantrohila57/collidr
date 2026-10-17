@@ -1,10 +1,8 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@loftlancer/ui/button";
+import { Input } from "@loftlancer/ui/input";
+import { Label } from "@loftlancer/ui/label";
 import {
   Sheet,
   SheetDescription,
@@ -13,8 +11,10 @@ import {
   SheetPanel,
   SheetPopup,
   SheetTitle,
-} from "@/components/ui/sheet";
-import { Textarea } from "@/components/ui/textarea";
+} from "@loftlancer/ui/sheet";
+import { Textarea } from "@loftlancer/ui/textarea";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { actionToast } from "@/lib/action-toast";
 import { trpc } from "@/utils/trpc";
 import {

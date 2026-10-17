@@ -1,7 +1,7 @@
 "use client";
 
+import { Button } from "@loftlancer/ui/button";
 import { useMutation } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
 import { Can } from "@/domain/permissions/components/can";
 import { accountSettingsActions } from "@/domain/permissions/org-section-actions";
 import { trpc } from "@/utils/trpc";

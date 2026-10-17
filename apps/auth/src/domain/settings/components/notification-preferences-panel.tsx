@@ -1,14 +1,14 @@
 "use client";
 
-import { routes } from "@loftlancer/ui/studio-routes";
-import { Button } from "@/components/ui/button";
+import { Button } from "@loftlancer/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardPanel,
   CardTitle,
-} from "@/components/ui/card";
+} from "@loftlancer/ui/card";
+import { routes } from "@loftlancer/ui/studio-routes";
 import { studioDashboardPath } from "@/lib/studio-url";
 
 export function NotificationPreferencesPanel() {

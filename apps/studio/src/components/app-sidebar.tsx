@@ -8,6 +8,20 @@ import {
   SidebarSearch,
   SidebarUserMenu,
 } from "@loftlancer/ui/patterns/sidebar-kit";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+  SidebarSeparator,
+} from "@loftlancer/ui/sidebar";
 import type { LucideIcon } from "lucide-react";
 import {
   ActivityIcon,
@@ -22,20 +36,6 @@ import { useActiveOrganization } from "@/components/org/active-organization-cont
 import { OrgSwitcher } from "@/components/org/org-switcher";
 import { useSidebarNavigator } from "@/components/sidebar/use-sidebar-navigator";
 import { SidebarProjectsGroup } from "@/components/sidebar-projects-group";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarRail,
-  SidebarSeparator,
-} from "@/components/ui/sidebar";
 import { useUserMenuProps } from "@/domain/auth/components/user-menu";
 import { useNotificationsUnreadCount } from "@/domain/notifications/hooks/use-notifications";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";

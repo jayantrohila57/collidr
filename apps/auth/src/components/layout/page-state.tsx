@@ -1,5 +1,3 @@
-import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
 import {
   Empty,
   EmptyContent,
@@ -7,8 +5,10 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty";
-import { Frame, FramePanel } from "@/components/ui/frame";
+} from "@loftlancer/ui/empty";
+import { Frame, FramePanel } from "@loftlancer/ui/frame";
+import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { layoutContentClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 

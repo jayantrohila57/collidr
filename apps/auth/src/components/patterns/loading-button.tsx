@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, type ButtonProps } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@loftlancer/ui/button";
 import { cn } from "@/lib/utils";
 
 export interface LoadingButtonProps extends ButtonProps {
@@ -17,7 +17,6 @@ export function LoadingButton({
   className,
   ...props
 }: LoadingButtonProps) {
-
   return (
     <Button
       loading={loading}

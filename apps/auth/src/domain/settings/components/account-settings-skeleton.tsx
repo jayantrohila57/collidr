@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@loftlancer/ui/skeleton";
 
 export function AccountSettingsSkeleton() {
   return (

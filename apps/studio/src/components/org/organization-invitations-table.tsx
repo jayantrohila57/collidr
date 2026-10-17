@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@loftlancer/ui/button";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import type { DataTableColumnDef } from "@/components/data-table/data-table";
 import { DataTable } from "@/components/data-table/data-table";
@@ -10,7 +11,6 @@ import {
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import type { DataTableEmptyConfig } from "@/components/data-table/data-table-empty-types";
 import { RoleBadge, StatusBadge } from "@/components/patterns/status-badge";
-import { Button } from "@/components/ui/button";
 import { Can } from "@/domain/permissions/components/can";
 import { formatDateTime } from "@/lib/format";
 import {

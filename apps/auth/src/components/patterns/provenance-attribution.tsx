@@ -1,7 +1,7 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@loftlancer/ui/avatar";
 import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 export type ProvenanceUser = {

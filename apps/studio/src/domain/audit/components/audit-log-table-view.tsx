@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@loftlancer/ui/button";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import type { ReactNode } from "react";
 import { DataTable } from "@/components/data-table/data-table";
@@ -10,7 +11,6 @@ import {
   AuditActionBadge,
   AuditEntityBadge,
 } from "@/components/patterns/status-badge";
-import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/format";
 
 interface AuditLog {
