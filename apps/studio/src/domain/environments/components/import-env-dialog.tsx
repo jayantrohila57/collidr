@@ -8,13 +8,13 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogPrimitive,
   DialogTitle,
 } from "@loftlancer/ui/dialog";
 import { Label } from "@loftlancer/ui/label";
 import { Textarea } from "@loftlancer/ui/textarea";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
+import { GuardedDialog } from "@/components/patterns/guarded-dialog";
 import { parseDotenv } from "@/lib/dotenv";
 
 /**
@@ -40,6 +40,7 @@ export function ImportEnvDialog({
   }) => Promise<unknown>;
   isPending: boolean;
 }) {
+  const closeWithoutPromptRef = useRef<(() => void) | null>(null);
   const [text, setText] = useState(initialText);
   const [overwrite, setOverwrite] = useState(false);
   const [lastInitial, setLastInitial] = useState(initialText);
@@ -61,14 +62,29 @@ export function ImportEnvDialog({
     return { create, update, skip };
   }, [entries, existingKeys, overwrite]);
 
-  const submit = async () => {
-    await onImport({ variables: entries, overwrite });
-    onOpenChange(false);
+  const resetDraft = () => {
     setText("");
+    setOverwrite(false);
   };
 
+  const submit = async () => {
+    await onImport({ variables: entries, overwrite });
+    closeWithoutPromptRef.current?.();
+    onOpenChange(false);
+    resetDraft();
+  };
+
+  const isDirty = text.trim().length > 0;
+
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+    <GuardedDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      isDirty={isDirty}
+      onDiscard={resetDraft}
+      onClosed={resetDraft}
+      closeWithoutPromptRef={closeWithoutPromptRef}
+    >
       <DialogContent className="sm:max-w-xl" data-testid="import-env-dialog">
         <DialogHeader>
           <DialogTitle>Import .env</DialogTitle>
@@ -154,6 +170,6 @@ export function ImportEnvDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
-    </DialogPrimitive.Root>
+    </GuardedDialog>
   );
 }

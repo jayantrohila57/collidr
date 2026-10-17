@@ -74,12 +74,12 @@ import {
 import {
   cancelOrganizationInvitation,
   type OrganizationInvitationRow,
-  parseOrganizationInvitations,
   pendingOrganizationInvitations,
   resendOrganizationInvitation,
 } from "@/lib/organization-invitations";
 import { toast } from "@/lib/toast";
 import { routes } from "@/utils/navigation";
+import { trpc } from "@/utils/trpc";
 import { BulkInviteDialog } from "./bulk-invite-dialog";
 
 type MemberRow = {
@@ -87,6 +87,9 @@ type MemberRow = {
   role: string;
   user: { name: string; email: string; id?: string };
 };
+
+/** Matches `organizations.listInvitations` max page size and Invitations route. */
+const PENDING_INVITATIONS_LIMIT = 200;
 
 const ROLES = ["member", "manager", "owner"] as const;
 
@@ -260,30 +263,34 @@ export function OrganizationSettingsForm({
     applyActiveTab(tab);
   };
 
-  const loadOrganization = useCallback(async (targetOrgId: string) => {
-    const org = await authClient.organization.getFullOrganization({
-      query: { organizationId: targetOrgId },
-    });
-    if (!org.data || org.data.id !== targetOrgId) {
-      throw new Error("Organization not found");
-    }
-    setOrgName(org.data.name);
-    setOrgSlug(org.data.slug);
-    setInitialSlug(org.data.slug);
-    setOrgMetadata(org.data.metadata ?? null);
-    const list = await authClient.organization.listMembers({
-      query: { organizationId: targetOrgId, limit: MEMBER_PAGE_LIMIT },
-    });
-    setMembers((list.data?.members ?? []) as MemberRow[]);
-    const embeddedInvites = parseOrganizationInvitations(
-      (org.data as { invitations?: unknown }).invitations,
-    );
-    const inviteList = await authClient.organization.listInvitations({
-      query: { organizationId: targetOrgId },
-    });
-    const listedInvites = parseOrganizationInvitations(inviteList.data);
-    setInvitations(listedInvites.length > 0 ? listedInvites : embeddedInvites);
-  }, []);
+  const loadOrganization = useCallback(
+    async (targetOrgId: string) => {
+      const org = await authClient.organization.getFullOrganization({
+        query: { organizationId: targetOrgId },
+      });
+      if (!org.data || org.data.id !== targetOrgId) {
+        throw new Error("Organization not found");
+      }
+      setOrgName(org.data.name);
+      setOrgSlug(org.data.slug);
+      setInitialSlug(org.data.slug);
+      setOrgMetadata(org.data.metadata ?? null);
+      const list = await authClient.organization.listMembers({
+        query: { organizationId: targetOrgId, limit: MEMBER_PAGE_LIMIT },
+      });
+      setMembers((list.data?.members ?? []) as MemberRow[]);
+      const inviteData = await queryClient.fetchQuery(
+        trpc.organizations.listInvitations.queryOptions({
+          organizationId: targetOrgId,
+          status: "pending",
+          limit: PENDING_INVITATIONS_LIMIT,
+          offset: 0,
+        }),
+      );
+      setInvitations((inviteData.rows ?? []) as OrganizationInvitationRow[]);
+    },
+    [queryClient],
+  );
 
   useEffect(() => {
     let cancelled = false;

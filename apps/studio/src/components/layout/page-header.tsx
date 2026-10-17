@@ -1,11 +1,17 @@
 "use client";
 
 import {
+  pageHeaderDescriptionGridClass,
   pageHeaderMetaRowClass,
   pageHeaderRootClass,
   pageHeaderTabsRowClass,
   pageHeaderTopRowClass,
 } from "@loftlancer/ui/page-header-classes";
+import {
+  pageHeaderDescriptionGridActionClass,
+  pageHeaderDescriptionGridDescClass,
+  pageHeaderDescriptionGridTitleClass,
+} from "@loftlancer/ui/page-header-grid-classes";
 import {
   PageHeaderLayout,
   PageHeaderTabsRow,
@@ -21,6 +27,7 @@ import {
   getPageBackHref,
   type PageBackHref,
 } from "@/lib/page-back";
+import { cn } from "@/lib/utils";
 
 /**
  * Back is always rendered. `false` and `"auto"` both resolve to the logical
@@ -80,7 +87,6 @@ function resolveBack(
 
 const rootClass = pageHeaderRootClass;
 const topRowClass = pageHeaderTopRowClass;
-const metaRowClass = pageHeaderMetaRowClass;
 const tabsRowClass = pageHeaderTabsRowClass;
 
 export function PageHeaderTabs({
@@ -153,6 +159,81 @@ export function PageHeader({
   );
 }
 
+function PageHeaderSkeletonTopRow({
+  withDescription,
+  withAction,
+}: {
+  withDescription: boolean;
+  withAction: boolean;
+}) {
+  const backSkeleton = (
+    <Skeleton className="size-8 shrink-0 self-center rounded-md [grid-area:leading] md:self-start" />
+  );
+  const titleSkeleton = (
+    <div
+      className={cn(
+        "flex h-8 min-w-0 items-center",
+        withDescription && pageHeaderDescriptionGridTitleClass(true),
+      )}
+    >
+      <Skeleton className="h-5 w-40" />
+    </div>
+  );
+  const actionSkeleton = withAction ? (
+    <Skeleton
+      className={cn(
+        "h-8 w-28 shrink-0 rounded-md",
+        withDescription && pageHeaderDescriptionGridActionClass(true),
+      )}
+    />
+  ) : null;
+
+  if (!withDescription) {
+    return (
+      <div className={topRowClass}>
+        <Skeleton className="size-8 shrink-0 rounded-md" />
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          {titleSkeleton}
+        </div>
+        {actionSkeleton}
+      </div>
+    );
+  }
+
+  const mobileCols = withAction
+    ? "grid-cols-[auto_minmax(0,1fr)_auto]"
+    : "grid-cols-[auto_minmax(0,1fr)]";
+  const mobileAreas = withAction
+    ? "[grid-template-areas:'leading_title_action'_'desc_desc_desc']"
+    : "[grid-template-areas:'leading_title_title'_'desc_desc_desc']";
+  const desktopAreas = withAction
+    ? "md:[grid-template-areas:'leading_title_action'_'leading_desc_desc']"
+    : "md:[grid-template-areas:'leading_title_title'_'leading_desc_desc']";
+
+  return (
+    <div
+      className={cn(
+        pageHeaderDescriptionGridClass,
+        mobileCols,
+        mobileAreas,
+        desktopAreas,
+        "md:grid-cols-[auto_minmax(0,1fr)_auto]",
+      )}
+    >
+      {backSkeleton}
+      {titleSkeleton}
+      {withAction ? (
+        actionSkeleton
+      ) : (
+        <div className="hidden [grid-area:action]" aria-hidden />
+      )}
+      <div className={pageHeaderDescriptionGridDescClass(true)}>
+        <Skeleton className="h-4 w-64 max-w-full" />
+      </div>
+    </div>
+  );
+}
+
 /** Same footprint as {@link PageHeader} while data loads. */
 export function PageHeaderSkeleton({
   withDescription = true,
@@ -165,23 +246,11 @@ export function PageHeaderSkeleton({
 }) {
   return (
     <div className={rootClass} aria-hidden data-slot="page-header-skeleton">
-      <div className={topRowClass}>
-        <Skeleton className="size-8 shrink-0 rounded-md" />
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <div className="flex h-8 items-center">
-            <Skeleton className="h-5 w-40" />
-          </div>
-          {withDescription ? (
-            <div className="flex h-4 items-center">
-              <Skeleton className="h-3 w-64 max-w-full" />
-            </div>
-          ) : null}
-        </div>
-        {withAction ? (
-          <Skeleton className="h-8 w-28 shrink-0 rounded-md" />
-        ) : null}
-      </div>
-      <div className={metaRowClass}>
+      <PageHeaderSkeletonTopRow
+        withDescription={withDescription}
+        withAction={withAction}
+      />
+      <div className={pageHeaderMetaRowClass(true)}>
         <Skeleton className="h-3 w-32" />
       </div>
       <div className={tabsRowClass}>
