@@ -21,3 +21,11 @@ export function dataTableFilterOptionLabel(
   if (explicitLabel?.trim()) return explicitLabel.trim();
   return formatDataTableFilterLabel(value);
 }
+
+export function dataTableFilterSelectDisplayLabel(
+  value: string,
+  explicitLabel?: string,
+  suffix?: string,
+): string {
+  return `${dataTableFilterOptionLabel(value, explicitLabel)}${suffix ?? ""}`;
+}

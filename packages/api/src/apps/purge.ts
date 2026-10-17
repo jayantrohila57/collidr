@@ -1,16 +1,11 @@
-import { db } from "@loftlancer/db";
-import { projectApp, task } from "@loftlancer/db/schema/project-app";
-import {
-  environment,
-  environmentVariable,
-} from "@loftlancer/db/schema/projects";
-import { and, eq, inArray, isNotNull, lte } from "drizzle-orm";
-
 /**
  * Apps retention purge (#257). Uninstalled apps keep their data for 30 days
  * (`purge_after`); after that this hard-deletes the app's data for that
  * project and marks the install row `purged`. Idempotent: a purged row is
  * never selected again, and every delete is scoped to one project.
+ *
+ * DB-backed deps live in `./purge-db` so unit tests can import this module
+ * without initializing `@loftlancer/db`.
  */
 export type PurgeCandidate = {
   id: string;
@@ -53,62 +48,3 @@ export async function purgeExpiredApps(
   }
   return { checked: due.length, purged };
 }
-
-async function deleteAppData(
-  appId: string,
-  projectId: string,
-): Promise<number> {
-  if (appId === "tasks") {
-    // task_comment rows cascade from task.
-    const res = await db
-      .delete(task)
-      .where(eq(task.projectId, projectId))
-      .returning({ id: task.id });
-    return res.length;
-  }
-  if (appId === "env") {
-    const envs = await db
-      .select({ id: environment.id })
-      .from(environment)
-      .where(eq(environment.projectId, projectId));
-    const ids = envs.map((e) => e.id);
-    if (ids.length === 0) return 0;
-    const vars = await db
-      .delete(environmentVariable)
-      .where(inArray(environmentVariable.environmentId, ids))
-      .returning({ id: environmentVariable.id });
-    await db.delete(environment).where(inArray(environment.id, ids));
-    return vars.length + ids.length;
-  }
-  return 0;
-}
-
-export const dbPurgeDeps: PurgeDeps = {
-  listCandidates: (now, limit) =>
-    db
-      .select({
-        id: projectApp.id,
-        appId: projectApp.appId,
-        projectId: projectApp.projectId,
-        status: projectApp.status,
-        purgeAfter: projectApp.purgeAfter,
-      })
-      .from(projectApp)
-      .where(
-        and(
-          eq(projectApp.status, "uninstalled"),
-          isNotNull(projectApp.purgeAfter),
-          lte(projectApp.purgeAfter, now),
-        ),
-      )
-      .limit(limit),
-  deleteAppData,
-  markPurged: async (id, now) => {
-    const res = await db
-      .update(projectApp)
-      .set({ status: "purged", settings: {}, updatedAt: now })
-      .where(and(eq(projectApp.id, id), eq(projectApp.status, "uninstalled")))
-      .returning({ id: projectApp.id });
-    return res.length > 0;
-  },
-};
