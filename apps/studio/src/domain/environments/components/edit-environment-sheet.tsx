@@ -2,6 +2,7 @@
 
 import { Button } from "@loftlancer/ui/button";
 import { Input } from "@loftlancer/ui/input";
+import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
 import { SheetClose, SheetDescription } from "@loftlancer/ui/sheet";
 import {
   Tooltip,
@@ -22,7 +23,6 @@ import { GuardedSheet } from "@/components/patterns/guarded-sheet";
 import type { ProvenanceUser } from "@/components/patterns/provenance-attribution";
 import { ProvenanceDetail } from "@/components/patterns/provenance-attribution";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
-import { SubmitButton } from "@/components/patterns/submit-button";
 import { isVariablesV2EnabledOnClient } from "@/lib/variables-v2-enabled";
 
 interface Environment {

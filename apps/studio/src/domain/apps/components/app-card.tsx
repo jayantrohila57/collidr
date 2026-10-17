@@ -2,9 +2,9 @@
 
 import { Badge } from "@loftlancer/ui/badge";
 import { Button } from "@loftlancer/ui/button";
+import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
 import Link from "next/link";
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { routes } from "@/utils/navigation";
 import { useOrgSlug } from "@/utils/use-route-scope";
 import type { ProjectAppItem } from "../hooks/use-project-apps";

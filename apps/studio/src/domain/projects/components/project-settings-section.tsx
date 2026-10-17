@@ -1,11 +1,11 @@
 "use client";
 
 import type { ProjectOutput } from "@loftlancer/api/types";
+import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
+import { LoadingButton } from "@loftlancer/ui/patterns/loading-button";
 import { Tabs, TabsList, TabsTab } from "@loftlancer/ui/tabs";
 import { useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
-import { LoadingButton } from "@/components/patterns/loading-button";
 import {
   SettingsPanel,
   SettingsRow,

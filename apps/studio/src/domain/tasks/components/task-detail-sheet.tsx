@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@loftlancer/ui/avatar";
 import { Button } from "@loftlancer/ui/button";
 import { Input } from "@loftlancer/ui/input";
 import { Label } from "@loftlancer/ui/label";
+import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
 import {
   Sheet,
   SheetDescription,
@@ -17,7 +18,6 @@ import { Textarea } from "@loftlancer/ui/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
-import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { actionToast } from "@/lib/action-toast";
 import { initialsFromLabel } from "@/lib/initials";

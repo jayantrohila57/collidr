@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@loftlancer/ui/button";
-import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@loftlancer/ui/menu";
-import { headerIconButtonClassName } from "@loftlancer/ui/utils";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { Button } from "../components/ui/button";
+import { Menu, MenuItem, MenuPopup, MenuTrigger } from "../components/ui/menu";
+import { headerIconButtonClassName } from "../lib/utils";
 
 type ModeToggleProps = {
   /** Matches dashboard chrome (`size-8` icon buttons). */

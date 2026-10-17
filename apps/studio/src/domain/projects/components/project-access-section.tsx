@@ -5,7 +5,9 @@ import type { ProjectOutput } from "@loftlancer/api/types";
 import { Button } from "@loftlancer/ui/button";
 import { Checkbox } from "@loftlancer/ui/checkbox";
 import { Label } from "@loftlancer/ui/label";
+import { LoadingButton } from "@loftlancer/ui/patterns/loading-button";
 import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
+import { SettingsPanelSkeleton } from "@loftlancer/ui/patterns/settings-panel-skeleton";
 import {
   Table,
   TableBody,
@@ -17,13 +19,11 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
-import { LoadingButton } from "@/components/patterns/loading-button";
 import {
   SettingsPanel,
   SettingsRow,
   SettingsSectionHeader,
 } from "@/components/patterns/settings-layout";
-import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { Can } from "@/domain/permissions/components/can";
 import { formatActionLabel } from "@/lib/format-action-label";
 import { toast } from "@/lib/toast";

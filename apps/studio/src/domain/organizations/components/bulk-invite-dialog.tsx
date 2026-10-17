@@ -13,12 +13,12 @@ import {
 } from "@loftlancer/ui/dialog";
 import { Label } from "@loftlancer/ui/label";
 import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
+import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
 import { Textarea } from "@loftlancer/ui/textarea";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { GuardedDialog } from "@/components/patterns/guarded-dialog";
-import { SubmitButton } from "@/components/patterns/submit-button";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
 import { authClient } from "@/lib/auth-client";

@@ -2,12 +2,12 @@
 
 import { Badge } from "@loftlancer/ui/badge";
 import { Button } from "@loftlancer/ui/button";
+import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
 import { EmptyState } from "@loftlancer/ui/patterns/empty-state";
 import { Skeleton } from "@loftlancer/ui/skeleton";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import DashboardSection from "@/components/section-dashboard";
 import { useProjectTabs } from "@/domain/projects/hooks/use-project-tabs";
 import { FieldSelect } from "@/domain/tasks/components/field-select";

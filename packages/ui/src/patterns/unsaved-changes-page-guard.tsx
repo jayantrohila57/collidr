@@ -1,11 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { DiscardChangesDialog } from "@/components/patterns/discard-changes-dialog";
 import {
   type UseUnsavedChangesGuardOptions,
   useUnsavedChangesGuard,
-} from "@/hooks/use-unsaved-changes-guard";
+} from "../hooks/use-unsaved-changes-guard";
+import { DiscardChangesDialog } from "./discard-changes-dialog";
 
 type UnsavedChangesPageGuardProps = Pick<
   UseUnsavedChangesGuardOptions,

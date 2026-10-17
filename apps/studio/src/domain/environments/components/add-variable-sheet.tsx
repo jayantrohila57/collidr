@@ -3,6 +3,7 @@
 import { variableKeySchema } from "@loftlancer/api/validation";
 import { Button } from "@loftlancer/ui/button";
 import { Input } from "@loftlancer/ui/input";
+import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
 import { Separator } from "@loftlancer/ui/separator";
 import {
   SheetClose,
@@ -22,7 +23,6 @@ import {
 } from "@/components/patterns/form-sheet";
 import { GuardedSheet } from "@/components/patterns/guarded-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
-import { SubmitButton } from "@/components/patterns/submit-button";
 import { EnvironmentMultiSelect } from "./environment-multi-select";
 import {
   type VariableType,

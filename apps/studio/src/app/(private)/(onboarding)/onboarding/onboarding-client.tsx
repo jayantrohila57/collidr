@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { isReservedOrgSlug } from "@loftlancer/env/reserved-slugs";
 import { Button } from "@loftlancer/ui/button";
 import { Input } from "@loftlancer/ui/input";
+import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
+import { UnsavedChangesPageGuard } from "@loftlancer/ui/patterns/unsaved-changes-page-guard";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckIcon } from "lucide-react";
 import Link from "next/link";
@@ -15,8 +17,6 @@ import { useActiveOrganization } from "@/components/org/active-organization-cont
 import { OrgSlugInput } from "@/components/org/org-slug-input";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { FormField } from "@/components/patterns/form-field";
-import { SubmitButton } from "@/components/patterns/submit-button";
-import { UnsavedChangesPageGuard } from "@/components/patterns/unsaved-changes-page-guard";
 import { actionToast } from "@/lib/action-toast";
 import { authClient } from "@/lib/auth-client";
 import {

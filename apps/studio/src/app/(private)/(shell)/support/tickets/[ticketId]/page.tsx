@@ -2,12 +2,12 @@
 
 import { Badge } from "@loftlancer/ui/badge";
 import { Button } from "@loftlancer/ui/button";
+import { LoadingButton } from "@loftlancer/ui/patterns/loading-button";
 import { Textarea } from "@loftlancer/ui/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { LoadingButton } from "@/components/patterns/loading-button";
 import DashboardSection from "@/components/section-dashboard";
 import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";

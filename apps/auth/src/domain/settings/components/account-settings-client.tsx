@@ -19,6 +19,9 @@ import {
   EmptyTitle,
 } from "@loftlancer/ui/empty";
 import { Input } from "@loftlancer/ui/input";
+import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
+import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
+import { UnsavedChangesPageGuard } from "@loftlancer/ui/patterns/unsaved-changes-page-guard";
 import { Skeleton } from "@loftlancer/ui/skeleton";
 import { Spinner } from "@loftlancer/ui/spinner";
 import { routes } from "@loftlancer/ui/studio-routes";
@@ -27,7 +30,6 @@ import { KeyRoundIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
 import { ErrorState } from "@/components/patterns/error-state";
 import {
   SettingsField,
@@ -42,8 +44,6 @@ import {
   SettingsTabsPanel,
   SettingsTabsTab,
 } from "@/components/patterns/settings-tabs";
-import { SubmitButton } from "@/components/patterns/submit-button";
-import { UnsavedChangesPageGuard } from "@/components/patterns/unsaved-changes-page-guard";
 import {
   linkGithubAccount,
   listAuthSessions,

@@ -3,6 +3,7 @@
 import { Button } from "@loftlancer/ui/button";
 import { EmptyState } from "@loftlancer/ui/patterns/empty-state";
 import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
+import { SettingsPanelSkeleton } from "@loftlancer/ui/patterns/settings-panel-skeleton";
 import { SheetDescription } from "@loftlancer/ui/sheet";
 import {
   Table,
@@ -23,7 +24,6 @@ import {
   FormSheetHeader,
   FormSheetPopup,
 } from "@/components/patterns/form-sheet";
-import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { authClient, MEMBER_PAGE_LIMIT } from "@/lib/auth-client";

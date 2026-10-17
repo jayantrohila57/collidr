@@ -1,5 +1,7 @@
 "use client";
 
+import { useIsMobile } from "@loftlancer/ui/hooks/use-media-query";
+import { HorizontalScrollRail } from "@loftlancer/ui/patterns/horizontal-scroll-rail";
 import {
   Tabs,
   TabsList,
@@ -9,8 +11,6 @@ import {
 } from "@loftlancer/ui/tabs";
 import type { ReactNode } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { HorizontalScrollRail } from "@/components/patterns/horizontal-scroll-rail";
-import { useIsMobile } from "@/hooks/use-media-query";
 import type { AppIconName } from "@/lib/icons";
 import { iconMutedClassName } from "@/lib/icons";
 import { cn } from "@/lib/utils";

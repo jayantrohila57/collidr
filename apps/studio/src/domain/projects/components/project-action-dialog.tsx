@@ -1,6 +1,6 @@
 "use client";
 
-import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
+import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
 
 interface ProjectActionDialogProps {
   open: boolean;

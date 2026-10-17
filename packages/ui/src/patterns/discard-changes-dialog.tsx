@@ -8,8 +8,8 @@ import {
   AlertDialogHeader,
   AlertDialogPopup,
   AlertDialogTitle,
-} from "@loftlancer/ui/alert-dialog";
-import { Button } from "@loftlancer/ui/button";
+} from "../components/ui/alert-dialog";
+import { Button } from "../components/ui/button";
 
 interface DiscardChangesDialogProps {
   open: boolean;

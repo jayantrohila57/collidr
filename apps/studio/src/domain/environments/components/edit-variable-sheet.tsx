@@ -3,6 +3,7 @@
 import { variableKeySchema } from "@loftlancer/api/validation";
 import { Button } from "@loftlancer/ui/button";
 import { Input } from "@loftlancer/ui/input";
+import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
 import { SheetClose, SheetDescription } from "@loftlancer/ui/sheet";
 import { Skeleton } from "@loftlancer/ui/skeleton";
 import { Textarea } from "@loftlancer/ui/textarea";
@@ -19,7 +20,6 @@ import { GuardedSheet } from "@/components/patterns/guarded-sheet";
 import type { ProvenanceUser } from "@/components/patterns/provenance-attribution";
 import { ProvenanceDetail } from "@/components/patterns/provenance-attribution";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
-import { SubmitButton } from "@/components/patterns/submit-button";
 import {
   type VariableType,
   VariableTypeSegmented,

@@ -1,8 +1,8 @@
 "use client";
 
 import { AppShell } from "@loftlancer/ui/patterns/app-shell";
+import { ModeToggle } from "@loftlancer/ui/patterns/mode-toggle";
 import { AccountSettingsSidebar } from "@/components/account-settings-sidebar";
-import { ModeToggle } from "@/components/mode-toggle";
 import { SettingsBreadcrumbs } from "@/components/settings-breadcrumbs";
 import { UserMenu } from "@/domain/auth/components/user-menu";
 import { NotificationBell } from "@/domain/notifications/components/notification-bell";

@@ -88,7 +88,18 @@
     "./toast": "./src/components/ui/toast.tsx",
     "./toggle-group": "./src/components/ui/toggle-group.tsx",
     "./segmented-control": "./src/lib/segmented-control.ts",
-    "./fonts": "./src/lib/fonts.ts"
+    "./fonts": "./src/lib/fonts.ts",
+    "./patterns/discard-changes-dialog": "./src/patterns/discard-changes-dialog.tsx",
+    "./patterns/horizontal-scroll-rail": "./src/patterns/horizontal-scroll-rail.tsx",
+    "./patterns/loading-button": "./src/patterns/loading-button.tsx",
+    "./patterns/submit-button": "./src/patterns/submit-button.tsx",
+    "./patterns/settings-panel-skeleton": "./src/patterns/settings-panel-skeleton.tsx",
+    "./patterns/skip-link": "./src/patterns/skip-link.tsx",
+    "./patterns/offline-banner": "./src/patterns/offline-banner.tsx",
+    "./patterns/unsaved-changes-page-guard": "./src/patterns/unsaved-changes-page-guard.tsx",
+    "./patterns/mode-toggle": "./src/patterns/mode-toggle.tsx",
+    "./hooks/*": "./src/hooks/*.ts",
+    "./patterns/activity-overview": "./src/patterns/activity-overview.tsx"
   },
   "scripts": {
     "check-types": "tsc --noEmit",

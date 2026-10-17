@@ -6,6 +6,7 @@ import { updateProjectInput } from "@loftlancer/api/validation";
 import { Button } from "@loftlancer/ui/button";
 import { Input } from "@loftlancer/ui/input";
 import { Label } from "@loftlancer/ui/label";
+import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
 import { SheetClose, SheetDescription } from "@loftlancer/ui/sheet";
 import { Switch } from "@loftlancer/ui/switch";
 import { Textarea } from "@loftlancer/ui/textarea";
@@ -21,7 +22,6 @@ import {
   FormSheetPopup,
 } from "@/components/patterns/form-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
-import { SubmitButton } from "@/components/patterns/submit-button";
 import { useProjects } from "../hooks/use-projects";
 
 interface EditProjectSheetProps {

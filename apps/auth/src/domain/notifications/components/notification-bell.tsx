@@ -9,11 +9,11 @@ import {
   MenuTrigger,
 } from "@loftlancer/ui/menu";
 import { CountBadge } from "@loftlancer/ui/patterns/count-badge";
+import { LoadingButton } from "@loftlancer/ui/patterns/loading-button";
 import { Skeleton } from "@loftlancer/ui/skeleton";
 import { routes } from "@loftlancer/ui/studio-routes";
 import { headerIconButtonClassName } from "@loftlancer/ui/utils";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { LoadingButton } from "@/components/patterns/loading-button";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { studioDashboardPath } from "@/lib/studio-url";
 import { cn } from "@/lib/utils";

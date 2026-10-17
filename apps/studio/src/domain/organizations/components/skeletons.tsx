@@ -1,11 +1,11 @@
 "use client";
 
+import { SettingsPanelSkeleton } from "@loftlancer/ui/patterns/settings-panel-skeleton";
 import { Skeleton } from "@loftlancer/ui/skeleton";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import { DataTable } from "@/components/data-table/data-table";
 import { ListToolbarSkeleton } from "@/components/layout/list-toolbar-skeleton";
 import type { OrgListItem } from "@/components/org/active-organization-context";
-import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { StatCardRowSkeleton } from "@/components/patterns/stat-card";
 import DashboardSection from "@/components/section-dashboard";
 import { layoutSectionStackClass } from "@/lib/layout-spacing";

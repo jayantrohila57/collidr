@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createEnvironmentInput } from "@loftlancer/api/validation";
 import { Button } from "@loftlancer/ui/button";
 import { Input } from "@loftlancer/ui/input";
+import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
 import {
   SheetClose,
   SheetDescription,
@@ -27,7 +28,6 @@ import {
 } from "@/components/patterns/form-sheet";
 import { GuardedSheet } from "@/components/patterns/guarded-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
-import { SubmitButton } from "@/components/patterns/submit-button";
 
 const environmentNameSchema = createEnvironmentInput.pick({ name: true });
 

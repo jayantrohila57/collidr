@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { isReservedOrgSlug } from "@loftlancer/env/reserved-slugs";
 import { Button } from "@loftlancer/ui/button";
 import { Input } from "@loftlancer/ui/input";
+import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
 import { SheetClose, SheetDescription } from "@loftlancer/ui/sheet";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
@@ -21,7 +22,6 @@ import {
   FormSheetPopup,
 } from "@/components/patterns/form-sheet";
 import { SheetTitleWithIcon } from "@/components/patterns/sheet-title-with-icon";
-import { SubmitButton } from "@/components/patterns/submit-button";
 import { authClient } from "@/lib/auth-client";
 import { slugifyOrganizationName } from "@/lib/org-slug";
 import { toast } from "@/lib/toast";

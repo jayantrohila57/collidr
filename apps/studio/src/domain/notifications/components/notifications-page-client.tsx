@@ -2,10 +2,10 @@
 
 import { Button } from "@loftlancer/ui/button";
 import { EmptyState } from "@loftlancer/ui/patterns/empty-state";
+import { LoadingButton } from "@loftlancer/ui/patterns/loading-button";
 import { Skeleton } from "@loftlancer/ui/skeleton";
 import { useMemo, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { LoadingButton } from "@/components/patterns/loading-button";
 import DashboardSection from "@/components/section-dashboard";
 import { accountSettingsUrl } from "@/lib/account-url";
 import { appIcons } from "@/lib/icons";
