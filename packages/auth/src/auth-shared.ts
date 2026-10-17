@@ -9,6 +9,7 @@ import * as oauthSchema from "@loftlancer/db/schema/oauth";
 import * as organizationSchema from "@loftlancer/db/schema/organization";
 import * as teamSchema from "@loftlancer/db/schema/team";
 import { teamMember } from "@loftlancer/db/schema/team";
+import { OrgInviteEmail, sendEmail } from "@loftlancer/email";
 import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
 import { isReservedOrgSlug } from "@loftlancer/env/reserved-slugs";
 import {
@@ -172,6 +173,28 @@ export function organizationPlugin() {
       ac: orgAc,
       roles: orgBetterAuthRoles,
       teams: { enabled: true },
+      // No-op until RESEND_API_KEY is set (#336). Pending invites show at /studio.
+      sendInvitationEmail: async ({
+        email,
+        role,
+        organization: org,
+        inviter,
+      }) => {
+        const studioUrl = (
+          process.env.NEXT_PUBLIC_STUDIO_URL ?? "https://loftlancer.com/studio"
+        ).replace(/\/$/, "");
+        await sendEmail({
+          to: email,
+          subject: `${inviter.user.name || "Someone"} invited you to ${org.name} on Loftlancer`,
+          react: OrgInviteEmail({
+            organizationName: org.name,
+            inviterName: inviter.user.name || inviter.user.email,
+            role,
+            acceptUrl: studioUrl,
+          }),
+          tags: [{ name: "type", value: "org-invite" }],
+        });
+      },
       organizationHooks: {
         // Org slugs are the first URL segment (#299); never shadow a route.
         beforeCreateOrganization: async ({ organization: org }) => {

@@ -3,6 +3,8 @@
 import "../index.css";
 import { AppGlobalErrorPage } from "@loftlancer/ui/patterns/app-route-states";
 import { Auth5Content, Auth5Frame } from "@loftlancer/ui/patterns/auth-5";
+import * as Sentry from "@sentry/nextjs";
+import { useEffect } from "react";
 
 export default function GlobalError({
   error,
@@ -11,6 +13,10 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
   return (
     <AppGlobalErrorPage
       error={error}

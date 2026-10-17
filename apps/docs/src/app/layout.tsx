@@ -1,4 +1,6 @@
 import { rootFontClassName } from "@loftlancer/ui/fonts";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
@@ -18,6 +20,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning className={rootFontClassName}>
       <body className="flex min-h-screen flex-col antialiased">
         <RootProvider search={{ enabled: false }}>{children}</RootProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
