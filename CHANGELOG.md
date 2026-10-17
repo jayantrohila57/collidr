@@ -16,6 +16,10 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Added
+
+- Root `pnpm a11y` and CI run the Turbo `a11y` task against `apps/studio` (Playwright + axe on the docs landing; skips when the spec or Playwright is unavailable) (#91)
+
 ### Fixed
 
 - Auth settings redirect routes (`/settings`, `/settings/export`, `/settings/delete`) use async Server Component page wrappers again after the account→auth app split (#37)

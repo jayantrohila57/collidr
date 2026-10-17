@@ -36,6 +36,17 @@ jobs:
           CORS_ORIGIN: http://localhost:3000
           # TEST-ONLY placeholder for CI; never use this value in any real environment.
           ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      - name: Install Playwright (a11y)
+        id: playwright_a11y
+        continue-on-error: true
+        working-directory: apps/studio
+        run: pnpm exec playwright install chromium --with-deps
+      - name: Accessibility (Turbo a11y)
+        if: steps.playwright_a11y.outcome == 'success'
+        run: pnpm a11y
+        env:
+          CI: true
+          SKIP_ENV_VALIDATION: true
 
   release-version:
     # Release PRs into main must bump the root version and add a changelog entry.
