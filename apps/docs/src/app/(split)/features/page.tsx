@@ -1,12 +1,14 @@
 import { marketingFeatures } from "@loftlancer/ui/marketing";
 
 import { MarketingPage } from "@/components/marketing-page";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Features",
   description:
     "Encryption, organizations, projects, apps and audit timeline in Loftlancer.",
-};
+  path: "/features",
+});
 
 export default function FeaturesPage() {
   return (

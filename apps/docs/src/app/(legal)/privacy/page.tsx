@@ -1,9 +1,11 @@
 import { MarketingPage } from "@/components/marketing-page";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Privacy",
   description: "How Loftlancer handles account and configuration data.",
-};
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (
@@ -27,8 +29,15 @@ export default function PrivacyPage() {
       <h2>Third parties</h2>
       <p>
         Hosting (Vercel), database (Neon), and GitHub OAuth are required to run
-        the service. MCP clients authenticate via the auth app and receive OAuth
-        tokens scoped to the permissions you approve.
+        the service. Transactional email such as invitations is sent through
+        Resend. Errors are reported to Sentry. As rate limiting and file uploads
+        ship, they use Upstash Redis and Vercel Blob. Vercel Web Analytics and
+        Speed Insights measure page views and performance without cookies.
+      </p>
+      <p>
+        Optional analytics (Google Analytics on the public site, PostHog in
+        Studio) load only after you accept them in the cookie banner. You can
+        decline, and nothing is loaded.
       </p>
       <h2>Your choices</h2>
       <p>

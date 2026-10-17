@@ -8,6 +8,7 @@ import {
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getMDXComponents } from "@/components/mdx";
+import { pageMetadata } from "@/lib/seo";
 import { source } from "@/lib/source";
 
 type PageProps = {
@@ -44,8 +45,16 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const page = source.getPage(params.slug);
   if (!page) notFound();
 
-  return {
-    title: page.data.title,
-    description: page.data.description,
-  };
+  const title = page.data.title;
+  const description =
+    page.data.description ?? `${title} in the Loftlancer documentation.`;
+  // Docs pages read "Title | Loftlancer Docs"; the index keeps the plain name.
+  const fullTitle =
+    page.url === "/docs" ? "Loftlancer Docs" : `${title} | Loftlancer Docs`;
+  return pageMetadata({
+    title: fullTitle,
+    description,
+    path: page.url,
+    absoluteTitle: true,
+  });
 }

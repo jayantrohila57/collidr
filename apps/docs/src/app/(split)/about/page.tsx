@@ -1,11 +1,13 @@
 import { docsUrl } from "@loftlancer/ui/platform-urls";
 
 import { MarketingPage } from "@/components/marketing-page";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "About",
   description: "What Loftlancer is and how the monorepo is structured.",
-};
+  path: "/about",
+});
 
 export default function AboutPage() {
   const docs = docsUrl();

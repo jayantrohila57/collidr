@@ -1,4 +1,4 @@
-import type { Metadata, MetadataRoute } from "next";
+import type { Metadata } from "next";
 
 export const siteConfig = {
   name: "Loftlancer",
@@ -49,9 +49,6 @@ export function generateMetadata(): Metadata {
     creator: siteConfig.author.name,
     publisher: siteConfig.author.name,
     metadataBase: new URL(siteConfig.url),
-    alternates: {
-      canonical: "/",
-    },
     openGraph: {
       type: "website",
       locale: "en_US",
@@ -75,32 +72,11 @@ export function generateMetadata(): Metadata {
       images: [siteConfig.ogImage],
       creator: siteConfig.links.twitter?.split("/").pop(),
     },
+    // Studio is a private, signed-in app: never indexed (#352).
     robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-video-preview": -1,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-      },
-    },
-    verification: {
-      google: process.env.GOOGLE_SITE_VERIFICATION,
-      yandex: process.env.YANDEX_VERIFICATION,
-      yahoo: process.env.YAHOO_SITE_VERIFICATION,
+      index: false,
+      follow: false,
+      googleBot: { index: false, follow: false },
     },
   };
-}
-
-export function generateSitemap(): MetadataRoute.Sitemap {
-  return [
-    {
-      url: siteConfig.url,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 1,
-    },
-  ];
 }
