@@ -653,6 +653,33 @@ export function HeaderUserMenu({ onSignOut, ...props }: UserMenuProps) {
   );
 }
 
+/* ---------------- Footer settings link ---------------- */
+
+/** Account settings entry anchored above the sidebar user menu (#79). */
+export function SidebarSettingsLink({
+  href,
+  isActive,
+}: {
+  href: string;
+  isActive?: boolean;
+}) {
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          isActive={isActive}
+          tooltip="Settings"
+          data-testid="sidebar-settings-link"
+          render={<a href={href} />}
+        >
+          <SettingsIcon />
+          <span>Settings</span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
+}
+
 /* ---------------- Project row pin menu ---------------- */
 
 /** Row "⋯" menu on a sidebar project item: Pin to / Remove from Favorites. */
