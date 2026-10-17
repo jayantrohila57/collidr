@@ -16,6 +16,10 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Fixed
+
+- Studio projects and organizations list sort controls are single-select dropdowns without a search field (#57)
+
 ## [1.11.1] - 2026-10-17
 
 ### Fixed
