@@ -75,9 +75,7 @@ export async function buildPermissionsSnapshot(input: {
 
   for (const name of actionNames) {
     const action = name as ActionName;
-    if (
-      isActionBlockedInSet(action, blockedActions)
-    ) {
+    if (isActionBlockedInSet(action, blockedActions)) {
       blocked.push(action);
       actions[name] = false;
       continue;

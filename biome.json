@@ -27,7 +27,9 @@
       "!**/.svelte-kit",
       "!**/wrangler.jsonc",
       "!**/.source",
-      "!**/convex/_generated"
+      "!**/convex/_generated",
+      "!apps/docs/src/generated",
+      "!apps/docs/content/docs/mcp/tools/meta.json"
     ]
   },
   "formatter": {
@@ -39,7 +41,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "correctness": {
         "useExhaustiveDependencies": "info"
       },

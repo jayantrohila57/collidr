@@ -55,5 +55,8 @@ export function parseDotenv(text: string): {
 
 /** True when pasted text looks like a dotenv block (≥1 KEY=value line). */
 export function looksLikeDotenv(text: string): boolean {
-  return parseDotenv(text).entries.length > 0 && /^\s*(export\s+)?[A-Za-z_][A-Za-z0-9_.-]*\s*=/m.test(text);
+  return (
+    parseDotenv(text).entries.length > 0 &&
+    /^\s*(export\s+)?[A-Za-z_][A-Za-z0-9_.-]*\s*=/m.test(text)
+  );
 }

@@ -1,8 +1,8 @@
 export {
   DashboardAppShell,
-  dashboardSidebarInsetClassName,
   type DashboardAppShellProps,
   type DashboardShellUiComponents,
+  dashboardSidebarInsetClassName,
 } from "./dashboard-app-shell";
 export { DashboardInsetContainer } from "./dashboard-inset-container";
 export {

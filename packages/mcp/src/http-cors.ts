@@ -4,9 +4,7 @@ function allowedOrigins(): Set<string> {
   return new Set(getPlatformProductionOrigins());
 }
 
-export function mcpCorsHeadersForRequest(
-  request: Request,
-): Headers | null {
+export function mcpCorsHeadersForRequest(request: Request): Headers | null {
   const origin = request.headers.get("origin");
   if (!origin || !allowedOrigins().has(origin)) {
     return null;
@@ -26,10 +24,7 @@ export function mcpCorsPreflightResponse(request: Request): Response | null {
   if (!cors) {
     return new Response(null, { status: 204 });
   }
-  cors.set(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS",
-  );
+  cors.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   cors.set(
     "Access-Control-Allow-Headers",
     request.headers.get("access-control-request-headers") ??

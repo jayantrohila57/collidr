@@ -1,5 +1,5 @@
-import { appUrl } from "@/lib/base-path";
 import { type NextRequest, NextResponse } from "next/server";
+import { appUrl } from "@/lib/base-path";
 import { siblingAuth } from "@/lib/sibling-auth";
 
 export async function GET(request: NextRequest) {

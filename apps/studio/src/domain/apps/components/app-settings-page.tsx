@@ -69,7 +69,7 @@ export function AppSettingsPage({
       </DashboardSection>
     );
   }
-  if (!app || app.status !== "active") {
+  if (app?.status !== "active") {
     return (
       <DashboardSection {...projectTabs} title={app?.name ?? "App"} back={back}>
         <EmptyState
@@ -206,10 +206,11 @@ export function AppSettingsPage({
                   <Button
                     size="sm"
                     disabled={!dirty || configure.isPending || !projectId}
-                    onClick={() =>
+                    onClick={() => {
+                      if (!projectId) return;
                       actionToast(
                         configure.mutateAsync({
-                          projectId: projectId!,
+                          projectId,
                           appId: app.id,
                           settings: draft,
                         }),
@@ -218,8 +219,8 @@ export function AppSettingsPage({
                           success: "Settings saved",
                           error: "Couldn't save settings",
                         },
-                      )
-                    }
+                      );
+                    }}
                   >
                     Save settings
                   </Button>

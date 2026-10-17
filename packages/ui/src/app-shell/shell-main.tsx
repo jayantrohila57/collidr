@@ -34,15 +34,16 @@ export type DashboardShellMainProps = {
   children: ReactNode;
 } & VariantProps<typeof mainVariants>;
 
-export const DashboardShellMain = forwardRef<HTMLDivElement, DashboardShellMainProps>(
-  ({ className, variant, scale, padding, children, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn(mainVariants({ variant, scale, padding, className }))}
-      {...props}
-    >
-      {children}
-    </div>
-  ),
-);
+export const DashboardShellMain = forwardRef<
+  HTMLDivElement,
+  DashboardShellMainProps
+>(({ className, variant, scale, padding, children, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(mainVariants({ variant, scale, padding, className }))}
+    {...props}
+  >
+    {children}
+  </div>
+));
 DashboardShellMain.displayName = "DashboardShellMain";

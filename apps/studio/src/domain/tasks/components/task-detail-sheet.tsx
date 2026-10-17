@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@loftlancer/ui/avatar";
 import { Button } from "@loftlancer/ui/button";
 import { Input } from "@loftlancer/ui/input";
 import { Label } from "@loftlancer/ui/label";
@@ -20,7 +19,6 @@ import { useEffect, useState } from "react";
 import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { actionToast } from "@/lib/action-toast";
-import { initialsFromLabel } from "@/lib/initials";
 import { trpc } from "@/utils/trpc";
 import { TASK_PRIORITY_OPTIONS, TASK_STATUS_OPTIONS } from "../hooks/task-meta";
 import { FieldSelect } from "./field-select";

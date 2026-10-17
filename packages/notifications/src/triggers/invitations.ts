@@ -89,7 +89,7 @@ export async function notifyInvitationAccepted(invitationId: string) {
     .limit(1);
 
   const invite = rows[0];
-  if (!invite || invite.status !== "accepted") {
+  if (invite?.status !== "accepted") {
     return;
   }
 

@@ -1,5 +1,8 @@
 import { db } from "@loftlancer/db";
-import { environment, environmentVariable } from "@loftlancer/db/schema/projects";
+import {
+  environment,
+  environmentVariable,
+} from "@loftlancer/db/schema/projects";
 import { eq } from "drizzle-orm";
 import type { RequireActionContext } from "./require-action";
 

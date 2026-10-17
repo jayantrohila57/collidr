@@ -20,67 +20,69 @@ export function notDeleted(deletedAtColumn: PgColumn): SQL | undefined {
   return isNull(deletedAtColumn);
 }
 
-export function activeProjectWhere(extra?: SQL): SQL {
-  return mergeAnd(extra, notDeleted(project.deletedAt)) ?? extra!;
+export function activeProjectWhere(extra?: SQL): SQL | undefined {
+  return mergeAnd(extra, notDeleted(project.deletedAt)) ?? extra;
 }
 
-export function activeEnvironmentWhere(extra?: SQL): SQL {
-  return mergeAnd(extra, notDeleted(environment.deletedAt)) ?? extra!;
+export function activeEnvironmentWhere(extra?: SQL): SQL | undefined {
+  return mergeAnd(extra, notDeleted(environment.deletedAt)) ?? extra;
 }
 
-export function activeEnvironmentVariableWhere(extra?: SQL): SQL {
-  return mergeAnd(extra, notDeleted(environmentVariable.deletedAt)) ?? extra!;
+export function activeEnvironmentVariableWhere(extra?: SQL): SQL | undefined {
+  return mergeAnd(extra, notDeleted(environmentVariable.deletedAt)) ?? extra;
 }
 
-export function activeOrganizationWhere(extra?: SQL): SQL {
-  return mergeAnd(extra, notDeleted(organization.deletedAt)) ?? extra!;
+export function activeOrganizationWhere(extra?: SQL): SQL | undefined {
+  return mergeAnd(extra, notDeleted(organization.deletedAt)) ?? extra;
 }
 
-export function activeMemberWhere(extra?: SQL): SQL {
-  return mergeAnd(extra, notDeleted(member.deletedAt)) ?? extra!;
+export function activeMemberWhere(extra?: SQL): SQL | undefined {
+  return mergeAnd(extra, notDeleted(member.deletedAt)) ?? extra;
 }
 
-export function activeInvitationWhere(extra?: SQL): SQL {
-  return mergeAnd(extra, notDeleted(invitation.deletedAt)) ?? extra!;
+export function activeInvitationWhere(extra?: SQL): SQL | undefined {
+  return mergeAnd(extra, notDeleted(invitation.deletedAt)) ?? extra;
 }
 
-export function activeUserWhere(extra?: SQL): SQL {
-  return mergeAnd(extra, notDeleted(user.deletedAt)) ?? extra!;
+export function activeUserWhere(extra?: SQL): SQL | undefined {
+  return mergeAnd(extra, notDeleted(user.deletedAt)) ?? extra;
 }
 
-export function activeNotificationWhere(extra?: SQL): SQL {
-  return mergeAnd(extra, notDeleted(notification.deletedAt)) ?? extra!;
+export function activeNotificationWhere(extra?: SQL): SQL | undefined {
+  return mergeAnd(extra, notDeleted(notification.deletedAt)) ?? extra;
 }
 
-export function activeSupportTicketWhere(extra?: SQL): SQL {
-  return mergeAnd(extra, notDeleted(supportTicket.deletedAt)) ?? extra!;
+export function activeSupportTicketWhere(extra?: SQL): SQL | undefined {
+  return mergeAnd(extra, notDeleted(supportTicket.deletedAt)) ?? extra;
 }
 
-export function activeSupportTicketMessageWhere(extra?: SQL): SQL {
-  return mergeAnd(extra, notDeleted(supportTicketMessage.deletedAt)) ?? extra!;
+export function activeSupportTicketMessageWhere(extra?: SQL): SQL | undefined {
+  return mergeAnd(extra, notDeleted(supportTicketMessage.deletedAt)) ?? extra;
 }
 
-export function activeSupportFaqArticleWhere(extra?: SQL): SQL {
-  return mergeAnd(extra, notDeleted(supportFaqArticle.deletedAt)) ?? extra!;
+export function activeSupportFaqArticleWhere(extra?: SQL): SQL | undefined {
+  return mergeAnd(extra, notDeleted(supportFaqArticle.deletedAt)) ?? extra;
 }
 
 /** Use with `environment` inner-joined to `project`. */
 export function environmentOwnedByUserWhere(userId: string, extra?: SQL): SQL {
-  return activeEnvironmentWhere(
-    mergeAnd(extra, eq(project.userId, userId), notDeleted(project.deletedAt)),
-  )!;
+  return requireAnd(
+    eq(project.userId, userId),
+    extra,
+    notDeleted(project.deletedAt),
+    notDeleted(environment.deletedAt),
+  );
 }
 
 /** Use with `environment_variable` → `environment` → `project` joins. */
 export function variableOwnedByUserWhere(userId: string, extra?: SQL): SQL {
-  return activeEnvironmentVariableWhere(
-    mergeAnd(
-      extra,
-      eq(project.userId, userId),
-      notDeleted(environment.deletedAt),
-      notDeleted(project.deletedAt),
-    ),
-  )!;
+  return requireAnd(
+    eq(project.userId, userId),
+    extra,
+    notDeleted(environment.deletedAt),
+    notDeleted(project.deletedAt),
+    notDeleted(environmentVariable.deletedAt),
+  );
 }
 
 export function mergeAnd(...conditions: (SQL | undefined)[]): SQL | undefined {
@@ -92,6 +94,14 @@ export function mergeAnd(...conditions: (SQL | undefined)[]): SQL | undefined {
     return parts[0];
   }
   return and(...parts);
+}
+
+/** Like `mergeAnd`, but the first condition is required, so the result is always SQL. */
+export function requireAnd(
+  required: SQL,
+  ...optional: (SQL | undefined)[]
+): SQL {
+  return mergeAnd(required, ...optional) ?? required;
 }
 
 export function softDeleteSet(deletedByUserId: string) {
@@ -113,10 +123,10 @@ export async function softDeleteEnvironmentVariablesByEnvironmentIds(
       .update(environmentVariable)
       .set(softDeleteSet(deletedByUserId))
       .where(
-        mergeAnd(
+        requireAnd(
           inArray(environmentVariable.environmentId, environmentIds),
           notDeleted(environmentVariable.deletedAt),
-        )!,
+        ),
       );
     return;
   }
@@ -133,10 +143,10 @@ export async function softDeleteEnvironmentsByProjectId(
     .select({ id: environment.id })
     .from(environment)
     .where(
-      mergeAnd(
+      requireAnd(
         eq(environment.projectId, projectId),
         notDeleted(environment.deletedAt),
-      )!,
+      ),
     );
 
   const environmentIds = envRows.map((row) => row.id);
@@ -150,10 +160,10 @@ export async function softDeleteEnvironmentsByProjectId(
       .update(environment)
       .set(softDeleteSet(deletedByUserId))
       .where(
-        mergeAnd(
+        requireAnd(
           eq(environment.projectId, projectId),
           notDeleted(environment.deletedAt),
-        )!,
+        ),
       );
     return;
   }
@@ -171,7 +181,7 @@ export async function softDeleteProjectById(
       .update(project)
       .set(softDeleteSet(deletedByUserId))
       .where(
-        mergeAnd(eq(project.id, projectId), notDeleted(project.deletedAt))!,
+        mergeAnd(eq(project.id, projectId), notDeleted(project.deletedAt)),
       );
     return;
   }
@@ -192,10 +202,10 @@ export async function softDeleteEnvironmentById(
       .update(environment)
       .set(softDeleteSet(deletedByUserId))
       .where(
-        mergeAnd(
+        requireAnd(
           eq(environment.id, environmentId),
           notDeleted(environment.deletedAt),
-        )!,
+        ),
       );
     return;
   }
@@ -211,10 +221,10 @@ export async function softDeleteEnvironmentVariableById(
       .update(environmentVariable)
       .set(softDeleteSet(deletedByUserId))
       .where(
-        mergeAnd(
+        requireAnd(
           eq(environmentVariable.id, variableId),
           notDeleted(environmentVariable.deletedAt),
-        )!,
+        ),
       );
     return;
   }

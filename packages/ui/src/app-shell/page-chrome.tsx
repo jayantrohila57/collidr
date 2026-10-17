@@ -1,8 +1,5 @@
 import type { ReactNode } from "react";
-import {
-  layoutChromeClass,
-  layoutChromeRowClass,
-} from "../lib/layout-spacing";
+import { layoutChromeClass, layoutChromeRowClass } from "../lib/layout-spacing";
 import { cn } from "../lib/utils";
 
 /** Sticky dashboard header bar (below sidebar inset). */

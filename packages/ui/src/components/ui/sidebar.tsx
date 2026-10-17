@@ -8,6 +8,9 @@ import * as React from "react";
 
 const formSheetPopupClassName =
   "flex h-full min-h-0 max-h-full flex-col self-stretch";
+
+import { useMediaQuery } from "../../hooks/use-media-query";
+import { cn } from "../../lib/utils";
 import { Button } from "./button";
 import { Input } from "./input";
 import { ScrollArea } from "./scroll-area";
@@ -21,8 +24,6 @@ import {
 } from "./sheet";
 import { Skeleton } from "./skeleton";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "./tooltip";
-import { useMediaQuery } from "../../hooks/use-media-query";
-import { cn } from "../../lib/utils";
 
 const SIDEBAR_COOKIE_NAME: string = "sidebar_state";
 

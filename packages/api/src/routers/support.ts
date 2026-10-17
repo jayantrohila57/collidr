@@ -86,7 +86,10 @@ function mapTicket(row: typeof supportTicket.$inferSelect) {
 
 export const supportRouter = router({
   accessStatus: protectedProcedure.query(async ({ ctx }) => {
-    const access = await loadAccess(ctx.session.user.id, ctx.session.user as { role?: string | null });
+    const access = await loadAccess(
+      ctx.session.user.id,
+      ctx.session.user as { role?: string | null },
+    );
     return {
       isSupportManager: access.isSupportManager,
       userId: ctx.session.user.id,
@@ -184,10 +187,13 @@ export const supportRouter = router({
         .optional(),
     )
     .query(async ({ ctx, input }) => {
-      const access = await loadAccess(ctx.session.user.id, ctx.session.user as { role?: string | null });
+      const access = await loadAccess(
+        ctx.session.user.id,
+        ctx.session.user as { role?: string | null },
+      );
       const limit = input?.limit ?? 25;
       const offset = input?.offset ?? 0;
-      const conditions: SQL[] = [activeSupportTicketWhere()];
+      const conditions: (SQL | undefined)[] = [activeSupportTicketWhere()];
 
       if (!access.isSupportManager) {
         conditions.push(eq(supportTicket.requesterUserId, ctx.session.user.id));
@@ -249,7 +255,10 @@ export const supportRouter = router({
   getTicket: protectedProcedure
     .input(z.object({ ticketId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const access = await loadAccess(ctx.session.user.id, ctx.session.user as { role?: string | null });
+      const access = await loadAccess(
+        ctx.session.user.id,
+        ctx.session.user as { role?: string | null },
+      );
       const ticket = await getTicketById(input.ticketId);
       if (!ticket || !canReadTicket(access, ticket)) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Ticket not found" });
@@ -308,7 +317,10 @@ export const supportRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const access = await loadAccess(ctx.session.user.id, ctx.session.user as { role?: string | null });
+      const access = await loadAccess(
+        ctx.session.user.id,
+        ctx.session.user as { role?: string | null },
+      );
       if (!canCreateTicket(access)) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not allowed" });
       }
@@ -358,7 +370,10 @@ export const supportRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const access = await loadAccess(ctx.session.user.id, ctx.session.user as { role?: string | null });
+      const access = await loadAccess(
+        ctx.session.user.id,
+        ctx.session.user as { role?: string | null },
+      );
       const ticket = await getTicketById(input.ticketId);
       if (!ticket || !canReplyToTicket(access, ticket)) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not allowed" });
@@ -418,7 +433,10 @@ export const supportRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const access = await loadAccess(ctx.session.user.id, ctx.session.user as { role?: string | null });
+      const access = await loadAccess(
+        ctx.session.user.id,
+        ctx.session.user as { role?: string | null },
+      );
       const ticket = await getTicketById(input.ticketId);
       if (!ticket || !canChangeTicketStatus(access, ticket)) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not allowed" });
@@ -460,7 +478,10 @@ export const supportRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const access = await loadAccess(ctx.session.user.id, ctx.session.user as { role?: string | null });
+      const access = await loadAccess(
+        ctx.session.user.id,
+        ctx.session.user as { role?: string | null },
+      );
       if (!canAssignTicket(access)) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not allowed" });
       }
@@ -493,7 +514,10 @@ export const supportRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const access = await loadAccess(ctx.session.user.id, ctx.session.user as { role?: string | null });
+      const access = await loadAccess(
+        ctx.session.user.id,
+        ctx.session.user as { role?: string | null },
+      );
       if (!canChangeTicketPriority(access)) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not allowed" });
       }
@@ -522,7 +546,10 @@ export const supportRouter = router({
   deleteTicket: protectedProcedure
     .input(z.object({ ticketId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const access = await loadAccess(ctx.session.user.id, ctx.session.user as { role?: string | null });
+      const access = await loadAccess(
+        ctx.session.user.id,
+        ctx.session.user as { role?: string | null },
+      );
       if (!canSoftDeleteTicket(access)) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not allowed" });
       }
@@ -551,7 +578,10 @@ export const supportRouter = router({
     }),
 
   listFaqManager: protectedProcedure.query(async ({ ctx }) => {
-    const access = await loadAccess(ctx.session.user.id, ctx.session.user as { role?: string | null });
+    const access = await loadAccess(
+      ctx.session.user.id,
+      ctx.session.user as { role?: string | null },
+    );
     if (!canManageFaq(access)) {
       throw new TRPCError({ code: "FORBIDDEN", message: "Not allowed" });
     }
@@ -590,7 +620,10 @@ export const supportRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const access = await loadAccess(ctx.session.user.id, ctx.session.user as { role?: string | null });
+      const access = await loadAccess(
+        ctx.session.user.id,
+        ctx.session.user as { role?: string | null },
+      );
       if (!canManageFaq(access)) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not allowed" });
       }
@@ -638,7 +671,10 @@ export const supportRouter = router({
   deleteFaqArticle: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const access = await loadAccess(ctx.session.user.id, ctx.session.user as { role?: string | null });
+      const access = await loadAccess(
+        ctx.session.user.id,
+        ctx.session.user as { role?: string | null },
+      );
       if (!canManageFaq(access)) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Not allowed" });
       }
@@ -661,7 +697,10 @@ export const supportRouter = router({
     }),
 
   listSupportManagers: protectedProcedure.query(async ({ ctx }) => {
-    const access = await loadAccess(ctx.session.user.id, ctx.session.user as { role?: string | null });
+    const access = await loadAccess(
+      ctx.session.user.id,
+      ctx.session.user as { role?: string | null },
+    );
     if (!access.isSupportManager) {
       throw new TRPCError({ code: "FORBIDDEN", message: "Not allowed" });
     }

@@ -16,6 +16,21 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+## [1.9.1] - 2026-10-17
+
+### Fixed
+
+- `biome ci` now passes cleanly: the whole repo is formatted with sorted imports, and the remaining lint is fixed without changing behaviour (#377)
+  - Non-null assertions are gone from the soft-delete helpers and app install flows
+  - Optional-chain cleanups, unused imports and an unused prop removed
+  - The variables table's reveal callback is memoized so its deps are complete
+  - Re-measure and reset effects that depend on trigger values carry a documented `biome-ignore`
+  - `biome.json` moves to `preset: "recommended"`, and the generated MCP catalog is excluded
+
+### Changed
+
+- CI's quality job runs `pnpm lint:ci` (`biome ci --error-on-warnings`), so formatting and lint stay green (#377)
+
 ## [1.9.0] - 2026-10-17
 
 ### Added
@@ -397,7 +412,8 @@ The product is now Loftlancer.
 - Version management and commit workflow scripts
 - `SKIP_ENV_VALIDATION` option for builds
 
-[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.0...HEAD
+[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.1...HEAD
+[1.9.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.7.1...v1.8.0
 [1.7.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.7.0...v1.7.1
