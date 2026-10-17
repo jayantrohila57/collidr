@@ -82,7 +82,8 @@
         "BLOB_READ_WRITE_TOKEN",
         "GOOGLE_CLIENT_ID",
         "GOOGLE_CLIENT_SECRET",
-        "BETTERSTACK_API_TOKEN"
+        "BETTERSTACK_API_TOKEN",
+        "SENTRY_TEST_TOKEN"
       ]
     },
     "lint": {

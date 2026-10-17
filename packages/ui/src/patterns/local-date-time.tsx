@@ -1,19 +1,14 @@
 "use client";
 
 import { useHydrated } from "../hooks/use-hydrated";
+import {
+  formatDate,
+  LOCAL_DATE_FORMAT,
+  LOCAL_DATE_TIME_FORMAT,
+} from "../lib/format-date";
 import { cn } from "../lib/utils";
 
-export const LOCAL_DATE_FORMAT: Intl.DateTimeFormatOptions = {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-};
-
-export const LOCAL_DATE_TIME_FORMAT: Intl.DateTimeFormatOptions = {
-  ...LOCAL_DATE_FORMAT,
-  hour: "numeric",
-  minute: "2-digit",
-};
+export { LOCAL_DATE_FORMAT, LOCAL_DATE_TIME_FORMAT };
 
 function toDate(value: Date | string | number | null | undefined) {
   if (value === null || value === undefined || value === "") return null;
@@ -42,10 +37,10 @@ export function LocalDateTime({
   const hydrated = useHydrated();
   const date = toDate(value);
   if (!date) return <span className={className}>{fallback}</span>;
-  const text = new Intl.DateTimeFormat(
-    "en-US",
+  const text = formatDate(
+    date,
     hydrated ? options : { ...options, timeZone: "UTC" },
-  ).format(date);
+  );
   return (
     <time
       dateTime={date.toISOString()}

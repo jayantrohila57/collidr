@@ -28,6 +28,7 @@ export const RESERVED_ORG_SLUGS = [
   "auth",
   "docs",
   "_next",
+  "sentry-test",
 ] as const;
 
 /** Org-level segments a project slug may not use. */
