@@ -11,6 +11,7 @@ import {
   TooltipTrigger,
 } from "../components/ui/tooltip";
 import { useHydrated } from "../hooks/use-hydrated";
+import { formatDate, formatDateTime } from "../lib/format-date";
 import { localDayKey, localDayLabel } from "../lib/local-day";
 import { cn } from "../lib/utils";
 import { PageHeaderActionsPortal } from "./page-header";
@@ -164,11 +165,7 @@ export function formatRelative(date: Date, now = Date.now()) {
   if (abs < 3600) return rtf.format(Math.round(diff / 60), "minute");
   if (abs < 86_400) return rtf.format(Math.round(diff / 3600), "hour");
   if (abs < 86_400 * 30) return rtf.format(Math.round(diff / 86_400), "day");
-  return date.toLocaleDateString("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDate(date);
 }
 
 /**
@@ -306,12 +303,7 @@ function ActivityRow({
             >
               {hydrated ? formatRelative(date) : "just now"}
             </TooltipTrigger>
-            <TooltipContent>
-              {date.toLocaleString("en", {
-                dateStyle: "medium",
-                timeStyle: "medium",
-              })}
-            </TooltipContent>
+            <TooltipContent>{formatDateTime(date)}</TooltipContent>
           </Tooltip>
           <Badge variant="outline" size="sm" className="gap-1 capitalize">
             <span aria-hidden className="size-1.5 rounded-full bg-primary/70" />
