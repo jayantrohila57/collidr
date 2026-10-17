@@ -7,7 +7,6 @@ import { createPortal } from "react-dom";
 import {
   pageHeaderActionsClass,
   pageHeaderBackClass,
-  pageHeaderDescriptionClass,
   pageHeaderMetaRowClass,
   pageHeaderRootClass,
   pageHeaderTabActiveClass,
@@ -21,6 +20,7 @@ import {
   pageHeaderTopRowClass,
 } from "../lib/page-header-classes";
 import { cn } from "../lib/utils";
+import { PageHeaderDescription } from "./page-header-description";
 
 /**
  * The one in-app page header (studio dashboard, org, project, app pages and
@@ -176,9 +176,7 @@ export function PageHeaderLayout({
             {titleAccessory}
           </div>
           {typeof description === "string" ? (
-            <p className={cn(pageHeaderDescriptionClass, "line-clamp-2")}>
-              {description}
-            </p>
+            <PageHeaderDescription text={description} />
           ) : (
             description
           )}
