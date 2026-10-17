@@ -19,6 +19,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 ### Fixed
 
 - Account settings use `LocalDateTime` (shared `formatDate`) for linked-provider and audit-rail dates; activity heatmap cell tooltips use the same date style (#73)
+
 ## [1.12.0] - 2026-10-17
 
 ### Added
