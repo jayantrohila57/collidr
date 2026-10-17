@@ -98,17 +98,19 @@
     "./patterns/unsaved-changes-page-guard": "./src/patterns/unsaved-changes-page-guard.tsx",
     "./patterns/mode-toggle": "./src/patterns/mode-toggle.tsx",
     "./hooks/*": "./src/hooks/*.ts",
+    "./format-date": "./src/lib/format-date.ts",
     "./local-day": "./src/lib/local-day.ts",
     "./patterns/local-date-time": "./src/patterns/local-date-time.tsx",
     "./patterns/breadcrumb-trail": "./src/patterns/breadcrumb-trail.tsx",
     "./patterns/activity-overview": "./src/patterns/activity-overview.tsx",
     "./patterns/version-badge": "./src/patterns/version-badge.tsx",
     "./platform-status": "./src/lib/platform-status.ts",
-    "./patterns/sign-in-options": "./src/patterns/sign-in-options.tsx"
+    "./patterns/sign-in-options": "./src/patterns/sign-in-options.tsx",
+    "./patterns/sentry-test-panel": "./src/patterns/sentry-test-panel.tsx"
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "test": "node --import tsx --test src/lib/auth-links.test.ts src/lib/platform-urls.test.ts src/lib/page-header-grid-classes.test.ts src/lib/local-day.test.ts src/patterns/activity-timeline.test.ts"
+    "test": "node --import tsx --test src/lib/auth-links.test.ts src/lib/platform-urls.test.ts src/lib/page-header-grid-classes.test.ts src/lib/local-day.test.ts src/lib/format-date.test.ts src/patterns/activity-timeline.test.ts"
   },
   "peerDependencies": {
     "next": "catalog:",
