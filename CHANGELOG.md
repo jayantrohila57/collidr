@@ -18,6 +18,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ### Fixed
 
+- Invitation notification sync mutations: unit tests for allowed and denied authorization paths (#18)
 - Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
 
 ## [1.11.0] - 2026-10-17
