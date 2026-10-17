@@ -31,7 +31,6 @@ export function EnvironmentPanel({
     revealedIds,
     revealingIds,
     toggleReveal,
-    createVariable,
     createVariablesBatch,
     isCreating,
     updateVariable,
@@ -51,10 +50,6 @@ export function EnvironmentPanel({
         ? variable.value
         : getRevealedValue(variable.id),
   }));
-
-  const handleCreate = async (data: { key: string; value: string }) => {
-    await createVariable({ environmentId, ...data });
-  };
 
   const handleCreateBatch = async (data: {
     environmentIds: string[];
@@ -97,7 +92,6 @@ export function EnvironmentPanel({
       onReveal={toggleReveal}
       onEdit={handleEdit}
       onDelete={handleDelete}
-      onAddVariable={handleCreate}
       onAddVariablesBatch={handleCreateBatch}
       projectEnvironments={projectEnvironments}
       activeEnvironmentId={environmentId}

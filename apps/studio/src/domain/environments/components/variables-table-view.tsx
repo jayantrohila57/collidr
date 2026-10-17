@@ -50,8 +50,7 @@ interface VariablesTableViewProps {
   onReveal: (id: string) => void;
   onEdit: (variable: Variable) => void;
   onDelete: (id: string) => void;
-  onAddVariable: (data: { key: string; value: string }) => Promise<void>;
-  onAddVariablesBatch?: (data: {
+  onAddVariablesBatch: (data: {
     environmentIds: string[];
     variables: Array<{
       key: string;
@@ -61,7 +60,7 @@ interface VariablesTableViewProps {
     }>;
   }) => Promise<void>;
   projectEnvironments?: { id: string; name: string }[];
-  activeEnvironmentId?: string;
+  activeEnvironmentId: string;
   onFetchValue: (id: string, options?: { force?: boolean }) => Promise<string>;
   isAddingVariable: boolean;
   isUpdating?: boolean;
@@ -81,7 +80,6 @@ export function VariablesTableView({
   onReveal,
   onEdit,
   onDelete,
-  onAddVariable,
   onAddVariablesBatch,
   projectEnvironments = [],
   activeEnvironmentId,
@@ -486,8 +484,7 @@ export function VariablesTableView({
         compactLayout
         empty={variablesTableEmpty(
           <AddVariableSheet
-            onConfirm={onAddVariable}
-            onConfirmBatch={onAddVariablesBatch}
+            onConfirm={onAddVariablesBatch}
             environments={projectEnvironments}
             defaultEnvironmentId={activeEnvironmentId}
             isPending={isAddingVariable}
@@ -497,8 +494,7 @@ export function VariablesTableView({
         primaryAction={
           variables.length > 0 ? (
             <AddVariableSheet
-              onConfirm={onAddVariable}
-              onConfirmBatch={onAddVariablesBatch}
+              onConfirm={onAddVariablesBatch}
               environments={projectEnvironments}
               defaultEnvironmentId={activeEnvironmentId}
               isPending={isAddingVariable}
