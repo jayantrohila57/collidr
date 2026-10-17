@@ -16,16 +16,20 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Fixed
+
+- Account settings use `LocalDateTime` (shared `formatDate`) for linked-provider and audit-rail dates; activity heatmap cell tooltips use the same date style (#73)
 ## [1.12.0] - 2026-10-17
 
 ### Added
 
+- Sentry test-error triggers to confirm readable stack traces in production: `POST /api/sentry-test` and a `/sentry-test` page in auth and studio, guarded by the new server-only `SENTRY_TEST_TOKEN` (404 while unset; the token is scrubbed from Sentry events), and a hidden button page at `/sentry-test` on docs. Events are tagged `app` and `test: true` and carry no user data (#354)
 - Root `pnpm a11y` and CI run the Turbo `a11y` task in `apps/docs` (Playwright + axe on the docs landing; fails in CI when Playwright cannot run, optional local skip via `A11Y_SKIP`) (#91)
 - E2E demo environment variable seeding: encrypted fake placeholders for the Playwright demo project, production guards (`VERCEL_ENV` / `NODE_ENV` + opt-in), and `fake-dev-only` markers on reset-seed sample variables (#85)
 
 ### Fixed
 
-- E2E auth routes (`/api/e2e/login`, notifications prepare/accept) no longer accept a predictable default secret: they return 404 when `E2E_TEST_SECRET` is unset, compare secrets in constant time, and Playwright requires an explicit `E2E_TEST_SECRET` (#20)
+- Studio sidebar platform nav and org-scoped pages resolve loading from SSR-hydrated data without waiting for a second client bootstrap or user interaction; nav count badges reserve space while counts load (#63)
 - Studio projects and organizations list sort controls are single-select dropdowns without a search field (#57)
 - `purge.test.ts` no longer loads the database client at import time; DB purge deps moved to `purge-db` (#414)
 - Sentry Logs from auth, studio and docs flush on the server via a coalesced `Sentry.flush` + Vercel `waitUntil` after `@loftlancer/logger` entries, so buffered SDK logs are not dropped when serverless handlers exit before the default 5s timer; browser logs keep SDK batching (#355)
@@ -38,6 +42,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 - Invitation notification sync mutations: unit tests for allowed and denied authorization paths (#18)
 - Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
+- `audit.stats` documents and tests scoped SQL aggregates (user and optional `projectId` filter) for totals and per-action counts (#35)
 - README sign-in methods, pnpm/Node prerequisites, and Studio URL; SECURITY.md supported version; integrations inventory PostHog opt-out and centralized logs release status; align `scripts/README.md`, getting-started, `PRODUCTION_DEPLOY.md`, and `summary.md` with path routing on loftlancer.com (#400)
 
 ## [1.11.0] - 2026-10-17
