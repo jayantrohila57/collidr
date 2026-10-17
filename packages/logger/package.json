@@ -7,13 +7,25 @@
     },
     "./sentry": {
       "default": "./src/sentry.ts"
+    },
+    "./sentry-instrument": {
+      "default": "./src/sentry-instrument.ts"
     }
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "test": "node --import tsx --test src/index.test.ts"
+    "test": "node --import tsx --test src/index.test.ts src/sentry.test.ts"
+  },
+  "peerDependencies": {
+    "@sentry/core": ">=10.71.0"
+  },
+  "peerDependenciesMeta": {
+    "@sentry/core": {
+      "optional": true
+    }
   },
   "devDependencies": {
+    "@sentry/core": "^11.8.0",
     "@loftlancer/config": "workspace:*",
     "@types/node": "^26.6.5",
     "typescript": "catalog:",

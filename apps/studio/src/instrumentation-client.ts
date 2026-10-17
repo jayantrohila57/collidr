@@ -1,25 +1,22 @@
-import { configureLogger } from "@loftlancer/logger";
-import { createSentrySink } from "@loftlancer/logger/sentry";
+import {
+  resolveSentryDsn,
+  resolveSentryEnvironment,
+  resolveSentryRelease,
+  wireSentryLogger,
+} from "@loftlancer/logger/sentry-instrument";
 import * as Sentry from "@sentry/nextjs";
 
-const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+const dsn = resolveSentryDsn();
 
-// Sentry stays off until NEXT_PUBLIC_SENTRY_DSN exists (#339).
 if (dsn) {
   Sentry.init({
     dsn,
-    // Same release name as the server and the source-map upload (#354).
-    release: `loftlancer@${process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0"}`,
-    environment: process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.NODE_ENV,
+    release: resolveSentryRelease(),
+    environment: resolveSentryEnvironment(true),
     initialScope: { tags: { app: "studio" } },
     tracesSampleRate: 0.1,
   });
-  // Browser logs from @loftlancer/logger go to Sentry Logs via Sentry.logger
-  // (#355). SDK v11 removed `enableLogs`; using the logger API is the opt-in.
-  configureLogger({
-    context: { app: "studio", runtime: "browser" },
-    sink: createSentrySink(Sentry),
-  });
+  wireSentryLogger(Sentry, "studio", { runtime: "browser" });
 }
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

@@ -18,10 +18,14 @@ export type SentryLike = {
 };
 
 /** Sentry Logs + issues + request identity (ids only), for `configureLogger`. */
-export function createSentrySink(sentry: SentryLike): LogSink {
+export function createSentrySink(
+  sentry: SentryLike,
+  options?: { onAfterLog?: () => void },
+): LogSink {
   return {
     log(level: LogLevel, message: string, attributes: LogAttributes) {
       sentry.logger[level](message, attributes);
+      options?.onAfterLog?.();
     },
     captureException(error: unknown, attributes: LogAttributes) {
       sentry.captureException(error, { extra: attributes });
