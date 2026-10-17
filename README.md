@@ -147,6 +147,8 @@ pnpm check-types
 pnpm test
 ```
 
+Optional Postgres integration tests (for example `packages/api` `*.integration.test.ts`) are skipped by default. Opt in with `TEST_DATABASE_URL` (connection string used for those tests only; `DATABASE_URL` is ignored) or `RUN_DB_INTEGRATION_TESTS=1` (still requires `TEST_DATABASE_URL`).
+
 ## Tech stack
 
 - **App:** Next.js, React, TypeScript, Tailwind, **coss ui** (Base UI) via shadcn registry

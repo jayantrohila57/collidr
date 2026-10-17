@@ -1,81 +1,42 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { after, before, describe, it } from "node:test";
-import {
-  activeEnvironmentVariableWhere,
-  activeEnvironmentWhere,
-  activeNotificationWhere,
-  activeProjectWhere,
-  db,
-} from "@loftlancer/db";
-import { user } from "@loftlancer/db/schema/auth";
-import { notification } from "@loftlancer/db/schema/notifications";
-import {
-  environment,
-  environmentVariable,
-  project,
-} from "@loftlancer/db/schema/projects";
-import { eq, inArray } from "drizzle-orm";
-import type { Context } from "../create-context";
-import { appRouter } from "./index";
 
 const PLACEHOLDER_ENCRYPTED_VALUE = "ci-test-export-placeholder-ciphertext";
 
-async function isDatabaseReachable(): Promise<boolean> {
-  if (!process.env.DATABASE_URL) {
-    return false;
+type DbIntegrationConfig =
+  | { enabled: true; testDatabaseUrl: string }
+  | { enabled: false; skipReason: string };
+
+function resolveDbIntegrationConfig(): DbIntegrationConfig {
+  const testDatabaseUrl = process.env.TEST_DATABASE_URL?.trim();
+  const runFlag = process.env.RUN_DB_INTEGRATION_TESTS === "1";
+
+  if (!testDatabaseUrl && !runFlag) {
+    return {
+      enabled: false,
+      skipReason:
+        "Set TEST_DATABASE_URL or RUN_DB_INTEGRATION_TESTS=1 to run DB integration tests",
+    };
   }
-  try {
-    await db.select({ id: user.id }).from(user).limit(1);
-    return true;
-  } catch {
-    return false;
+
+  if (!testDatabaseUrl) {
+    return {
+      enabled: false,
+      skipReason:
+        "TEST_DATABASE_URL is required for DB integration tests (DATABASE_URL is not used)",
+    };
   }
+
+  return { enabled: true, testDatabaseUrl };
 }
 
-function exportQueriesForUser(userId: string) {
-  return {
-    projects: () =>
-      db
-        .select({ id: project.id })
-        .from(project)
-        .where(activeProjectWhere(eq(project.userId, userId))),
-    notifications: () =>
-      db
-        .select({ id: notification.id })
-        .from(notification)
-        .where(
-          activeNotificationWhere(eq(notification.recipientUserId, userId)),
-        ),
-    environments: (projectIds: string[]) =>
-      projectIds.length === 0
-        ? Promise.resolve([])
-        : db
-            .select({ id: environment.id })
-            .from(environment)
-            .where(
-              activeEnvironmentWhere(
-                inArray(environment.projectId, projectIds),
-              ),
-            ),
-    variables: (environmentIds: string[]) =>
-      environmentIds.length === 0
-        ? Promise.resolve([])
-        : db
-            .select({
-              id: environmentVariable.id,
-              key: environmentVariable.key,
-            })
-            .from(environmentVariable)
-            .where(
-              activeEnvironmentVariableWhere(
-                inArray(environmentVariable.environmentId, environmentIds),
-              ),
-            ),
-  };
-}
+const integrationConfig = resolveDbIntegrationConfig();
+const describeIntegration = integrationConfig.enabled
+  ? describe
+  : describe.skip;
 
-describe("account.exportData integration", { concurrency: 1 }, () => {
+describeIntegration("account.exportData integration", { concurrency: 1 }, () => {
   let databaseAvailable = false;
   const runId = randomUUID().slice(0, 8);
   const testUserId = `export-ac39-user-${runId}`;
@@ -88,9 +49,101 @@ describe("account.exportData integration", { concurrency: 1 }, () => {
   const activeNotificationId = `export-ac39-notif-active-${runId}`;
   const deletedNotificationId = `export-ac39-notif-deleted-${runId}`;
 
+  let db: typeof import("@loftlancer/db").db;
+  let activeEnvironmentVariableWhere: typeof import("@loftlancer/db").activeEnvironmentVariableWhere;
+  let activeEnvironmentWhere: typeof import("@loftlancer/db").activeEnvironmentWhere;
+  let activeNotificationWhere: typeof import("@loftlancer/db").activeNotificationWhere;
+  let activeProjectWhere: typeof import("@loftlancer/db").activeProjectWhere;
+  let user: typeof import("@loftlancer/db/schema/auth").user;
+  let notification: typeof import("@loftlancer/db/schema/notifications").notification;
+  let environment: typeof import("@loftlancer/db/schema/projects").environment;
+  let environmentVariable: typeof import("@loftlancer/db/schema/projects").environmentVariable;
+  let project: typeof import("@loftlancer/db/schema/projects").project;
+  let eq: typeof import("drizzle-orm").eq;
+  let inArray: typeof import("drizzle-orm").inArray;
+  let appRouter: typeof import("./index").appRouter;
+  type Context = import("../create-context").Context;
+
+  function exportQueriesForUser(userId: string) {
+    return {
+      projects: () =>
+        db
+          .select({ id: project.id })
+          .from(project)
+          .where(activeProjectWhere(eq(project.userId, userId))),
+      notifications: () =>
+        db
+          .select({ id: notification.id })
+          .from(notification)
+          .where(
+            activeNotificationWhere(eq(notification.recipientUserId, userId)),
+          ),
+      environments: (projectIds: string[]) =>
+        projectIds.length === 0
+          ? Promise.resolve([])
+          : db
+              .select({ id: environment.id })
+              .from(environment)
+              .where(
+                activeEnvironmentWhere(
+                  inArray(environment.projectId, projectIds),
+                ),
+              ),
+      variables: (environmentIds: string[]) =>
+        environmentIds.length === 0
+          ? Promise.resolve([])
+          : db
+              .select({
+                id: environmentVariable.id,
+                key: environmentVariable.key,
+              })
+              .from(environmentVariable)
+              .where(
+                activeEnvironmentVariableWhere(
+                  inArray(environmentVariable.environmentId, environmentIds),
+                ),
+              ),
+    };
+  }
+
   before(async () => {
-    databaseAvailable = await isDatabaseReachable();
-    if (!databaseAvailable) {
+    if (!integrationConfig.enabled) {
+      return;
+    }
+
+    process.env.SKIP_ENV_VALIDATION = "1";
+    process.env.DATABASE_URL = integrationConfig.testDatabaseUrl;
+
+    const dbModule = await import("@loftlancer/db");
+    db = dbModule.db;
+    activeEnvironmentVariableWhere = dbModule.activeEnvironmentVariableWhere;
+    activeEnvironmentWhere = dbModule.activeEnvironmentWhere;
+    activeNotificationWhere = dbModule.activeNotificationWhere;
+    activeProjectWhere = dbModule.activeProjectWhere;
+
+    const authSchema = await import("@loftlancer/db/schema/auth");
+    user = authSchema.user;
+    const notificationsSchema = await import(
+      "@loftlancer/db/schema/notifications"
+    );
+    notification = notificationsSchema.notification;
+    const projectsSchema = await import("@loftlancer/db/schema/projects");
+    environment = projectsSchema.environment;
+    environmentVariable = projectsSchema.environmentVariable;
+    project = projectsSchema.project;
+
+    const drizzleOrm = await import("drizzle-orm");
+    eq = drizzleOrm.eq;
+    inArray = drizzleOrm.inArray;
+
+    const routerModule = await import("./index");
+    appRouter = routerModule.appRouter;
+
+    try {
+      await db.select({ id: user.id }).from(user).limit(1);
+      databaseAvailable = true;
+    } catch {
+      databaseAvailable = false;
       return;
     }
 
@@ -171,7 +224,7 @@ describe("account.exportData integration", { concurrency: 1 }, () => {
   });
 
   after(async () => {
-    if (!databaseAvailable) {
+    if (!integrationConfig.enabled || !databaseAvailable) {
       return;
     }
     await db
@@ -193,7 +246,7 @@ describe("account.exportData integration", { concurrency: 1 }, () => {
 
   it("omits soft-deleted rows from export-shaped selects when SOFT_DELETES_ENABLED is on", async (t) => {
     if (!databaseAvailable) {
-      t.skip("database not reachable");
+      t.skip("TEST_DATABASE_URL database not reachable");
       return;
     }
 
@@ -242,7 +295,7 @@ describe("account.exportData integration", { concurrency: 1 }, () => {
 
   it("includes soft-deleted rows in export-shaped selects when SOFT_DELETES_ENABLED is off", async (t) => {
     if (!databaseAvailable) {
-      t.skip("database not reachable");
+      t.skip("TEST_DATABASE_URL database not reachable");
       return;
     }
 
@@ -273,7 +326,7 @@ describe("account.exportData integration", { concurrency: 1 }, () => {
 
   it("account.exportData mutation omits soft-deleted entities when SOFT_DELETES_ENABLED is on", async (t) => {
     if (!databaseAvailable) {
-      t.skip("database not reachable");
+      t.skip("TEST_DATABASE_URL database not reachable");
       return;
     }
 
