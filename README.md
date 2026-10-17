@@ -13,7 +13,7 @@ Loftlancer runs as **one Vercel project** (Vercel Services) on **loftlancer.com*
 | Path | App | Purpose |
 | ---- | --- | ------- |
 | `/` | `apps/docs` | Landing page and Fumadocs documentation (static export) |
-| `/auth` | `apps/auth` | Sign-in (GitHub OAuth), sessions and account settings (`/auth/settings/*`) |
+| `/auth` | `apps/auth` | Sign-in (GitHub, Google when configured, email magic links; no passwords), sessions and account settings (`/auth/settings/*`) |
 | `/studio` | `apps/studio` | Product dashboard: organizations, projects, environments, variables |
 
 Routing lives in the root [`vercel.json`](./vercel.json) (`services` + `rewrites`). Session cookies are same-origin on loftlancer.com. Better Auth is served at `/auth/api/auth`; the GitHub OAuth callback is `https://loftlancer.com/auth/api/auth/callback/github`.
@@ -73,8 +73,8 @@ Deep specs: [docs/ACTIONS_PERMISSIONS_AUDIT.md](./docs/ACTIONS_PERMISSIONS_AUDIT
 
 ## Prerequisites
 
-- **Node.js** 20+
-- **pnpm** [10.13.1](https://pnpm.io/) — `packageManager` in root `package.json`; use [Corepack](https://nodejs.org/api/corepack.html)
+- **Node.js** 22.14+ (`engines` in root `package.json`)
+- **pnpm** [12.11.2](https://pnpm.io/) — `packageManager` in root `package.json`; use [Corepack](https://nodejs.org/api/corepack.html)
 - **PostgreSQL** — `DATABASE_URL` (e.g. [Neon](https://neon.tech))
 - **GitHub OAuth app** — `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET`
 
@@ -84,7 +84,7 @@ Deep specs: [docs/ACTIONS_PERMISSIONS_AUDIT.md](./docs/ACTIONS_PERMISSIONS_AUDIT
 git clone https://github.com/jayantrohila57/loftlancer.git
 cd loftlancer
 corepack enable
-corepack prepare pnpm@10.13.1 --activate
+corepack prepare pnpm@12.11.2 --activate
 pnpm install
 ```
 
@@ -145,18 +145,21 @@ pnpm dev          # all apps via Turbo
 pnpm build
 pnpm check-types
 pnpm test
+pnpm a11y             # Playwright + axe on docs landing (Turbo task `a11y` → docs)
 ```
 
 Optional Postgres integration tests (for example `packages/api` `*.integration.test.ts`) are skipped by default. Opt in with `TEST_DATABASE_URL` (connection string used for those tests only; `DATABASE_URL` is ignored) or `RUN_DB_INTEGRATION_TESTS=1` (still requires `TEST_DATABASE_URL`).
+
+**Turbo / remote cache (`a11y`):** Root `pnpm a11y` runs the `a11y` pipeline in `turbo.json` (scoped to `docs`). Turbo restores a cached run when inputs (`e2e/**`, `playwright.a11y.config.ts`, `src/**`, and default package files) and env are unchanged. Cache keys include `globalEnv` feature flags plus `tasks.a11y.env` (`CI`, `A11Y_SKIP`, `A11Y_DOCS_PORT`, Playwright/E2E URLs and secrets, auth/DB URLs). Change those env vars or docs/e2e sources to invalidate the cache — same pattern as `build` and CI `pnpm a11y`.
 
 ## Tech stack
 
 - **App:** Next.js, React, TypeScript, Tailwind, **coss ui** (Base UI) via shadcn registry
 - **API:** tRPC, TanStack Query
-- **Auth:** Better Auth (GitHub, organizations, teams)
+- **Auth:** Better Auth (GitHub, Google, magic links; organizations, teams)
 - **Database:** PostgreSQL, Drizzle ORM
 - **Tooling:** pnpm workspaces, Turborepo, Biome
-- **Deploy:** Vercel — production from **`main`** only (`studio.loftlancer.com`)
+- **Deploy:** Vercel — production from **`main`** only ([loftlancer.com/studio](https://loftlancer.com/studio))
 
 ## Documentation index
 

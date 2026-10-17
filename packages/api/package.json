@@ -11,6 +11,9 @@
     "./apps/purge": {
       "default": "./src/apps/purge.ts"
     },
+    "./apps/purge-db": {
+      "default": "./src/apps/purge-db.ts"
+    },
     "./page-guards": {
       "default": "./src/page-guards/index.ts"
     },
