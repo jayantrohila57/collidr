@@ -16,11 +16,25 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Added
+
+- Root `pnpm a11y` and CI run the Turbo `a11y` task in `apps/docs` (Playwright + axe on the docs landing; fails in CI when Playwright cannot run, optional local skip via `A11Y_SKIP`) (#91)
+- E2E demo environment variable seeding: encrypted fake placeholders for the Playwright demo project, production guards (`VERCEL_ENV` / `NODE_ENV` + opt-in), and `fake-dev-only` markers on reset-seed sample variables (#85)
+
+### Fixed
+
+- Studio projects and organizations list sort controls are single-select dropdowns without a search field (#57)
+- `purge.test.ts` no longer loads the database client at import time; DB purge deps moved to `purge-db` (#414)
+- Sentry Logs from auth, studio and docs flush on the server via a coalesced `Sentry.flush` + Vercel `waitUntil` after `@loftlancer/logger` entries, so buffered SDK logs are not dropped when serverless handlers exit before the default 5s timer; browser logs keep SDK batching (#355)
+- Auth settings redirect routes (`/settings`, `/settings/export`, `/settings/delete`) use async Server Component page wrappers again after the account→auth app split (#37)
+- Studio org settings: General/Danger tabs use horizontal underline tabs (aligned with other settings surfaces); edit-organization sheet Cancel and dismiss run through the unsaved-changes guard (#72)
+
 ## [1.11.1] - 2026-10-17
 
 ### Fixed
 
-- PWA manifests in auth, docs, and studio: screenshot assets no longer show Vercel 404 pages, narrow `sizes` match 390×844 captures, icon and screenshot paths use `/favicon/`, maskable icons are full-bleed on `#262626`, the command-palette environment group no longer reuses the Layers logo mark, and studio `og-image.png` is served from public without a signed-out redirect (#404)
+- PWA manifests in auth, docs, and studio: screenshot assets are captured from the real studio dashboard (Playwright + E2E login), narrow `sizes` match 390×844 captures, icon and screenshot paths use `/favicon/`, maskable icons are full-bleed on `#262626` with a `#fafafa` Layers mark, command-palette environment groups use the canonical Layers icon (distinct from variables’ KeyRound), and studio `og-image.png` is served from public without a signed-out redirect (#404)
+- Invitation notification sync mutations: unit tests for allowed and denied authorization paths (#18)
 - Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
 - README sign-in methods, pnpm/Node prerequisites, and Studio URL; SECURITY.md supported version; integrations inventory PostHog opt-out and centralized logs release status; align `scripts/README.md`, getting-started, `PRODUCTION_DEPLOY.md`, and `summary.md` with path routing on loftlancer.com (#400)
 

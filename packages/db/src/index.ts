@@ -1,6 +1,11 @@
 export { db } from "./client";
 export { deletedAccountUserUpdate } from "./deleted-account-user";
 export { ensureE2eDemoProject } from "./e2e-demo-project";
+export {
+  assertE2eDemoVariableSeedAllowed,
+  isE2eDemoVariableSeedEnvironmentAllowed,
+  SEED_E2E_DEMO_VARIABLES_ENV,
+} from "./e2e-demo-seed-guard";
 export { ensureE2eDemoVariable } from "./e2e-demo-variable";
 export { E2E_DEMO_VAR_KEY } from "./e2e-demo-variables";
 export { getOwnedProjectBySlug } from "./queries/project";
