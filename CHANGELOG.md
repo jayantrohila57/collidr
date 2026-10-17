@@ -19,9 +19,11 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 ### Added
 
 - Root `pnpm a11y` and CI run the Turbo `a11y` task against `apps/studio` (Playwright + axe on the docs landing; skips when the spec or Playwright is unavailable) (#91)
+- E2E demo environment variable seeding: encrypted fake placeholders for the Playwright demo project, production guards (`VERCEL_ENV` / `NODE_ENV` + opt-in), and `fake-dev-only` markers on reset-seed sample variables (#85)
 
 ### Fixed
 
+- Sentry Logs from auth, studio and docs flush on the server via a coalesced `Sentry.flush` + Vercel `waitUntil` after `@loftlancer/logger` entries, so buffered SDK logs are not dropped when serverless handlers exit before the default 5s timer; browser logs keep SDK batching (#355)
 - Auth settings redirect routes (`/settings`, `/settings/export`, `/settings/delete`) use async Server Component page wrappers again after the account→auth app split (#37)
 
 ## [1.11.1] - 2026-10-17
