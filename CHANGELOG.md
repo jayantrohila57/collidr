@@ -16,6 +16,18 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+## [1.12.1] - 2026-10-17
+
+### Added
+
+- Sentry test-error triggers to confirm readable stack traces in production: `POST /api/sentry-test` and a `/sentry-test` page in auth and studio, guarded by the new server-only `SENTRY_TEST_TOKEN` (404 while unset; the token is scrubbed from Sentry events), and a hidden button page at `/sentry-test` on docs. Events are tagged `app` and `test: true` and carry no user data (#354)
+
+### Fixed
+
+- Studio sidebar platform nav and org-scoped pages resolve loading from SSR-hydrated data without waiting for a second client bootstrap or user interaction; nav count badges reserve space while counts load (#63)
+- Account settings use `LocalDateTime` (shared `formatDate`) for linked-provider and audit-rail dates; activity heatmap cell tooltips use the same date style (#73)
+- `audit.stats` documents and tests scoped SQL aggregates (user and optional `projectId` filter) for totals and per-action counts (#35)
+
 ## [1.12.0] - 2026-10-17
 
 ### Added
@@ -468,7 +480,8 @@ The product is now Loftlancer.
 - Version management and commit workflow scripts
 - `SKIP_ENV_VALIDATION` option for builds
 
-[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.12.1...HEAD
+[1.12.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.1...v1.12.0
 [1.11.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.10.0...v1.11.0
