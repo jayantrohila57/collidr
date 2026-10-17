@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyState } from "@/components/patterns/empty-state";
+import { EmptyState } from "@loftlancer/ui/patterns/empty-state";
 import { ErrorState } from "@/components/patterns/error-state";
 import {
   CONTACT_MANAGER_DESCRIPTION,

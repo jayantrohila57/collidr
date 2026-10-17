@@ -1,9 +1,9 @@
 "use client";
 
+import { SettingsPanelSkeleton } from "@loftlancer/ui/patterns/settings-panel-skeleton";
 import type { ReactNode } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { ErrorState } from "@/components/patterns/error-state";
-import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { orgSectionAction } from "@/domain/permissions/org-section-actions";
 import { useOrganizationBySlug } from "../hooks/use-organization-by-slug";

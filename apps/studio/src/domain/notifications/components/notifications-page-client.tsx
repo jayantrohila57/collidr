@@ -1,12 +1,12 @@
 "use client";
 
+import { Button } from "@loftlancer/ui/button";
+import { EmptyState } from "@loftlancer/ui/patterns/empty-state";
+import { LoadingButton } from "@loftlancer/ui/patterns/loading-button";
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { useMemo, useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { EmptyState } from "@/components/patterns/empty-state";
-import { LoadingButton } from "@/components/patterns/loading-button";
 import DashboardSection from "@/components/section-dashboard";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { accountSettingsUrl } from "@/lib/account-url";
 import { appIcons } from "@/lib/icons";
 import { cn } from "@/lib/utils";

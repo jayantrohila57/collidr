@@ -1,8 +1,8 @@
+import { SettingsPanelSkeleton } from "@loftlancer/ui/patterns/settings-panel-skeleton";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { SettingsSectionShell } from "@/app/(account)/settings/_components/settings-section-shell";
 import { AccountSettingsClient } from "@/domain/settings/components/account-settings-client";
-import { SettingsPanelSkeleton } from "@/components/patterns/settings-panel-skeleton";
 import { guardPageAction } from "@/lib/page-guards";
 
 export const metadata: Metadata = {

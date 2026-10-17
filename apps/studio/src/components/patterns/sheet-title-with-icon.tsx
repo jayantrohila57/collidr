@@ -1,6 +1,6 @@
+import { SheetTitle } from "@loftlancer/ui/sheet";
 import type { ReactNode } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { SheetTitle } from "@/components/ui/sheet";
 import type { AppIconName } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 

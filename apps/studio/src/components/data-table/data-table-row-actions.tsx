@@ -1,20 +1,20 @@
 "use client";
 
-import { Fragment, type ReactNode } from "react";
-import { AppIcon } from "@/components/patterns/app-icon";
-import { Button } from "@/components/ui/button";
+import { Button } from "@loftlancer/ui/button";
 import {
   Menu,
   MenuItem,
   MenuPopup,
   MenuSeparator,
   MenuTrigger,
-} from "@/components/ui/menu";
+} from "@loftlancer/ui/menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@loftlancer/ui/tooltip";
+import { Fragment, type ReactNode } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 
 export type DataTableRowAction = {
   label: string;

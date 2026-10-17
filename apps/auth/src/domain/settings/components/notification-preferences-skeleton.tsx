@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@loftlancer/ui/skeleton";
 
 /** Matches notification preferences card — not the full account settings tab skeleton. */
 export function NotificationPreferencesSkeleton() {

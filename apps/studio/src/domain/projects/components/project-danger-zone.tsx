@@ -1,6 +1,7 @@
 "use client";
 
 import type { ProjectOutput } from "@loftlancer/api/types";
+import { Button } from "@loftlancer/ui/button";
 import { useState } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import {
@@ -8,7 +9,6 @@ import {
   SettingsRow,
   SettingsSectionHeader,
 } from "@/components/patterns/settings-layout";
-import { Button } from "@/components/ui/button";
 import { Can } from "@/domain/permissions/components/can";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { ProjectActionDialog } from "./project-action-dialog";

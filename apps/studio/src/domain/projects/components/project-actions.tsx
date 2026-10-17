@@ -1,9 +1,7 @@
 "use client";
 
 import type { ProjectOutput } from "@loftlancer/api/types";
-import { useState } from "react";
-import { AppIcon } from "@/components/patterns/app-icon";
-import { Button } from "@/components/ui/button";
+import { Button } from "@loftlancer/ui/button";
 import {
   Menu,
   MenuGroup,
@@ -12,12 +10,14 @@ import {
   MenuPopup,
   MenuSeparator,
   MenuTrigger,
-} from "@/components/ui/menu";
+} from "@loftlancer/ui/menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@loftlancer/ui/tooltip";
+import { useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { Can } from "@/domain/permissions/components/can";
 import { useProjectActions } from "../hooks/use-project-actions";
 import { EditProjectSheet } from "./edit-project-sheet";

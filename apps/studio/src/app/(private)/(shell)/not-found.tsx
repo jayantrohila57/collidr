@@ -1,10 +1,4 @@
-import { FolderX } from "lucide-react";
-import type { Route } from "next";
-import Link from "next/link";
-import { PageStack } from "@/components/layout/app-layout";
-import { PageHeader } from "@/components/layout/page-header";
-import { RouteNotFoundMarker } from "@/components/route-not-found-marker";
-import { Button } from "@/components/ui/button";
+import { Button } from "@loftlancer/ui/button";
 import {
   Empty,
   EmptyContent,
@@ -12,7 +6,13 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty";
+} from "@loftlancer/ui/empty";
+import { FolderX } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
+import { PageStack } from "@/components/layout/app-layout";
+import { PageHeader } from "@/components/layout/page-header";
+import { RouteNotFoundMarker } from "@/components/route-not-found-marker";
 import { type NotFoundScope, resolveNotFoundScope } from "@/lib/page-guards";
 import { routes } from "@/utils/navigation";
 

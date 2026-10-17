@@ -1,6 +1,12 @@
 "use client";
 
 import type { ProjectOutput } from "@loftlancer/api/types";
+import { Button } from "@loftlancer/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@loftlancer/ui/tooltip";
 import type { Route } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -11,12 +17,6 @@ import {
   pageHeaderMetadataValueClassName,
 } from "@/components/layout/page-header-metadata-styles";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 

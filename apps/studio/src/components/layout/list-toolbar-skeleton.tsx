@@ -1,5 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { layoutGapClass } from "@/lib/layout-spacing";
+import { layoutGapClass } from "@loftlancer/ui/layout-spacing";
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 /** Matches `DataTableToolbar` chrome (search, filters, trailing controls). */

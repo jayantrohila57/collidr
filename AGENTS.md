@@ -46,8 +46,8 @@ This repository uses **`dev`** for integration and **`main`** for production. Al
 
 ## UI rule for agents
 
-- **shadcn / coss ui defaults** under `apps/web/src/components/ui/` are the single source of truth for spacing and layout; compose via [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md) tokens (`layout-spacing.ts`, `PageHeaderBar`, `FormSheet`, etc.).
-- **Do not edit `components/ui/*`** except via the documented shadcn/coss CLI workflow.
+- **shadcn / coss ui primitives** live only in `packages/ui/src/components/ui/` (imported as `@loftlancer/ui/<name>`; apps keep no `components/ui` copies). Shared patterns (empty/page states, shell pieces, guards) live in `packages/ui/src/patterns/` (`@loftlancer/ui/patterns/<name>`). They are the single source of truth for spacing and layout; compose via [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md) tokens (`layout-spacing.ts`, `PageHeaderBar`, `FormSheet`, etc.).
+- **Do not edit `packages/ui/src/components/ui/*`** except via the documented shadcn/coss CLI workflow.
 - After UI changes, **verify in a running dev build** (`pnpm dev:web`) — layout, empty/error states, and org/project gates.
 
 ## Database / production schema

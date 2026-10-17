@@ -10,12 +10,12 @@ import {
   PageHeaderLayout,
   PageHeaderTabsRow,
 } from "@loftlancer/ui/patterns/page-header";
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { PageBackButton } from "@/components/layout/page-back-button";
 import { PageHeaderDescription } from "@/components/layout/page-header-description";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   getPageBackFallback,
   getPageBackHref,

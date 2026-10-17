@@ -1,12 +1,12 @@
 "use client";
 
+import { Avatar, AvatarFallback } from "@loftlancer/ui/avatar";
+import { Button } from "@loftlancer/ui/button";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import Link from "next/link";
 import type { OrgListItem } from "@/components/org/active-organization-context";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { TableLeadingCell } from "@/components/patterns/table-leading-cell";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { initialsFromLabel } from "@/lib/initials";
 import { isPersonalOrganization } from "@/lib/org-personal";
 

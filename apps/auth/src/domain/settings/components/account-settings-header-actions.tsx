@@ -1,9 +1,9 @@
 "use client";
 
+import { Button } from "@loftlancer/ui/button";
 import type { Route } from "next";
 import Link from "next/link";
 import { AppIcon } from "@/components/patterns/app-icon";
-import { Button } from "@/components/ui/button";
 import { Can } from "@/domain/permissions/components/can";
 import { accountSettingsActions } from "@/domain/permissions/org-section-actions";
 

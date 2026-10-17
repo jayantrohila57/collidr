@@ -1,8 +1,16 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import type { ProjectOutput } from "@loftlancer/api/types";
 import { updateProjectInput } from "@loftlancer/api/validation";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@loftlancer/ui/button";
+import { Card, CardPanel } from "@loftlancer/ui/card";
+import { Input } from "@loftlancer/ui/input";
+import { Label } from "@loftlancer/ui/label";
+import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
+import { UnsavedChangesPageGuard } from "@loftlancer/ui/patterns/unsaved-changes-page-guard";
+import { Switch } from "@loftlancer/ui/switch";
+import { Textarea } from "@loftlancer/ui/textarea";
 import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod/v3";
 import {
@@ -12,14 +20,6 @@ import {
   SettingsSectionHeader,
   settingsControlWidthClass,
 } from "@/components/patterns/settings-layout";
-import { SubmitButton } from "@/components/patterns/submit-button";
-import { UnsavedChangesPageGuard } from "@/components/patterns/unsaved-changes-page-guard";
-import { Button } from "@/components/ui/button";
-import { Card, CardPanel } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useProjects } from "../hooks/use-projects";
 

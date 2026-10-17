@@ -1,11 +1,6 @@
 "use client";
 
 import { accountSettingsNav } from "@loftlancer/actions/nav";
-import { routes } from "@loftlancer/ui/studio-routes";
-import { Home } from "lucide-react";
-import type { Route } from "next";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,7 +8,12 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from "@loftlancer/ui/breadcrumb";
+import { routes } from "@loftlancer/ui/studio-routes";
+import { Home } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { studioDashboardPath } from "@/lib/studio-url";
 import { cn } from "@/lib/utils";
 

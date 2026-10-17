@@ -1,13 +1,6 @@
 "use client";
 
-import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
-
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
-import { invitationsEmpty } from "@/components/data-table/data-table-empty-presets";
-import { OrganizationInvitationsTable } from "@/components/org/organization-invitations-table";
-import { AppIcon } from "@/components/patterns/app-icon";
-import { Button } from "@/components/ui/button";
+import { Button } from "@loftlancer/ui/button";
 import {
   Empty,
   EmptyContent,
@@ -15,8 +8,14 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@loftlancer/ui/empty";
+import { SearchableCombobox } from "@loftlancer/ui/patterns/searchable-combobox";
+import { Skeleton } from "@loftlancer/ui/skeleton";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
+import { invitationsEmpty } from "@/components/data-table/data-table-empty-presets";
+import { OrganizationInvitationsTable } from "@/components/org/organization-invitations-table";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { useSession } from "@/domain/auth/lib/auth-actions";
 import { useNotificationMutations } from "@/domain/notifications/hooks/use-notifications";
 import { Can } from "@/domain/permissions/components/can";

@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { AppIcon } from "@/components/patterns/app-icon";
-import { ConfirmDialog } from "@/components/patterns/confirm-dialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@loftlancer/ui/button";
+import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@loftlancer/ui/tooltip";
+import { useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 
 interface DeleteEnvironmentDialogProps {
   environmentName: string;

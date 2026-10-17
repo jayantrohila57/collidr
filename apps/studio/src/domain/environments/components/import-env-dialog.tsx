@@ -1,10 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { AppIcon } from "@/components/patterns/app-icon";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@loftlancer/ui/badge";
+import { Button } from "@loftlancer/ui/button";
+import { Checkbox } from "@loftlancer/ui/checkbox";
 import {
   DialogContent,
   DialogDescription,
@@ -12,9 +10,11 @@ import {
   DialogHeader,
   DialogPrimitive,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+} from "@loftlancer/ui/dialog";
+import { Label } from "@loftlancer/ui/label";
+import { Textarea } from "@loftlancer/ui/textarea";
+import { useMemo, useState } from "react";
+import { AppIcon } from "@/components/patterns/app-icon";
 import { parseDotenv } from "@/lib/dotenv";
 
 /**

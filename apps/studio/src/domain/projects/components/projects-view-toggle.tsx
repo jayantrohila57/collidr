@@ -1,12 +1,12 @@
 "use client";
 
-import { AppIcon } from "@/components/patterns/app-icon";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "@loftlancer/ui/toggle-group";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@loftlancer/ui/tooltip";
+import { AppIcon } from "@/components/patterns/app-icon";
 import type { ProjectsViewMode } from "../hooks/use-projects-list-params";
 
 export function ProjectsViewToggle({

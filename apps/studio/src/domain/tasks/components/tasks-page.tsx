@@ -1,19 +1,19 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@loftlancer/ui/avatar";
+import { Badge } from "@loftlancer/ui/badge";
+import { Button } from "@loftlancer/ui/button";
+import {
+  DataTable,
+  type DataTableColumnDef,
+} from "@loftlancer/ui/data-table/data-table";
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDeferredValue, useMemo, useState } from "react";
-import {
-  DataTable,
-  type DataTableColumnDef,
-} from "@/components/data-table/data-table";
 import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
 import DashboardSection from "@/components/section-dashboard";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useProjectApps } from "@/domain/apps/hooks/use-project-apps";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import { useProjectTabs } from "@/domain/projects/hooks/use-project-tabs";

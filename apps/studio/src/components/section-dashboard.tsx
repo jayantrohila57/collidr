@@ -1,3 +1,5 @@
+import { Button } from "@loftlancer/ui/button";
+import { layoutDashboardPageStackClass } from "@loftlancer/ui/layout-spacing";
 import type { Route } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -7,8 +9,6 @@ import {
   type PageHeaderBackProp,
   type PageHeaderTabsProps,
 } from "@/components/layout/page-header";
-import { Button } from "@/components/ui/button";
-import { layoutDashboardPageStackClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 
 interface SectionProps extends PageHeaderTabsProps {

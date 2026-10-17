@@ -1,5 +1,5 @@
+import { Badge } from "@loftlancer/ui/badge";
 import { Globe, Lock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const badgeClassName = "gap-1.5 font-normal capitalize";

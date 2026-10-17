@@ -1,10 +1,10 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@loftlancer/ui/avatar";
 import type { Route } from "next";
 import Link from "next/link";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { AppIconName } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 

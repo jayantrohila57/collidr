@@ -1,9 +1,9 @@
 "use client";
 
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import type { PageHeaderTab } from "@/components/layout/page-header";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useProjectApps } from "@/domain/apps/hooks/use-project-apps";
 
 import { routes } from "@/utils/navigation";

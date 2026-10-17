@@ -1,7 +1,7 @@
 "use client";
 
+import { Skeleton } from "@loftlancer/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useCan } from "@/domain/permissions/hooks/use-permissions";
 import {
   type OrgHubSection,
