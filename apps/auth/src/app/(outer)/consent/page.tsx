@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@loftlancer/ui/card";
 import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ConsentScreen } from "@/components/consent-screen";
 import { authAppReturnTo } from "@/lib/auth-return-to";
@@ -46,6 +47,8 @@ function InvalidConsentRequest() {
     </Auth5Panel>
   );
 }
+
+export const metadata: Metadata = { title: "Authorize access" };
 
 export default async function ConsentPage({
   searchParams,

@@ -1,5 +1,10 @@
 import { AppNotFoundPage } from "@loftlancer/ui/patterns/app-route-states";
 import { Auth5Panel } from "@loftlancer/ui/patterns/auth-5";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: { absolute: "Not found · Loftlancer" },
+};
 
 const links = { homeHref: "/settings" };
 
