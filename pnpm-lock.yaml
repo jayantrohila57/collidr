@@ -942,6 +942,9 @@ importers:
       '@loftlancer/config':
         specifier: workspace:*
         version: link:../config
+      '@sentry/core':
+        specifier: ^11.8.0
+        version: 11.8.0
       '@types/node':
         specifier: ^26.6.5
         version: 26.6.5
