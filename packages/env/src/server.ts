@@ -28,6 +28,12 @@ export const env = createEnv({
     EMAIL_FROM: z.string().min(1).optional(),
     /** Better Stack Uptime API token for /status (#369); never sent to browsers. */
     BETTERSTACK_API_TOKEN: z.string().min(1).optional(),
+    /**
+     * Sentry test-error trigger token (#354), auth + studio. Unset = the
+     * /api/sentry-test routes and /sentry-test page answer 404. Shorter than
+     * 32 characters also fails closed (checked in @loftlancer/logger).
+     */
+    SENTRY_TEST_TOKEN: z.string().min(1).optional(),
     ENCRYPTION_KEY: encryptionKeySchema,
     NODE_ENV: z
       .enum(["development", "production", "test"])
