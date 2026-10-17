@@ -6,6 +6,7 @@ import {
   SidebarBrand,
   SidebarFavorites,
   SidebarSearch,
+  SidebarSettingsLink,
   SidebarUserMenu,
 } from "@loftlancer/ui/patterns/sidebar-kit";
 import { VersionBadge } from "@loftlancer/ui/patterns/version-badge";
@@ -223,6 +224,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter className="mt-auto shrink-0 border-sidebar-border border-t bg-sidebar">
+        <SidebarSettingsLink href={accountSettingsHref} />
         <SidebarUserMenu {...userMenuProps} />
         <div className="flex justify-end px-2 group-data-[collapsible=icon]:hidden">
           <VersionBadge />
