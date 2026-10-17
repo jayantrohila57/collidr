@@ -2,6 +2,7 @@ import { encrypt } from "@loftlancer/crypto";
 import { and, eq, inArray } from "drizzle-orm";
 
 import { db } from "./client";
+import { assertE2eDemoVariableSeedAllowed } from "./e2e-demo-seed-guard";
 import { environmentVariable } from "./schema/projects";
 import { activeEnvironmentVariableWhere } from "./soft-delete";
 
@@ -60,6 +61,8 @@ export async function seedE2eDemoVariables(
   environmentId: string,
   createdBy?: string,
 ) {
+  assertE2eDemoVariableSeedAllowed();
+
   const keys = E2E_DEMO_VARIABLE_DEFS.map((def) => def.key);
 
   const existing = await db

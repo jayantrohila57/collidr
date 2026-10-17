@@ -1,5 +1,6 @@
 import { encrypt } from "@loftlancer/crypto";
 import { db } from "@loftlancer/db";
+import { E2E_DEMO_SEED_MARKER } from "@loftlancer/db/e2e-demo-variables";
 import { auditLog } from "@loftlancer/db/schema/audit";
 import { auditEvent } from "@loftlancer/db/schema/audit-event";
 import { notification } from "@loftlancer/db/schema/notifications";
@@ -169,25 +170,25 @@ const VARIABLE_DEFS = [
   {
     key: "APP_URL",
     type: "config" as const,
-    note: "Public base URL for this environment",
+    note: `${E2E_DEMO_SEED_MARKER}: public base URL`,
     sample: FAKE_CONFIG_PLACEHOLDER,
   },
   {
     key: "LOG_LEVEL",
     type: "config" as const,
-    note: "Pino log level",
+    note: `${E2E_DEMO_SEED_MARKER}: log level`,
     sample: "info",
   },
   {
     key: "DATABASE_URL",
     type: "secret" as const,
-    note: "Postgres connection (fake sample)",
+    note: `${E2E_DEMO_SEED_MARKER}: postgres placeholder`,
     sample: FAKE_SECRET_PLACEHOLDER,
   },
   {
     key: "API_TOKEN",
     type: "secret" as const,
-    note: "Service-to-service token (fake)",
+    note: `${E2E_DEMO_SEED_MARKER}: service token placeholder`,
     sample: FAKE_SECRET_PLACEHOLDER,
   },
 ];
