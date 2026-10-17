@@ -1,17 +1,17 @@
 import type { MetadataRoute } from "next";
+import { siteUrl } from "@/lib/seo";
 
 export const dynamic = "force-static";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_DOCS_URL?.replace(/\/$/, "") ??
-  "https://loftlancer.com";
-
+/** Public site is crawlable; the private apps (/studio, /auth) are not. */
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
+      disallow: ["/studio", "/auth"],
     },
     sitemap: `${siteUrl}/sitemap.xml`,
+    host: siteUrl,
   };
 }

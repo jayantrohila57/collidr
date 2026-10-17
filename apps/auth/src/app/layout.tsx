@@ -14,6 +14,8 @@ export const metadata: Metadata = {
     template: "%s | Loftlancer",
   },
   description: "Authentication for Loftlancer platform apps.",
+  // Private app: sign-in and account pages are never indexed (#352).
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({

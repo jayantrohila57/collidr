@@ -1,0 +1,75 @@
+import type { Metadata } from "next";
+
+/** Canonical public origin. Every canonical, OG and sitemap URL hangs off it. */
+export const siteUrl = (
+  process.env.NEXT_PUBLIC_DOCS_URL?.trim() || "https://loftlancer.com"
+).replace(/\/$/, "");
+
+export const siteName = "Loftlancer";
+
+export const siteDescription =
+  "Organizations, projects, environments and encrypted variables for your team and your agents.";
+
+export const ogImage = {
+  url: "/favicon/og-image.png",
+  width: 1200,
+  height: 630,
+  alt: "Loftlancer",
+} as const;
+
+/**
+ * Public, indexable routes outside /docs (the docs pages come from the
+ * fumadocs source). Keep in sync with the app/(split) and app/(legal) routes.
+ */
+export const publicRoutes = [
+  "/",
+  "/features",
+  "/pricing",
+  "/about",
+  "/changelog",
+  "/privacy",
+  "/terms",
+  "/legal/acceptable-use",
+  "/legal/contact",
+  "/legal/cookies",
+  "/legal/dpa",
+  "/legal/security",
+] as const;
+
+/**
+ * Per-page metadata: unique title + description, a self-referencing canonical
+ * and matching Open Graph / Twitter fields. `path` is the route ("/features").
+ */
+export function pageMetadata({
+  title,
+  description,
+  path,
+  absoluteTitle = false,
+}: {
+  title: string;
+  description: string;
+  path: string;
+  absoluteTitle?: boolean;
+}): Metadata {
+  const ogTitle = absoluteTitle ? title : `${title} | ${siteName}`;
+  return {
+    title: absoluteTitle ? { absolute: title } : title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: "website",
+      siteName,
+      locale: "en_US",
+      url: path,
+      title: ogTitle,
+      description,
+      images: [ogImage],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: ogTitle,
+      description,
+      images: [ogImage.url],
+    },
+  };
+}

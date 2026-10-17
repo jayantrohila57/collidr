@@ -94,6 +94,7 @@
     "./patterns/settings-panel-skeleton": "./src/patterns/settings-panel-skeleton.tsx",
     "./patterns/skip-link": "./src/patterns/skip-link.tsx",
     "./patterns/offline-banner": "./src/patterns/offline-banner.tsx",
+    "./patterns/analytics-consent": "./src/patterns/analytics-consent.tsx",
     "./patterns/unsaved-changes-page-guard": "./src/patterns/unsaved-changes-page-guard.tsx",
     "./patterns/mode-toggle": "./src/patterns/mode-toggle.tsx",
     "./hooks/*": "./src/hooks/*.ts",
