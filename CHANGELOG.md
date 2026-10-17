@@ -16,9 +16,8 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
-### Fixed
+## [1.12.0] - 2026-10-17
 
-- Studio projects and organizations list sort controls are single-select dropdowns without a search field (#57)
 ### Added
 
 - Root `pnpm a11y` and CI run the Turbo `a11y` task in `apps/docs` (Playwright + axe on the docs landing; fails in CI when Playwright cannot run, optional local skip via `A11Y_SKIP`) (#91)
@@ -27,6 +26,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 ### Fixed
 
 - Studio sidebar footer restores the Settings link to account settings while keeping the org switcher in the header and the collapsible Projects list with More/Less (#79)
+- Studio projects and organizations list sort controls are single-select dropdowns without a search field (#57)
 - `purge.test.ts` no longer loads the database client at import time; DB purge deps moved to `purge-db` (#414)
 - Sentry Logs from auth, studio and docs flush on the server via a coalesced `Sentry.flush` + Vercel `waitUntil` after `@loftlancer/logger` entries, so buffered SDK logs are not dropped when serverless handlers exit before the default 5s timer; browser logs keep SDK batching (#355)
 - Auth settings redirect routes (`/settings`, `/settings/export`, `/settings/delete`) use async Server Component page wrappers again after the account→auth app split (#37)
@@ -38,6 +38,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 - Invitation notification sync mutations: unit tests for allowed and denied authorization paths (#18)
 - Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
+- `audit.stats` documents and tests scoped SQL aggregates (user and optional `projectId` filter) for totals and per-action counts (#35)
 - README sign-in methods, pnpm/Node prerequisites, and Studio URL; SECURITY.md supported version; integrations inventory PostHog opt-out and centralized logs release status; align `scripts/README.md`, getting-started, `PRODUCTION_DEPLOY.md`, and `summary.md` with path routing on loftlancer.com (#400)
 
 ## [1.11.0] - 2026-10-17
@@ -469,7 +470,8 @@ The product is now Loftlancer.
 - Version management and commit workflow scripts
 - `SKIP_ENV_VALIDATION` option for builds
 
-[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.1...HEAD
+[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.1...v1.12.0
 [1.11.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.1...v1.10.0
