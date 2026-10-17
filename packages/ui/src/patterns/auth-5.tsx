@@ -30,20 +30,44 @@ export function AuthDivider({
   );
 }
 
-export function Logo({ className }: { className?: string }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-2 font-semibold text-base leading-none tracking-tight",
-        className,
-      )}
-    >
+/** Landing page; every app is served under the same origin. */
+const LOGO_HOME_HREF = "/";
+
+/** The Loftlancer wordmark. A real link home when `href` is set (#330). */
+export function Logo({
+  className,
+  href,
+}: {
+  className?: string;
+  href?: string;
+}) {
+  const content = (
+    <>
       <svg viewBox="0 0 24 24" aria-hidden className="size-4.5 fill-current">
         <path d="M3 21V9l9-6 9 6v12h-6v-7H9v7H3z" />
       </svg>
       Loftlancer
-    </span>
+    </>
   );
+  const classes = cn(
+    "inline-flex items-center gap-2 font-semibold text-base leading-none tracking-tight",
+    className,
+  );
+  if (href) {
+    return (
+      <a
+        href={href}
+        aria-label="Loftlancer home"
+        className={cn(
+          classes,
+          "rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        )}
+      >
+        {content}
+      </a>
+    );
+  }
+  return <span className={classes}>{content}</span>;
 }
 
 export function FloatingPaths({ position }: { position: number }) {
@@ -113,7 +137,7 @@ export function Auth5Panel({
       ) : null}
 
       <div className="mx-auto space-y-4 sm:w-sm">
-        <Logo className="h-4.5 lg:hidden" />
+        <Logo href={LOGO_HOME_HREF} className="h-4.5 lg:hidden" />
         {title || description ? (
           <div className="flex flex-col space-y-1">
             {title ? (
@@ -170,7 +194,7 @@ export function Auth5Frame({ children }: { children: ReactNode }) {
     >
       <div className="relative hidden h-full flex-col border-r bg-secondary p-10 lg:flex dark:bg-secondary/20">
         <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-background" />
-        <Logo className="relative z-10 mr-auto h-4.5" />
+        <Logo href={LOGO_HOME_HREF} className="relative z-10 mr-auto h-4.5" />
 
         <div className="z-10 mt-auto">
           <blockquote className="space-y-2">
@@ -217,7 +241,7 @@ export function Auth5Content({
 }) {
   return (
     <div className={cn("mx-auto w-full max-w-2xl space-y-4 py-12", className)}>
-      <Logo className="h-4.5 lg:hidden" />
+      <Logo href={LOGO_HOME_HREF} className="h-4.5 lg:hidden" />
       {children}
     </div>
   );
