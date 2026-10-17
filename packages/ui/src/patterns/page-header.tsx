@@ -8,6 +8,7 @@ import {
   pageHeaderActionsClass,
   pageHeaderBackClass,
   pageHeaderDescriptionClass,
+  pageHeaderDescriptionGridClass,
   pageHeaderMetaRowClass,
   pageHeaderRootClass,
   pageHeaderTabActiveClass,
@@ -20,6 +21,11 @@ import {
   pageHeaderTitleRowClass,
   pageHeaderTopRowClass,
 } from "../lib/page-header-classes";
+import {
+  pageHeaderDescriptionGridActionClass,
+  pageHeaderDescriptionGridDescClass,
+  pageHeaderDescriptionGridTitleClass,
+} from "../lib/page-header-grid-classes";
 import { cn } from "../lib/utils";
 
 /**
@@ -148,6 +154,144 @@ export function PageHeaderTabsRow({
   );
 }
 
+function PageHeaderTitleHeading({
+  title,
+  titleAccessory,
+  className,
+}: {
+  title: ReactNode;
+  titleAccessory?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn(pageHeaderTitleRowClass, className)}>
+      <h1 className={pageHeaderTitleClass}>{title}</h1>
+      {titleAccessory}
+    </div>
+  );
+}
+
+function PageHeaderDescriptionSlot({
+  description,
+}: {
+  description: ReactNode;
+}) {
+  if (typeof description === "string") {
+    return (
+      <p className={cn(pageHeaderDescriptionClass, "line-clamp-2")}>
+        {description}
+      </p>
+    );
+  }
+  return description;
+}
+
+function PageHeaderTopRow({
+  back,
+  title,
+  titleAccessory,
+  description,
+  actions,
+}: {
+  back?: ReactNode | null;
+  title: ReactNode;
+  titleAccessory?: ReactNode;
+  description?: ReactNode;
+  actions?: ReactNode;
+}) {
+  const hasBack = back != null;
+  const hasAction = Boolean(actions);
+  const hasDescription = description != null && description !== false;
+
+  if (!hasDescription) {
+    return (
+      <div className={pageHeaderTopRowClass}>
+        {hasBack ? back : null}
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <PageHeaderTitleHeading
+            title={title}
+            titleAccessory={titleAccessory}
+          />
+        </div>
+        <div
+          className={cn(pageHeaderActionsClass, "*:data-[slot=button]:h-8")}
+          data-slot="page-header-actions"
+        >
+          {actions}
+        </div>
+      </div>
+    );
+  }
+
+  const mobileCols = hasBack
+    ? hasAction
+      ? "grid-cols-[auto_minmax(0,1fr)_auto]"
+      : "grid-cols-[auto_minmax(0,1fr)]"
+    : hasAction
+      ? "grid-cols-[minmax(0,1fr)_auto]"
+      : "grid-cols-1";
+
+  const mobileAreas = hasBack
+    ? hasAction
+      ? "[grid-template-areas:'leading_title_action'_'desc_desc_desc']"
+      : "[grid-template-areas:'leading_title_title'_'desc_desc_desc']"
+    : hasAction
+      ? "[grid-template-areas:'title_action'_'desc_desc']"
+      : "[grid-template-areas:'title'_'desc']";
+
+  const desktopAreas = hasBack
+    ? hasAction
+      ? "md:[grid-template-areas:'leading_title_action'_'leading_desc_desc']"
+      : "md:[grid-template-areas:'leading_title_title'_'leading_desc_desc']"
+    : hasAction
+      ? "md:[grid-template-areas:'title_action'_'desc_desc']"
+      : "md:[grid-template-areas:'title'_'desc']";
+
+  return (
+    <div
+      className={cn(
+        pageHeaderDescriptionGridClass,
+        mobileCols,
+        mobileAreas,
+        desktopAreas,
+        hasBack && "md:grid-cols-[auto_minmax(0,1fr)_auto]",
+      )}
+    >
+      {hasBack ? (
+        <div className="self-center [grid-area:leading] md:self-start">
+          {back}
+        </div>
+      ) : null}
+      <PageHeaderTitleHeading
+        title={title}
+        titleAccessory={titleAccessory}
+        className={pageHeaderDescriptionGridTitleClass(hasBack)}
+      />
+      {hasAction ? (
+        <div
+          className={cn(
+            pageHeaderActionsClass,
+            pageHeaderDescriptionGridActionClass(hasBack),
+            "*:data-[slot=button]:h-8",
+          )}
+          data-slot="page-header-actions"
+        >
+          {actions}
+        </div>
+      ) : (
+        <div
+          className="hidden [grid-area:action]"
+          data-slot="page-header-actions"
+          aria-hidden
+        />
+      )}
+      <div className={pageHeaderDescriptionGridDescClass(hasBack)}>
+        <PageHeaderDescriptionSlot description={description} />
+      </div>
+    </div>
+  );
+}
+
 export function PageHeaderLayout({
   back,
   title,
@@ -157,7 +301,7 @@ export function PageHeaderLayout({
   meta,
   tabs,
 }: {
-  back: ReactNode;
+  back?: ReactNode | null;
   title: ReactNode;
   titleAccessory?: ReactNode;
   description?: ReactNode;
@@ -166,32 +310,20 @@ export function PageHeaderLayout({
   /** A rendered {@link PageHeaderTabsRow}. */
   tabs: ReactNode;
 }) {
+  const hasBack = back != null;
   return (
     <header className={pageHeaderRootClass} data-slot="page-header">
-      <div className={pageHeaderTopRowClass}>
-        {back}
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <div className={pageHeaderTitleRowClass}>
-            <h1 className={pageHeaderTitleClass}>{title}</h1>
-            {titleAccessory}
-          </div>
-          {typeof description === "string" ? (
-            <p className={cn(pageHeaderDescriptionClass, "line-clamp-2")}>
-              {description}
-            </p>
-          ) : (
-            description
-          )}
-        </div>
-        {/* Always rendered so pages with and without actions line up. */}
-        <div
-          className={cn(pageHeaderActionsClass, "*:data-[slot=button]:h-8")}
-          data-slot="page-header-actions"
-        >
-          {actions}
-        </div>
-      </div>
-      <div className={pageHeaderMetaRowClass} data-slot="page-header-meta">
+      <PageHeaderTopRow
+        back={back}
+        title={title}
+        titleAccessory={titleAccessory}
+        description={description}
+        actions={actions}
+      />
+      <div
+        className={pageHeaderMetaRowClass(hasBack)}
+        data-slot="page-header-meta"
+      >
         {meta}
       </div>
       {tabs}
