@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { DeviceApprovalScreen } from "@/components/device-approval-screen";
 import { formatDeviceUserCode } from "@/lib/format-user-code";
+
+export const metadata: Metadata = { title: "Approve device" };
 
 export default async function DeviceApprovePage({
   searchParams,

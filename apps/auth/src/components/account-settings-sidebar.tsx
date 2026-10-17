@@ -5,7 +5,6 @@ import {
   type PlatformNavKey,
   platformNav,
 } from "@loftlancer/actions/nav";
-import { GithubIcon } from "@loftlancer/ui/github-icon";
 import {
   NavCountBadge,
   SidebarBrand,
@@ -25,24 +24,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-  SidebarSeparator,
 } from "@loftlancer/ui/sidebar";
 import { platformNavHref, routes } from "@loftlancer/ui/studio-routes";
 import type { LucideIcon } from "lucide-react";
-import {
-  ActivityIcon,
-  BellIcon,
-  Building2,
-  ClockIcon,
-  FolderClosedIcon,
-  LockIcon,
-  ShieldIcon,
-  SkullIcon,
-  UserIcon,
-} from "lucide-react";
+import { BellIcon, Building2, ClockIcon, FolderClosedIcon } from "lucide-react";
 import type { Route } from "next";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { OrgSwitcher } from "@/components/org/org-switcher";
 import { useSidebarNavigator } from "@/components/sidebar/use-sidebar-navigator";
 import { useUserMenuProps } from "@/domain/auth/components/user-menu";
@@ -52,15 +39,10 @@ import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { studioDashboardPath } from "@/lib/studio-url";
 
-const navIcons: Record<string, LucideIcon> = {
-  "/settings/profile": UserIcon,
-  "/settings/security": ShieldIcon,
-  "/settings/sessions": LockIcon,
-  "/settings/accounts": GithubIcon,
-  "/settings/notifications": BellIcon,
-  "/settings/danger": SkullIcon,
-  "/settings/timeline": ActivityIcon,
-};
+/**
+ * Account sections are not repeated here: the settings header tabs are the
+ * section nav, like studio pages (#329).
+ */
 
 /** Studio platform nav, mirrored from the studio AppSidebar with absolute /studio URLs. */
 const studioNavIcons: Record<PlatformNavKey, LucideIcon> = {
@@ -80,7 +62,6 @@ const memberHref = (org: string) =>
 export function AccountSettingsSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname();
   const canProfile = useCan("profile.view");
   const canSessions = useCan("session.list");
   const canAccounts = useCan("account.list");
@@ -136,13 +117,6 @@ export function AccountSettingsSidebar({
           ? nav.counts?.pendingInvites
           : 0;
 
-  const isActive = (href: string) => {
-    if (href === "/settings/profile") {
-      return pathname === "/settings" || pathname === href;
-    }
-    return pathname === href || pathname.startsWith(`${href}/`);
-  };
-
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
       <SidebarHeader className="shrink-0 gap-2">
@@ -187,31 +161,6 @@ export function AccountSettingsSidebar({
         </SidebarGroup>
 
         <SidebarFavorites items={nav.favorites} />
-
-        <SidebarSeparator className="mx-2" />
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="flex min-w-0 flex-col gap-1">
-              {items.map((item) => {
-                const Icon = navIcons[item.href] ?? UserIcon;
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      isActive={isActive(item.href)}
-                      tooltip={item.label}
-                      render={<Link href={item.href as Route} />}
-                    >
-                      <Icon />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="mt-auto shrink-0 border-sidebar-border border-t bg-sidebar">

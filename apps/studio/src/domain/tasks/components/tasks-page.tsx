@@ -7,6 +7,7 @@ import {
   DataTable,
   type DataTableColumnDef,
 } from "@loftlancer/ui/data-table/data-table";
+import { LocalDateTime } from "@loftlancer/ui/patterns/local-date-time";
 import { Skeleton } from "@loftlancer/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -220,9 +221,7 @@ export function TasksPage({ slug }: { slug: string }) {
       meta: { className: "w-28" },
       cell: ({ row }) => (
         <span className="text-muted-foreground text-xs tabular-nums">
-          {row.original.dueDate
-            ? new Date(row.original.dueDate).toLocaleDateString()
-            : "—"}
+          <LocalDateTime value={row.original.dueDate} />
         </span>
       ),
     },

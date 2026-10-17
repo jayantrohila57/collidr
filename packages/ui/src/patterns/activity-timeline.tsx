@@ -10,6 +10,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../components/ui/tooltip";
+import { useHydrated } from "../hooks/use-hydrated";
+import { localDayKey, localDayLabel } from "../lib/local-day";
 import { cn } from "../lib/utils";
 import { PageHeaderActionsPortal } from "./page-header";
 import { SearchableCombobox } from "./searchable-combobox";
@@ -169,32 +171,24 @@ export function formatRelative(date: Date, now = Date.now()) {
   });
 }
 
-function dayKey(d: Date) {
-  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-}
-
-function dayLabel(d: Date) {
-  const today = new Date();
-  const y = new Date();
-  y.setDate(today.getDate() - 1);
-  if (dayKey(d) === dayKey(today)) return "Today";
-  if (dayKey(d) === dayKey(y)) return "Yesterday";
-  return d.toLocaleDateString("en", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-    ...(d.getFullYear() !== today.getFullYear() ? { year: "numeric" } : {}),
-  });
-}
-
-export function groupByDay(items: ActivityItem[]) {
+/**
+ * Items grouped by calendar day. Local days once hydrated; the server and
+ * the hydration pass group by UTC day (deterministic) with hidden labels, so
+ * there is no mismatch and no label in the wrong timezone (#325, #327).
+ */
+export function groupByDay(items: ActivityItem[], utc = false) {
+  const now = Date.now();
   const groups: { key: string; label: string; items: ActivityItem[] }[] = [];
   for (const item of items) {
-    const d = new Date(item.createdAt);
-    const key = dayKey(d);
+    const key = localDayKey(item.createdAt, utc);
     const last = groups[groups.length - 1];
     if (last && last.key === key) last.items.push(item);
-    else groups.push({ key, label: dayLabel(d), items: [item] });
+    else
+      groups.push({
+        key,
+        label: utc ? "" : localDayLabel(item.createdAt, now, "long"),
+        items: [item],
+      });
   }
   return groups;
 }
@@ -239,10 +233,13 @@ function ActivityRow({
   item,
   LinkComponent,
   isLast,
+  hydrated,
 }: {
   item: ActivityItem;
   LinkComponent?: LinkLike;
   isLast: boolean;
+  /** Relative time depends on the viewer's clock: render it after hydration. */
+  hydrated: boolean;
 }) {
   const date = new Date(item.createdAt);
   const L = LinkComponent;
@@ -303,12 +300,11 @@ function ActivityRow({
               render={
                 <time
                   dateTime={date.toISOString()}
-                  suppressHydrationWarning
-                  className="cursor-default"
+                  className={cn("cursor-default", !hydrated && "invisible")}
                 />
               }
             >
-              {formatRelative(date)}
+              {hydrated ? formatRelative(date) : "just now"}
             </TooltipTrigger>
             <TooltipContent>
               {date.toLocaleString("en", {
@@ -383,7 +379,8 @@ export function ActivityTimeline({
   LinkComponent?: LinkLike;
   className?: string;
 }) {
-  const groups = groupByDay(items);
+  const hydrated = useHydrated();
+  const groups = groupByDay(items, !hydrated);
   const filters = (
     <div className="flex flex-wrap items-center gap-2">
       <SearchableCombobox
@@ -456,10 +453,7 @@ export function ActivityTimeline({
           >
             {groups.map((g) => (
               <div key={g.key} className="space-y-3">
-                <h3
-                  className="font-medium text-muted-foreground text-xs uppercase tracking-wide"
-                  suppressHydrationWarning
-                >
+                <h3 className="min-h-4 font-medium text-muted-foreground text-xs uppercase tracking-wide">
                   {g.label}
                 </h3>
                 <ol className="relative">
@@ -469,6 +463,7 @@ export function ActivityTimeline({
                       item={item}
                       LinkComponent={LinkComponent}
                       isLast={i === g.items.length - 1}
+                      hydrated={hydrated}
                     />
                   ))}
                 </ol>

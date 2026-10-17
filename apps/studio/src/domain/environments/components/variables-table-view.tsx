@@ -20,6 +20,10 @@ import { isVariablesV2EnabledOnClient } from "@/lib/variables-v2-enabled";
 import { AddVariableSheet } from "./add-variable-sheet";
 import { EditVariableSheet } from "./edit-variable-sheet";
 import { ImportEnvDialog } from "./import-env-dialog";
+import {
+  VARIABLES_SEARCH_PLACEHOLDER,
+  variableColumnClassNames,
+} from "./variables-table-columns";
 
 interface Variable {
   id: string;
@@ -227,7 +231,7 @@ export function VariablesTableView({
       columnHelper.accessor("key", {
         enableSorting: false,
         meta: {
-          className: "min-w-0 max-w-none w-auto sm:max-w-[12rem]",
+          className: variableColumnClassNames.key,
         },
         header: () => (
           <span className="font-medium text-muted-foreground text-xs">Key</span>
@@ -271,8 +275,7 @@ export function VariablesTableView({
       columnHelper.display({
         id: "value",
         meta: {
-          className:
-            "hidden min-w-0 max-w-[12rem] sm:table-cell md:max-w-[18rem]",
+          className: variableColumnClassNames.value,
         },
         header: "Value",
         enableSorting: false,
@@ -348,7 +351,7 @@ export function VariablesTableView({
             columnHelper.display({
               id: "updatedBy",
               meta: {
-                className: "hidden min-w-[10rem] md:table-cell",
+                className: variableColumnClassNames.updatedBy,
               },
               header: "Updated",
               enableSorting: false,
@@ -368,7 +371,7 @@ export function VariablesTableView({
       columnHelper.display({
         id: "actions",
         meta: {
-          className: "w-10 ps-0",
+          className: variableColumnClassNames.actions,
         },
         header: () => <DataTableActionsColumnHeader />,
         enableSorting: false,
@@ -475,7 +478,7 @@ export function VariablesTableView({
           </>
         }
         searchable
-        searchPlaceholder="Search variables…"
+        searchPlaceholder={VARIABLES_SEARCH_PLACEHOLDER}
         enablePagination={variables.length > 15}
         pageSize={15}
         caption="Environment variables"

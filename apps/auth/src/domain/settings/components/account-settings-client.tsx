@@ -20,6 +20,7 @@ import {
 } from "@loftlancer/ui/empty";
 import { Input } from "@loftlancer/ui/input";
 import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
+import { LocalDateTime } from "@loftlancer/ui/patterns/local-date-time";
 import { SubmitButton } from "@loftlancer/ui/patterns/submit-button";
 import { UnsavedChangesPageGuard } from "@loftlancer/ui/patterns/unsaved-changes-page-guard";
 import { Skeleton } from "@loftlancer/ui/skeleton";
@@ -63,7 +64,6 @@ import {
 } from "@/domain/settings/components/sessions-list";
 import { TimelinePageClient } from "@/domain/timeline/components/timeline-page-client";
 import { isActionsAuditEnabledOnClient } from "@/lib/actions-audit-enabled";
-import { formatDate } from "@/lib/format";
 import { initialsFromLabel } from "@/lib/initials";
 import { isOrganizationsEnabledOnClient } from "@/lib/organizations";
 import { studioDashboardPath } from "@/lib/studio-url";
@@ -577,13 +577,23 @@ export function AccountSettingsClient({
                                 )}
                               </div>
                               <p className="truncate text-muted-foreground text-xs">
-                                {connectedQuery.isLoading
-                                  ? "\u00a0"
-                                  : row.account
-                                    ? `Linked ${formatDate(row.account.createdAt)}${row.account.scope?.trim() ? ` · ${row.account.scope}` : ""}`
-                                    : row.connectable
-                                      ? `Sign in with ${row.label}.`
-                                      : "\u00a0"}
+                                {connectedQuery.isLoading ? (
+                                  "\u00a0"
+                                ) : row.account ? (
+                                  <>
+                                    Linked{" "}
+                                    <LocalDateTime
+                                      value={row.account.createdAt}
+                                    />
+                                    {row.account.scope?.trim()
+                                      ? ` · ${row.account.scope}`
+                                      : ""}
+                                  </>
+                                ) : row.connectable ? (
+                                  `Sign in with ${row.label}.`
+                                ) : (
+                                  "\u00a0"
+                                )}
                               </p>
                             </div>
                             {row.account ? (
@@ -726,7 +736,7 @@ export function AccountSettingsClient({
               <PermissionGate action={accountSettingsActions.timeline}>
                 <SettingsPanel>
                   <SettingsSectionHeader
-                    title="Timeline"
+                    title="Activity"
                     description="Your personal audit history."
                     icon="activity"
                   />
@@ -736,7 +746,7 @@ export function AccountSettingsClient({
                     ) : (
                       <Empty>
                         <EmptyHeader>
-                          <EmptyTitle>Timeline unavailable</EmptyTitle>
+                          <EmptyTitle>Activity unavailable</EmptyTitle>
                           <EmptyDescription>
                             Audit timeline is not enabled for this environment.
                           </EmptyDescription>

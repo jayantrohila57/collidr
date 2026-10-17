@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ProjectsPageClient } from "@/domain/projects/components/projects-page-client";
-import { ProjectsSkeleton } from "@/domain/projects/components/skeletons";
+import { ProjectsPageSkeleton } from "@/domain/projects/components/skeletons";
 import { guardPageAction } from "@/lib/page-guards";
 
 export const metadata: Metadata = { title: "New project" };
@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "New project" };
 export default async function NewProjectPage() {
   await guardPageAction("project.create");
   return (
-    <Suspense fallback={<ProjectsSkeleton />}>
+    <Suspense fallback={<ProjectsPageSkeleton />}>
       <ProjectsPageClient createRoute />
     </Suspense>
   );

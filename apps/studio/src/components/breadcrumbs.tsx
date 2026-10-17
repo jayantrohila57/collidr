@@ -1,30 +1,18 @@
 "use client";
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@loftlancer/ui/breadcrumb";
-import { Button } from "@loftlancer/ui/button";
-import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@loftlancer/ui/menu";
+import { BreadcrumbTrail } from "@loftlancer/ui/patterns/breadcrumb-trail";
 import { Skeleton } from "@loftlancer/ui/skeleton";
 import {
   isReservedOrgSlug,
   isReservedProjectSlug,
 } from "@loftlancer/ui/studio-routes";
 import { useQuery } from "@tanstack/react-query";
-import { Home, MoreHorizontal } from "lucide-react";
-import type { Route } from "next";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
+import type React from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
 import { useProjects } from "@/domain/projects/hooks/use-projects";
 import { useRouteNotFoundDepth } from "@/lib/route-not-found-store";
-import { cn, deSlug } from "@/lib/utils";
+import { deSlug } from "@/lib/utils";
 import { routes } from "@/utils/navigation";
 import { trpc } from "@/utils/trpc";
 
@@ -42,7 +30,7 @@ const STATIC_LABELS: Record<string, string> = {
   accounts: "Connected accounts",
   export: "Export",
   delete: "Delete account",
-  timeline: "Timeline",
+  timeline: "Activity",
   projects: "Projects",
   notifications: "Notifications",
   env: "Environments",
@@ -163,122 +151,14 @@ export function Breadcrumbs({ className }: { className?: string }) {
     );
   };
 
-  const collapseMiddle = breadcrumbs.length > 4;
-  const visibleIndices = collapseMiddle
-    ? [0, breadcrumbs.length - 2, breadcrumbs.length - 1]
-    : breadcrumbs.map((_, i) => i);
-
-  const lastIndex = breadcrumbs.length - 1;
-  const mobileMenuItems =
-    breadcrumbs.length > 1 ? breadcrumbs.slice(0, -1) : [];
-
   return (
-    <Breadcrumb className="min-w-0">
-      <BreadcrumbList
-        className={cn("min-w-0 flex-nowrap overflow-hidden", className)}
-      >
-        <BreadcrumbItem className="shrink-0">
-          <BreadcrumbLink
-            render={<Link href={routes.home()} />}
-            aria-label="Home"
-            className="inline-flex size-11 items-center justify-center"
-          >
-            <Home className="size-4" aria-hidden />
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        {/* Mobile: last segment + ellipsis menu for ancestors */}
-        {breadcrumbs.length > 0 ? (
-          <>
-            {mobileMenuItems.length > 0 ? (
-              <React.Fragment key="mobile-ellipsis">
-                <BreadcrumbSeparator className="shrink-0 md:hidden">
-                  {"/"}
-                </BreadcrumbSeparator>
-                <BreadcrumbItem className="shrink-0 md:hidden">
-                  <Menu>
-                    <MenuTrigger
-                      render={
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label="Show breadcrumb trail"
-                        />
-                      }
-                    >
-                      <MoreHorizontal className="size-4" aria-hidden />
-                    </MenuTrigger>
-                    <MenuPopup align="start">
-                      {mobileMenuItems.map((crumb) => (
-                        <MenuItem
-                          key={crumb.href}
-                          render={<Link href={crumb.href as Route} />}
-                        >
-                          {breadcrumbLabel(crumb)}
-                        </MenuItem>
-                      ))}
-                    </MenuPopup>
-                  </Menu>
-                </BreadcrumbItem>
-              </React.Fragment>
-            ) : null}
-            <BreadcrumbSeparator className="shrink-0 md:hidden">
-              {"/"}
-            </BreadcrumbSeparator>
-            <BreadcrumbItem className="max-w-[min(12rem,55vw)] shrink truncate md:hidden">
-              <BreadcrumbPage className="truncate">
-                {breadcrumbLabel(breadcrumbs[lastIndex])}
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          </>
-        ) : null}
-
-        {/* md+: full trail (with optional middle collapse) */}
-        {breadcrumbs?.map((breadcrumb, index) => {
-          if (collapseMiddle && index > 0 && index < breadcrumbs.length - 2) {
-            if (index === 1) {
-              return (
-                <React.Fragment key="ellipsis">
-                  <BreadcrumbSeparator className="hidden shrink-0 md:flex">
-                    {"/"}
-                  </BreadcrumbSeparator>
-                  <BreadcrumbItem className="hidden shrink-0 text-muted-foreground md:flex">
-                    …
-                  </BreadcrumbItem>
-                </React.Fragment>
-              );
-            }
-            return null;
-          }
-
-          if (!visibleIndices.includes(index) && !collapseMiddle) {
-            return null;
-          }
-
-          const label = breadcrumbLabel(breadcrumb);
-
-          return (
-            <React.Fragment key={breadcrumb.href}>
-              <BreadcrumbSeparator className="hidden shrink-0 first:hidden md:flex">
-                {"/"}
-              </BreadcrumbSeparator>
-              <BreadcrumbItem className="hidden max-w-32 shrink truncate md:flex md:max-w-xs">
-                {index === breadcrumbs.length - 1 ? (
-                  <BreadcrumbPage className="truncate">{label}</BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink
-                    className="truncate"
-                    render={<Link href={breadcrumb.href as Route} />}
-                  >
-                    {label}
-                  </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
-            </React.Fragment>
-          );
-        })}
-      </BreadcrumbList>
-    </Breadcrumb>
+    <BreadcrumbTrail
+      homeHref={routes.home()}
+      className={className}
+      items={breadcrumbs.map((crumb) => ({
+        href: crumb.href,
+        label: breadcrumbLabel(crumb),
+      }))}
+    />
   );
 }

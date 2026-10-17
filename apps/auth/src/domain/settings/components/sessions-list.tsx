@@ -7,10 +7,11 @@ import {
   type DataTableColumnDef,
 } from "@loftlancer/ui/data-table/data-table";
 import { DataTableActionsColumnHeader } from "@loftlancer/ui/data-table/data-table-actions-column";
+import { useHydrated } from "@loftlancer/ui/hooks/use-hydrated";
 import { Spinner } from "@loftlancer/ui/spinner";
 import { Monitor, MonitorSmartphone, Smartphone, Tablet } from "lucide-react";
+import { ClientRelativeTime } from "@/components/patterns/client-relative-time";
 import { formatDateTime } from "@/lib/format";
-import { formatRelativeShort } from "@/lib/format-relative-short";
 import {
   parseSessionDevice,
   type SessionDeviceKind,
@@ -76,6 +77,8 @@ export function SessionsList({
       new Date(String(a.updatedAt ?? a.createdAt ?? 0)).getTime()
     );
   });
+  // Local-time tooltip only after hydration (server has no viewer zone).
+  const hydrated = useHydrated();
   const columns: DataTableColumnDef<AuthSessionRow>[] = [
     {
       id: "device",
@@ -119,11 +122,13 @@ export function SessionsList({
         return (
           <span
             className="text-muted-foreground"
-            title={formatDateTime(String(last))}
+            title={hydrated ? formatDateTime(String(last)) : undefined}
           >
-            {r.token === currentToken
-              ? "Active now"
-              : formatRelativeShort(String(last))}
+            {r.token === currentToken ? (
+              "Active now"
+            ) : (
+              <ClientRelativeTime value={String(last)} />
+            )}
           </span>
         );
       },

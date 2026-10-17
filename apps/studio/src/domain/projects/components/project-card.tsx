@@ -4,6 +4,7 @@ import type { ProjectOutput } from "@loftlancer/api/types";
 import { Avatar, AvatarFallback } from "@loftlancer/ui/avatar";
 import { Button } from "@loftlancer/ui/button";
 import { Card, CardHeader, CardPanel } from "@loftlancer/ui/card";
+import { LocalDateTime } from "@loftlancer/ui/patterns/local-date-time";
 import {
   Tooltip,
   TooltipContent,
@@ -16,7 +17,6 @@ import {
   StatusBadge,
   VisibilityBadge,
 } from "@/components/patterns/status-badge";
-import { formatDate } from "@/lib/format";
 import { initialsFromLabel } from "@/lib/initials";
 import { prefetchProjectDetail } from "@/lib/prefetch-project-detail";
 import { routes } from "@/utils/navigation";
@@ -71,7 +71,7 @@ export function ProjectCard({ project }: { project: ProjectOutput }) {
       </CardHeader>
       <CardPanel className="mt-auto flex flex-wrap items-center justify-between gap-2 px-4 pt-0 pb-4 text-muted-foreground text-xs">
         <span className="tabular-nums">
-          Updated {formatDate(project.updatedAt)}
+          Updated <LocalDateTime value={project.updatedAt} />
         </span>
         <div className="flex items-center gap-0.5">
           {project.repositoryUrl ? (

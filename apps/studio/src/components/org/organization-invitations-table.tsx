@@ -8,11 +8,14 @@ import {
   DataTableActionsColumnHeader,
 } from "@loftlancer/ui/data-table/data-table-actions-column";
 import type { DataTableEmptyConfig } from "@loftlancer/ui/data-table/data-table-empty-types";
+import {
+  LOCAL_DATE_TIME_FORMAT,
+  LocalDateTime,
+} from "@loftlancer/ui/patterns/local-date-time";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { RoleBadge, StatusBadge } from "@/components/patterns/status-badge";
 import { Can } from "@/domain/permissions/components/can";
-import { formatDateTime } from "@/lib/format";
 import {
   isPendingInvitationStatus,
   type OrganizationInvitationRow,
@@ -67,7 +70,10 @@ export function OrganizationInvitationsTable({
       ),
       cell: ({ getValue }) => (
         <span className="text-muted-foreground text-xs">
-          {formatDateTime(String(getValue()))}
+          <LocalDateTime
+            value={String(getValue())}
+            options={LOCAL_DATE_TIME_FORMAT}
+          />
         </span>
       ),
     }),

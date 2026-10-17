@@ -6,7 +6,11 @@ import Providers from "@/components/providers";
 import "../index.css";
 
 export const metadata: Metadata = {
-  title: "Sign in · Loftlancer",
+  // Same "Page | Loftlancer" titles as studio (#328).
+  title: {
+    default: "Loftlancer",
+    template: "%s | Loftlancer",
+  },
   description: "Authentication for Loftlancer platform apps.",
 };
 

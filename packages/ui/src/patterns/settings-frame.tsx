@@ -288,7 +288,8 @@ function CopyButton({ value }: { value: string }) {
   );
 }
 
-export type RailItem = { label: string; value: string; copy?: boolean };
+/** `copy` applies to string values only (ids, slugs). */
+export type RailItem = { label: string; value: ReactNode; copy?: boolean };
 
 export function SettingsRailCard({
   title,
@@ -309,7 +310,9 @@ export function SettingsRailCard({
               <dt className="text-muted-foreground text-xs">{item.label}</dt>
               <dd className="flex items-center gap-1">
                 <span className="truncate font-mono text-xs">{item.value}</span>
-                {item.copy ? <CopyButton value={item.value} /> : null}
+                {item.copy && typeof item.value === "string" ? (
+                  <CopyButton value={item.value} />
+                ) : null}
               </dd>
             </div>
           ))}

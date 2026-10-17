@@ -3,6 +3,10 @@
 import { Badge } from "@loftlancer/ui/badge";
 import { Button } from "@loftlancer/ui/button";
 import { LoadingButton } from "@loftlancer/ui/patterns/loading-button";
+import {
+  LOCAL_DATE_TIME_FORMAT,
+  LocalDateTime,
+} from "@loftlancer/ui/patterns/local-date-time";
 import { Textarea } from "@loftlancer/ui/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -76,7 +80,10 @@ export default function SupportTicketDetailPage() {
               <li key={message.id} className="rounded-md border p-3 text-sm">
                 <div className="mb-1 flex flex-wrap items-center gap-2 text-muted-foreground text-xs">
                   <span>{message.authorName ?? message.authorEmail}</span>
-                  <span>{new Date(message.createdAt).toLocaleString()}</span>
+                  <LocalDateTime
+                    value={message.createdAt}
+                    options={LOCAL_DATE_TIME_FORMAT}
+                  />
                 </div>
                 <p className="whitespace-pre-wrap">{message.body}</p>
               </li>
