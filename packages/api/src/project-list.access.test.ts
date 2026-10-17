@@ -153,6 +153,13 @@ describe("project list/detail read alignment (#26)", () => {
     );
   });
 
+  it("listAccessibleProjectIds filters membership with activeMemberWhere", () => {
+    assert.match(
+      projectListSource,
+      /listAccessibleProjectIds[\s\S]*activeMemberWhere/,
+    );
+  });
+
   it("listAccessibleProjectIds encodes the same manager and member rules", () => {
     assert.match(
       projectListSource,

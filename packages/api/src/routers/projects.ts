@@ -1,6 +1,5 @@
 import {
   activeEnvironmentWhere,
-  activeProjectWhere,
   db,
   softDeleteProjectById,
 } from "@loftlancer/db";
@@ -56,7 +55,7 @@ import {
   assertProjectAccess,
   attachProjectToOrganization,
 } from "../org-access";
-import { projectReadWhere } from "../project-list";
+import { findReadableProjectIdBySlug, projectReadWhere } from "../project-list";
 import { assertUniqueProjectName } from "../project-name";
 import {
   buildProjectSlugFromName,
@@ -158,17 +157,12 @@ export const projectsRouter = router({
             ? String((input as { slug: string }).slug)
             : null;
         if (!slug) return {};
-        const orgId = ctx.activeOrganizationId ?? null;
-        const row = await db
-          .select({ id: project.id })
-          .from(project)
-          .where(
-            orgId
-              ? and(eq(project.slug, slug), eq(project.organizationId, orgId))
-              : eq(project.slug, slug),
-          )
-          .limit(1);
-        return { projectId: row[0]?.id ?? null };
+        const projectId = await findReadableProjectIdBySlug(
+          ctx.session.user.id,
+          ctx.activeOrganizationId ?? null,
+          slug,
+        );
+        return { projectId };
       }),
     )
     .output(
@@ -181,34 +175,6 @@ export const projectsRouter = router({
     )
     .query(async ({ ctx, input }) => {
       const organizationId = ctx.activeOrganizationId ?? null;
-      const slugScope = organizationId
-        ? and(
-            eq(project.slug, input.slug),
-            eq(project.organizationId, organizationId),
-          )
-        : eq(project.slug, input.slug);
-      const [slugRow] = await db
-        .select({ id: project.id })
-        .from(project)
-        .where(activeProjectWhere(slugScope))
-        .limit(1);
-
-      if (!slugRow) {
-        return respond({
-          message: "Project not found",
-          data: {
-            project: null,
-            environments: [],
-          },
-        });
-      }
-
-      await assertProjectAccess(
-        ctx.session.user.id,
-        slugRow.id,
-        organizationId,
-      );
-
       const readScope = await projectReadWhere(
         ctx.session.user.id,
         organizationId,
