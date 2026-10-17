@@ -1,0 +1,15 @@
+import * as Sentry from "@sentry/nextjs";
+
+// Sentry stays off until SENTRY_DSN exists (#339).
+export async function register() {
+  const dsn = process.env.SENTRY_DSN ?? process.env.NEXT_PUBLIC_SENTRY_DSN;
+  if (!dsn) return;
+  Sentry.init({
+    dsn,
+    environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV,
+    initialScope: { tags: { app: "studio" } },
+    tracesSampleRate: 0.1,
+  });
+}
+
+export const onRequestError = Sentry.captureRequestError;

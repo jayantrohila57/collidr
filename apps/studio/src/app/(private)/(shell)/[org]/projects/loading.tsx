@@ -1,10 +1,5 @@
-import DashboardSection from "@/components/section-dashboard";
-import { ProjectsSkeleton } from "@/domain/projects/components/skeletons";
+import { ProjectsPageSkeleton } from "@/domain/projects/components/skeletons";
 
 export default function ProjectsLoading() {
-  return (
-    <DashboardSection title="Projects">
-      <ProjectsSkeleton />
-    </DashboardSection>
-  );
+  return <ProjectsPageSkeleton />;
 }

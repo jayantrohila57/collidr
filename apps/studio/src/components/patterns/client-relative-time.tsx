@@ -1,10 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useHydrated } from "@loftlancer/ui/hooks/use-hydrated";
 import { formatDate } from "@/lib/format";
 import { formatRelativeShort } from "@/lib/format-relative-short";
 
-/** Avoid SSR/client mismatch from `Date.now()` in relative formatting. */
+/**
+ * Relative time ("Today", "3d ago") computed in the viewer's timezone. The
+ * server and the hydration pass render a deterministic UTC date invisibly
+ * (reserving the slot), so there is no mismatch and no visible swap (#325,
+ * #327); client-side navigations render the relative label immediately.
+ */
 export function ClientRelativeTime({
   value,
   fallbackFormat = { month: "short", day: "numeric", year: "numeric" },
@@ -12,12 +17,13 @@ export function ClientRelativeTime({
   value: Date | string | number;
   fallbackFormat?: Intl.DateTimeFormatOptions;
 }) {
-  const stable = formatDate(value, fallbackFormat);
-  const [label, setLabel] = useState(stable);
-
-  useEffect(() => {
-    setLabel(formatRelativeShort(value));
-  }, [value]);
-
-  return <span>{label}</span>;
+  const hydrated = useHydrated();
+  if (!hydrated) {
+    return (
+      <span className="invisible">
+        {formatDate(value, { ...fallbackFormat, timeZone: "UTC" })}
+      </span>
+    );
+  }
+  return <span>{formatRelativeShort(value)}</span>;
 }

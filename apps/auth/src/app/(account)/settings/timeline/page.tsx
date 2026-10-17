@@ -1,5 +1,4 @@
-import type { Metadata } from "next";
-import type { Route } from "next";
+import type { Metadata, Route } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { SettingsSectionShell } from "@/app/(account)/settings/_components/settings-section-shell";
@@ -8,7 +7,7 @@ import { isActionsAuditEnabledOnServer } from "@/lib/actions-audit-enabled";
 import { guardPageAction } from "@/lib/page-guards";
 
 export const metadata: Metadata = {
-  title: "Timeline",
+  title: "Activity",
   description: "Your personal audit history.",
 };
 
@@ -21,7 +20,7 @@ export default async function SettingsTimelinePage() {
 
   return (
     <SettingsSectionShell
-      title="Timeline"
+      title="Activity"
       activity
       description="Security and activity events for your account."
     >

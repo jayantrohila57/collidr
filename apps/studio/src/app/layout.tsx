@@ -1,4 +1,6 @@
 import { rootFontClassName } from "@loftlancer/ui/fonts";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 
 import "../index.css";
@@ -18,6 +20,8 @@ export default function RootLayout({
         <div className="relative isolate flex min-h-svh min-w-0 flex-col">
           <Providers>{children}</Providers>
         </div>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

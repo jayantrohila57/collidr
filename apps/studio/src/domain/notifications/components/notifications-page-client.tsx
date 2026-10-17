@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@loftlancer/ui/button";
+import { localDayKey, localDayLabel } from "@loftlancer/ui/local-day";
 import { EmptyState } from "@loftlancer/ui/patterns/empty-state";
 import { LoadingButton } from "@loftlancer/ui/patterns/loading-button";
 import { Skeleton } from "@loftlancer/ui/skeleton";
@@ -23,34 +24,24 @@ import {
 
 const LIST_MIN_H = "min-h-[22rem]";
 
-function dayKey(d: Date) {
-  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-}
-
-function dayLabel(d: Date, now: Date) {
-  const today = dayKey(now);
-  const y = new Date(now);
-  y.setDate(now.getDate() - 1);
-  if (dayKey(d) === today) return "Today";
-  if (dayKey(d) === dayKey(y)) return "Yesterday";
-  return d.toLocaleDateString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: d.getFullYear() === now.getFullYear() ? undefined : "numeric",
-  });
-}
-
-/** Newest-first items grouped by local calendar day. */
+/**
+ * Newest-first items grouped by local calendar day. Labels and row stamps
+ * (ClientRelativeTime → formatRelativeShort) share the same local-day helpers,
+ * so a "Yesterday" group can never hold "Today" rows (#325).
+ */
 function groupByDay<T extends NotificationListItemData>(items: T[]) {
-  const now = new Date();
+  const now = Date.now();
   const groups: { key: string; label: string; items: T[] }[] = [];
   for (const item of items) {
-    const d = new Date(item.createdAt);
-    const key = dayKey(d);
+    const key = localDayKey(item.createdAt);
     const last = groups[groups.length - 1];
     if (last?.key === key) last.items.push(item);
-    else groups.push({ key, label: dayLabel(d, now), items: [item] });
+    else
+      groups.push({
+        key,
+        label: localDayLabel(item.createdAt, now),
+        items: [item],
+      });
   }
   return groups;
 }
@@ -226,10 +217,7 @@ export function NotificationsPageClient() {
           >
             {groups.map((g) => (
               <section key={g.key} aria-label={g.label}>
-                <h3
-                  className="sticky top-0 z-10 border-border/60 border-b bg-background/95 px-3 py-1.5 font-medium text-muted-foreground text-xs backdrop-blur"
-                  suppressHydrationWarning
-                >
+                <h3 className="sticky top-0 z-10 border-border/60 border-b bg-background/95 px-3 py-1.5 font-medium text-muted-foreground text-xs backdrop-blur">
                   {g.label}
                 </h3>
                 <div

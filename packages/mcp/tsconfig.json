@@ -2,7 +2,8 @@
   "extends": "@loftlancer/config/tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "jsx": "react-jsx"
   },
   "include": ["src/**/*.ts"]
 }

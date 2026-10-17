@@ -4,6 +4,7 @@ import { Badge } from "@loftlancer/ui/badge";
 import { Button } from "@loftlancer/ui/button";
 import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
 import { EmptyState } from "@loftlancer/ui/patterns/empty-state";
+import { LocalDateTime } from "@loftlancer/ui/patterns/local-date-time";
 import { Skeleton } from "@loftlancer/ui/skeleton";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -124,9 +125,12 @@ export function AppSettingsPage({
               </div>
               <p className="text-muted-foreground text-xs">
                 {app.category}
-                {app.installedAt
-                  ? ` · installed ${new Date(app.installedAt).toLocaleDateString()}`
-                  : ""}
+                {app.installedAt ? (
+                  <>
+                    {" · installed "}
+                    <LocalDateTime value={app.installedAt} />
+                  </>
+                ) : null}
               </p>
             </div>
           </div>

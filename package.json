@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@loftlancer/env": "workspace:*",
+    "@opentelemetry/api": "^1.9.1",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
