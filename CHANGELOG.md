@@ -18,6 +18,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ### Fixed
 
+- Account data export omits soft-deleted projects, environments, variables, and notifications when soft deletes are enabled, and never includes decrypted variable values (#39)
 - Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
 
 ## [1.11.0] - 2026-10-17
