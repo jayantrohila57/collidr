@@ -163,8 +163,15 @@ export function TeamMembersSheet({
     }
   };
 
+  const isDirty = addUserId.length > 0;
+
   return (
-    <FormSheet open={open} onOpenChange={onOpenChange}>
+    <FormSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      isDirty={isDirty}
+      onDiscard={() => setAddUserId("")}
+    >
       <FormSheetPopup>
         <FormSheetHeader>
           <SheetTitleWithIcon icon="member">
