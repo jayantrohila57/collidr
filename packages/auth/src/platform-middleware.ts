@@ -17,6 +17,15 @@ export function buildLandingUrl(appOrigin: string): string {
   return new URL("/", `${trimTrailingSlash(appOrigin)}/`).toString();
 }
 
+/**
+ * Session-dependent redirects must never be stored by a shared cache (#363).
+ * Signed-in pages are already `private, no-store` (dynamic render).
+ */
+function noStore(response: NextResponse): NextResponse {
+  response.headers.set("Cache-Control", "private, no-store");
+  return response;
+}
+
 export function platformSessionMiddleware(
   request: NextRequest,
   options: PlatformMiddlewareOptions,
@@ -33,7 +42,7 @@ export function platformSessionMiddleware(
     establish.searchParams.set("ott", ott);
     const cleaned = stripOttFromPath(pathname, search);
     establish.searchParams.set("next", cleaned || "/");
-    return NextResponse.redirect(establish);
+    return noStore(NextResponse.redirect(establish));
   }
 
   const isProtected = options.protectedPrefixes.some((prefix) =>
@@ -44,5 +53,5 @@ export function platformSessionMiddleware(
     return undefined;
   }
 
-  return NextResponse.redirect(buildLandingUrl(options.appOrigin));
+  return noStore(NextResponse.redirect(buildLandingUrl(options.appOrigin)));
 }
