@@ -15,6 +15,7 @@ import {
   actionCountsFromGroupAggregate,
   totalFromCountAggregate,
 } from "./audit-stats-mappers";
+import { buildAuditStatsWhereConditions } from "./audit-stats-scope";
 
 export const auditLogsRouter = router({
   list: protectedProcedure
@@ -96,11 +97,10 @@ export const auditLogsRouter = router({
       ),
     )
     .query(async ({ ctx, input }) => {
-      const whereConditions = [eq(auditLog.userId, ctx.session.user.id)];
-
-      if (input.projectId) {
-        whereConditions.push(eq(auditLog.projectId, input.projectId));
-      }
+      const whereConditions = buildAuditStatsWhereConditions({
+        userId: ctx.session.user.id,
+        projectId: input.projectId,
+      });
 
       const totalLogsResult = await db
         .select({ count: count() })
