@@ -16,6 +16,16 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+## [1.12.2] - 2026-10-17
+
+### Fixed
+
+- Studio Members page pending invitations match the Invitations query (#50)
+- Settings link restored in the studio sidebar footer (#79)
+- Page header spacing and primary action alignment (#77)
+- Unsaved-changes guard covers the remaining edit flows, and the unsaved-changes Playwright suite is restored (#76)
+- Regression tests for `account.exportData` soft-delete scope (#39)
+
 ## [1.12.1] - 2026-10-17
 
 ### Added
@@ -480,7 +490,8 @@ The product is now Loftlancer.
 - Version management and commit workflow scripts
 - `SKIP_ENV_VALIDATION` option for builds
 
-[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.12.1...HEAD
+[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.12.2...HEAD
+[1.12.2]: https://github.com/jayantrohila57/loftlancer/compare/v1.12.1...v1.12.2
 [1.12.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.1...v1.12.0
 [1.11.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.0...v1.11.1
