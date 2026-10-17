@@ -16,6 +16,8 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-10-17
+
 ### Added
 
 - Semantic versioning for the whole platform: one root version, a backfilled changelog for every release since the first commit, git tags and GitHub Releases per version, a release procedure and a CI check on release PRs (#368)
@@ -395,7 +397,8 @@ The product is now Loftlancer.
 - Version management and commit workflow scripts
 - `SKIP_ENV_VALIDATION` option for builds
 
-[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.7.1...v1.8.0
 [1.7.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.6.4...v1.7.0
