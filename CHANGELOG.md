@@ -16,6 +16,8 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+## [1.11.1] - 2026-10-17
+
 ### Fixed
 
 - Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
@@ -449,7 +451,8 @@ The product is now Loftlancer.
 - Version management and commit workflow scripts
 - `SKIP_ENV_VALIDATION` option for builds
 
-[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.1...HEAD
+[1.11.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.1...v1.10.0
 [1.9.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.0...v1.9.1
