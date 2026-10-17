@@ -18,6 +18,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ### Fixed
 
+- Project list, detail, and sidebar navigation now share `projectReadWhere` org RBAC scope so managers and grantees can open projects they see in the list (#26)
 - Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
 
 ## [1.11.0] - 2026-10-17

@@ -6,9 +6,8 @@ import { member } from "@loftlancer/db/schema/organization";
 import { project } from "@loftlancer/db/schema/projects";
 import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
 import { TRPCError } from "@trpc/server";
-import { and, eq, isNull, type SQL } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { loadProjectAccessContext } from "./actions/project-access";
-import { listAccessibleProjectIds, projectIdsFilter } from "./project-list";
 
 export function getActiveOrganizationId(ctx: AuthSession): string | null {
   return getSessionActiveOrganizationId(ctx);
@@ -67,28 +66,6 @@ export function projectListFilter(
         )
       : eq(project.userId, userId);
   return activeProjectWhere(scope);
-}
-
-/** Project scope for list/get/mutations aligned with org RBAC when organizations are enabled. */
-export async function resolveProjectScopeWhere(
-  userId: string,
-  organizationId: string | null,
-): Promise<SQL | undefined> {
-  const accessibleIds = await listAccessibleProjectIds(userId, organizationId);
-  if (accessibleIds === null) {
-    return projectListFilter(userId, organizationId);
-  }
-
-  const idFilter = projectIdsFilter(accessibleIds);
-  if (!idFilter) {
-    return projectListFilter(userId, organizationId);
-  }
-
-  return activeProjectWhere(
-    organizationId
-      ? and(eq(project.organizationId, organizationId), idFilter)
-      : idFilter,
-  );
 }
 
 export async function resolveOrgContext(auth: AuthSession) {

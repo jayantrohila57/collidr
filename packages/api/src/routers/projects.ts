@@ -51,12 +51,8 @@ async function listProjectEnvironments(projectId: string) {
     .orderBy(environment.name);
 }
 
-import { attachProjectToOrganization, projectListFilter } from "../org-access";
-import {
-  listAccessibleProjectIds,
-  projectIdsFilter,
-  projectReadWhere,
-} from "../project-list";
+import { attachProjectToOrganization } from "../org-access";
+import { projectReadWhere } from "../project-list";
 import { assertUniqueProjectName } from "../project-name";
 import {
   buildProjectSlugFromName,
@@ -81,22 +77,14 @@ export const projectsRouter = router({
     .use(actionGuard("organization.list"))
     .output(makeResponseSchema(z.array(projectOutput)))
     .query(async ({ ctx }) => {
-      const accessibleIds = await listAccessibleProjectIds(
+      const readScope = await projectReadWhere(
         ctx.session.user.id,
         ctx.activeOrganizationId,
       );
-      const idFilter = projectIdsFilter(accessibleIds);
       const projectsList = await db
         .select()
         .from(project)
-        .where(
-          idFilter && ctx.activeOrganizationId
-            ? and(
-                eq(project.organizationId, ctx.activeOrganizationId),
-                idFilter,
-              )
-            : projectListFilter(ctx.session.user.id, ctx.activeOrganizationId),
-        )
+        .where(readScope)
         .orderBy(project.updatedAt);
 
       return respond({ message: "Projects fetched", data: projectsList });
