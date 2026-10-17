@@ -87,7 +87,8 @@
     "./tabs": "./src/components/ui/tabs.tsx",
     "./toast": "./src/components/ui/toast.tsx",
     "./toggle-group": "./src/components/ui/toggle-group.tsx",
-    "./segmented-control": "./src/lib/segmented-control.ts"
+    "./segmented-control": "./src/lib/segmented-control.ts",
+    "./fonts": "./src/lib/fonts.ts"
   },
   "scripts": {
     "check-types": "tsc --noEmit",
