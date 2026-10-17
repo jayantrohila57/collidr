@@ -21,6 +21,7 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 ### Fixed
 
 - Withdrawing analytics consent in Studio now stops PostHog capture and session replay at once, without a page reload; accepting again turns capture back on (#353)
+- `audit.stats` documents and tests scoped SQL aggregates (user and optional `projectId` filter) for totals and per-action counts (#35)
 
 ## [1.11.0] - 2026-10-17
 
