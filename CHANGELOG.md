@@ -32,7 +32,8 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 - GA4 loads through the official `@next/third-parties` Google Analytics component, still only after consent and only when the measurement ID is set (#351)
 - New service env vars are declared in turbo's build env list, and env validation accepts the optional Google, Resend and Better Stack keys (#370)
 - The docs site gets a footer with Changelog and Status links (#368, #369)
-- `docs/integrations.md` covers Better Stack, the Google Cloud project and passwordless auth (#371)
+- GA4 (public site) and PostHog (studio) are switched on in production now that their keys are configured; both still load only after consent (#351, #353)
+- `docs/integrations.md` covers Better Stack, the Google Cloud project (OAuth, GA4, Search Console), PostHog and passwordless auth (#371)
 
 ### Removed
 
