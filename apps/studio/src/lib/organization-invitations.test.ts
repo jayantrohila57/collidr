@@ -34,6 +34,18 @@ describe("organization-invitations", () => {
     assert.equal(pendingOrganizationInvitations(invites as never).length, 2);
   });
 
+  it("excludes expired pending invitations (matches organizations.listInvitations)", () => {
+    const past = new Date(Date.now() - 60_000).toISOString();
+    const future = new Date(Date.now() + 60_000).toISOString();
+    const invites = [
+      { status: "pending", expiresAt: future },
+      { status: "pending", expiresAt: past },
+      { status: "accepted", expiresAt: future },
+    ];
+    assert.equal(countPendingInvitations(invites), 1);
+    assert.equal(pendingOrganizationInvitations(invites as never).length, 1);
+  });
+
   it("sorts pending invitations before other statuses", () => {
     const row = (status: string) => ({
       id: status,
