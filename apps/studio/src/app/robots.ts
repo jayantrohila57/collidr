@@ -1,12 +1,8 @@
-import { siteConfig } from "@/lib/siteConfig";
+import type { MetadataRoute } from "next";
 
-export default function robots() {
+/** Studio is private; the public robots.txt at loftlancer.com also disallows it. */
+export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-      disallow: ["/api/", "/admin/"],
-    },
-    sitemap: `${siteConfig.url}/sitemap.xml`,
+    rules: { userAgent: "*", disallow: "/" },
   };
 }

@@ -2,11 +2,13 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { MarketingPage } from "@/components/marketing-page";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Changelog",
-  description: "Release notes from the repository CHANGELOG.",
-};
+  description: "Loftlancer release notes, taken from the repository CHANGELOG.",
+  path: "/changelog",
+});
 
 async function loadChangelog(): Promise<string> {
   try {

@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 
 import "../index.css";
+import { ConsentAnalytics } from "@/components/consent-analytics";
 import Providers from "@/components/providers";
 import { generateMetadata as generateSiteMetadata } from "@/lib/siteConfig";
 
@@ -22,6 +23,7 @@ export default function RootLayout({
         </div>
         <Analytics />
         <SpeedInsights />
+        <ConsentAnalytics />
       </body>
     </html>
   );

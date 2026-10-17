@@ -1,12 +1,14 @@
 import { appRegistry } from "@loftlancer/actions/apps";
 import { buildSignInUrl } from "@loftlancer/ui/auth-links";
 import { MarketingPage } from "@/components/marketing-page";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Pricing",
   description:
     "Loftlancer is free during early access. No paid plans exist yet.",
-};
+  path: "/pricing",
+});
 
 /** Everything here exists in the product today. */
 const included = [

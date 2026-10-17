@@ -1,9 +1,11 @@
 import { MarketingPage } from "@/components/marketing-page";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Terms",
   description: "Terms of use for the hosted Loftlancer service.",
-};
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (
