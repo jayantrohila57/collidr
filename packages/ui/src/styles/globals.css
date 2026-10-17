@@ -192,7 +192,8 @@
   --success: var(--color-emerald-500);
   --success-foreground: var(--color-emerald-700);
   --warning: var(--color-amber-500);
-  --warning-foreground: var(--color-amber-700);
+  /* amber-800, not 700: 4.39:1 -> 6.19:1 on warning badges (#391). */
+  --warning-foreground: var(--color-amber-800);
   --code: var(--color-white);
   --code-foreground: var(--foreground);
   --code-highlight: --alpha(var(--color-black) / 4%);
@@ -214,9 +215,10 @@
   --secondary: --alpha(var(--color-white) / 4%);
   --secondary-foreground: var(--color-neutral-100);
   --muted: --alpha(var(--color-white) / 4%);
+  /* 82%, not 90%: #818181 -> #8c8c8c, 4.43:1 -> 5.15:1 on cards (#396). */
   --muted-foreground: color-mix(
     in srgb,
-    var(--color-neutral-500) 90%,
+    var(--color-neutral-500) 82%,
     var(--color-white)
   );
   --accent: --alpha(var(--color-white) / 4%);

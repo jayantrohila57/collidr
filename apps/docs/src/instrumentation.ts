@@ -15,8 +15,8 @@ export async function register() {
     initialScope: { tags: { app: "docs" } },
     tracesSampleRate: 0.1,
   });
-  // Server logs from @loftlancer/logger land in Sentry Logs (#355); the
-  // SDK (v11) sends logs by default, so no extra init option is needed.
+  // Server logs from @loftlancer/logger land in Sentry Logs via Sentry.logger
+  // (#355). SDK v11 removed `enableLogs`; using the logger API is the opt-in.
   configureLogger({ sink: createSentrySink(Sentry) });
 }
 

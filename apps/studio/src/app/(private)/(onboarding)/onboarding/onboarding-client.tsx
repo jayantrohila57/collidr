@@ -23,6 +23,7 @@ import {
   formatOrganizationCreateError,
   slugifyOrganizationName,
 } from "@/lib/org-slug";
+import { captureEvent, STUDIO_EVENTS } from "@/lib/posthog";
 import { cn } from "@/lib/utils";
 
 import { routes } from "@/utils/navigation";
@@ -195,6 +196,7 @@ export default function OnboardingClient() {
           error: "Could not create organization",
         },
       );
+      captureEvent(STUDIO_EVENTS.organizationCreated, { source: "onboarding" });
       const orgId = created.data?.id;
       if (orgId) await afterOrganizationCreated(orgId);
       setOrgSlug(created.data?.slug ?? data.slug);
@@ -215,6 +217,8 @@ export default function OnboardingClient() {
           error: "Could not create project",
         },
       );
+      captureEvent(STUDIO_EVENTS.projectCreated, { source: "onboarding" });
+      captureEvent(STUDIO_EVENTS.onboardingCompleted);
       setProjectSlug(result?.data?.slug ?? null);
       projectForm.reset(data);
       setStep(2);

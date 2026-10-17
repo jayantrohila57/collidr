@@ -54,7 +54,7 @@
       "url": "/handle-protocol?protocol=%s"
     }
   ],
-  "theme_color": "#B79AFF",
+  "theme_color": "#262626",
   "background_color": "#ffffff",
   "display": "standalone",
   "start_url": "/",

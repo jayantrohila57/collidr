@@ -1,5 +1,6 @@
 "use client";
 
+import { errorAttributes, logger } from "@loftlancer/logger";
 import { resolveAuthAppOrigin } from "@loftlancer/ui/auth-links";
 import { Badge, type BadgeProps } from "@loftlancer/ui/badge";
 import type {
@@ -233,7 +234,9 @@ export function StatusBoard() {
         if (!res.ok) throw new Error(String(res.status));
         const status = (await res.json()) as PlatformStatus;
         if (alive) setState({ phase: "ready", status });
-      } catch {
+      } catch (error) {
+        // Status fetch failures reach Sentry Logs from the browser (#355).
+        logger.warn("Status board fetch failed", errorAttributes(error));
         if (alive) setState({ phase: "error" });
       }
       if (alive) setNow(Date.now());

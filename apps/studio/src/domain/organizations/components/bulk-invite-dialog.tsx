@@ -29,6 +29,7 @@ import {
   parseInviteEmails,
 } from "@/lib/invite-emails";
 import { isNotificationsEnabledOnClient } from "@/lib/notifications-enabled";
+import { captureEvent, STUDIO_EVENTS } from "@/lib/posthog";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/utils/trpc";
@@ -133,7 +134,14 @@ export function BulkInviteDialog({
       }
     }
     setPending(false);
-    if (sent > 0) onInvited?.();
+    if (sent > 0) {
+      captureEvent(STUDIO_EVENTS.membersInvited, {
+        count: sent,
+        role,
+        with_team: Boolean(teamId),
+      });
+      onInvited?.();
+    }
     const failures = Object.keys(nextFailed).length;
     if (failures === 0) {
       toast.success(

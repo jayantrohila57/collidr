@@ -135,9 +135,7 @@ function ReleaseItem({
             return (
               <Badge key={group.label} variant={tag.variant} size="sm">
                 {tag.label}
-                <span className="tabular-nums opacity-70">
-                  {group.items.length}
-                </span>
+                <span className="tabular-nums">{group.items.length}</span>
               </Badge>
             );
           })}

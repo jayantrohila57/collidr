@@ -1,6 +1,6 @@
-# Loftlancer
+<p align="center"><img src=".github/brand/readme-banner.png" alt="Loftlancer: Organizations, projects, environments and encrypted variables for your team and your agents." width="100%" /></p>
 
-![Loftlancer OG Image](https://loftlancer.com/opengraph-image.png)
+# Loftlancer
 
 **Loftlancer** is an environment and secrets manager for teams. Store and organize environment variables across **organizations**, **projects** and **environments** (dev, staging, production), with values encrypted at rest, role-based access, an audit timeline, notifications and soft deletes.
 
@@ -172,6 +172,24 @@ pnpm test
 ## Security
 
 See [SECURITY.md](./SECURITY.md).
+
+## Brand
+
+<img src=".github/brand/logo-lockup-on-light.png#gh-light-mode-only" alt="Loftlancer logo" height="56" /><img src=".github/brand/logo-lockup-on-dark.png#gh-dark-mode-only" alt="Loftlancer logo" height="56" />
+
+**Organizations, projects, environments and encrypted variables for your team and your agents.**
+
+Brand assets live in [`.github/brand`](.github/brand): logo mark (SVG and PNG), wordmark (SVG), light and dark lockups, app icons (512, 192 and 32 px), an Open Graph image (1200×630), a GitHub social preview (1280×640), this README banner, an X/LinkedIn banner (1500×500) and a palette sheet.
+
+| Role | Hex | Source |
+| --- | --- | --- |
+| Primary (light) | `#262626` | `--primary = neutral-800` |
+| Primary foreground | `#fafafa` | `--primary-foreground = neutral-50` |
+| Background (light) | `#ffffff` | `--background = white` |
+| Background (dark) | `#161616` | `--background (dark) = neutral-950 95% + white` |
+| Foreground (dark) | `#f5f5f5` | `--foreground (dark) = neutral-100` |
+
+Type: Inter (UI) and Geist Mono (code), from `packages/ui/src/lib/fonts.ts`.
 
 ## Sponsor
 

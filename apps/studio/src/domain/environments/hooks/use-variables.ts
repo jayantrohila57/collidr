@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { actionToast } from "@/lib/action-toast";
+import { captureEvent, STUDIO_EVENTS } from "@/lib/posthog";
 import { trpc } from "@/utils/trpc";
 
 type VariableOutput = {
@@ -84,6 +85,9 @@ export function useVariables(environmentId: string) {
 
         return { previousVariables };
       },
+      onSuccess: () => {
+        captureEvent(STUDIO_EVENTS.variableCreated);
+      },
       onError: (_err, _vars, context) => {
         if (context?.previousVariables) {
           queryClient.setQueryData(
@@ -137,6 +141,9 @@ export function useVariables(environmentId: string) {
         }
       },
       onSuccess: (_result, variables) => {
+        captureEvent(STUDIO_EVENTS.variableUpdated, {
+          value_changed: variables.value !== undefined,
+        });
         if (variables.value !== undefined) {
           queryClient.setQueryData(
             ["revealedValue", variables.id],
@@ -179,6 +186,9 @@ export function useVariables(environmentId: string) {
 
         return { previousVariables };
       },
+      onSuccess: () => {
+        captureEvent(STUDIO_EVENTS.variableDeleted);
+      },
       onError: (_err, _vars, context) => {
         if (context?.previousVariables) {
           queryClient.setQueryData(
@@ -194,6 +204,10 @@ export function useVariables(environmentId: string) {
     trpc.environmentVariables.createBatch.mutationOptions({
       meta: { skipGlobalErrorToast: true },
       onSuccess: async (_result, input) => {
+        captureEvent(STUDIO_EVENTS.variablesBatchCreated, {
+          count: input.variables.length,
+          environment_count: input.environmentIds.length,
+        });
         await Promise.all(
           input.environmentIds.map((id) =>
             queryClient.invalidateQueries({
@@ -246,6 +260,12 @@ export function useVariables(environmentId: string) {
         }
 
         return { previousVariables };
+      },
+      onSuccess: (_result, input) => {
+        captureEvent(STUDIO_EVENTS.variablesImported, {
+          count: input.variables.length,
+          overwrite: Boolean(input.overwrite),
+        });
       },
       onError: (_err, _vars, context) => {
         if (context?.previousVariables) {

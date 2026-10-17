@@ -9,10 +9,13 @@ import { ToastProvider } from "@loftlancer/ui/toast";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect, useState } from "react";
+import { PostHogUser } from "@/components/posthog-user";
+import { SentryUser } from "@/components/sentry-user";
 import {
   getClientErrorMessage,
   isBenignClientError,
 } from "@/lib/errors/client-errors";
+import { posthogKey } from "@/lib/posthog";
 import { toast } from "@/lib/toast";
 import { createTrpcClient, getQueryClient, TRPCProvider } from "@/utils/trpc";
 
@@ -51,6 +54,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               <SkipLink />
               <ImpersonationBanner />
               <OfflineBanner />
+              {/* Sentry stays off without a DSN (#339); skip the session hook too. */}
+              {process.env.NEXT_PUBLIC_SENTRY_DSN ? <SentryUser /> : null}
+              {/* PostHog stays off without a key (#353); skip the session hook too. */}
+              {posthogKey ? <PostHogUser /> : null}
               {children}
               <ReactQueryDevtools />
             </ToastProvider>

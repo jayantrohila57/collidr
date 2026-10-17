@@ -1,5 +1,6 @@
 "use client";
 
+import { LayersIcon } from "lucide-react";
 import type React from "react";
 import { createContext, type ReactNode, useContext } from "react";
 
@@ -44,9 +45,7 @@ export function Logo({
 }) {
   const content = (
     <>
-      <svg viewBox="0 0 24 24" aria-hidden className="size-4.5 fill-current">
-        <path d="M3 21V9l9-6 9 6v12h-6v-7H9v7H3z" />
-      </svg>
+      <LayersIcon aria-hidden className="size-4.5" />
       Loftlancer
     </>
   );
@@ -61,7 +60,8 @@ export function Logo({
         aria-label="Loftlancer home"
         className={cn(
           classes,
-          "rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          // 24px hit area (WCAG 2.5.8, #390) without moving the 18px wordmark.
+          "-my-0.75 min-h-6 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         )}
       >
         {content}

@@ -16,6 +16,27 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-10-17
+
+### Added
+
+- Studio product analytics in PostHog, after consent only: the signed-in user is identified by id (no email or name) with the active organization as a group, PostHog is reset on sign-out, and core events are captured for organization, project and environment creation, onboarding completion, member invites and variable create/update/delete/import. Event properties carry counts and enums only, never variable keys or values (#353)
+- Browser logs from auth, studio and docs are forwarded to Sentry Logs (#355)
+- Loftlancer brand kit in the README and `.github/brand/`, using the Lucide Layers mark (#393)
+- Issue forms, a pull request checklist and `docs/REVIEW_CHECKLIST.md` for contributors (#384)
+
+### Changed
+
+- Sentry browser SDKs in auth and studio set the signed-in user id and active org id (ids only) (#354)
+- Stale Collidr, "C" and Env Manager branding is replaced with the Lucide Layers mark (#394)
+
+### Fixed
+
+- Signed-out session-gate redirects in auth and studio send `Cache-Control: private, no-store` (#363)
+- Footer links and the logo link have 24px touch targets (#390)
+- Changelog badge and docs muted text meet 4.5:1 contrast, and the shared warning token moves to amber-800 (#391, #392)
+- Dark-mode muted text and the auth warning token have higher contrast (#396)
+
 ## [1.10.0] - 2026-10-17
 
 ### Added
@@ -424,7 +445,8 @@ The product is now Loftlancer.
 - Version management and commit workflow scripts
 - `SKIP_ENV_VALIDATION` option for builds
 
-[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.10.0...HEAD
+[Unreleased]: https://github.com/jayantrohila57/loftlancer/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.1...v1.10.0
 [1.9.1]: https://github.com/jayantrohila57/loftlancer/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/jayantrohila57/loftlancer/compare/v1.8.0...v1.9.0

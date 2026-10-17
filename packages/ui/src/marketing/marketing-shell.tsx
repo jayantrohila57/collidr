@@ -1,5 +1,6 @@
 "use client";
 
+import { LayersIcon } from "lucide-react";
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 
@@ -94,13 +95,9 @@ export function MarketingSiteHeader({
           href="/"
           className="flex min-w-0 items-center gap-2.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <img
-            src="/favicon/favicon.ico"
-            alt=""
-            className="size-8 shrink-0 rounded-lg border bg-background object-cover"
-            width={32}
-            height={32}
-          />
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <LayersIcon aria-hidden className="size-4" />
+          </span>
           <span className="truncate font-semibold text-sm tracking-tight">
             {marketingSiteConfig.name}
           </span>
