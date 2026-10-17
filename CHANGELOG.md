@@ -16,6 +16,10 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Fixed
+
+- Studio sidebar platform nav and org-scoped pages resolve loading from SSR-hydrated data without waiting for a second client bootstrap or user interaction; nav count badges reserve space while counts load (#63)
+
 ## [1.11.1] - 2026-10-17
 
 ### Fixed

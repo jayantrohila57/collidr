@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useActiveOrganization } from "@/components/org/active-organization-context";
+import { useOrgQueryEnabled } from "@/hooks/use-org-query-enabled";
 import { actionToast } from "@/lib/action-toast";
 import { captureEvent, STUDIO_EVENTS } from "@/lib/posthog";
 import { trpc } from "@/utils/trpc";
@@ -77,15 +78,8 @@ const PROJECTS_LOAD_TIMEOUT_MS = 20_000;
 export function useProjects() {
   const queryClient = useQueryClient();
   const [loadTimedOut, setLoadTimedOut] = useState(false);
-  const {
-    isSwitching,
-    enabled: orgsEnabled,
-    initialLoadDone,
-    activeOrganizationId,
-  } = useActiveOrganization();
-
-  const orgReady =
-    !orgsEnabled || (initialLoadDone && Boolean(activeOrganizationId));
+  const { isSwitching } = useActiveOrganization();
+  const queryEnabled = useOrgQueryEnabled();
 
   const projectsQuery = useQuery({
     ...trpc.projects.list.queryOptions(),
@@ -97,7 +91,7 @@ export function useProjects() {
     },
     retryDelay: (attempt) => Math.min(500 * 2 ** attempt, 4000),
     refetchOnWindowFocus: true,
-    enabled: !isSwitching && orgReady,
+    enabled: queryEnabled && !isSwitching,
   });
 
   useEffect(() => {
@@ -439,8 +433,10 @@ export function useProjects() {
     }),
   );
 
+  const hasCachedList = projectsQuery.data !== undefined;
+
   const status: "loading" | "error" | "empty" | "success" =
-    isSwitching || !orgReady
+    isSwitching || (!queryEnabled && !hasCachedList)
       ? "loading"
       : loadTimedOut
         ? "error"

@@ -84,7 +84,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     if (/^https?:/.test(href)) window.location.assign(href);
     else router.push(href as Route);
   };
-  const { isSwitching, initialLoadDone } = useActiveOrganization();
+  const { isSwitching } = useActiveOrganization();
   const { projects, status, refetch } = useProjects();
   const projectsLoading = isSwitching || status === "loading";
   const showOrgSwitcher = isOrganizationsEnabledOnClient();
@@ -97,8 +97,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const actionsAudit = isActionsAuditEnabledOnClient();
   const permissions = useCan("organization.list");
   const canTimeline = useCan("audit.timeline.view.org");
-  const platformNavLoading = actionsAudit && !initialLoadDone;
-
   const menuItems = platformNav
     .filter((item) => {
       if (item.key === "notifications") return notificationsEnabled;
@@ -168,44 +166,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="flex min-w-0 flex-col gap-1">
-              {platformNavLoading
-                ? (
-                    [
-                      "nav-skeleton-a",
-                      "nav-skeleton-b",
-                      "nav-skeleton-c",
-                      "nav-skeleton-d",
-                    ] as const
-                  ).map((skeletonKey) => (
-                    <SidebarMenuItem key={skeletonKey}>
-                      <SidebarMenuButton disabled className="opacity-60">
-                        <span className="size-4 rounded bg-muted" />
-                        <span className="h-4 w-24 rounded bg-muted" />
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))
-                : menuItems.map((item) => {
-                    const Icon = item.icon;
-                    const count = item.count;
-                    return (
-                      <SidebarMenuItem key={item.key} className="relative">
-                        <SidebarMenuButton
-                          isActive={isActive(item.href)}
-                          tooltip={item.label}
-                          render={<Link href={item.href} />}
-                        >
-                          <Icon />
-                          <span>{item.label}</span>
-                        </SidebarMenuButton>
-                        <NavCountBadge
-                          count={count}
-                          tone={
-                            item.key === "notifications" ? "alert" : "muted"
-                          }
-                        />
-                      </SidebarMenuItem>
-                    );
-                  })}
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const count = item.count;
+                const countLoading =
+                  item.key === "notifications"
+                    ? unreadNotifications.isPending
+                    : nav.loading;
+                return (
+                  <SidebarMenuItem key={item.key} className="relative">
+                    <SidebarMenuButton
+                      isActive={isActive(item.href)}
+                      tooltip={item.label}
+                      render={<Link href={item.href} />}
+                    >
+                      <Icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                    <NavCountBadge
+                      count={count}
+                      loading={countLoading}
+                      tone={item.key === "notifications" ? "alert" : "muted"}
+                    />
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
