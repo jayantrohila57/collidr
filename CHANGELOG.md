@@ -16,6 +16,10 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Fixed
+
+- Activity timeline: human-readable action labels, actor and project filters, and passive read/view events hidden by default with an opt-in toggle (#68)
+
 ## [1.11.1] - 2026-10-17
 
 ### Fixed

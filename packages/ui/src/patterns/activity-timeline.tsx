@@ -1,9 +1,12 @@
 "use client";
 
+import { formatActionLabel } from "@loftlancer/actions";
 import type { ComponentType, ReactNode } from "react";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
+import { Label } from "../components/ui/label";
 import { Skeleton } from "../components/ui/skeleton";
+import { Switch } from "../components/ui/switch";
 import {
   Tooltip,
   TooltipContent,
@@ -84,6 +87,9 @@ const PAST: Record<string, string> = {
   mark_read: "marked as read",
   leave: "left",
   switch: "switched",
+  read: "read",
+  view: "viewed",
+  list: "listed",
 };
 
 function words(s: string) {
@@ -106,8 +112,8 @@ export function auditRowToActivityItem(
   const verb = pastVerb
     ? category === "session"
       ? pastVerb
-      : `${pastVerb} ${noun}`
-    : words(row.action);
+      : `${pastVerb} ${noun}`.trim()
+    : formatActionLabel(row.action);
 
   let target: ActivityItem["target"] = null;
   if (row.projectSlug) {
@@ -333,6 +339,77 @@ function ActivityRow({
 
 export type ActivityFilterOption = { value: string; label: string };
 
+function mergeFilterOptions(
+  rows: AuditEventRow[],
+  seen: string[],
+  selected: string,
+  pick: (row: AuditEventRow) => string | null | undefined,
+  label: (value: string, row: AuditEventRow) => string,
+): ActivityFilterOption[] {
+  const byValue = new Map<string, string>();
+  for (const value of seen) {
+    const row = rows.find((r) => pick(r) === value);
+    if (row) byValue.set(value, label(value, row));
+  }
+  for (const row of rows) {
+    const value = pick(row);
+    if (!value) continue;
+    if (!byValue.has(value)) byValue.set(value, label(value, row));
+  }
+  if (selected && !byValue.has(selected)) {
+    const row = rows.find((r) => pick(r) === selected);
+    byValue.set(selected, row ? label(selected, row) : selected);
+  }
+  return [...byValue.entries()]
+    .sort((a, b) => a[1].localeCompare(b[1]))
+    .map(([value, lbl]) => ({ value, label: lbl }));
+}
+
+export function auditActionFilterOptions(
+  rows: AuditEventRow[],
+  seen: string[],
+  selected: string,
+): ActivityFilterOption[] {
+  const codes = mergeFilterOptions(
+    rows,
+    seen,
+    selected,
+    (r) => r.action,
+    (value) => formatActionLabel(value),
+  );
+  return codes;
+}
+
+export function auditActorFilterOptions(
+  rows: AuditEventRow[],
+  seen: string[],
+  selected: string,
+): ActivityFilterOption[] {
+  return mergeFilterOptions(
+    rows,
+    seen,
+    selected,
+    (r) => r.actorUserId,
+    (_value, row) =>
+      row.actorName ?? row.actorEmail ?? row.actorUserId ?? "Unknown user",
+  );
+}
+
+export function auditProjectFilterOptions(
+  rows: AuditEventRow[],
+  seen: string[],
+  selected: string,
+): ActivityFilterOption[] {
+  return mergeFilterOptions(
+    rows,
+    seen,
+    selected,
+    (r) => r.projectId,
+    (_value, row) =>
+      row.projectName ?? row.projectSlug ?? row.projectId ?? "Project",
+  );
+}
+
 const ALL = "__all";
 const RESULT_OPTIONS = [
   { value: ALL, label: "All results" },
@@ -348,6 +425,14 @@ export function ActivityTimeline({
   actionOptions,
   action,
   onActionChange,
+  actorOptions,
+  actor,
+  onActorChange,
+  projectOptions,
+  project,
+  onProjectChange,
+  includePassive,
+  onIncludePassiveChange,
   result,
   onResultChange,
   hasMore,
@@ -368,6 +453,15 @@ export function ActivityTimeline({
   actionOptions: ActivityFilterOption[];
   action: string;
   onActionChange: (value: string) => void;
+  actorOptions?: ActivityFilterOption[];
+  actor?: string;
+  onActorChange?: (value: string) => void;
+  projectOptions?: ActivityFilterOption[];
+  project?: string;
+  onProjectChange?: (value: string) => void;
+  /** When set, shows a toggle to include passive read/view audit events. */
+  includePassive?: boolean;
+  onIncludePassiveChange?: (value: boolean) => void;
   result: ActivityResult | "";
   onResultChange: (value: ActivityResult | "") => void;
   hasMore?: boolean;
@@ -391,6 +485,26 @@ export function ActivityTimeline({
         searchPlaceholder="Search actions…"
         options={[{ value: ALL, label: "All actions" }, ...actionOptions]}
       />
+      {actorOptions && onActorChange ? (
+        <SearchableCombobox
+          ariaLabel="Filter by actor"
+          className="w-40"
+          value={actor || ALL}
+          onChange={(v) => onActorChange(v === ALL ? "" : v)}
+          searchPlaceholder="Search people…"
+          options={[{ value: ALL, label: "All actors" }, ...actorOptions]}
+        />
+      ) : null}
+      {projectOptions && onProjectChange ? (
+        <SearchableCombobox
+          ariaLabel="Filter by project"
+          className="w-40"
+          value={project || ALL}
+          onChange={(v) => onProjectChange(v === ALL ? "" : v)}
+          searchPlaceholder="Search projects…"
+          options={[{ value: ALL, label: "All projects" }, ...projectOptions]}
+        />
+      ) : null}
       <SearchableCombobox
         ariaLabel="Filter by result"
         className="w-36"
@@ -399,6 +513,21 @@ export function ActivityTimeline({
         searchPlaceholder="Search results…"
         options={RESULT_OPTIONS}
       />
+      {onIncludePassiveChange ? (
+        <div className="flex items-center gap-2 rounded-md border px-3 py-1.5">
+          <Switch
+            id="activity-include-passive"
+            checked={includePassive ?? false}
+            onCheckedChange={onIncludePassiveChange}
+          />
+          <Label
+            htmlFor="activity-include-passive"
+            className="text-muted-foreground text-xs"
+          >
+            Show views & reads
+          </Label>
+        </div>
+      ) : null}
       {toolbar}
     </div>
   );
