@@ -17,12 +17,10 @@ export function usePermissionsSnapshot(projectId?: string) {
 }
 
 export function useCan(action: ActionName, options?: { projectId?: string }) {
-  const { data, isPending, isFetching } = usePermissionsSnapshot(
-    options?.projectId,
-  );
+  const { data, isPending } = usePermissionsSnapshot(options?.projectId);
   const allowed = data?.actions?.[action] === true;
   const reason = allowed ? undefined : "denied";
-  const isLoading = isPending || isFetching;
+  const isLoading = isPending && data === undefined;
   return { allowed, reason, isLoading };
 }
 
