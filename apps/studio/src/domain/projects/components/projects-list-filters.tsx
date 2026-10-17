@@ -1,6 +1,7 @@
 "use client";
 
 import type { ProjectOutput } from "@loftlancer/api/types";
+import { layoutGapClass } from "@loftlancer/ui/layout-spacing";
 import { DataTableClearFiltersButton } from "@/components/data-table/data-table-clear-filters-button";
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
 import { DataTableFilterSelect } from "@/components/data-table/data-table-filter-select";
@@ -10,7 +11,6 @@ import {
   PROJECTS_VISIBILITY_FACET_OPTIONS,
   projectsFacetOptionsWithIcons,
 } from "@/components/data-table/facet-options/projects-facet-options";
-import { layoutGapClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 import {
   countProjectsByStatus,

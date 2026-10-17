@@ -2,11 +2,11 @@
 
 import { Badge } from "@loftlancer/ui/badge";
 import { Button } from "@loftlancer/ui/button";
+import { DataTable } from "@loftlancer/ui/data-table/data-table";
+import { DataTableActionsColumnHeader } from "@loftlancer/ui/data-table/data-table-actions-column";
 import { ConfirmDialog } from "@loftlancer/ui/patterns/confirm-dialog";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DataTable } from "@/components/data-table/data-table";
-import { DataTableActionsColumnHeader } from "@/components/data-table/data-table-actions-column";
 import { variablesTableEmpty } from "@/components/data-table/data-table-empty-presets";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { AppIcon } from "@/components/patterns/app-icon";

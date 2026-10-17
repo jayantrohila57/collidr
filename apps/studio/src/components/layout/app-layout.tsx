@@ -1,9 +1,9 @@
-import type { ReactNode } from "react";
 import {
   layoutContentClass,
   layoutSectionStackClass,
   layoutToolbarClass,
-} from "@/lib/layout-spacing";
+} from "@loftlancer/ui/layout-spacing";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export type { PageHeaderBackProp } from "@/components/layout/page-header";
@@ -53,4 +53,4 @@ export function PageToolbar({
   return <div className={cn(layoutToolbarClass, className)}>{children}</div>;
 }
 
-export { layoutFormStackClass } from "@/lib/layout-spacing";
+export { layoutFormStackClass } from "@loftlancer/ui/layout-spacing";

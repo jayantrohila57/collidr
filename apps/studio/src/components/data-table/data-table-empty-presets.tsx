@@ -1,7 +1,7 @@
 import { Button } from "@loftlancer/ui/button";
+import type { DataTableEmptyConfig } from "@loftlancer/ui/data-table/data-table-empty-types";
 import type { ReactNode } from "react";
 import { appIcons } from "@/lib/icons";
-import type { DataTableEmptyConfig } from "./data-table-empty-types";
 
 export function noResultsWithClearSearch(
   onClear: () => void,

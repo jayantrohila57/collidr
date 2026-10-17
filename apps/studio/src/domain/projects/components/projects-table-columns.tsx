@@ -3,6 +3,8 @@
 import type { ProjectOutput } from "@loftlancer/api/types";
 import { Avatar, AvatarFallback } from "@loftlancer/ui/avatar";
 import { Button } from "@loftlancer/ui/button";
+import type { DataTableColumnDef } from "@loftlancer/ui/data-table/data-table";
+import { DataTableActionsColumnHeader } from "@loftlancer/ui/data-table/data-table-actions-column";
 import {
   Tooltip,
   TooltipContent,
@@ -11,8 +13,6 @@ import {
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import type { Route } from "next";
 import Link from "next/link";
-import type { DataTableColumnDef } from "@/components/data-table/data-table";
-import { DataTableActionsColumnHeader } from "@/components/data-table/data-table-actions-column";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { AppIcon } from "@/components/patterns/app-icon";
 import { StatusBadge } from "@/components/patterns/status-badge";

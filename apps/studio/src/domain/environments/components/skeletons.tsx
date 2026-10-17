@@ -7,10 +7,10 @@ import {
   CardPanel,
   CardTitle,
 } from "@loftlancer/ui/card";
+import { DataTable } from "@loftlancer/ui/data-table/data-table";
 import { Skeleton } from "@loftlancer/ui/skeleton";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import type { ReactNode } from "react";
-import { DataTable } from "@/components/data-table/data-table";
 
 type VariableSkeletonRow = { id: string };
 

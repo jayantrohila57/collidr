@@ -2,10 +2,10 @@
 
 import { Badge } from "@loftlancer/ui/badge";
 import { Button } from "@loftlancer/ui/button";
+import type { DataTableColumnDef } from "@loftlancer/ui/data-table/data-table";
+import { DataTable } from "@loftlancer/ui/data-table/data-table";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import type { DataTableColumnDef } from "@/components/data-table/data-table";
-import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import DashboardSection from "@/components/section-dashboard";
 import { routes } from "@/utils/navigation";

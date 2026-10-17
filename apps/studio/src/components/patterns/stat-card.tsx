@@ -5,13 +5,13 @@ import {
   CardPanel,
   CardTitle,
 } from "@loftlancer/ui/card";
+import { layoutGapClass } from "@loftlancer/ui/layout-spacing";
 import { Skeleton } from "@loftlancer/ui/skeleton";
 import type { Route } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { AppIcon } from "@/components/patterns/app-icon";
 import type { AppIconName } from "@/lib/icons";
-import { layoutGapClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 
 export type StatCardItem = {

@@ -1,5 +1,6 @@
 "use client";
 
+import { layoutFormStackClass } from "@loftlancer/ui/layout-spacing";
 import { ScrollArea } from "@loftlancer/ui/scroll-area";
 import { SheetFooter, SheetHeader, SheetPopup } from "@loftlancer/ui/sheet";
 import type { ComponentProps, FormHTMLAttributes, ReactNode } from "react";
@@ -7,7 +8,6 @@ import {
   GuardedSheet,
   type GuardedSheetProps,
 } from "@/components/patterns/guarded-sheet";
-import { layoutFormStackClass } from "@/lib/layout-spacing";
 import { cn } from "@/lib/utils";
 
 /** Matches coss `SheetPanel` padding (aligned with header/footer `px-6`). */

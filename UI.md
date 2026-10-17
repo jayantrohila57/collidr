@@ -185,7 +185,7 @@ All components must follow:
 
 ### 8.1 UI Constraints
 
-* **DO NOT modify `apps/web/src/components/ui/`** except via the documented shadcn/coss CLI workflow
+* **DO NOT modify `packages/ui/src/components/ui/`** (`@loftlancer/ui/<name>`) except via the documented shadcn/coss CLI workflow
 * Use only coss/shadcn variants and tokens from [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md) (`layout-spacing.ts`, `PageStack`, `FormSheet`, etc.)
 
 ### 8.2 Spacing Rules

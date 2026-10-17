@@ -1,11 +1,11 @@
 "use client";
 
 import { Button } from "@loftlancer/ui/button";
+import { DataTable } from "@loftlancer/ui/data-table/data-table";
+import type { DataTableEmptyConfig } from "@loftlancer/ui/data-table/data-table-empty-types";
 import { legacyCreateColumnHelper } from "@tanstack/react-table/legacy";
 import type { ReactNode } from "react";
-import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import type { DataTableEmptyConfig } from "@/components/data-table/data-table-empty-types";
 import { AppIcon } from "@/components/patterns/app-icon";
 import {
   AuditActionBadge,
@@ -58,7 +58,7 @@ export function AuditLogTableView({
   filterActive = false,
   empty,
 }: AuditLogTableViewProps) {
-  const columns: import("@/components/data-table/data-table").DataTableColumnDef<AuditLog>[] =
+  const columns: import("@loftlancer/ui/data-table/data-table").DataTableColumnDef<AuditLog>[] =
     [
       columnHelper.accessor("createdAt", {
         header: ({ column }) => (

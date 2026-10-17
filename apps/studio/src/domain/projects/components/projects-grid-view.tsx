@@ -2,7 +2,7 @@
 
 import type { ProjectOutput } from "@loftlancer/api/types";
 import { Frame } from "@loftlancer/ui/frame";
-import { layoutGapClass } from "@/lib/layout-spacing";
+import { layoutGapClass } from "@loftlancer/ui/layout-spacing";
 import { cn } from "@/lib/utils";
 import { ProjectCard } from "./project-card";
 
