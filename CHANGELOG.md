@@ -16,6 +16,16 @@ requests. See [docs/RELEASING.md](./docs/RELEASING.md) for the release procedure
 
 ## [Unreleased]
 
+### Added
+
+- Health endpoints for uptime monitors: `/api/health` (docs), `/auth/api/health` and `/studio/api/health` return the app name, version and, for auth and studio, a database check. They are never cached or indexed (#356)
+- Server logs from every app go to Sentry Logs through a shared `@loftlancer/logger`, as one JSON line each in the Vercel runtime logs (#355)
+
+### Changed
+
+- Sentry events carry the product version as their release and, on signed-in server requests, the user id and active org id (ids only) (#354)
+- Favicons and social images on the public site are cached in the browser for a day (#363)
+
 ## [1.9.1] - 2026-10-17
 
 ### Fixed

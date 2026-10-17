@@ -1,15 +1,23 @@
+import { configureLogger } from "@loftlancer/logger";
+import { createSentrySink } from "@loftlancer/logger/sentry";
 import * as Sentry from "@sentry/nextjs";
 
 // Sentry stays off until SENTRY_DSN exists (#339).
 export async function register() {
+  const release = `loftlancer@${process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0"}`;
+  configureLogger({ context: { app: "docs", release } });
   const dsn = process.env.SENTRY_DSN ?? process.env.NEXT_PUBLIC_SENTRY_DSN;
   if (!dsn) return;
   Sentry.init({
     dsn,
+    release,
     environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV,
     initialScope: { tags: { app: "docs" } },
     tracesSampleRate: 0.1,
   });
+  // Server logs from @loftlancer/logger land in Sentry Logs (#355); the
+  // SDK (v11) sends logs by default, so no extra init option is needed.
+  configureLogger({ sink: createSentrySink(Sentry) });
 }
 
 export const onRequestError = Sentry.captureRequestError;

@@ -1,0 +1,22 @@
+{
+  "name": "@loftlancer/logger",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./sentry": {
+      "default": "./src/sentry.ts"
+    }
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "test": "node --import tsx --test src/index.test.ts"
+  },
+  "devDependencies": {
+    "@loftlancer/config": "workspace:*",
+    "@types/node": "^26.6.5",
+    "typescript": "catalog:",
+    "tsx": "^4.23.15"
+  }
+}

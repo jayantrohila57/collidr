@@ -1,4 +1,5 @@
 import { env } from "@loftlancer/env/server";
+import { logger } from "@loftlancer/logger";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
@@ -42,7 +43,7 @@ function createPool(): Pool {
   });
   // A broken idle client must not crash the function (unhandled 'error').
   pool.on("error", (error) => {
-    console.error("[db] idle client error", error.message);
+    logger.error("db idle client error", error);
   });
   return pool;
 }

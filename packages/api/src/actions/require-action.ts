@@ -9,6 +9,7 @@ import {
 } from "@loftlancer/actions";
 import { activeMemberWhere, db } from "@loftlancer/db";
 import { member } from "@loftlancer/db/schema/organization";
+import { logger } from "@loftlancer/logger";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { isAppInstalled } from "../apps/installed";
@@ -187,7 +188,7 @@ export async function requireAction(
           payload: ctx.payload,
         });
       } catch (auditErr) {
-        console.error("audit_event write failed", auditErr);
+        logger.exception("audit_event write failed", auditErr);
       }
     }
   }

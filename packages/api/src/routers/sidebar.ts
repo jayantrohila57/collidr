@@ -15,6 +15,7 @@ import {
 import { projectPin } from "@loftlancer/db/schema/project-pin";
 import { environment, project } from "@loftlancer/db/schema/projects";
 import { isOrganizationsEnabled } from "@loftlancer/env/organizations";
+import { logger } from "@loftlancer/logger";
 import { TRPCError } from "@trpc/server";
 import { and, asc, count, eq, gt, inArray, isNull } from "drizzle-orm";
 import { z } from "zod/v3";
@@ -155,7 +156,8 @@ export const sidebarRouter = router({
             .orderBy(asc(projectPin.createdAt))
             .then((r) => r.map((x) => x.projectId))
             .catch((err) => {
-              if (!isMissingTable(err)) console.error("[sidebar] pins", err);
+              if (!isMissingTable(err))
+                logger.error("sidebar pins query failed", err);
               return [] as string[];
             }),
           countOrgProjects(userId, organizationId).catch(() => 0),
