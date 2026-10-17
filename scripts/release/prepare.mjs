@@ -39,9 +39,15 @@ updated = updated.replace(
 );
 writeFileSync(CHANGELOG_PATH, updated);
 
-const pkg = JSON.parse(readFileSync(PACKAGE_PATH, "utf8"));
+const pkgSource = readFileSync(PACKAGE_PATH, "utf8");
+const pkg = JSON.parse(pkgSource);
+// Keep the file's line endings (Biome formats with CRLF).
+const eol = pkgSource.includes("\r\n") ? "\r\n" : "\n";
 pkg.version = next;
-writeFileSync(PACKAGE_PATH, `${JSON.stringify(pkg, null, 2)}\n`);
+writeFileSync(
+  PACKAGE_PATH,
+  `${JSON.stringify(pkg, null, 2).replace(/\n/g, eol)}${eol}`,
+);
 
 console.log(`Version ${current} -> ${next}. Review CHANGELOG.md, then commit:`);
 console.log(`  git commit -am "chore(release): v${next}"`);
