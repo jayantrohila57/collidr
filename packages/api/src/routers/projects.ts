@@ -1,5 +1,6 @@
 import {
   activeEnvironmentWhere,
+  activeProjectWhere,
   db,
   softDeleteProjectById,
 } from "@loftlancer/db";
@@ -51,7 +52,10 @@ async function listProjectEnvironments(projectId: string) {
     .orderBy(environment.name);
 }
 
-import { attachProjectToOrganization } from "../org-access";
+import {
+  assertProjectAccess,
+  attachProjectToOrganization,
+} from "../org-access";
 import { projectReadWhere } from "../project-list";
 import { assertUniqueProjectName } from "../project-name";
 import {
@@ -103,9 +107,11 @@ export const projectsRouter = router({
       ),
     )
     .query(async ({ ctx, input }) => {
+      const organizationId = ctx.activeOrganizationId ?? null;
+      await assertProjectAccess(ctx.session.user.id, input.id, organizationId);
       const readScope = await projectReadWhere(
         ctx.session.user.id,
-        ctx.activeOrganizationId,
+        organizationId,
       );
       const projectData = await db
         .select({
@@ -174,9 +180,38 @@ export const projectsRouter = router({
       ),
     )
     .query(async ({ ctx, input }) => {
+      const organizationId = ctx.activeOrganizationId ?? null;
+      const slugScope = organizationId
+        ? and(
+            eq(project.slug, input.slug),
+            eq(project.organizationId, organizationId),
+          )
+        : eq(project.slug, input.slug);
+      const [slugRow] = await db
+        .select({ id: project.id })
+        .from(project)
+        .where(activeProjectWhere(slugScope))
+        .limit(1);
+
+      if (!slugRow) {
+        return respond({
+          message: "Project not found",
+          data: {
+            project: null,
+            environments: [],
+          },
+        });
+      }
+
+      await assertProjectAccess(
+        ctx.session.user.id,
+        slugRow.id,
+        organizationId,
+      );
+
       const readScope = await projectReadWhere(
         ctx.session.user.id,
-        ctx.activeOrganizationId,
+        organizationId,
       );
       const projectData = await db
         .select({
@@ -296,16 +331,15 @@ export const projectsRouter = router({
     .use(actionGuard("project.update", projectIdFromInput))
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
+      const organizationId = ctx.activeOrganizationId ?? null;
+      await assertProjectAccess(ctx.session.user.id, input.id, organizationId);
       const existingProject = await db
         .select()
         .from(project)
         .where(
           and(
             eq(project.id, input.id),
-            await projectReadWhere(
-              ctx.session.user.id,
-              ctx.activeOrganizationId,
-            ),
+            await projectReadWhere(ctx.session.user.id, organizationId),
           ),
         )
         .limit(1);
@@ -379,16 +413,15 @@ export const projectsRouter = router({
     .use(actionGuard("project.delete", projectIdFromInput))
     .output(makeResponseSchema(z.object({ success: z.boolean() })))
     .mutation(async ({ ctx, input }) => {
+      const organizationId = ctx.activeOrganizationId ?? null;
+      await assertProjectAccess(ctx.session.user.id, input.id, organizationId);
       const existingProject = await db
         .select()
         .from(project)
         .where(
           and(
             eq(project.id, input.id),
-            await projectReadWhere(
-              ctx.session.user.id,
-              ctx.activeOrganizationId,
-            ),
+            await projectReadWhere(ctx.session.user.id, organizationId),
           ),
         )
         .limit(1);
@@ -422,16 +455,15 @@ export const projectsRouter = router({
     .use(actionGuard("project.archive", projectIdFromInput))
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
+      const organizationId = ctx.activeOrganizationId ?? null;
+      await assertProjectAccess(ctx.session.user.id, input.id, organizationId);
       const existingProject = await db
         .select()
         .from(project)
         .where(
           and(
             eq(project.id, input.id),
-            await projectReadWhere(
-              ctx.session.user.id,
-              ctx.activeOrganizationId,
-            ),
+            await projectReadWhere(ctx.session.user.id, organizationId),
           ),
         )
         .limit(1);
@@ -465,16 +497,15 @@ export const projectsRouter = router({
     .use(actionGuard("project.unarchive", projectIdFromInput))
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
+      const organizationId = ctx.activeOrganizationId ?? null;
+      await assertProjectAccess(ctx.session.user.id, input.id, organizationId);
       const existingProject = await db
         .select()
         .from(project)
         .where(
           and(
             eq(project.id, input.id),
-            await projectReadWhere(
-              ctx.session.user.id,
-              ctx.activeOrganizationId,
-            ),
+            await projectReadWhere(ctx.session.user.id, organizationId),
           ),
         )
         .limit(1);
@@ -511,16 +542,15 @@ export const projectsRouter = router({
     .use(actionGuard("project.status.change", projectIdFromInput))
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
+      const organizationId = ctx.activeOrganizationId ?? null;
+      await assertProjectAccess(ctx.session.user.id, input.id, organizationId);
       const existingProject = await db
         .select()
         .from(project)
         .where(
           and(
             eq(project.id, input.id),
-            await projectReadWhere(
-              ctx.session.user.id,
-              ctx.activeOrganizationId,
-            ),
+            await projectReadWhere(ctx.session.user.id, organizationId),
           ),
         )
         .limit(1);
@@ -557,16 +587,15 @@ export const projectsRouter = router({
     .use(actionGuard("project.public.toggle", projectIdFromInput))
     .output(makeResponseSchema(projectOutput))
     .mutation(async ({ ctx, input }) => {
+      const organizationId = ctx.activeOrganizationId ?? null;
+      await assertProjectAccess(ctx.session.user.id, input.id, organizationId);
       const existingProject = await db
         .select()
         .from(project)
         .where(
           and(
             eq(project.id, input.id),
-            await projectReadWhere(
-              ctx.session.user.id,
-              ctx.activeOrganizationId,
-            ),
+            await projectReadWhere(ctx.session.user.id, organizationId),
           ),
         )
         .limit(1);

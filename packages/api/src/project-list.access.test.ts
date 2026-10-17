@@ -76,7 +76,7 @@ describe("project list RBAC (project.read)", () => {
     assert.equal(withoutGrant.allowed, false);
   });
 
-  it("denies users with no org role", () => {
+  it("denies outsiders (no org role)", () => {
     const decision = evaluatePermission({
       action: "project.read",
       orgRole: null,
@@ -117,6 +117,14 @@ describe("project list/detail scope alignment (#26)", () => {
     )?.[0];
     assert.ok(getBlock, "expected get procedure before getBySlug");
     assert.match(getBlock, /projectReadWhere/);
+    assert.match(getBlock, /assertProjectAccess/);
     assert.doesNotMatch(getBlock, /projectListFilter\(/);
+
+    const mutationBlock = projectsRouterSource.match(
+      /update:\s*orgProcedure[\s\S]*$/,
+    )?.[0];
+    assert.ok(mutationBlock, "expected update+ mutation procedures");
+    assert.match(mutationBlock, /assertProjectAccess/);
+    assert.match(mutationBlock, /projectReadWhere/);
   });
 });
