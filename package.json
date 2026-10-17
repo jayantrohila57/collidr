@@ -1,6 +1,6 @@
 {
   "name": "loftlancer",
-  "version": "1.11.1",
+  "version": "1.12.0",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -24,6 +24,7 @@
     "format": "biome format --write .",
     "lint": "biome lint .",
     "lint:ci": "biome ci --error-on-warnings .",
+    "a11y": "turbo -F docs a11y",
     "check-routes": "bash scripts/check-route-literals.sh",
     "fix": "biome check --write --unsafe .",
     "prepare": "husky",

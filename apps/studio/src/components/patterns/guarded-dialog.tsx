@@ -4,7 +4,7 @@ import { Dialog } from "@loftlancer/ui/dialog";
 import { useUnsavedChangesGuard } from "@loftlancer/ui/hooks/use-unsaved-changes-guard";
 import { DiscardChangesDialog } from "@loftlancer/ui/patterns/discard-changes-dialog";
 import type { ComponentProps, ReactNode, RefObject } from "react";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { FormSheetGuardProvider } from "@/components/patterns/form-sheet-guard-context";
 
 export type GuardedDialogProps = ComponentProps<typeof Dialog> & {
@@ -39,9 +39,17 @@ export function GuardedDialog({
     };
   }, [closeWithoutPromptRef, guard.allowNextCloseWithoutPrompt]);
 
+  const requestClose = useCallback(() => {
+    guard.handleOpenChange(false, (applied) => {
+      (onOpenChange as ((open: boolean) => void) | undefined)?.(applied);
+      if (!applied) onClosed?.();
+    });
+  }, [guard.handleOpenChange, onClosed, onOpenChange]);
+
   return (
     <FormSheetGuardProvider
       allowNextCloseWithoutPrompt={guard.allowNextCloseWithoutPrompt}
+      requestClose={requestClose}
     >
       <Dialog
         open={open}

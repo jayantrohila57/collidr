@@ -1,4 +1,5 @@
-import { dbPurgeDeps, purgeExpiredApps } from "@loftlancer/api/apps/purge";
+import { purgeExpiredApps } from "@loftlancer/api/apps/purge";
+import { dbPurgeDeps } from "@loftlancer/api/apps/purge-db";
 import { logger } from "@loftlancer/logger";
 import { NextResponse } from "next/server";
 
